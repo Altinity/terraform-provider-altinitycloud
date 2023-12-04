@@ -1,4 +1,4 @@
-# terraform-provider-altinitycloud [![build](https://github.com/Altinity/terraform-provider-altinitycloud/actions/workflows/test.yml/badge.svg)](https://github.com/Altinity/terraform-provider-altinitycloud/actions/workflows/test.yml) [![documentation](https://img.shields.io/badge/-documentation-blue)](https://registry.terraform.io/providers/altinity/altinitycloud/latest/docs)
+# terraform-provider-altinitycloud [![documentation](https://img.shields.io/badge/-documentation-blue)](https://registry.terraform.io/providers/altinity/altinitycloud/latest/docs)
  
 Terraform provider for [Altinity.Cloud](https://altinity.cloud/).
 
