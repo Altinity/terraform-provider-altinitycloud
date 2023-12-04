@@ -1,0 +1,44 @@
+---
+layout: ""
+page_title: "Provider: altinitycloud"
+description: |-
+  The Altinity.Cloud provider.
+---
+
+# Altinity.Cloud Provider
+
+The Terraform provider for [Altinity.Cloud](https://altinity.cloud/).  
+
+## Authentication
+
+To use this provider you'll need to obtain Altinity.Cloud API Token:
+
+1. Log in to [ACM](https://acm.altinity.cloud/).
+2. Go to "My Account", "Anywhere API Access" tab.
+3. Click "GENERATE KEY".
+
+> Make sure to copy your token. You won't be able to see it again.
+
+## Configuration
+
+{{tffile "examples/provider/provider.tf"}}
+
+{{ .SchemaMarkdown | trimspace }}
+
+## Environment Management
+
+There are 2 types of environments supported by [Altinity.Cloud Anywhere](https://altinity.cloud/):
+- BYOC: Bring Your Own Cloud,
+  where you connect your AWS/GCP/Azure account/project to Altinity.Cloud & everything (networking stack, compute, etc)
+  is provisioned/managed inside your cloud account/project.
+- BYOK: Bring Your Own Kubernetes,
+  where you connect a Kubernetes cluster. Altinity.Cloud manages the ClickHouse clusters, while you manage the rest.
+
+See
+
+- [`altinitycloud_env_aws` resource examples](resources/env_aws#example-usage)   
+  on how to create Bring Your Own Cloud (BYOC) AWS environment.
+- [`altinitycloud_env_gcp` resource examples](resources/env_gcp#example-usage)  
+  on how to create Bring Your Own Cloud (BYOC) GCP environment.
+- [`altinitycloud_env_k8s` resource examples](resources/env_gcp#example-usage)  
+  on how to create Bring Your Own Kubernetes (BYOK) environment.

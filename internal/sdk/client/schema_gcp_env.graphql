@@ -1,0 +1,80 @@
+query GetGCPEnv($name: String!) {
+  gcpEnv(name: $name) {
+    name
+    spec {
+      ...GCPEnvSpecFragment
+    }
+    specRevision
+  }
+}
+
+query GetGCPEnvStatus($name: String!) {
+  gcpEnv(name: $name) {
+    name
+    specRevision
+    status {
+      appliedSpecRevision
+      pendingDelete
+    }
+  }
+}
+
+mutation CreateGCPEnv($input: CreateGCPEnvInput!) {
+  createGCPEnv(input: $input) {
+    mutationId
+    spec {
+      ...GCPEnvSpecFragment
+    }
+    specRevision
+  }
+}
+
+mutation UpdateGCPEnv($input: UpdateGCPEnvInput!) {
+  updateGCPEnv(input: $input) {
+    mutationId
+    spec {
+      ...GCPEnvSpecFragment
+    }
+    specRevision
+  }
+}
+
+mutation DeleteGCPEnv($input: DeleteGCPEnvInput!) {
+  deleteGCPEnv(input: $input) {
+    mutationId
+  }
+}
+
+fragment GCPEnvSpecFragment on GCPEnvSpec {
+  loadBalancers {
+    public {
+      enabled
+      sourceIPRanges
+    }
+    internal {
+      enabled
+      sourceIPRanges
+    }
+  }
+  loadBalancingStrategy
+  customDomain
+  nodeGroups {
+    name
+    nodeType
+    capacityPerZone
+    zones
+    reservations
+  }
+  maintenanceWindows {
+    name
+    enabled
+    hour
+    lengthInHours
+    days
+  }
+  region
+  zones
+  cidr
+  gcpProjectId
+  cloudConnect
+}

@@ -1,0 +1,17 @@
+model:
+  package: client
+  filename: ./model_gen.go
+client:
+  package: client
+  filename: ./client_gen.go
+models:
+  ID:
+    model: github.com/99designs/gqlgen/graphql.ID
+  Int:
+    model: github.com/99designs/gqlgen/graphql.Int64
+schema:
+  - "../../../../cloud/internal/cloud/graphql/public/*.graphqls"
+query:
+   - "./*.graphql"
+generate:
+  clientV2: true

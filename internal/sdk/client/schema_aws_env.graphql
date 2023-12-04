@@ -1,0 +1,105 @@
+query GetAWSEnv($name: String!) {
+  awsEnv(name: $name) {
+    name
+    spec {
+      ...AWSEnvSpecFragment
+    }
+    specRevision
+  }
+}
+
+query GetAWSEnvStatus($name: String!) {
+  awsEnv(name: $name) {
+    name
+    specRevision
+    status {
+      appliedSpecRevision
+      pendingDelete
+      loadBalancers {
+        internal {
+          endpointServiceName
+        }
+      }
+      peeringConnections {
+        id
+        vpcID
+      }
+    }
+  }
+}
+
+mutation CreateAWSEnv($input: CreateAWSEnvInput!) {
+  createAWSEnv(input: $input) {
+    mutationId
+    spec {
+      ...AWSEnvSpecFragment
+    }
+    specRevision
+  }
+}
+
+mutation UpdateAWSEnv($input: UpdateAWSEnvInput!) {
+  updateAWSEnv(input: $input) {
+    mutationId
+    spec {
+      ...AWSEnvSpecFragment
+    }
+    specRevision
+  }
+}
+
+mutation DeleteAWSEnv($input: DeleteAWSEnvInput!) {
+  deleteAWSEnv(input: $input) {
+    mutationId
+  }
+}
+
+fragment AWSEnvSpecFragment on AWSEnvSpec {
+  loadBalancers {
+    public {
+      enabled
+      sourceIPRanges
+      crossZone
+    }
+    internal {
+      enabled
+      sourceIPRanges
+      crossZone
+      endpointServiceAllowedPrincipals
+    }
+  }
+  loadBalancingStrategy
+  customDomain
+  nodeGroups {
+    name
+    nodeType
+    zones
+    capacityPerZone
+    reservations
+  }
+  maintenanceWindows {
+    name
+    enabled
+    hour
+    lengthInHours
+    days
+  }
+  region
+  zones
+  cidr
+  awsAccountID
+  peeringConnections {
+    awsAccountID
+    vpcID
+    vpcRegion
+  }
+  endpoints {
+    serviceName
+    alias
+  }
+  tags {
+    key
+    value
+  }
+  cloudConnect,
+}

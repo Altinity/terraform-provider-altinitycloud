@@ -1,0 +1,113 @@
+query GetK8SEnv($name: String!) {
+  k8sEnv(name: $name) {
+    name
+    spec {
+      ...K8SEnvSpecFragment
+    }
+    specRevision
+  }
+}
+
+query GetK8SEnvStatus($name: String!) {
+  k8sEnv(name: $name) {
+    name
+    specRevision
+    status {
+      appliedSpecRevision
+      pendingDelete
+    }
+  }
+}
+
+mutation CreateK8SEnv($input: CreateK8SEnvInput!) {
+  createK8SEnv(input: $input) {
+    mutationId
+    spec {
+      ...K8SEnvSpecFragment
+    }
+    specRevision
+  }
+}
+
+mutation UpdateK8SEnv($input: UpdateK8SEnvInput!) {
+  updateK8SEnv(input: $input) {
+    mutationId
+    spec {
+      ...K8SEnvSpecFragment
+    }
+    specRevision
+  }
+}
+
+mutation DeleteK8SEnv($input: DeleteK8SEnvInput!) {
+  deleteK8SEnv(input: $input) {
+    mutationId
+  }
+}
+
+fragment K8SEnvSpecFragment on K8SEnvSpec {
+  loadBalancers {
+    public {
+      enabled
+      sourceIPRanges
+      annotations {
+        key
+        value
+      }
+    }
+    internal {
+      enabled
+      sourceIPRanges
+      annotations {
+        key
+        value
+      }
+    }
+  }
+  loadBalancingStrategy
+  distribution
+  customDomain
+  nodeGroups {
+    name
+    nodeType
+    capacityPerZone
+    selector {
+      key
+      value
+    }
+    tolerations {
+      effect
+      operator
+      key
+      value
+    }
+    reservations
+    zones
+  }
+  customNodeTypes {
+    name
+    cpuAllocatable
+    memAllocatableInBytes
+  }
+  maintenanceWindows {
+    name
+    enabled
+    hour
+    lengthInHours
+    days
+  }
+  metrics {
+    retentionPeriodInDays
+  }
+  logs {
+    storage {
+      s3 {
+        bucketName
+        region
+      }
+      gcs {
+        bucketName
+      }
+    }
+  }
+}
