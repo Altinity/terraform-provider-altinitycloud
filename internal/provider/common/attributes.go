@@ -271,7 +271,7 @@ var NameAttribute = rschema.StringAttribute{
 
 var SourceIPRangesAttribute = rschema.ListAttribute{
 	ElementType:         types.StringType,
-	Required:            true,
+	Optional:            true,
 	MarkdownDescription: SOURCE_IP_RANGES_DESCRIPTION,
 	Validators: []validator.List{
 		listvalidator.SizeAtLeast(1),
