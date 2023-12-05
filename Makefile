@@ -38,8 +38,7 @@ local: build
 	cd ${LOCAL_DIRECTOY} && TF_LOG=TRACE terraform init -upgrade
 
 .PHONY: gen
-tools:
-	go generate -tags tools tools/tools.go
+gen: docs
 
 .PHONY: docs
 docs:

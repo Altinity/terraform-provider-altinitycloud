@@ -10,7 +10,7 @@ models:
   Int:
     model: github.com/99designs/gqlgen/graphql.Int64
 schema:
-  - "../../../../cloud/internal/cloud/graphql/public/*.graphqls"
+  - https://anywhere.dev.altinity.cloud/api/v1/graphql.schema
 query:
    - "./*.graphql"
 generate:
