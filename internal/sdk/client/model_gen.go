@@ -293,10 +293,7 @@ type AWSEnvSpec struct {
 }
 
 // AWS environment status.
-// AWSEnvStatus may include stale data while "matchingSpec" is false.
 type AWSEnvStatus struct {
-	// True if environment is in sync with the spec, false otherwise.
-	MatchingSpec bool `json:"matchingSpec"`
 	// Applied spec revision (monotonically-increasing).
 	AppliedSpecRevision int64 `json:"appliedSpecRevision"`
 	// Status of load balancers.
@@ -817,10 +814,7 @@ type GCPEnvSpec struct {
 }
 
 // GCP environment status.
-// GCPEnvStatus may include stale data while "matchingSpec" is false.
 type GCPEnvStatus struct {
-	// True if environment is in sync with the spec, false otherwise.
-	MatchingSpec bool `json:"matchingSpec"`
 	// Applied spec revision (monotonically-increasing).
 	AppliedSpecRevision int64 `json:"appliedSpecRevision"`
 	// True indicates that environment is pending deletion.
@@ -1099,10 +1093,7 @@ type K8SEnvSpecLogsStorageSpecInput struct {
 }
 
 // Kubernetes environment status.
-// K8SEnvStatus may include stale data while "matchingSpec" is false.
 type K8SEnvStatus struct {
-	// True if environment is in sync with the spec, false otherwise.
-	MatchingSpec bool `json:"matchingSpec"`
 	// Applied spec revision (monotonically-increasing).
 	AppliedSpecRevision int64 `json:"appliedSpecRevision"`
 	// True indicates that environment is pending deletion.

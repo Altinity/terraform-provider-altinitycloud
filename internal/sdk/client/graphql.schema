@@ -1,0 +1,2208 @@
+extend type Query {
+  """
+  List AWS environments.
+  """
+  awsEnvs(filter: AWSEnvFilter): [AWSEnv!]!
+  """
+  Look up AWS environment.
+  This query returns null when the environment is not found.
+  """
+  awsEnv(name: String!): AWSEnv
+}
+
+"""
+AWS environment.
+"""
+type AWSEnv {
+  """
+  A globally-unique environment identifier.
+  """
+  name: String!
+  """
+  Environment spec.
+  """
+  spec: AWSEnvSpec!
+  """
+  Spec revision (monotonically-increasing).
+  """
+  specRevision: Int!
+  """
+  Environment status.
+  """
+  status: AWSEnvStatus!
+}
+
+"""
+AWS environment configuration.
+"""
+type AWSEnvSpec {
+  """
+  ID of the AWS account (https://docs.aws.amazon.com/IAM/latest/UserGuide/console_account-alias.html#ViewYourAWSId)
+  in which to provision AWS resources.
+
+  Immutable.
+  """
+  awsAccountID: String!
+  """
+  VPC CIDR block from the private IPv4 address ranges as specified in RFC 1918
+  (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16).
+
+  At least /21 required.
+
+  Examples: "10.136.0.0/21"
+
+  Immutable.
+  """
+  cidr: String!
+  """
+  AWS region (https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.RegionsAndAvailabilityZones.html#Concepts.RegionsAndAvailabilityZones.Regions).
+
+  Example: "us-east-1"
+
+  Immutable.
+  """
+  region: String!
+  """
+  Explicit list of AWS availability zones.
+  At least 2 required.
+
+  Example: ["us-east-1a", "us-east-1b"]
+  """
+  zones: [String!]!
+  """
+  Load balancers configuration.
+  """
+  loadBalancers: AWSEnvLoadBalancersSpec!
+  """
+  Load balancing strategy.
+  """
+  loadBalancingStrategy: LoadBalancingStrategy!
+  """
+  List of node groups.
+  At least one required.
+  """
+  nodeGroups: [AWSEnvNodeGroupSpec!]!
+  """
+  List of maintenance windows during which automatic maintenance is permitted.
+  By default updates are applied as soon as they are available.
+  """
+  maintenanceWindows: [MaintenanceWindowSpec!]!
+  """
+  Custom domain.
+
+  Examples:
+  - "example.com"
+  - "foo.bar.com"
+
+  Before specifying custom domain, please create the following DNS records:
+  - CNAME _acme-challenge.example.com. $env_name.altinity.cloud.
+  - (optional, public load balancer)
+    CNAME *.example.com. _.$env_name.altinity.cloud.
+  - (optional, internal load balancer)
+    CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
+  - (optional, vpce)
+    CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
+  """
+  customDomain: String
+  """
+  VPC peering configuration.
+  """
+  peeringConnections: [AWSEnvPeeringConnectionSpec!]!
+  """
+  VPC endpoints configuration.
+  """
+  endpoints: [AWSEnvEndpointSpec!]!
+  """
+  Tags to apply to AWS resources.
+  """
+  tags: [KeyValue!]!
+  """
+  True indicates that cloud resources are to be managed via altinity/cloud-connect.
+  False means direct management.
+  """
+  cloudConnect: Boolean!
+}
+
+"""
+AWS environment load balancers configuration.
+"""
+type AWSEnvLoadBalancersSpec {
+  """
+  Public load balancer configuration.
+
+  Accessible via *.$env_name.altinity.cloud.
+  """
+  public: AWSEnvLoadBalancerPublicSpec!
+  """
+  Internal load balancer configuration.
+
+  Accessible via *.internal.$env_name.altinity.cloud.
+  """
+  internal: AWSEnvLoadBalancerInternalSpec!
+}
+
+"""
+AWS environment public load balancer configuration.
+"""
+type AWSEnvLoadBalancerPublicSpec {
+  """
+  True if load balancer is enabled,
+  false otherwise.
+  """
+  enabled: Boolean!
+  """
+  IP addresses/blocks to allow traffic from.
+
+  0.0.0.0/0 by default.
+  """
+  sourceIPRanges: [String!]!
+  """
+  True indicates that traffic should be distributed across all specified availability zones,
+  false otherwise.
+
+  True by default.
+  """
+  crossZone: Boolean!
+}
+
+"""
+AWS environment internal load balancer configuration.
+"""
+type AWSEnvLoadBalancerInternalSpec {
+  """
+  True if load balancer is enabled,
+  false otherwise.
+  """
+  enabled: Boolean!
+  """
+  IP addresses/blocks to allow traffic from.
+
+  0.0.0.0/0 by default.
+  """
+  sourceIPRanges: [String!]!
+  """
+  True indicates that traffic should be distributed across all specified availability zones,
+  false otherwise.
+
+  True by default.
+  """
+  crossZone: Boolean!
+  """
+  ARNs for AWS principals that are allowed to create VPC endpoints.
+
+  Examples:
+  - arn:aws:iam::$account_id:root
+  """
+  endpointServiceAllowedPrincipals: [String!]!
+}
+
+"""
+AWS environment node group configuration.
+"""
+type AWSEnvNodeGroupSpec {
+  """
+  Unique (among environment node groups) node group identifier.
+  """
+  name: String!
+  """
+  Instance type (https://aws.amazon.com/ec2/instance-types/).
+
+  Example: "t4g.large"
+  """
+  nodeType: String!
+  """
+  Availability zones.
+  """
+  zones: [String!]!
+  """
+  Maximum number of instances per availability zone.
+  """
+  capacityPerZone: Int!
+  """
+  Types of workload that are allowed to be scheduled onto the nodes that belong to this group.
+  """
+  reservations: [NodeReservation!]!
+}
+
+"""
+AWS environment VPC peering configuration.
+"""
+type AWSEnvPeeringConnectionSpec {
+  """
+  Target VPC ID.
+  """
+  vpcID: String!
+  """
+  Target VPC region.
+
+  Defaults to environment region.
+  """
+  vpcRegion: String
+  """
+  Target VPC AWS account ID.
+
+  Defaults to environment AWS account ID.
+  """
+  awsAccountID: String
+}
+
+"""
+AWS environment VPC endpoint configuration.
+"""
+type AWSEnvEndpointSpec {
+  """
+  VPC endpoint service name in $endpoint_service_id.$region.vpce.amazonaws.com format.
+  """
+  serviceName: String!
+  """
+  By default, VPC endpoints get assigned $endpoint_service_id.$env_name.altinity.cloud DNS record.
+  Alias allows to override DNS record name to $alias.$env_name.altinity.cloud.
+  """
+  alias: String
+}
+
+"""
+AWS environment status.
+"""
+type AWSEnvStatus {
+  """
+  Applied spec revision (monotonically-increasing).
+  """
+  appliedSpecRevision: Int!
+  """
+  Status of load balancers.
+  """
+  loadBalancers: AWSEnvLoadBalancersStatus!
+  """
+  Status of peering connections.
+  """
+  peeringConnections: [AWSEnvPeeringConnectionStatus!]!
+  """
+  True indicates that environment is pending deletion.
+  """
+  pendingDelete: Boolean!
+}
+
+"""
+AWS environment load balancers status.
+"""
+type AWSEnvLoadBalancersStatus {
+  """
+  Status of internal load balancer.
+  """
+  internal: AWSEnvLoadBalancerInternalStatus!
+}
+
+"""
+AWS environment internal load balancer status.
+"""
+type AWSEnvLoadBalancerInternalStatus {
+  """
+  VPC endpoint service name in $endpoint_service_id.$region.vpce.amazonaws.com format (if any).
+  """
+  endpointServiceName: String
+}
+
+type AWSEnvPeeringConnectionStatus {
+  """
+  Connection ID.
+  """
+  id: String
+  """
+  Target VPC ID.
+  """
+  vpcID: String!
+}
+
+"""
+AWS environments query filter.
+"""
+input AWSEnvFilter {
+  """
+  Names of the environments to return.
+  Names that don't match any of the existing environments are ignored.
+  """
+  names: [String!]
+}
+extend type Mutation {
+  """
+  Create AWS environment record.
+
+  Possible error codes:
+  - "CONFLICT" if environment name is already taken.
+  """
+  createAWSEnv(input: CreateAWSEnvInput!): CreateAWSEnvResult!
+}
+
+"""
+AWS environment create request input.
+"""
+input CreateAWSEnvInput {
+  """
+  A globally-unique environment identifier.
+
+  Immutable.
+  """
+  name: String!
+  """
+  Environment spec.
+  """
+  spec: CreateAWSEnvSpecInput!
+}
+
+"""
+AWS environment configuration create request input.
+"""
+input CreateAWSEnvSpecInput {
+  """
+  ID of the AWS account (https://docs.aws.amazon.com/IAM/latest/UserGuide/console_account-alias.html#ViewYourAWSId)
+  in which to provision AWS resources.
+
+  Immutable.
+  """
+  awsAccountID: String!
+  """
+  VPC CIDR block from the private IPv4 address ranges as specified in RFC 1918
+  (10/8, 172.16/12, 192.168/16).
+
+  At least /21 required.
+
+  Example: "10.136.0.0/21"
+
+  Immutable.
+  """
+  cidr: String!
+  """
+  AWS region (https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.RegionsAndAvailabilityZones.html#Concepts.RegionsAndAvailabilityZones.Regions).
+
+  Example: "us-east-1"
+
+  Immutable.
+  """
+  region: String!
+  """
+  Number of AWS availability zones.
+  At least 2 required.
+
+  This field is optional if "zones" is specified.
+  """
+  numberOfZones: Int
+  """
+  Explicit list of AWS availability zones.
+  At least 2 required.
+
+  Example: ["us-east-1a", "us-east-1b"]
+
+  This field is optional if "numberOfZones" is specified.
+  """
+  zones: [String!]
+  """
+  Load balancers configuration.
+  """
+  loadBalancers: AWSEnvLoadBalancersSpecInput
+  """
+  Load balancing strategy.
+  ZONE_BEST_EFFORT by default.
+  """
+  loadBalancingStrategy: LoadBalancingStrategy
+  """
+  List of node groups.
+  At least one required.
+  """
+  nodeGroups: [AWSEnvNodeGroupSpecInput!]!
+  """
+  List of maintenance windows during which automatic maintenance is permitted.
+  By default updates are applied as soon as they are available.
+  """
+  maintenanceWindows: [MaintenanceWindowSpecInput!]
+  """
+  Custom domain.
+
+  Examples:
+  - "example.com"
+  - "foo.bar.com"
+
+  Before specifying custom domain, please create the following DNS records:
+  - CNAME _acme-challenge.example.com. $env_name.altinity.cloud.
+  - (optional, public load balancer)
+  CNAME *.example.com. _.$env_name.altinity.cloud.
+  - (optional, internal load balancer)
+  CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
+  - (optional, vpce)
+  CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
+  """
+  customDomain: String
+  """
+  VPC peering configuration.
+  """
+  peeringConnections: [AWSEnvPeeringConnectionSpecInput!]
+  """
+  VPC endpoints configuration.
+  """
+  endpoints: [AWSEnvEndpointSpecInput!]
+  """
+  Tags to apply to AWS resources.
+  """
+  tags: [KeyValueInput!]
+  """
+  True indicates that cloud resources are to be managed via altinity/cloud-connect.
+  False means direct management (default).
+
+  Immutable.
+  """
+  cloudConnect: Boolean
+}
+
+"""
+AWS environment load balancers configuration input.
+"""
+input AWSEnvLoadBalancersSpecInput {
+  """
+  Public load balancer configuration.
+
+  Accessible via *.$env_name.altinity.cloud.
+  """
+  public: AWSEnvLoadBalancerPublicSpecInput
+  """
+  Internal load balancer configuration.
+
+  Accessible via *.internal.$env_name.altinity.cloud.
+  """
+  internal: AWSEnvLoadBalancerInternalSpecInput
+}
+
+"""
+AWS environment public load balancer configuration input.
+"""
+input AWSEnvLoadBalancerPublicSpecInput {
+  """
+  True if load balancer is enabled,
+  false otherwise.
+
+  False by default.
+  """
+  enabled: Boolean
+  """
+  IP addresses/blocks to allow traffic from.
+
+  0.0.0.0/0 by default.
+  """
+  sourceIPRanges: [String!]
+  """
+  True indicates that traffic should be distributed across all specified availability zones,
+  false otherwise.
+
+  True by default.
+  """
+  crossZone: Boolean
+}
+
+"""
+AWS environment internal load balancer configuration input.
+"""
+input AWSEnvLoadBalancerInternalSpecInput {
+  """
+  True if load balancer is enabled,
+  false otherwise.
+
+  False by default.
+  """
+  enabled: Boolean
+  """
+  IP addresses/blocks to allow traffic from.
+
+  0.0.0.0/0 by default.
+  """
+  sourceIPRanges: [String!]
+  """
+  True indicates that traffic should be distributed across all specified availability zones,
+  false otherwise.
+
+  True by default.
+  """
+  crossZone: Boolean
+  """
+  ARNs for AWS principals that are allowed to create VPC endpoints.
+
+  Examples:
+  - arn:aws:iam::$account_id:root
+  """
+  endpointServiceAllowedPrincipals: [String!]
+}
+
+"""
+AWS environment node group configuration input.
+"""
+input AWSEnvNodeGroupSpecInput {
+  """
+  Unique (among environment node groups) node group identifier.
+
+  Defaults to $nodeType.
+  """
+  name: String
+  """
+  Instance type (https://aws.amazon.com/ec2/instance-types/).
+  """
+  nodeType: String!
+  """
+  Availability zones.
+
+  Defaults to environment zones.
+  """
+  zones: [String!]
+  """
+  Maximum number of instances per availability zone.
+  """
+  capacityPerZone: Int!
+  """
+  Types of workloads this group is reserved for.
+  Defaults to all.
+  """
+  reservations: [NodeReservation!]
+}
+
+"""
+AWS environment VPC peering configuration input.
+"""
+input AWSEnvPeeringConnectionSpecInput {
+  """
+  Target VPC ID.
+  """
+  vpcID: String!
+  """
+  Target VPC region.
+
+  Defaults to environment region.
+  """
+  vpcRegion: String
+  """
+  Target VPC AWS account ID.
+
+  Defaults to environment AWS account ID.
+  """
+  awsAccountID: String
+}
+
+"""
+AWS environment VPC endpoint configuration input.
+"""
+input AWSEnvEndpointSpecInput {
+  """
+  VPC endpoint service name (in $endpoint_service_id.$region.vpce.amazonaws.com format).
+  """
+  serviceName: String!
+  """
+  By default, VPC endpoints get assigned $endpoint_service_id.$env_name.altinity.cloud DNS record.
+  Alias allows to override DNS record name to $alias.$env_name.altinity.cloud.
+  """
+  alias: String
+}
+
+"""
+AWS environment create request result.
+"""
+type CreateAWSEnvResult {
+  """
+  Mutation unique identifier.
+  """
+  mutationId: ID!
+  """
+  AWS environment active configuration.
+  """
+  spec: AWSEnvSpec!
+  """
+  Spec revision (monotonically-increasing).
+  """
+  specRevision: Int!
+}
+extend type Mutation {
+  """
+  Marks AWS environment for removal (if exists; noop otherwise).
+
+  This triggers env deprovisioning which deletes all the data (except for backups),
+  as well as all provisioned AWS resources.
+  """
+  deleteAWSEnv(input: DeleteAWSEnvInput!): DeleteAWSEnvResult!
+}
+
+"""
+AWS environment delete request input.
+"""
+input DeleteAWSEnvInput {
+  """
+  The name of AWS environment to delete.
+  """
+  name: String!
+  """
+  By default, delete mutation does not delete the env but rather marks it to be
+  removed once it's deprovisioned (which may take some time).
+  Set "force" to true to skip deprovisioning.
+  """
+  force: Boolean = false
+}
+
+"""
+AWS environment delete request result.
+"""
+type DeleteAWSEnvResult {
+  """
+  Mutation unique identifier.
+  """
+  mutationId: ID!
+}
+extend type Mutation {
+  """
+  Update AWS environment record.
+  """
+  updateAWSEnv(input: UpdateAWSEnvInput!): UpdateAWSEnvResult!
+}
+
+"""
+AWS environment update request input.
+"""
+input UpdateAWSEnvInput {
+  """
+  Environment name.
+  """
+  name: String!
+  """
+  Environment spec.
+  """
+  spec: AWSEnvUpdateSpecInput!
+  """
+  Environment spec update strategy.
+  MERGE by default.
+  """
+  updateStrategy: UpdateStrategy
+}
+
+"""
+AWS environment configuration update request input.
+"""
+input AWSEnvUpdateSpecInput {
+  """
+  Number of AWS availability zones.
+  At least 2 required (if specified).
+  """
+  numberOfZones: Int
+  """
+  Explicit list of AWS availability zones.
+  At least 2 required (if specified).
+
+  Example: ["us-east-1a", "us-east-1b"]
+  """
+  zones: [String!]
+  """
+  Load balancers configuration.
+  """
+  loadBalancers: AWSEnvLoadBalancersSpecInput
+  """
+  Load balancing strategy.
+  """
+  loadBalancingStrategy: LoadBalancingStrategy
+  """
+  List of node groups.
+  """
+  nodeGroups: [AWSEnvNodeGroupSpecInput!]
+  """
+  List of maintenance windows during which automatic maintenance is permitted.
+  By default updates are applied as soon as they are available.
+  """
+  maintenanceWindows: [MaintenanceWindowSpecInput!]
+  """
+  Custom domain.
+
+  Examples:
+  - "example.com"
+  - "foo.bar.com"
+
+  Before specifying custom domain, please create the following DNS records:
+  - CNAME _acme-challenge.example.com. $env_name.altinity.cloud.
+  - (optional, public load balancer)
+  CNAME *.example.com. _.$env_name.altinity.cloud.
+  - (optional, internal load balancer)
+  CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
+  - (optional, vpce)
+  CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
+  """
+  customDomain: String
+  """
+  VPC peering configuration.
+  """
+  peeringConnections: [AWSEnvPeeringConnectionSpecInput!]
+  """
+  VPC endpoints configuration.
+  """
+  endpoints: [AWSEnvEndpointSpecInput!]
+  """
+  Tags to apply to AWS resources.
+  """
+  tags: [KeyValueInput!]
+}
+
+"""
+AWS environment update request result.
+"""
+type UpdateAWSEnvResult {
+  """
+  Mutation unique identifier.
+  """
+  mutationId: ID!
+  """
+  AWS environment active configuration.
+  """
+  spec: AWSEnvSpec!
+  """
+  Spec revision (monotonically-increasing).
+  """
+  specRevision: Int!
+}
+"""
+Update strategy.
+"""
+enum UpdateStrategy {
+  """
+  Merge objects & replace lists.
+  """
+  MERGE
+  """
+  Replace all.
+  """
+  REPLACE
+}
+
+"""
+Load balancing strategy.
+"""
+enum LoadBalancingStrategy {
+  """
+  Keep the traffic within the same zone.
+  """
+  ZONE_BEST_EFFORT
+  """
+  Load balance traffic across all zones in round-robin fashion.
+  """
+  ROUND_ROBIN
+}
+
+"""
+Node reservation.
+"""
+enum NodeReservation {
+  """
+  Reservation for infrastructure/support services.
+  """
+  SYSTEM
+  """
+  Reservation for ClickHouse.
+  """
+  CLICKHOUSE
+  """
+  Reservation for ZooKeeper.
+  """
+  ZOOKEEPER
+}
+
+type NodeToleration {
+  """
+  Taint key, e.g. "dedicated".
+  """
+  key: String!
+  operator: NodeTolerationOperator!
+  """
+  Taint value, e.g. "clickhouse"
+  """
+  value: String!
+  """
+  Taint effect to match.
+  """
+  effect: NodeTolerationEffect!
+}
+
+"""
+Node toleration operator used to match taints.
+"""
+enum NodeTolerationOperator {
+  EQUAL
+  EXISTS
+}
+
+"""
+Node taint effect.
+"""
+enum NodeTolerationEffect {
+  NO_SCHEDULE
+  PREFER_NO_SCHEDULE
+  NO_EXECUTE
+}
+
+type KeyValue {
+  key: String!
+  value: String!
+}
+
+input KeyValueInput {
+  key: String!
+  value: String!
+}
+
+"""
+Maintenance window configuration.
+"""
+type MaintenanceWindowSpec {
+  """
+  Maintenance window identifier.
+  """
+  name: String!
+  """
+  True if maintenance window is enabled,
+  false otherwise.
+  """
+  enabled: Boolean!
+  """
+  Hour of the day in [0, 23] range.
+  """
+  hour: Int!
+  """
+  Maintenance window length in hours. 4h min, 24h max.
+  """
+  lengthInHours: Int!
+  """
+  Days on which maintenance can take place.
+  At least one day is required.
+  """
+  days: [Day!]!
+}
+
+"""
+Maintenance window configuration input.
+"""
+input MaintenanceWindowSpecInput {
+  """
+  Maintenance window identifier.
+  """
+  name: String!
+  """
+  True if maintenance window is enabled,
+  false otherwise.
+
+  True by default.
+  """
+  enabled: Boolean
+  """
+  Hour of the day in [0, 23] range.
+  """
+  hour: Int!
+  """
+  Maintenance window length in hours. 4h min, 24h max.
+  """
+  lengthInHours: Int!
+  """
+  Days on which maintenance can take place.
+  At least one day is required.
+  """
+  days: [Day!]!
+}
+
+"""
+Day of the week.
+"""
+enum Day {
+  SUNDAY
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+}
+extend type Query {
+  """
+  List GCP environments.
+  """
+  gcpEnvs(filter: GCPEnvFilter): [GCPEnv!]!
+  """
+  Look up GCP environment.
+  This query returns null when the environment is not found.
+  """
+  gcpEnv(name: String!): GCPEnv
+}
+
+"""
+GCP environment.
+"""
+type GCPEnv {
+  """
+  A globally-unique environment identifier.
+  """
+  name: String!
+  """
+  Environment spec.
+  """
+  spec: GCPEnvSpec!
+  """
+  Spec revision (monotonically-increasing).
+  """
+  specRevision: Int!
+  """
+  Environment status.
+  """
+  status: GCPEnvStatus!
+}
+
+"""
+GCP environment configuration.
+"""
+type GCPEnvSpec {
+  """
+  ID of the GCP project (https://support.google.com/googleapi/answer/7014113?hl=en#:~:text=The%20project%20ID%20is%20a,ID%20or%20create%20your%20own.)
+  in which to provision GCP resources.
+
+  Immutable.
+  """
+  gcpProjectId: String!
+  """
+  Network CIDR block from the private IPv4 address ranges as specified in RFC 1918
+  (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16).
+
+  At least /21 required.
+
+  Examples: "10.136.0.0/21"
+
+  Immutable.
+  """
+  cidr: String!
+  """
+  GCP region (https://cloud.google.com/about/locations).
+
+  Example: "us-west1".
+
+  Immutable.
+  """
+  region: String!
+  """
+  Explicit list of GCP zones.
+  At least 2 required.
+
+  Example: ["us-west1a", "us-west1b"]
+  """
+  zones: [String!]!
+  """
+  Load balancers configuration.
+  """
+  loadBalancers: GCPEnvLoadBalancersSpec!
+  """
+  Load balancing strategy.
+  """
+  loadBalancingStrategy: LoadBalancingStrategy!
+  """
+  List of node groups.
+  At least one required.
+  """
+  nodeGroups: [GCPEnvNodeGroupSpec!]!
+  """
+  List of maintenance windows during which automatic maintenance is permitted.
+  By default updates are applied as soon as they are available.
+  """
+  maintenanceWindows: [MaintenanceWindowSpec!]!
+  """
+  Custom domain.
+
+  Examples:
+  - "example.com"
+  - "foo.bar.com"
+
+  Before specifying custom domain, please create the following DNS records:
+  - CNAME _acme-challenge.example.com. $env_name.altinity.cloud.
+  - (optional, public load balancer)
+  CNAME *.example.com. _.$env_name.altinity.cloud.
+  - (optional, internal load balancer)
+  CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
+  - (optional, vpce)
+  CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
+  """
+  customDomain: String
+  """
+  True indicates that cloud resources are to be managed via altinity/cloud-connect.
+  False means direct management.
+  """
+  cloudConnect: Boolean!
+}
+
+"""
+GCP environment load balancers configuration.
+"""
+type GCPEnvLoadBalancersSpec {
+  """
+  Public load balancer configuration.
+
+  Accessible via *.$env_name.altinity.cloud.
+  """
+  public: GCPEnvLoadBalancerPublicSpec!
+  """
+  Internal load balancer configuration.
+
+  Accessible via *.internal.$env_name.altinity.cloud.
+  """
+  internal: GCPEnvLoadBalancerInternalSpec!
+}
+
+"""
+GCP environment public load balancer configuration.
+"""
+type GCPEnvLoadBalancerPublicSpec {
+  """
+  True if load balancer is enabled,
+  false otherwise.
+  """
+  enabled: Boolean!
+  """
+  IP addresses/blocks to allow traffic from.
+
+  0.0.0.0/0 by default.
+  """
+  sourceIPRanges: [String!]!
+}
+
+"""
+GCP environment internal load balancer configuration.
+"""
+type GCPEnvLoadBalancerInternalSpec {
+  """
+  True if load balancer is enabled,
+  false otherwise.
+  """
+  enabled: Boolean!
+  """
+  IP addresses/blocks to allow traffic from.
+
+  0.0.0.0/0 by default.
+  """
+  sourceIPRanges: [String!]!
+}
+
+type GCPEnvNodeGroupSpec {
+  """
+  Unique (among environment node groups) node group identifier.
+  """
+  name: String!
+  """
+  Machine type (https://cloud.google.com/compute/docs/machine-resource).
+
+  Example: "e2-standard-2"
+  """
+  nodeType: String!
+  """
+  GCP zones.
+  """
+  zones: [String!]!
+  """
+  Maximum number of instances per zone.
+  """
+  capacityPerZone: Int!
+  """
+  Types of workloads that are allowed to be scheduled onto the nodes that belong to this group.
+  """
+  reservations: [NodeReservation!]!
+}
+
+"""
+GCP environment status.
+"""
+type GCPEnvStatus {
+  """
+  Applied spec revision (monotonically-increasing).
+  """
+  appliedSpecRevision: Int!
+  """
+  True indicates that environment is pending deletion.
+  """
+  pendingDelete: Boolean!
+}
+
+"""
+GCP environments query filter.
+"""
+input GCPEnvFilter {
+  """
+  Names of the environments to return.
+  Names that don't match any of the existing environments are ignored.
+  """
+  names: [String!]
+}
+extend type Mutation {
+  """
+  Create GCP environment record.
+
+  Possible error codes:
+  - "CONFLICT" if environment name is already taken.
+  """
+  createGCPEnv(input: CreateGCPEnvInput!): CreateGCPEnvResult!
+}
+
+"""
+GCP environment create request input.
+"""
+input CreateGCPEnvInput {
+  """
+  A globally-unique environment identifier.
+
+  Immutable.
+  """
+  name: String!
+  """
+  Environment spec.
+  """
+  spec: CreateGCPEnvSpecInput!
+}
+
+"""
+GCP environment configuration create request input.
+"""
+input CreateGCPEnvSpecInput {
+  """
+  ID of the GCP project (https://support.google.com/googleapi/answer/7014113?hl=en#:~:text=The%20project%20ID%20is%20a,ID%20or%20create%20your%20own.)
+  in which to provision GCP resources.
+
+  Immutable.
+  """
+  gcpProjectId: String!
+  """
+  Network CIDR block from the private IPv4 address ranges as specified in RFC 1918
+  (10/8, 172.16/12, 192.168/16).
+
+  At least /21 required.
+
+  Example: "10.136.0.0/21"
+
+  Immutable.
+  """
+  cidr: String!
+  """
+  GCP region (https://cloud.google.com/about/locations).
+
+  Example: "us-west1".
+
+  Immutable.
+  """
+  region: String!
+  """
+  Number of GCP zones.
+  At least 2 required.
+
+  This field is optional if "zones" is specified.
+  """
+  numberOfZones: Int
+  """
+  Explicit list of GCP zones.
+  At least 2 required.
+
+  Example: ["us-west1a", "us-west1b"]
+  """
+  zones: [String!]
+  """
+  Load balancers configuration.
+  """
+  loadBalancers: GCPEnvLoadBalancersSpecInput
+  """
+  Load balancing strategy.
+  ZONE_BEST_EFFORT by default.
+  """
+  loadBalancingStrategy: LoadBalancingStrategy
+  """
+  List of node groups.
+  At least one required.
+  """
+  nodeGroups: [GCPEnvNodeGroupSpecInput!]!
+  """
+  List of maintenance windows during which automatic maintenance is permitted.
+  By default updates are applied as soon as they are available.
+  """
+  maintenanceWindows: [MaintenanceWindowSpecInput!]
+  """
+  Custom domain.
+
+  Examples:
+  - "example.com"
+  - "foo.bar.com"
+
+  Before specifying custom domain, please create the following DNS records:
+  - CNAME _acme-challenge.example.com. $env_name.altinity.cloud.
+  - (optional, public load balancer)
+  CNAME *.example.com. _.$env_name.altinity.cloud.
+  - (optional, internal load balancer)
+  CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
+  - (optional, vpce)
+  CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
+  """
+  customDomain: String
+  """
+  True indicates that cloud resources are to be managed via altinity/cloud-connect.
+  False means direct management (default).
+
+  Immutable.
+  """
+  cloudConnect: Boolean
+}
+
+"""
+GCP environment load balancers configuration input.
+"""
+input GCPEnvLoadBalancersSpecInput {
+  """
+  Public load balancer configuration.
+
+  Accessible via *.$env_name.altinity.cloud.
+  """
+  public: GCPEnvLoadBalancerPublicSpecInput
+  """
+  Internal load balancer configuration.
+
+  Accessible via *.internal.$env_name.altinity.cloud.
+  """
+  internal: GCPEnvLoadBalancerInternalSpecInput
+}
+
+input GCPEnvLoadBalancerPublicSpecInput {
+  """
+  True if load balancer is enabled,
+  false otherwise.
+
+  False by default.
+  """
+  enabled: Boolean
+  """
+  IP addresses/blocks to allow traffic from.
+
+  0.0.0.0/0 by default.
+  """
+  sourceIPRanges: [String!]
+}
+
+input GCPEnvLoadBalancerInternalSpecInput {
+  """
+  True if load balancer is enabled,
+  false otherwise.
+
+  False by default.
+  """
+  enabled: Boolean
+  """
+  IP addresses/blocks to allow traffic from.
+
+  0.0.0.0/0 by default.
+  """
+  sourceIPRanges: [String!]
+}
+
+"""
+GCP environment node group configuration input.
+"""
+input GCPEnvNodeGroupSpecInput {
+  """
+  Unique (among environment node groups) node group identifier.
+
+  Defaults to $nodeType.
+  """
+  name: String
+  """
+  Machine type (https://cloud.google.com/compute/docs/machine-resource).
+
+  Example: "e2-standard-2"
+  """
+  nodeType: String!
+  """
+  GCP zones.
+
+  Defaults to environment zones.
+  """
+  zones: [String!]
+  """
+  Maximum number of instances per zone.
+  """
+  capacityPerZone: Int!
+  """
+  Types of workloads that are allowed to be scheduled onto the nodes that belong to this group.
+  """
+  reservations: [NodeReservation!]
+}
+
+"""
+GCP environment create request result.
+"""
+type CreateGCPEnvResult {
+  """
+  Mutation unique identifier.
+  """
+  mutationId: ID!
+  """
+  GCP environment active configuration.
+  """
+  spec: GCPEnvSpec!
+  """
+  Spec revision (monotonically-increasing).
+  """
+  specRevision: Int!
+}
+extend type Mutation {
+  """
+  Marks GCP environment for removal (if exists; noop otherwise).
+
+  This triggers env deprovisioning which deletes all the data (except for backups),
+  as well as all provisioned GCP resources.
+  """
+  deleteGCPEnv(input: DeleteGCPEnvInput!): DeleteGCPEnvResult!
+}
+
+"""
+GCP environment delete request input.
+"""
+input DeleteGCPEnvInput {
+  """
+  The name of GCP environment to delete.
+  """
+  name: String!
+  """
+  By default, delete mutation does not delete the env but rather marks it to be
+  removed once it's deprovisioned (which may take some time).
+  Set "force" to true to skip deprovisioning.
+  """
+  force: Boolean = false
+}
+
+"""
+GCP environment delete request result.
+"""
+type DeleteGCPEnvResult {
+  """
+  Mutation unique identifier.
+  """
+  mutationId: ID!
+}
+extend type Mutation {
+  """
+  Update GCP environment record.
+  """
+  updateGCPEnv(input: UpdateGCPEnvInput!): UpdateGCPEnvResult!
+}
+
+"""
+GCP environment update request input.
+"""
+input UpdateGCPEnvInput {
+  """
+  Environment name.
+  """
+  name: String!
+  """
+  Environment spec.
+  """
+  spec: UpdateGCPEnvSpecInput!
+  """
+  Environment spec update strategy.
+  MERGE by default.
+  """
+  updateStrategy: UpdateStrategy
+}
+
+"""
+GCP environment configuration update request input.
+"""
+input UpdateGCPEnvSpecInput {
+  """
+  Number of GCP zones.
+  At least 2 required (if specified).
+  """
+  numberOfZones: Int
+  """
+  Explicit list of GCP zones.
+  At least 2 required (if specified).
+
+  Example: ["us-west1a", "us-west1b"]
+  """
+  zones: [String!]
+  """
+  Load balancers configuration.
+  """
+  loadBalancers: GCPEnvLoadBalancersSpecInput
+  """
+  Load balancing strategy.
+  ZONE_BEST_EFFORT by default.
+  """
+  loadBalancingStrategy: LoadBalancingStrategy
+  """
+  List of node groups.
+  At least one required.
+  """
+  nodeGroups: [GCPEnvNodeGroupSpecInput!]
+  """
+  List of maintenance windows during which automatic maintenance is permitted.
+  By default updates are applied as soon as they are available.
+  """
+  maintenanceWindows: [MaintenanceWindowSpecInput!]
+  """
+  Custom domain.
+
+  Examples:
+  - "example.com"
+  - "foo.bar.com"
+
+  Before specifying custom domain, please create the following DNS records:
+  - CNAME _acme-challenge.example.com. $env_name.altinity.cloud.
+  - (optional, public load balancer)
+  CNAME *.example.com. _.$env_name.altinity.cloud.
+  - (optional, internal load balancer)
+  CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
+  - (optional, vpce)
+  CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
+  """
+  customDomain: String
+}
+
+"""
+GCP environment update request result.
+"""
+type UpdateGCPEnvResult {
+  """
+  Mutation unique identifier.
+  """
+  mutationId: ID!
+  """
+  GCP environment active configuration.
+  """
+  spec: GCPEnvSpec!
+  """
+  Spec revision (monotonically-increasing).
+  """
+  specRevision: Int!
+}
+extend type Query {
+  """
+  List Kubernetes environments.
+  """
+  k8sEnvs(filter: K8SEnvFilter): [K8SEnv!]!
+  """
+  Look up Kubernetes environment.
+  This query returns null when the environment is not found.
+  """
+  k8sEnv(name: String!): K8SEnv
+}
+
+"""
+Kubernetes environment.
+"""
+type K8SEnv {
+  """
+  A globally-unique environment identifier.
+  """
+  name: String!
+  """
+  Environment spec.
+  """
+  spec: K8SEnvSpec!
+  """
+  Spec revision (monotonically-increasing).
+  """
+  specRevision: Int!
+  """
+  Environment status.
+  """
+  status: K8SEnvStatus!
+}
+
+"""
+Kubernetes environment configuration.
+"""
+type K8SEnvSpec {
+  """
+  Kubernetes distribution.
+
+  Immutable.
+  """
+  distribution: K8SDistribution!
+  """
+  Load balancers configuration.
+  """
+  loadBalancers: K8SEnvLoadBalancersSpec!
+  """
+  Load balancing strategy.
+  """
+  loadBalancingStrategy: LoadBalancingStrategy!
+  """
+  List of node groups.
+  At least one required.
+  """
+  nodeGroups: [K8SEnvNodeGroupSpec!]!
+  """
+  Custom node types.
+  """
+  customNodeTypes: [K8SEnvCustomNodeTypeSpec!]!
+  """
+  Metrics configuration.
+  """
+  metrics: K8SEnvMetricsSpec!
+  """
+  Logs configuration.
+  """
+  logs: K8SEnvLogsSpec!
+  """
+  List of maintenance windows during which automatic maintenance is permitted.
+  By default updates are applied as soon as they are available.
+  """
+  maintenanceWindows: [MaintenanceWindowSpec!]!
+  """
+  Custom domain.
+
+  Examples:
+  - "example.com"
+  - "foo.bar.com"
+
+  Before specifying custom domain, please create the following DNS records:
+  - CNAME _acme-challenge.example.com. $env_name.altinity.cloud.
+  - (optional, public load balancer)
+  CNAME *.example.com. _.$env_name.altinity.cloud.
+  - (optional, internal load balancer)
+  CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
+  - (optional, vpce)
+  CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
+  """
+  customDomain: String
+}
+
+"""
+Kubernetes distribution.
+"""
+enum K8SDistribution {
+  """
+  Amazon Elastic Kubernetes Service.
+  """
+  EKS
+  """
+  Google Kubernetes Engine.
+  """
+  GKE
+  """
+  Azure Kubernetes Service.
+  """
+  AKS
+  """
+  Custom Kubernetes distribution.
+  """
+  CUSTOM
+}
+
+"""
+Kubernetes environment load balancers configuration.
+"""
+type K8SEnvLoadBalancersSpec {
+  """
+  Public load balancer configuration.
+
+  Accessible via *.$env_name.altinity.cloud.
+  """
+  public: K8SEnvLoadBalancerPublicSpec!
+  """
+  Internal load balancer configuration.
+
+  Accessible via *.internal.$env_name.altinity.cloud.
+  """
+  internal: K8SEnvLoadBalancerInternalSpec!
+}
+
+"""
+Kubernetes environment public load balancer configuration.
+"""
+type K8SEnvLoadBalancerPublicSpec {
+  """
+  True if load balancer is enabled,
+  false otherwise.
+  """
+  enabled: Boolean!
+  """
+  IP addresses/blocks to allow traffic from.
+
+  0.0.0.0/0 by default.
+  """
+  sourceIPRanges: [String!]!
+  """
+  Annotations to apply to Kubernetes LoadBalancer service.
+  """
+  annotations: [KeyValue!]!
+}
+
+"""
+Kubernetes environment internal load balancer configuration.
+"""
+type K8SEnvLoadBalancerInternalSpec {
+  """
+  True if load balancer is enabled,
+  false otherwise.
+  """
+  enabled: Boolean!
+  """
+  IP addresses/blocks to allow traffic from.
+
+  0.0.0.0/0 by default.
+  """
+  sourceIPRanges: [String!]!
+  """
+  Annotations to apply to Kubernetes LoadBalancer service.
+  """
+  annotations: [KeyValue!]!
+}
+
+"""
+Kubernetes environment node group configuration.
+"""
+type K8SEnvNodeGroupSpec {
+  """
+  Unique (among environment node groups) node group identifier.
+  """
+  name: String!
+  """
+  node.kubernetes.io/instance-type value.
+  """
+  nodeType: String!
+  """
+  topology.kubernetes.io/zone values.
+  """
+  zones: [String!]!
+  """
+  Maximum number of nodes per zone.
+  """
+  capacityPerZone: Int!
+  """
+  Types of workloads that are allowed to be scheduled onto the nodes that belong to this group.
+  """
+  reservations: [NodeReservation!]!
+  """
+  List of tolerations to apply to the pods targeting this group.
+  """
+  tolerations: [NodeToleration!]!
+  """
+  nodeSelector to apply to the pods targeting this group.
+  """
+  selector: [KeyValue!]!
+}
+
+"""
+Kubernetes custom node type configuration.
+"""
+type K8SEnvCustomNodeTypeSpec {
+  """
+  Custom node type unique identifier.
+  """
+  name: String!
+  """
+  Number of allocatable virtual cores.
+  """
+  cpuAllocatable: Float!
+  """
+  Amount of allocatable memory in bytes.
+  """
+  memAllocatableInBytes: Int!
+}
+
+"""
+Kubernetes environment metrics configuration.
+"""
+type K8SEnvMetricsSpec {
+  """
+  Metrics retention period in days.
+
+  1 month by default.
+  """
+  retentionPeriodInDays: Int
+}
+
+"""
+Kubernetes environment logs configuration.
+"""
+type K8SEnvLogsSpec {
+  """
+  Storage backend configuration.
+  """
+  storage: K8SEnvLogsStorageSpec!
+}
+
+"""
+Kubernetes environment logs storage configuration.
+"""
+type K8SEnvLogsStorageSpec {
+  """
+  Amazon S3 configuration.
+  """
+  s3: K8SEnvLogsStorageS3Spec
+  """
+  Google Cloud Storage configuration.
+  """
+  gcs: K8SEnvLogsStorageGCSSpec
+}
+
+"""
+Kubernetes environment logs S3 storage configuration.
+"""
+type K8SEnvLogsStorageS3Spec {
+  """
+  S3 bucket name.
+  """
+  bucketName: String
+  """
+  S3 bucket region.
+
+  Defaults to environment region.
+  """
+  region: String
+}
+
+"""
+Kubernetes environment logs GCS storage configuration.
+"""
+type K8SEnvLogsStorageGCSSpec {
+  """
+  GCS bucket name.
+  """
+  bucketName: String
+}
+
+"""
+Kubernetes environment status.
+"""
+type K8SEnvStatus {
+  """
+  Applied spec revision (monotonically-increasing).
+  """
+  appliedSpecRevision: Int!
+  """
+  True indicates that environment is pending deletion.
+  """
+  pendingDelete: Boolean!
+}
+
+"""
+Kubernetes environments query filter.
+"""
+input K8SEnvFilter {
+  """
+  Names of the environments to return.
+  Names that don't match any of the existing environments are ignored.
+  """
+  names: [String!]
+}
+extend type Mutation {
+  """
+  Create Kubernetes environment record.
+
+  Possible error codes:
+  - "CONFLICT" if environment name is already taken.
+  """
+  createK8SEnv(input: CreateK8SEnvInput!): CreateK8SEnvResult!
+}
+
+"""
+Kubernetes environment create request input.
+"""
+input CreateK8SEnvInput {
+  """
+  A globally-unique environment identifier.
+
+  Immutable.
+  """
+  name: String!
+  """
+  Environment spec.
+  """
+  spec: CreateK8SEnvSpecInput!
+}
+
+"""
+Kubernetes environment configuration create request input.
+"""
+input CreateK8SEnvSpecInput {
+  """
+  Kubernetes distribution.
+
+  Immutable.
+  """
+  distribution: K8SDistribution!
+  """
+  Load balancers configuration.
+  """
+  loadBalancers: K8SEnvLoadBalancersSpecInput
+  """
+  Load balancing strategy.
+  ZONE_BEST_EFFORT by default.
+  """
+  loadBalancingStrategy: LoadBalancingStrategy
+  """
+  List of node groups.
+  At least one required.
+  """
+  nodeGroups: [K8SEnvNodeGroupSpecInput!]!
+  """
+  Custom node types.
+  """
+  customNodeTypes: [K8SEnvCustomNodeTypeSpecInput!]
+  """
+  Metrics configuration.
+  """
+  metrics: K8SEnvMetricsSpecInput
+  """
+  Logs configuration.
+  """
+  logs: K8SEnvLogsSpecInput
+  """
+  List of maintenance windows during which automatic maintenance is permitted.
+  By default updates are applied as soon as they are available.
+  """
+  maintenanceWindows: [MaintenanceWindowSpecInput!]
+  """
+  Custom domain.
+
+  Examples:
+  - "example.com"
+  - "foo.bar.com"
+
+  Before specifying custom domain, please create the following DNS records:
+  - CNAME _acme-challenge.example.com. $env_name.altinity.cloud.
+  - (optional, public load balancer)
+  CNAME *.example.com. _.$env_name.altinity.cloud.
+  - (optional, internal load balancer)
+  CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
+  - (optional, vpce)
+  CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
+  """
+  customDomain: String
+}
+
+"""
+Kubernetes environment load balancers configuration.
+"""
+input K8SEnvLoadBalancersSpecInput {
+  """
+  Public load balancer configuration.
+
+  Accessible via *.$env_name.altinity.cloud.
+  """
+  public: K8SEnvLoadBalancerPublicSpecInput
+  """
+  Internal load balancer configuration.
+
+  Accessible via *.internal.$env_name.altinity.cloud.
+  """
+  internal: K8SEnvLoadBalancerInternalSpecInput
+}
+
+"""
+Kubernetes environment public load balancer configuration.
+"""
+input K8SEnvLoadBalancerPublicSpecInput {
+  """
+  True if load balancer is enabled,
+  false otherwise.
+
+  False by default.
+  """
+  enabled: Boolean
+  """
+  IP addresses/blocks to allow traffic from.
+
+  0.0.0.0/0 by default.
+  """
+  sourceIPRanges: [String!]
+  """
+  Annotations to apply to Kubernetes LoadBalancer service.
+  """
+  annotations: [KeyValueInput!]
+}
+
+"""
+Kubernetes environment internal load balancer configuration.
+"""
+input K8SEnvLoadBalancerInternalSpecInput {
+  """
+  True if load balancer is enabled,
+  false otherwise.
+
+  False by default.
+  """
+  enabled: Boolean
+  """
+  IP addresses/blocks to allow traffic from.
+
+  0.0.0.0/0 by default.
+  """
+  sourceIPRanges: [String!]
+  """
+  Annotations to apply to Kubernetes LoadBalancer service.
+  """
+  annotations: [KeyValueInput!]
+}
+
+input K8SEnvNodeGroupSpecInput {
+  """
+  Unique (among environment node groups) node group identifier.
+
+  Defaults to $nodeType.
+  """
+  name: String
+  """
+  node.kubernetes.io/instance-type value.
+  """
+  nodeType: String!
+  """
+  topology.kubernetes.io/zone values.
+  """
+  zones: [String!]
+  """
+  Maximum number of nodes per zone.
+  """
+  capacityPerZone: Int!
+  """
+  Types of workloads that are allowed to be scheduled onto the nodes that belong to this group.
+  """
+  reservations: [NodeReservation!]
+  """
+  List of tolerations to apply to the pods targeting this group.
+  """
+  tolerations: [NodeTolerationSpecInput!]
+  """
+  nodeSelector to apply to the pods targeting this group.
+  """
+  selector: [KeyValueInput!]
+}
+
+input NodeTolerationSpecInput  {
+  key: String!
+  operator:  NodeTolerationOperator!
+  value: String!
+  effect: NodeTolerationEffect!
+}
+
+"""
+Kubernetes custom node type configuration input.
+"""
+input K8SEnvCustomNodeTypeSpecInput {
+  """
+  Custom node type unique identifier.
+  """
+  name: String!
+  """
+  Number of allocatable virtual cores.
+  """
+  cpuAllocatable: Float!
+  """
+  Amount of allocatable memory in bytes.
+  """
+  memAllocatableInBytes: Float!
+}
+
+"""
+Kubernetes environment metrics configuration input.
+"""
+input K8SEnvMetricsSpecInput {
+  """
+  Metrics retention period in days.
+
+  1 month by default.
+  """
+  retentionPeriodInDays: Int
+}
+
+"""
+Kubernetes environment logs configuration input.
+"""
+input K8SEnvLogsSpecInput {
+  """
+  Storage backend configuration.
+  """
+  storage: K8SEnvSpecLogsStorageSpecInput
+}
+
+"""
+Kubernetes environment logs storage configuration input.
+"""
+input K8SEnvSpecLogsStorageSpecInput {
+  """
+  Amazon S3 configuration.
+  """
+  s3: K8SEnvSpecLogsStorageS3SpecInput
+  """
+  Google Cloud Storage configuration.
+  """
+  gcs: K8SEnvSpecLogsStorageGCSSpecInput
+}
+
+"""
+Kubernetes environment logs S3 storage configuration.
+"""
+input K8SEnvSpecLogsStorageS3SpecInput {
+  """
+  S3 bucket name.
+  """
+  bucketName: String
+  """
+  S3 bucket region.
+
+  Defaults to environment region.
+  """
+  region: String
+}
+
+"""
+Kubernetes environment logs GCS storage configuration.
+"""
+input K8SEnvSpecLogsStorageGCSSpecInput {
+  """
+  GCS bucket name.
+  """
+  bucketName: String
+}
+
+"""
+Kubernetes environment create request result.
+"""
+type CreateK8SEnvResult {
+  """
+  Mutation unique identifier.
+  """
+  mutationId: ID!
+  """
+  Kubernetes environment active configuration.
+  """
+  spec: K8SEnvSpec!
+  """
+  Spec revision (monotonically-increasing).
+  """
+  specRevision: Int!
+}
+extend type Mutation {
+  """
+  Marks Kubernetes environment for removal (if exists; noop otherwise).
+
+  This triggers env deprovisioning which deletes all the data (except for backups),
+  as well as all provisioned Kubernetes resources.
+  """
+  deleteK8SEnv(input: DeleteK8SEnvInput!): DeleteK8SEnvResult!
+}
+
+"""
+Kubernetes environment delete request input.
+"""
+input DeleteK8SEnvInput {
+  """
+  The name of Kubernetes environment to delete.
+  """
+  name: String!
+  """
+  By default, delete mutation does not delete the env but rather marks it to be
+  removed once it's deprovisioned (which may take some time).
+  Set "force" to true to skip deprovisioning.
+  """
+  force: Boolean = false
+}
+
+"""
+Kubernetes environment delete request result.
+"""
+type DeleteK8SEnvResult {
+  """
+  Mutation unique identifier.
+  """
+  mutationId: ID!
+}
+extend type Mutation {
+  """
+  Update Kubernetes environment record.
+  """
+  updateK8SEnv(input: UpdateK8SEnvInput!): UpdateK8SEnvResult!
+}
+
+"""
+Kubernetes environment update request input.
+"""
+input UpdateK8SEnvInput {
+  """
+  Environment name.
+  """
+  name: String!
+  """
+  Environment spec.
+  """
+  spec: UpdateK8SEnvSpecInput!
+  """
+  Environment spec update strategy.
+  MERGE by default.
+  """
+  updateStrategy: UpdateStrategy
+}
+
+"""
+Kubernetes environment configuration update request input.
+"""
+input UpdateK8SEnvSpecInput {
+  """
+  Load balancers configuration.
+  """
+  loadBalancers: K8SEnvLoadBalancersSpecInput
+  """
+  Load balancing strategy.
+  """
+  loadBalancingStrategy: LoadBalancingStrategy
+  """
+  List of node groups.
+  """
+  nodeGroups: [K8SEnvNodeGroupSpecInput!]
+  """
+  Custom node types.
+  """
+  customNodeTypes: [K8SEnvCustomNodeTypeSpecInput!]
+  """
+  Metrics configuration.
+  """
+  metrics: K8SEnvMetricsSpecInput
+  """
+  Logs configuration.
+  """
+  logs: K8SEnvLogsSpecInput
+  """
+  List of maintenance windows during which automatic maintenance is permitted.
+  By default updates are applied as soon as they are available.
+  """
+  maintenanceWindows: [MaintenanceWindowSpecInput!]
+  """
+  Custom domain.
+
+  Examples:
+  - "example.com"
+  - "foo.bar.com"
+
+  Before specifying custom domain, please create the following DNS records:
+  - CNAME _acme-challenge.example.com. $env_name.altinity.cloud.
+  - (optional, public load balancer)
+  CNAME *.example.com. _.$env_name.altinity.cloud.
+  - (optional, internal load balancer)
+  CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
+  - (optional, vpce)
+  CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
+  """
+  customDomain: String
+}
+
+"""
+Kubernetes environment update request result.
+"""
+type UpdateK8SEnvResult {
+  """
+  Mutation unique identifier.
+  """
+  mutationId: ID!
+  """
+  Kubernetes environment active configuration.
+  """
+  spec: K8SEnvSpec!
+  """
+  Spec revision (monotonically-increasing).
+  """
+  specRevision: Int!
+}

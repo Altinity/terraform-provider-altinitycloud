@@ -1,6 +1,8 @@
 PROVIDER_BIN:=$(shell basename `git rev-parse --show-toplevel`)
 PROVIDER_NAME:=$(shell echo $(PROVIDER_BIN) | sed 's/terraform-provider-//g')
 PROVIDER_DIRECTORY:=~/.terraform.d/plugins/local/altinity/${PROVIDER_NAME}
+GRAPHQL_SCHEMA_URL?=https://anywhere.altinity.cloud/api/v1/graphql.schema
+GRAPHQL_SCHEMA_FILE:=internal/sdk/client/graphql.schema
 
 VERSION:=0.0.1
 OS:=darwin
@@ -38,7 +40,7 @@ local: build
 	cd ${LOCAL_DIRECTOY} && TF_LOG=TRACE terraform init -upgrade
 
 .PHONY: gen
-gen: docs
+gen: sdk docs
 
 .PHONY: docs
 docs:
@@ -46,6 +48,7 @@ docs:
 
 .PHONY: sdk
 sdk:
+	curl -o ${GRAPHQL_SCHEMA_FILE} ${GRAPHQL_SCHEMA_URL}
 	cd internal/sdk/client && go run github.com/Yamashou/gqlgenc
 
 .PHONY: fmt
