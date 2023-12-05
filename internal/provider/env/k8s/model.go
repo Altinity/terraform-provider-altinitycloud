@@ -163,7 +163,7 @@ func loadBalancersToSDK(loadBalancers *LoadBalancersModel) *client.K8SEnvLoadBal
 
 	if loadBalancers.Internal != nil {
 		internal = &client.K8SEnvLoadBalancerInternalSpecInput{
-			Enabled:        loadBalancers.Public.Enabled.ValueBoolPointer(),
+			Enabled:        loadBalancers.Internal.Enabled.ValueBoolPointer(),
 			Annotations:    common.KeyValueToSDK(loadBalancers.Internal.Annotations),
 			SourceIPRanges: common.ListStringToSDK(loadBalancers.Internal.SourceIPRanges),
 		}

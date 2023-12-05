@@ -286,10 +286,6 @@ Optional:
 <a id="nestedatt--load_balancers--internal"></a>
 ### Nested Schema for `load_balancers.internal`
 
-Required:
-
-- `source_ip_ranges` (List of String) IP addresses/blocks to allow traffic from (default `"0.0.0.0/0"`).
-
 Optional:
 
 - `cross_zone` (Boolean) `true` indicates that traffic should be distributed across all specified availability zones, `false` otherwise. (default `true`).
@@ -298,19 +294,17 @@ Optional:
 
 		Examples:
 		- "arn:aws:iam::$account_id:root"
+- `source_ip_ranges` (List of String) IP addresses/blocks to allow traffic from (default `"0.0.0.0/0"`).
 
 
 <a id="nestedatt--load_balancers--public"></a>
 ### Nested Schema for `load_balancers.public`
 
-Required:
-
-- `source_ip_ranges` (List of String) IP addresses/blocks to allow traffic from (default `"0.0.0.0/0"`).
-
 Optional:
 
 - `cross_zone` (Boolean) `true` indicates that traffic should be distributed across all specified availability zones, `false` otherwise. (default `true`).
 - `enabled` (Boolean) Set to `true` if load balancer is enabled, `false` otherwise. (default `false`)
+- `source_ip_ranges` (List of String) IP addresses/blocks to allow traffic from (default `"0.0.0.0/0"`).
 
 
 

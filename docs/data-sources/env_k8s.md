@@ -91,14 +91,11 @@ Optional:
 <a id="nestedatt--load_balancers--internal"></a>
 ### Nested Schema for `load_balancers.internal`
 
-Required:
-
-- `source_ip_ranges` (List of String) IP addresses/blocks to allow traffic from (default `"0.0.0.0/0"`).
-
 Optional:
 
 - `annotations` (Attributes List) List of annotations for the load balancer (see [below for nested schema](#nestedatt--load_balancers--internal--annotations))
 - `enabled` (Boolean) Set to `true` if load balancer is enabled, `false` otherwise. (default `false`)
+- `source_ip_ranges` (List of String) IP addresses/blocks to allow traffic from (default `"0.0.0.0/0"`).
 
 <a id="nestedatt--load_balancers--internal--annotations"></a>
 ### Nested Schema for `load_balancers.internal.annotations`
@@ -113,14 +110,11 @@ Required:
 <a id="nestedatt--load_balancers--public"></a>
 ### Nested Schema for `load_balancers.public`
 
-Required:
-
-- `source_ip_ranges` (List of String) IP addresses/blocks to allow traffic from (default `"0.0.0.0/0"`).
-
 Optional:
 
 - `annotations` (Attributes List) List of annotations for the load balancer (see [below for nested schema](#nestedatt--load_balancers--public--annotations))
 - `enabled` (Boolean) Set to `true` if load balancer is enabled, `false` otherwise. (default `false`)
+- `source_ip_ranges` (List of String) IP addresses/blocks to allow traffic from (default `"0.0.0.0/0"`).
 
 <a id="nestedatt--load_balancers--public--annotations"></a>
 ### Nested Schema for `load_balancers.public.annotations`
