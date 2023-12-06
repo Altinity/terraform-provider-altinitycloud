@@ -205,7 +205,7 @@ func loadBalancersToSDK(loadBalancers *LoadBalancersModel) *sdk.AWSEnvLoadBalanc
 		}
 
 		internal = &sdk.AWSEnvLoadBalancerInternalSpecInput{
-			Enabled:                          loadBalancers.Public.Enabled.ValueBoolPointer(),
+			Enabled:                          loadBalancers.Internal.Enabled.ValueBoolPointer(),
 			SourceIPRanges:                   common.ListStringToSDK(loadBalancers.Internal.SourceIPRanges),
 			CrossZone:                        loadBalancers.Internal.CrossZone.ValueBoolPointer(),
 			EndpointServiceAllowedPrincipals: endpointServiceAllowedPrincipals,

@@ -117,7 +117,7 @@ func loadBalancersToSDK(loadBalancers *LoadBalancersModel) *client.GCPEnvLoadBal
 
 	if loadBalancers.Internal != nil {
 		internal = &client.GCPEnvLoadBalancerInternalSpecInput{
-			Enabled:        loadBalancers.Public.Enabled.ValueBoolPointer(),
+			Enabled:        loadBalancers.Internal.Enabled.ValueBoolPointer(),
 			SourceIPRanges: common.ListStringToSDK(loadBalancers.Internal.SourceIPRanges),
 		}
 	}
