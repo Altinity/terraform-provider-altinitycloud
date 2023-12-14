@@ -39,8 +39,46 @@ local: build
 	cd ${LOCAL_DIRECTOY} && rm -f .terraform.lock.hcl .terrform
 	cd ${LOCAL_DIRECTOY} && TF_LOG=TRACE terraform init -upgrade
 
-.PHONY: gen
-gen: sdk docs
+.PHONY: bump
+.PHONY: bump
+bump:
+	@if [ -z "$(type)" ]; then \
+		echo "Error: 'type' not specified. Use 'make bump type=major', 'make bump type=minor', or 'make bump type=patch'."; \
+		exit 1; \
+	fi; \
+	LATEST_VERSION=$$(git describe --tags `git rev-list --tags --max-count=1` | sed 's/^v//'); \
+	MAJOR=$$(echo $$LATEST_VERSION | cut -d. -f1); \
+	MINOR=$$(echo $$LATEST_VERSION | cut -d. -f2); \
+	PATCH=$$(echo $$LATEST_VERSION | cut -d. -f3); \
+	if [ "$(type)" = "major" ]; then \
+		NEW_VERSION=v$$((MAJOR + 1)).0.0; \
+	elif [ "$(type)" = "minor" ]; then \
+		NEW_VERSION=v$$MAJOR.$$((MINOR + 1)).0; \
+	elif [ "$(type)" = "patch" ]; then \
+		NEW_VERSION=v$$MAJOR.$$MINOR.$$((PATCH + 1)); \
+	else \
+		echo "Invalid type: $(type). Use 'major', 'minor', or 'patch'."; \
+		exit 1; \
+	fi; \
+	echo "New version: $$NEW_VERSION"; \
+	git tag $$NEW_VERSION; \
+	echo "New version tagged: $$NEW_VERSION"
+
+
+.PHONY: sync-version
+sync-version:
+	@echo "Fetching and updating current version in 'example' directory..."
+	@$(eval LATEST_VERSION=$(shell git describe --tags `git rev-list --tags --max-count=1`))
+	@echo "Current Version: $(LATEST_VERSION)"
+	@# Determine OS type
+	@$(eval OS_TYPE=$(shell uname))
+	@# Adjust sed command based on OS
+	@if [ $(OS_TYPE) = "Darwin" ]; then \
+		find ./examples -name "*.tf" -exec sed -i '' "s/%%VERSION%%/$(LATEST_VERSION)/g" {} +; \
+	else \
+		find ./examples -name "*.tf" -exec sed -i "s/%%VERSION%%/$(LATEST_VERSION)/g" {} +; \
+	fi
+	@echo "Updated Terraform files in './examples' directory to version $(LATEST_VERSION)"
 
 .PHONY: docs
 docs:
@@ -50,6 +88,9 @@ docs:
 sdk:
 	curl -o ${GRAPHQL_SCHEMA_FILE} ${GRAPHQL_SCHEMA_URL}
 	cd internal/sdk/client && go run github.com/Yamashou/gqlgenc
+
+.PHONY: gen
+gen: sdk sync-version docs
 
 .PHONY: fmt
 fmt:
