@@ -156,8 +156,9 @@ func (r *AWSEnvResource) Delete(ctx context.Context, req resource.DeleteRequest,
 	}
 
 	_, err := r.client.DeleteAWSEnv(ctx, client.DeleteAWSEnvInput{
-		Name:  envName,
-		Force: data.SkipDeprovisionOnDestroy.ValueBoolPointer(),
+		Name:                 envName,
+		Force:                data.SkipDeprovisionOnDestroy.ValueBoolPointer(),
+		ForceDestroyClusters: data.ForceDestroyClusters.ValueBoolPointer(),
 	})
 
 	if err != nil {

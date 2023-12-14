@@ -157,8 +157,9 @@ func (r *GCPEnvResource) Delete(ctx context.Context, req resource.DeleteRequest,
 	}
 
 	_, err := r.client.DeleteGCPEnv(ctx, client.DeleteGCPEnvInput{
-		Name:  envName,
-		Force: data.SkipDeprovisionOnDestroy.ValueBoolPointer(),
+		Name:                 envName,
+		Force:                data.SkipDeprovisionOnDestroy.ValueBoolPointer(),
+		ForceDestroyClusters: data.ForceDestroyClusters.ValueBoolPointer(),
 	})
 
 	if err != nil {

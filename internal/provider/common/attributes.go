@@ -195,6 +195,16 @@ func GetForceDestroyAttribute(required, optional, computed bool) rschema.BoolAtt
 	}
 }
 
+func GetForceDestroyClustersAttribute(required, optional, computed bool) rschema.BoolAttribute {
+	return rschema.BoolAttribute{
+		Required:            required,
+		Optional:            optional,
+		Computed:            computed,
+		MarkdownDescription: FORCE_DESTROY_CLUSTERS_DESCRIPTION,
+		Default:             booldefault.StaticBool(false),
+	}
+}
+
 func GetSkipProvisioningOnDestroyAttribute(required, optional, computed bool) rschema.BoolAttribute {
 	return rschema.BoolAttribute{
 		Required: required,

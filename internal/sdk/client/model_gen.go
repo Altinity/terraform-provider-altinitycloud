@@ -592,6 +592,7 @@ type DeleteAWSEnvInput struct {
 	// removed once it's deprovisioned (which may take some time).
 	// Set "force" to true to skip deprovisioning.
 	Force *bool `json:"force,omitempty"`
+	ForceDestroyClusters *bool `json:"forceDestroyClusters,omitempty"`
 }
 
 // AWS environment delete request result.

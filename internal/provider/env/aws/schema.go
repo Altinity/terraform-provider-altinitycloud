@@ -41,6 +41,7 @@ func (r *AWSEnvResource) Schema(ctx context.Context, req resource.SchemaRequest,
 			"cloud_connect":               cloudConnectAttribute,
 			"spec_revision":               common.SpecRevisionAttribute,
 			"force_destroy":               common.GetForceDestroyAttribute(false, true, true),
+			"force_destroy_clusters":      common.GetForceDestroyClustersAttribute(false, true, true),
 			"skip_deprovision_on_destroy": common.GetSkipProvisioningOnDestroyAttribute(false, true, true),
 		},
 	}
@@ -71,6 +72,7 @@ func (d *AWSEnvDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 			// these options are not used in data sources,
 			// but we need to include them in the schema to avoid conversion errors.
 			"force_destroy":               common.GetForceDestroyAttribute(false, false, true),
+			"force_destroy_clusters":      common.GetForceDestroyClustersAttribute(false, false, true),
 			"skip_deprovision_on_destroy": common.GetSkipProvisioningOnDestroyAttribute(false, false, true),
 		},
 	}

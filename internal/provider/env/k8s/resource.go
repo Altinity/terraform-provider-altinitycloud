@@ -155,8 +155,9 @@ func (r *K8SEnvResource) Delete(ctx context.Context, req resource.DeleteRequest,
 	}
 
 	_, err := r.client.DeleteK8SEnv(ctx, client.DeleteK8SEnvInput{
-		Name:  envName,
-		Force: data.SkipDeprovisionOnDestroy.ValueBoolPointer(),
+		Name:                 envName,
+		Force:                data.SkipDeprovisionOnDestroy.ValueBoolPointer(),
+		ForceDestroyClusters: data.ForceDestroyClusters.ValueBoolPointer(),
 	})
 
 	if err != nil {
