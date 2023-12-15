@@ -592,6 +592,9 @@ type DeleteAWSEnvInput struct {
 	// removed once it's deprovisioned (which may take some time).
 	// Set "force" to true to skip deprovisioning.
 	Force *bool `json:"force,omitempty"`
+	// By default, the delete operation will not delete any provisioned clusters and
+	// the deletion will fail until the clusters get removed.
+	// Set "forceDestroyClusters" to true remove all provisioned clusters as part of the environment deletion process.
 	ForceDestroyClusters *bool `json:"forceDestroyClusters,omitempty"`
 }
 
@@ -609,6 +612,10 @@ type DeleteGCPEnvInput struct {
 	// removed once it's deprovisioned (which may take some time).
 	// Set "force" to true to skip deprovisioning.
 	Force *bool `json:"force,omitempty"`
+	// By default, the delete operation will not delete any provisioned clusters and
+	// the deletion will fail until the clusters get removed.
+	// Set "forceDestroyClusters" to true remove all provisioned clusters as part of the environment deletion process.
+	ForceDestroyClusters *bool `json:"forceDestroyClusters,omitempty"`
 }
 
 // GCP environment delete request result.
@@ -625,6 +632,10 @@ type DeleteK8SEnvInput struct {
 	// removed once it's deprovisioned (which may take some time).
 	// Set "force" to true to skip deprovisioning.
 	Force *bool `json:"force,omitempty"`
+	// By default, the delete operation will not delete any provisioned clusters and
+	// the deletion will fail until the clusters get removed.
+	// Set "forceDestroyClusters" to true remove all provisioned clusters as part of the environment deletion process.
+	ForceDestroyClusters *bool `json:"forceDestroyClusters,omitempty"`
 }
 
 // Kubernetes environment delete request result.

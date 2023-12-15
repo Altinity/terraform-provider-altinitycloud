@@ -639,6 +639,12 @@ input DeleteAWSEnvInput {
   Set "force" to true to skip deprovisioning.
   """
   force: Boolean = false
+  """
+  By default, the delete operation will not delete any provisioned clusters and
+  the deletion will fail until the clusters get removed.
+  Set "forceDestroyClusters" to true remove all provisioned clusters as part of the environment deletion process.
+  """
+  forceDestroyClusters: Boolean = false
 }
 
 """
@@ -1368,6 +1374,12 @@ input DeleteGCPEnvInput {
   Set "force" to true to skip deprovisioning.
   """
   force: Boolean = false
+  """
+  By default, the delete operation will not delete any provisioned clusters and
+  the deletion will fail until the clusters get removed.
+  Set "forceDestroyClusters" to true remove all provisioned clusters as part of the environment deletion process.
+  """
+  forceDestroyClusters: Boolean = false
 }
 
 """
@@ -2100,6 +2112,12 @@ input DeleteK8SEnvInput {
   Set "force" to true to skip deprovisioning.
   """
   force: Boolean = false
+  """
+  By default, the delete operation will not delete any provisioned clusters and
+  the deletion will fail until the clusters get removed.
+  Set "forceDestroyClusters" to true remove all provisioned clusters as part of the environment deletion process.
+  """
+  forceDestroyClusters: Boolean = false
 }
 
 """
