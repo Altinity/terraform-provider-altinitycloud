@@ -7,10 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.1.1...master)
 
 ### Added
-- Allow env cluster deletion when destroyng `force_destroy_clusters` [259ed86]()
+- Allow env cluster deletion when destroyng `force_destroy_clusters` [259ed86](#)
+- Added `bump` and `sync` commands to `Makefile` [ac3545f](#)
 
 ### Changed
 - Bump go to `1.20` [69f6a2e](https://github.com/Altinity/terraform-provider-altinitycloud/commit/69f6a2ea059df2bd2435c982b7ce2b2532d5e788)
+- Bump github.com/hashicorp/terraform-plugin-go to `0.20.0` [d86d633](https://github.com/Altinity/terraform-provider-altinitycloud/commit/d86d6339523946655c6165a931ff43a64f1bca4b)
+
 
 
 ## [0.1.1](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.1.0...v0.1.1)

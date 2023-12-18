@@ -65,8 +65,8 @@ bump:
 	echo "New version tagged: $$NEW_VERSION"
 
 
-.PHONY: sync-version
-sync-version:
+.PHONY: sync
+sync:
 	@echo "Fetching and updating current version in 'example' directory..."
 	@$(eval LATEST_VERSION=$(shell git describe --tags `git rev-list --tags --max-count=1`))
 	@echo "Current Version: $(LATEST_VERSION)"
@@ -90,7 +90,7 @@ sdk:
 	cd internal/sdk/client && go run github.com/Yamashou/gqlgenc
 
 .PHONY: gen
-gen: sdk sync-version docs
+gen: sdk sync docs
 
 .PHONY: fmt
 fmt:
@@ -101,10 +101,13 @@ fmt:
 help:
 	@echo "Available commands:"
 	@echo
-	@echo "build             - Build the provider binary."
-	@echo "docs              - Generate provider documentation"
-	@echo "fmt               - Format Terraform and Go code."
-	@echo "local             - Build the provider and and setup the local directoy for testing."
-	@echo "sdk               - Re-sync sdk client and models"
-	@echo "testacc           - Run acceptance tests (altinity internal usage)"
-	@echo "tool              - Run go tools."
+	@echo "build             - Build the provider binary. This compiles the provider's Go code into a binary executable."
+	@echo "bump              - Bump version tags in Git. Use 'make bump type=[major|minor|patch]' to create a new version tag."
+	@echo "docs              - Generate provider documentation. This uses terraform-plugin-docs to create documentation for the provider."
+	@echo "fmt               - Format Terraform and Go code. This ensures that the code follows standard formatting conventions."
+	@echo "gen               - Run SDK generation, version sync, and docs generation. This is a combined command that runs sdk, sync, and docs commands."
+	@echo "local             - Build the provider and set up the local directory for testing. This is useful for local development and testing."
+	@echo "sdk               - Re-sync the SDK client and models. This pulls the latest GraphQL schema and regenerates the client code."
+	@echo "testacc           - Run acceptance tests. These are integration tests that use the Terraform binary to test real infrastructure."
+	@echo "sync              - Fetch and update the current version in the 'example' directory. This syncs the version used in examples with the latest Git tag."
+	@echo "tool              - Run Go tools. This is a placeholder for any Go-based tools you might want to run as part of the build."
