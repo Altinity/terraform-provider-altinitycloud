@@ -15,8 +15,8 @@ github.com/Masterminds/sprig/v3 v3.2.3/go.mod h1:rXcFaZ2zZbLRJv/xSysmlgIM1u11eBa
 github.com/Microsoft/go-winio v0.6.1 h1:9/kr64B9VUZrLm5YYwbGtUJnMgqWVOdUAXu6Migciow=
 github.com/ProtonMail/go-crypto v0.0.0-20230923063757-afb1ddc0824c h1:kMFnB0vCcX7IL/m9Y5LO+KQYv+t1CQOiFe6+SV2J7bE=
 github.com/ProtonMail/go-crypto v0.0.0-20230923063757-afb1ddc0824c/go.mod h1:EjAoLdwvbIOoOQr3ihjnSoLZRtE8azugULFRteWMNc0=
-github.com/Yamashou/gqlgenc v0.16.0 h1:k1X/dvwnkiDImaeYw+C1j+GDX3MnzB4aONOTE6Mrku4=
-github.com/Yamashou/gqlgenc v0.16.0/go.mod h1:yKaNzczoGrIElG3mG8j2Bg3imv4WyIjLSTRBtvhfMtU=
+github.com/Yamashou/gqlgenc v0.16.1 h1:oqBYrrb2Qm8Y80Z977zgjMbl2TxmERpAuv8wjZY2Jyk=
+github.com/Yamashou/gqlgenc v0.16.1/go.mod h1:yKaNzczoGrIElG3mG8j2Bg3imv4WyIjLSTRBtvhfMtU=
 github.com/acomagu/bufpipe v1.0.4 h1:e3H4WUzM3npvo5uv95QuJM3cQspFNtFBzvJ2oNjKIDQ=
 github.com/agext/levenshtein v1.2.2 h1:0S/Yg6LYmFJ5stwQeRp6EeOcCbj7xiqQSdNelsXvaqE=
 github.com/agext/levenshtein v1.2.2/go.mod h1:JEDfjyjHDjOF/1e4FlBE/PkbqA9OfWu2ki2W0IB5558=
