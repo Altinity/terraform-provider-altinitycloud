@@ -67,18 +67,17 @@ bump:
 
 .PHONY: sync
 sync:
-	@echo "Fetching and updating current version in 'example' directory..."
-	@$(eval LATEST_VERSION=$(shell git describe --tags `git rev-list --tags --max-count=1`))
+	@$(eval LATEST_VERSION=$(shell git describe --tags `git rev-list --tags --max-count=1` | sed 's/^v//'))
 	@echo "Current Version: $(LATEST_VERSION)"
 	@# Determine OS type
 	@$(eval OS_TYPE=$(shell uname))
 	@# Adjust sed command based on OS
 	@if [ $(OS_TYPE) = "Darwin" ]; then \
-		find ./examples -name "*.tf" -exec sed -i '' "s/%%VERSION%%/$(LATEST_VERSION)/g" {} +; \
+		find ./docs -name "*.md" -exec sed -i '' "s/%%VERSION%%/$(LATEST_VERSION)/g" {} +; \
 	else \
-		find ./examples -name "*.tf" -exec sed -i "s/%%VERSION%%/$(LATEST_VERSION)/g" {} +; \
+		find ./docs -name "*.md" -exec sed -i "s/%%VERSION%%/$(LATEST_VERSION)/g" {} +; \
 	fi
-	@echo "Updated Terraform files in './examples' directory to version $(LATEST_VERSION)"
+	@echo "Updated Terraform files in './docs' directory to version $(LATEST_VERSION)"
 
 .PHONY: docs
 docs:
@@ -90,7 +89,7 @@ sdk:
 	cd internal/sdk/client && go run github.com/Yamashou/gqlgenc
 
 .PHONY: gen
-gen: sdk sync docs
+gen: sdk docs sync
 
 .PHONY: fmt
 fmt:
