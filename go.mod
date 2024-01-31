@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/Yamashou/gqlgenc v0.16.2
 	github.com/hashicorp/terraform-plugin-docs v0.16.0
-	github.com/hashicorp/terraform-plugin-framework v1.4.2
+	github.com/hashicorp/terraform-plugin-framework v1.5.0
 	github.com/hashicorp/terraform-plugin-go v0.21.0
 	github.com/hashicorp/terraform-plugin-log v0.9.0
 	golang.org/x/net v0.18.0 // indirect
