@@ -3,7 +3,7 @@ module github.com/altinity/terraform-provider-altinitycloud
 go 1.20
 
 require (
-	github.com/Yamashou/gqlgenc v0.16.2
+	github.com/Yamashou/gqlgenc v0.18.1
 	github.com/hashicorp/terraform-plugin-docs v0.18.0
 	github.com/hashicorp/terraform-plugin-framework v1.5.0
 	github.com/hashicorp/terraform-plugin-go v0.21.0
@@ -18,7 +18,7 @@ require (
 )
 
 require (
-	github.com/99designs/gqlgen v0.17.38 // indirect
+	github.com/99designs/gqlgen v0.17.43 // indirect
 	github.com/Kunde21/markdownfmt/v3 v3.1.0 // indirect
 	github.com/Masterminds/goutils v1.1.1 // indirect
 	github.com/Masterminds/semver/v3 v3.2.1 // indirect
@@ -69,9 +69,10 @@ require (
 	github.com/russross/blackfriday v1.6.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/shopspring/decimal v1.3.1 // indirect
+	github.com/sosodev/duration v1.1.0 // indirect
 	github.com/spf13/cast v1.5.1 // indirect
-	github.com/urfave/cli/v2 v2.25.7 // indirect
-	github.com/vektah/gqlparser/v2 v2.5.10 // indirect
+	github.com/urfave/cli/v2 v2.27.1 // indirect
+	github.com/vektah/gqlparser/v2 v2.5.11 // indirect
 	github.com/vmihailenco/msgpack v4.0.4+incompatible // indirect
 	github.com/vmihailenco/msgpack/v5 v5.4.1 // indirect
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
