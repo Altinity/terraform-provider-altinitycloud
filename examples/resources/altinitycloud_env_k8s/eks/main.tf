@@ -14,7 +14,7 @@ module "altinitycloud_connect" {
 
 resource "altinitycloud_env_k8s" "this" {
   name         = altinitycloud_env_certificate.this.env_name
-  distribution = "AWS"
+  distribution = "EKS"
   // "node_groups" should match existing node groups/auto-scaling groups configuration.
   node_groups = [
     {
