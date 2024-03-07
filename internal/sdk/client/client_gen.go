@@ -18,23 +18,28 @@ func NewClient(cli *http.Client, baseURL string, options *clientv2.Options, inte
 }
 
 type Query struct {
-	AwsEnvs []*AWSEnv "json:\"awsEnvs\" graphql:\"awsEnvs\""
-	AwsEnv  *AWSEnv   "json:\"awsEnv,omitempty\" graphql:\"awsEnv\""
-	GcpEnvs []*GCPEnv "json:\"gcpEnvs\" graphql:\"gcpEnvs\""
-	GcpEnv  *GCPEnv   "json:\"gcpEnv,omitempty\" graphql:\"gcpEnv\""
-	K8sEnvs []*K8SEnv "json:\"k8sEnvs\" graphql:\"k8sEnvs\""
-	K8sEnv  *K8SEnv   "json:\"k8sEnv,omitempty\" graphql:\"k8sEnv\""
+	AwsEnvs   []*AWSEnv   "json:\"awsEnvs\" graphql:\"awsEnvs\""
+	AwsEnv    *AWSEnv     "json:\"awsEnv,omitempty\" graphql:\"awsEnv\""
+	AzureEnvs []*AzureEnv "json:\"azureEnvs\" graphql:\"azureEnvs\""
+	AzureEnv  *AzureEnv   "json:\"azureEnv,omitempty\" graphql:\"azureEnv\""
+	GcpEnvs   []*GCPEnv   "json:\"gcpEnvs\" graphql:\"gcpEnvs\""
+	GcpEnv    *GCPEnv     "json:\"gcpEnv,omitempty\" graphql:\"gcpEnv\""
+	K8sEnvs   []*K8SEnv   "json:\"k8sEnvs\" graphql:\"k8sEnvs\""
+	K8sEnv    *K8SEnv     "json:\"k8sEnv,omitempty\" graphql:\"k8sEnv\""
 }
 type Mutation struct {
-	CreateAWSEnv CreateAWSEnvResult "json:\"createAWSEnv\" graphql:\"createAWSEnv\""
-	DeleteAWSEnv DeleteAWSEnvResult "json:\"deleteAWSEnv\" graphql:\"deleteAWSEnv\""
-	UpdateAWSEnv UpdateAWSEnvResult "json:\"updateAWSEnv\" graphql:\"updateAWSEnv\""
-	CreateGCPEnv CreateGCPEnvResult "json:\"createGCPEnv\" graphql:\"createGCPEnv\""
-	DeleteGCPEnv DeleteGCPEnvResult "json:\"deleteGCPEnv\" graphql:\"deleteGCPEnv\""
-	UpdateGCPEnv UpdateGCPEnvResult "json:\"updateGCPEnv\" graphql:\"updateGCPEnv\""
-	CreateK8SEnv CreateK8SEnvResult "json:\"createK8SEnv\" graphql:\"createK8SEnv\""
-	DeleteK8SEnv DeleteK8SEnvResult "json:\"deleteK8SEnv\" graphql:\"deleteK8SEnv\""
-	UpdateK8SEnv UpdateK8SEnvResult "json:\"updateK8SEnv\" graphql:\"updateK8SEnv\""
+	CreateAWSEnv   CreateAWSEnvResult   "json:\"createAWSEnv\" graphql:\"createAWSEnv\""
+	DeleteAWSEnv   DeleteAWSEnvResult   "json:\"deleteAWSEnv\" graphql:\"deleteAWSEnv\""
+	UpdateAWSEnv   UpdateAWSEnvResult   "json:\"updateAWSEnv\" graphql:\"updateAWSEnv\""
+	CreateAzureEnv CreateAzureEnvResult "json:\"createAzureEnv\" graphql:\"createAzureEnv\""
+	DeleteAzureEnv DeleteAzureEnvResult "json:\"deleteAzureEnv\" graphql:\"deleteAzureEnv\""
+	UpdateAzureEnv UpdateAzureEnvResult "json:\"updateAzureEnv\" graphql:\"updateAzureEnv\""
+	CreateGCPEnv   CreateGCPEnvResult   "json:\"createGCPEnv\" graphql:\"createGCPEnv\""
+	DeleteGCPEnv   DeleteGCPEnvResult   "json:\"deleteGCPEnv\" graphql:\"deleteGCPEnv\""
+	UpdateGCPEnv   UpdateGCPEnvResult   "json:\"updateGCPEnv\" graphql:\"updateGCPEnv\""
+	CreateK8SEnv   CreateK8SEnvResult   "json:\"createK8SEnv\" graphql:\"createK8SEnv\""
+	DeleteK8SEnv   DeleteK8SEnvResult   "json:\"deleteK8SEnv\" graphql:\"deleteK8SEnv\""
+	UpdateK8SEnv   UpdateK8SEnvResult   "json:\"updateK8SEnv\" graphql:\"updateK8SEnv\""
 }
 type AWSEnvSpecFragment struct {
 	LoadBalancers         AWSEnvSpecFragment_LoadBalancers         "json:\"loadBalancers\" graphql:\"loadBalancers\""
@@ -127,6 +132,87 @@ func (t *AWSEnvSpecFragment) GetTags() []*AWSEnvSpecFragment_Tags {
 func (t *AWSEnvSpecFragment) GetCloudConnect() bool {
 	if t == nil {
 		t = &AWSEnvSpecFragment{}
+	}
+	return t.CloudConnect
+}
+
+type AzureEnvSpecFragment struct {
+	LoadBalancers         AzureEnvSpecFragment_LoadBalancers         "json:\"loadBalancers\" graphql:\"loadBalancers\""
+	LoadBalancingStrategy LoadBalancingStrategy                      "json:\"loadBalancingStrategy\" graphql:\"loadBalancingStrategy\""
+	CustomDomain          *string                                    "json:\"customDomain,omitempty\" graphql:\"customDomain\""
+	NodeGroups            []*AzureEnvSpecFragment_NodeGroups         "json:\"nodeGroups\" graphql:\"nodeGroups\""
+	MaintenanceWindows    []*AzureEnvSpecFragment_MaintenanceWindows "json:\"maintenanceWindows\" graphql:\"maintenanceWindows\""
+	Region                string                                     "json:\"region\" graphql:\"region\""
+	Zones                 []string                                   "json:\"zones\" graphql:\"zones\""
+	Cidr                  string                                     "json:\"cidr\" graphql:\"cidr\""
+	TenantID              string                                     "json:\"tenantID\" graphql:\"tenantID\""
+	SubscriptionID        string                                     "json:\"subscriptionID\" graphql:\"subscriptionID\""
+	CloudConnect          bool                                       "json:\"cloudConnect\" graphql:\"cloudConnect\""
+}
+
+func (t *AzureEnvSpecFragment) GetLoadBalancers() *AzureEnvSpecFragment_LoadBalancers {
+	if t == nil {
+		t = &AzureEnvSpecFragment{}
+	}
+	return &t.LoadBalancers
+}
+func (t *AzureEnvSpecFragment) GetLoadBalancingStrategy() *LoadBalancingStrategy {
+	if t == nil {
+		t = &AzureEnvSpecFragment{}
+	}
+	return &t.LoadBalancingStrategy
+}
+func (t *AzureEnvSpecFragment) GetCustomDomain() *string {
+	if t == nil {
+		t = &AzureEnvSpecFragment{}
+	}
+	return t.CustomDomain
+}
+func (t *AzureEnvSpecFragment) GetNodeGroups() []*AzureEnvSpecFragment_NodeGroups {
+	if t == nil {
+		t = &AzureEnvSpecFragment{}
+	}
+	return t.NodeGroups
+}
+func (t *AzureEnvSpecFragment) GetMaintenanceWindows() []*AzureEnvSpecFragment_MaintenanceWindows {
+	if t == nil {
+		t = &AzureEnvSpecFragment{}
+	}
+	return t.MaintenanceWindows
+}
+func (t *AzureEnvSpecFragment) GetRegion() string {
+	if t == nil {
+		t = &AzureEnvSpecFragment{}
+	}
+	return t.Region
+}
+func (t *AzureEnvSpecFragment) GetZones() []string {
+	if t == nil {
+		t = &AzureEnvSpecFragment{}
+	}
+	return t.Zones
+}
+func (t *AzureEnvSpecFragment) GetCidr() string {
+	if t == nil {
+		t = &AzureEnvSpecFragment{}
+	}
+	return t.Cidr
+}
+func (t *AzureEnvSpecFragment) GetTenantID() string {
+	if t == nil {
+		t = &AzureEnvSpecFragment{}
+	}
+	return t.TenantID
+}
+func (t *AzureEnvSpecFragment) GetSubscriptionID() string {
+	if t == nil {
+		t = &AzureEnvSpecFragment{}
+	}
+	return t.SubscriptionID
+}
+func (t *AzureEnvSpecFragment) GetCloudConnect() bool {
+	if t == nil {
+		t = &AzureEnvSpecFragment{}
 	}
 	return t.CloudConnect
 }
@@ -484,6 +570,138 @@ func (t *AWSEnvSpecFragment_Tags) GetValue() string {
 		t = &AWSEnvSpecFragment_Tags{}
 	}
 	return t.Value
+}
+
+type AzureEnvSpecFragment_LoadBalancers_Public struct {
+	Enabled        bool     "json:\"enabled\" graphql:\"enabled\""
+	SourceIPRanges []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
+}
+
+func (t *AzureEnvSpecFragment_LoadBalancers_Public) GetEnabled() bool {
+	if t == nil {
+		t = &AzureEnvSpecFragment_LoadBalancers_Public{}
+	}
+	return t.Enabled
+}
+func (t *AzureEnvSpecFragment_LoadBalancers_Public) GetSourceIPRanges() []string {
+	if t == nil {
+		t = &AzureEnvSpecFragment_LoadBalancers_Public{}
+	}
+	return t.SourceIPRanges
+}
+
+type AzureEnvSpecFragment_LoadBalancers_Internal struct {
+	Enabled        bool     "json:\"enabled\" graphql:\"enabled\""
+	SourceIPRanges []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
+}
+
+func (t *AzureEnvSpecFragment_LoadBalancers_Internal) GetEnabled() bool {
+	if t == nil {
+		t = &AzureEnvSpecFragment_LoadBalancers_Internal{}
+	}
+	return t.Enabled
+}
+func (t *AzureEnvSpecFragment_LoadBalancers_Internal) GetSourceIPRanges() []string {
+	if t == nil {
+		t = &AzureEnvSpecFragment_LoadBalancers_Internal{}
+	}
+	return t.SourceIPRanges
+}
+
+type AzureEnvSpecFragment_LoadBalancers struct {
+	Public   AzureEnvSpecFragment_LoadBalancers_Public   "json:\"public\" graphql:\"public\""
+	Internal AzureEnvSpecFragment_LoadBalancers_Internal "json:\"internal\" graphql:\"internal\""
+}
+
+func (t *AzureEnvSpecFragment_LoadBalancers) GetPublic() *AzureEnvSpecFragment_LoadBalancers_Public {
+	if t == nil {
+		t = &AzureEnvSpecFragment_LoadBalancers{}
+	}
+	return &t.Public
+}
+func (t *AzureEnvSpecFragment_LoadBalancers) GetInternal() *AzureEnvSpecFragment_LoadBalancers_Internal {
+	if t == nil {
+		t = &AzureEnvSpecFragment_LoadBalancers{}
+	}
+	return &t.Internal
+}
+
+type AzureEnvSpecFragment_NodeGroups struct {
+	Name            string            "json:\"name\" graphql:\"name\""
+	NodeType        string            "json:\"nodeType\" graphql:\"nodeType\""
+	CapacityPerZone int64             "json:\"capacityPerZone\" graphql:\"capacityPerZone\""
+	Reservations    []NodeReservation "json:\"reservations\" graphql:\"reservations\""
+	Zones           []string          "json:\"zones\" graphql:\"zones\""
+}
+
+func (t *AzureEnvSpecFragment_NodeGroups) GetName() string {
+	if t == nil {
+		t = &AzureEnvSpecFragment_NodeGroups{}
+	}
+	return t.Name
+}
+func (t *AzureEnvSpecFragment_NodeGroups) GetNodeType() string {
+	if t == nil {
+		t = &AzureEnvSpecFragment_NodeGroups{}
+	}
+	return t.NodeType
+}
+func (t *AzureEnvSpecFragment_NodeGroups) GetCapacityPerZone() int64 {
+	if t == nil {
+		t = &AzureEnvSpecFragment_NodeGroups{}
+	}
+	return t.CapacityPerZone
+}
+func (t *AzureEnvSpecFragment_NodeGroups) GetReservations() []NodeReservation {
+	if t == nil {
+		t = &AzureEnvSpecFragment_NodeGroups{}
+	}
+	return t.Reservations
+}
+func (t *AzureEnvSpecFragment_NodeGroups) GetZones() []string {
+	if t == nil {
+		t = &AzureEnvSpecFragment_NodeGroups{}
+	}
+	return t.Zones
+}
+
+type AzureEnvSpecFragment_MaintenanceWindows struct {
+	Name          string "json:\"name\" graphql:\"name\""
+	Enabled       bool   "json:\"enabled\" graphql:\"enabled\""
+	Hour          int64  "json:\"hour\" graphql:\"hour\""
+	LengthInHours int64  "json:\"lengthInHours\" graphql:\"lengthInHours\""
+	Days          []Day  "json:\"days\" graphql:\"days\""
+}
+
+func (t *AzureEnvSpecFragment_MaintenanceWindows) GetName() string {
+	if t == nil {
+		t = &AzureEnvSpecFragment_MaintenanceWindows{}
+	}
+	return t.Name
+}
+func (t *AzureEnvSpecFragment_MaintenanceWindows) GetEnabled() bool {
+	if t == nil {
+		t = &AzureEnvSpecFragment_MaintenanceWindows{}
+	}
+	return t.Enabled
+}
+func (t *AzureEnvSpecFragment_MaintenanceWindows) GetHour() int64 {
+	if t == nil {
+		t = &AzureEnvSpecFragment_MaintenanceWindows{}
+	}
+	return t.Hour
+}
+func (t *AzureEnvSpecFragment_MaintenanceWindows) GetLengthInHours() int64 {
+	if t == nil {
+		t = &AzureEnvSpecFragment_MaintenanceWindows{}
+	}
+	return t.LengthInHours
+}
+func (t *AzureEnvSpecFragment_MaintenanceWindows) GetDays() []Day {
+	if t == nil {
+		t = &AzureEnvSpecFragment_MaintenanceWindows{}
+	}
+	return t.Days
 }
 
 type GCPEnvSpecFragment_LoadBalancers_Public struct {
@@ -1779,6 +1997,531 @@ type DeleteAWSEnv_DeleteAWSEnv struct {
 func (t *DeleteAWSEnv_DeleteAWSEnv) GetMutationID() string {
 	if t == nil {
 		t = &DeleteAWSEnv_DeleteAWSEnv{}
+	}
+	return t.MutationID
+}
+
+type GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Public struct {
+	Enabled        bool     "json:\"enabled\" graphql:\"enabled\""
+	SourceIPRanges []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
+}
+
+func (t *GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Public) GetEnabled() bool {
+	if t == nil {
+		t = &GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Public{}
+	}
+	return t.Enabled
+}
+func (t *GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Public) GetSourceIPRanges() []string {
+	if t == nil {
+		t = &GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Public{}
+	}
+	return t.SourceIPRanges
+}
+
+type GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Internal struct {
+	Enabled        bool     "json:\"enabled\" graphql:\"enabled\""
+	SourceIPRanges []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
+}
+
+func (t *GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Internal) GetEnabled() bool {
+	if t == nil {
+		t = &GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Internal{}
+	}
+	return t.Enabled
+}
+func (t *GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Internal) GetSourceIPRanges() []string {
+	if t == nil {
+		t = &GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Internal{}
+	}
+	return t.SourceIPRanges
+}
+
+type GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers struct {
+	Public   GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Public   "json:\"public\" graphql:\"public\""
+	Internal GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Internal "json:\"internal\" graphql:\"internal\""
+}
+
+func (t *GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers) GetPublic() *GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Public {
+	if t == nil {
+		t = &GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers{}
+	}
+	return &t.Public
+}
+func (t *GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers) GetInternal() *GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Internal {
+	if t == nil {
+		t = &GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers{}
+	}
+	return &t.Internal
+}
+
+type GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_NodeGroups struct {
+	Name            string            "json:\"name\" graphql:\"name\""
+	NodeType        string            "json:\"nodeType\" graphql:\"nodeType\""
+	CapacityPerZone int64             "json:\"capacityPerZone\" graphql:\"capacityPerZone\""
+	Reservations    []NodeReservation "json:\"reservations\" graphql:\"reservations\""
+	Zones           []string          "json:\"zones\" graphql:\"zones\""
+}
+
+func (t *GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_NodeGroups) GetName() string {
+	if t == nil {
+		t = &GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_NodeGroups{}
+	}
+	return t.Name
+}
+func (t *GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_NodeGroups) GetNodeType() string {
+	if t == nil {
+		t = &GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_NodeGroups{}
+	}
+	return t.NodeType
+}
+func (t *GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_NodeGroups) GetCapacityPerZone() int64 {
+	if t == nil {
+		t = &GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_NodeGroups{}
+	}
+	return t.CapacityPerZone
+}
+func (t *GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_NodeGroups) GetReservations() []NodeReservation {
+	if t == nil {
+		t = &GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_NodeGroups{}
+	}
+	return t.Reservations
+}
+func (t *GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_NodeGroups) GetZones() []string {
+	if t == nil {
+		t = &GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_NodeGroups{}
+	}
+	return t.Zones
+}
+
+type GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows struct {
+	Name          string "json:\"name\" graphql:\"name\""
+	Enabled       bool   "json:\"enabled\" graphql:\"enabled\""
+	Hour          int64  "json:\"hour\" graphql:\"hour\""
+	LengthInHours int64  "json:\"lengthInHours\" graphql:\"lengthInHours\""
+	Days          []Day  "json:\"days\" graphql:\"days\""
+}
+
+func (t *GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows) GetName() string {
+	if t == nil {
+		t = &GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows{}
+	}
+	return t.Name
+}
+func (t *GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows) GetEnabled() bool {
+	if t == nil {
+		t = &GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows{}
+	}
+	return t.Enabled
+}
+func (t *GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows) GetHour() int64 {
+	if t == nil {
+		t = &GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows{}
+	}
+	return t.Hour
+}
+func (t *GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows) GetLengthInHours() int64 {
+	if t == nil {
+		t = &GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows{}
+	}
+	return t.LengthInHours
+}
+func (t *GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows) GetDays() []Day {
+	if t == nil {
+		t = &GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows{}
+	}
+	return t.Days
+}
+
+type GetAzureEnv_AzureEnv struct {
+	Name         string                "json:\"name\" graphql:\"name\""
+	Spec         *AzureEnvSpecFragment "json:\"spec\" graphql:\"spec\""
+	SpecRevision int64                 "json:\"specRevision\" graphql:\"specRevision\""
+}
+
+func (t *GetAzureEnv_AzureEnv) GetName() string {
+	if t == nil {
+		t = &GetAzureEnv_AzureEnv{}
+	}
+	return t.Name
+}
+func (t *GetAzureEnv_AzureEnv) GetSpec() *AzureEnvSpecFragment {
+	if t == nil {
+		t = &GetAzureEnv_AzureEnv{}
+	}
+	return t.Spec
+}
+func (t *GetAzureEnv_AzureEnv) GetSpecRevision() int64 {
+	if t == nil {
+		t = &GetAzureEnv_AzureEnv{}
+	}
+	return t.SpecRevision
+}
+
+type GetAzureEnvStatus_AzureEnv_Status struct {
+	AppliedSpecRevision int64 "json:\"appliedSpecRevision\" graphql:\"appliedSpecRevision\""
+	PendingDelete       bool  "json:\"pendingDelete\" graphql:\"pendingDelete\""
+}
+
+func (t *GetAzureEnvStatus_AzureEnv_Status) GetAppliedSpecRevision() int64 {
+	if t == nil {
+		t = &GetAzureEnvStatus_AzureEnv_Status{}
+	}
+	return t.AppliedSpecRevision
+}
+func (t *GetAzureEnvStatus_AzureEnv_Status) GetPendingDelete() bool {
+	if t == nil {
+		t = &GetAzureEnvStatus_AzureEnv_Status{}
+	}
+	return t.PendingDelete
+}
+
+type GetAzureEnvStatus_AzureEnv struct {
+	Name         string                            "json:\"name\" graphql:\"name\""
+	SpecRevision int64                             "json:\"specRevision\" graphql:\"specRevision\""
+	Status       GetAzureEnvStatus_AzureEnv_Status "json:\"status\" graphql:\"status\""
+}
+
+func (t *GetAzureEnvStatus_AzureEnv) GetName() string {
+	if t == nil {
+		t = &GetAzureEnvStatus_AzureEnv{}
+	}
+	return t.Name
+}
+func (t *GetAzureEnvStatus_AzureEnv) GetSpecRevision() int64 {
+	if t == nil {
+		t = &GetAzureEnvStatus_AzureEnv{}
+	}
+	return t.SpecRevision
+}
+func (t *GetAzureEnvStatus_AzureEnv) GetStatus() *GetAzureEnvStatus_AzureEnv_Status {
+	if t == nil {
+		t = &GetAzureEnvStatus_AzureEnv{}
+	}
+	return &t.Status
+}
+
+type CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Public struct {
+	Enabled        bool     "json:\"enabled\" graphql:\"enabled\""
+	SourceIPRanges []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
+}
+
+func (t *CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Public) GetEnabled() bool {
+	if t == nil {
+		t = &CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Public{}
+	}
+	return t.Enabled
+}
+func (t *CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Public) GetSourceIPRanges() []string {
+	if t == nil {
+		t = &CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Public{}
+	}
+	return t.SourceIPRanges
+}
+
+type CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Internal struct {
+	Enabled        bool     "json:\"enabled\" graphql:\"enabled\""
+	SourceIPRanges []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
+}
+
+func (t *CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Internal) GetEnabled() bool {
+	if t == nil {
+		t = &CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Internal{}
+	}
+	return t.Enabled
+}
+func (t *CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Internal) GetSourceIPRanges() []string {
+	if t == nil {
+		t = &CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Internal{}
+	}
+	return t.SourceIPRanges
+}
+
+type CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers struct {
+	Public   CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Public   "json:\"public\" graphql:\"public\""
+	Internal CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Internal "json:\"internal\" graphql:\"internal\""
+}
+
+func (t *CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers) GetPublic() *CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Public {
+	if t == nil {
+		t = &CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers{}
+	}
+	return &t.Public
+}
+func (t *CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers) GetInternal() *CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Internal {
+	if t == nil {
+		t = &CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers{}
+	}
+	return &t.Internal
+}
+
+type CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_NodeGroups struct {
+	Name            string            "json:\"name\" graphql:\"name\""
+	NodeType        string            "json:\"nodeType\" graphql:\"nodeType\""
+	CapacityPerZone int64             "json:\"capacityPerZone\" graphql:\"capacityPerZone\""
+	Reservations    []NodeReservation "json:\"reservations\" graphql:\"reservations\""
+	Zones           []string          "json:\"zones\" graphql:\"zones\""
+}
+
+func (t *CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_NodeGroups) GetName() string {
+	if t == nil {
+		t = &CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_NodeGroups{}
+	}
+	return t.Name
+}
+func (t *CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_NodeGroups) GetNodeType() string {
+	if t == nil {
+		t = &CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_NodeGroups{}
+	}
+	return t.NodeType
+}
+func (t *CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_NodeGroups) GetCapacityPerZone() int64 {
+	if t == nil {
+		t = &CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_NodeGroups{}
+	}
+	return t.CapacityPerZone
+}
+func (t *CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_NodeGroups) GetReservations() []NodeReservation {
+	if t == nil {
+		t = &CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_NodeGroups{}
+	}
+	return t.Reservations
+}
+func (t *CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_NodeGroups) GetZones() []string {
+	if t == nil {
+		t = &CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_NodeGroups{}
+	}
+	return t.Zones
+}
+
+type CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows struct {
+	Name          string "json:\"name\" graphql:\"name\""
+	Enabled       bool   "json:\"enabled\" graphql:\"enabled\""
+	Hour          int64  "json:\"hour\" graphql:\"hour\""
+	LengthInHours int64  "json:\"lengthInHours\" graphql:\"lengthInHours\""
+	Days          []Day  "json:\"days\" graphql:\"days\""
+}
+
+func (t *CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows) GetName() string {
+	if t == nil {
+		t = &CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows{}
+	}
+	return t.Name
+}
+func (t *CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows) GetEnabled() bool {
+	if t == nil {
+		t = &CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows{}
+	}
+	return t.Enabled
+}
+func (t *CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows) GetHour() int64 {
+	if t == nil {
+		t = &CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows{}
+	}
+	return t.Hour
+}
+func (t *CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows) GetLengthInHours() int64 {
+	if t == nil {
+		t = &CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows{}
+	}
+	return t.LengthInHours
+}
+func (t *CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows) GetDays() []Day {
+	if t == nil {
+		t = &CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows{}
+	}
+	return t.Days
+}
+
+type CreateAzureEnv_CreateAzureEnv struct {
+	MutationID   string                "json:\"mutationId\" graphql:\"mutationId\""
+	Spec         *AzureEnvSpecFragment "json:\"spec\" graphql:\"spec\""
+	SpecRevision int64                 "json:\"specRevision\" graphql:\"specRevision\""
+}
+
+func (t *CreateAzureEnv_CreateAzureEnv) GetMutationID() string {
+	if t == nil {
+		t = &CreateAzureEnv_CreateAzureEnv{}
+	}
+	return t.MutationID
+}
+func (t *CreateAzureEnv_CreateAzureEnv) GetSpec() *AzureEnvSpecFragment {
+	if t == nil {
+		t = &CreateAzureEnv_CreateAzureEnv{}
+	}
+	return t.Spec
+}
+func (t *CreateAzureEnv_CreateAzureEnv) GetSpecRevision() int64 {
+	if t == nil {
+		t = &CreateAzureEnv_CreateAzureEnv{}
+	}
+	return t.SpecRevision
+}
+
+type UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Public struct {
+	Enabled        bool     "json:\"enabled\" graphql:\"enabled\""
+	SourceIPRanges []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
+}
+
+func (t *UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Public) GetEnabled() bool {
+	if t == nil {
+		t = &UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Public{}
+	}
+	return t.Enabled
+}
+func (t *UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Public) GetSourceIPRanges() []string {
+	if t == nil {
+		t = &UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Public{}
+	}
+	return t.SourceIPRanges
+}
+
+type UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Internal struct {
+	Enabled        bool     "json:\"enabled\" graphql:\"enabled\""
+	SourceIPRanges []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
+}
+
+func (t *UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Internal) GetEnabled() bool {
+	if t == nil {
+		t = &UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Internal{}
+	}
+	return t.Enabled
+}
+func (t *UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Internal) GetSourceIPRanges() []string {
+	if t == nil {
+		t = &UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Internal{}
+	}
+	return t.SourceIPRanges
+}
+
+type UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers struct {
+	Public   UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Public   "json:\"public\" graphql:\"public\""
+	Internal UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Internal "json:\"internal\" graphql:\"internal\""
+}
+
+func (t *UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers) GetPublic() *UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Public {
+	if t == nil {
+		t = &UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers{}
+	}
+	return &t.Public
+}
+func (t *UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers) GetInternal() *UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Internal {
+	if t == nil {
+		t = &UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers{}
+	}
+	return &t.Internal
+}
+
+type UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_NodeGroups struct {
+	Name            string            "json:\"name\" graphql:\"name\""
+	NodeType        string            "json:\"nodeType\" graphql:\"nodeType\""
+	CapacityPerZone int64             "json:\"capacityPerZone\" graphql:\"capacityPerZone\""
+	Reservations    []NodeReservation "json:\"reservations\" graphql:\"reservations\""
+	Zones           []string          "json:\"zones\" graphql:\"zones\""
+}
+
+func (t *UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_NodeGroups) GetName() string {
+	if t == nil {
+		t = &UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_NodeGroups{}
+	}
+	return t.Name
+}
+func (t *UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_NodeGroups) GetNodeType() string {
+	if t == nil {
+		t = &UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_NodeGroups{}
+	}
+	return t.NodeType
+}
+func (t *UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_NodeGroups) GetCapacityPerZone() int64 {
+	if t == nil {
+		t = &UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_NodeGroups{}
+	}
+	return t.CapacityPerZone
+}
+func (t *UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_NodeGroups) GetReservations() []NodeReservation {
+	if t == nil {
+		t = &UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_NodeGroups{}
+	}
+	return t.Reservations
+}
+func (t *UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_NodeGroups) GetZones() []string {
+	if t == nil {
+		t = &UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_NodeGroups{}
+	}
+	return t.Zones
+}
+
+type UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows struct {
+	Name          string "json:\"name\" graphql:\"name\""
+	Enabled       bool   "json:\"enabled\" graphql:\"enabled\""
+	Hour          int64  "json:\"hour\" graphql:\"hour\""
+	LengthInHours int64  "json:\"lengthInHours\" graphql:\"lengthInHours\""
+	Days          []Day  "json:\"days\" graphql:\"days\""
+}
+
+func (t *UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows) GetName() string {
+	if t == nil {
+		t = &UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows{}
+	}
+	return t.Name
+}
+func (t *UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows) GetEnabled() bool {
+	if t == nil {
+		t = &UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows{}
+	}
+	return t.Enabled
+}
+func (t *UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows) GetHour() int64 {
+	if t == nil {
+		t = &UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows{}
+	}
+	return t.Hour
+}
+func (t *UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows) GetLengthInHours() int64 {
+	if t == nil {
+		t = &UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows{}
+	}
+	return t.LengthInHours
+}
+func (t *UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows) GetDays() []Day {
+	if t == nil {
+		t = &UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows{}
+	}
+	return t.Days
+}
+
+type UpdateAzureEnv_UpdateAzureEnv struct {
+	MutationID   string                "json:\"mutationId\" graphql:\"mutationId\""
+	Spec         *AzureEnvSpecFragment "json:\"spec\" graphql:\"spec\""
+	SpecRevision int64                 "json:\"specRevision\" graphql:\"specRevision\""
+}
+
+func (t *UpdateAzureEnv_UpdateAzureEnv) GetMutationID() string {
+	if t == nil {
+		t = &UpdateAzureEnv_UpdateAzureEnv{}
+	}
+	return t.MutationID
+}
+func (t *UpdateAzureEnv_UpdateAzureEnv) GetSpec() *AzureEnvSpecFragment {
+	if t == nil {
+		t = &UpdateAzureEnv_UpdateAzureEnv{}
+	}
+	return t.Spec
+}
+func (t *UpdateAzureEnv_UpdateAzureEnv) GetSpecRevision() int64 {
+	if t == nil {
+		t = &UpdateAzureEnv_UpdateAzureEnv{}
+	}
+	return t.SpecRevision
+}
+
+type DeleteAzureEnv_DeleteAzureEnv struct {
+	MutationID string "json:\"mutationId\" graphql:\"mutationId\""
+}
+
+func (t *DeleteAzureEnv_DeleteAzureEnv) GetMutationID() string {
+	if t == nil {
+		t = &DeleteAzureEnv_DeleteAzureEnv{}
 	}
 	return t.MutationID
 }
@@ -3512,6 +4255,61 @@ func (t *DeleteAWSEnv) GetDeleteAWSEnv() *DeleteAWSEnv_DeleteAWSEnv {
 	return &t.DeleteAWSEnv
 }
 
+type GetAzureEnv struct {
+	AzureEnv *GetAzureEnv_AzureEnv "json:\"azureEnv,omitempty\" graphql:\"azureEnv\""
+}
+
+func (t *GetAzureEnv) GetAzureEnv() *GetAzureEnv_AzureEnv {
+	if t == nil {
+		t = &GetAzureEnv{}
+	}
+	return t.AzureEnv
+}
+
+type GetAzureEnvStatus struct {
+	AzureEnv *GetAzureEnvStatus_AzureEnv "json:\"azureEnv,omitempty\" graphql:\"azureEnv\""
+}
+
+func (t *GetAzureEnvStatus) GetAzureEnv() *GetAzureEnvStatus_AzureEnv {
+	if t == nil {
+		t = &GetAzureEnvStatus{}
+	}
+	return t.AzureEnv
+}
+
+type CreateAzureEnv struct {
+	CreateAzureEnv CreateAzureEnv_CreateAzureEnv "json:\"createAzureEnv\" graphql:\"createAzureEnv\""
+}
+
+func (t *CreateAzureEnv) GetCreateAzureEnv() *CreateAzureEnv_CreateAzureEnv {
+	if t == nil {
+		t = &CreateAzureEnv{}
+	}
+	return &t.CreateAzureEnv
+}
+
+type UpdateAzureEnv struct {
+	UpdateAzureEnv UpdateAzureEnv_UpdateAzureEnv "json:\"updateAzureEnv\" graphql:\"updateAzureEnv\""
+}
+
+func (t *UpdateAzureEnv) GetUpdateAzureEnv() *UpdateAzureEnv_UpdateAzureEnv {
+	if t == nil {
+		t = &UpdateAzureEnv{}
+	}
+	return &t.UpdateAzureEnv
+}
+
+type DeleteAzureEnv struct {
+	DeleteAzureEnv DeleteAzureEnv_DeleteAzureEnv "json:\"deleteAzureEnv\" graphql:\"deleteAzureEnv\""
+}
+
+func (t *DeleteAzureEnv) GetDeleteAzureEnv() *DeleteAzureEnv_DeleteAzureEnv {
+	if t == nil {
+		t = &DeleteAzureEnv{}
+	}
+	return &t.DeleteAzureEnv
+}
+
 type GetGCPEnv struct {
 	GcpEnv *GetGCPEnv_GcpEnv "json:\"gcpEnv,omitempty\" graphql:\"gcpEnv\""
 }
@@ -3905,6 +4703,245 @@ func (c *Client) DeleteAWSEnv(ctx context.Context, input DeleteAWSEnvInput, inte
 
 	var res DeleteAWSEnv
 	if err := c.Client.Post(ctx, "DeleteAWSEnv", DeleteAWSEnvDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const GetAzureEnvDocument = `query GetAzureEnv ($name: String!) {
+	azureEnv(name: $name) {
+		name
+		spec {
+			... AzureEnvSpecFragment
+		}
+		specRevision
+	}
+}
+fragment AzureEnvSpecFragment on AzureEnvSpec {
+	loadBalancers {
+		public {
+			enabled
+			sourceIPRanges
+		}
+		internal {
+			enabled
+			sourceIPRanges
+		}
+	}
+	loadBalancingStrategy
+	customDomain
+	nodeGroups {
+		name
+		nodeType
+		capacityPerZone
+		reservations
+		zones
+	}
+	maintenanceWindows {
+		name
+		enabled
+		hour
+		lengthInHours
+		days
+	}
+	region
+	zones
+	cidr
+	tenantID
+	subscriptionID
+	cloudConnect
+}
+`
+
+func (c *Client) GetAzureEnv(ctx context.Context, name string, interceptors ...clientv2.RequestInterceptor) (*GetAzureEnv, error) {
+	vars := map[string]interface{}{
+		"name": name,
+	}
+
+	var res GetAzureEnv
+	if err := c.Client.Post(ctx, "GetAzureEnv", GetAzureEnvDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const GetAzureEnvStatusDocument = `query GetAzureEnvStatus ($name: String!) {
+	azureEnv(name: $name) {
+		name
+		specRevision
+		status {
+			appliedSpecRevision
+			pendingDelete
+		}
+	}
+}
+`
+
+func (c *Client) GetAzureEnvStatus(ctx context.Context, name string, interceptors ...clientv2.RequestInterceptor) (*GetAzureEnvStatus, error) {
+	vars := map[string]interface{}{
+		"name": name,
+	}
+
+	var res GetAzureEnvStatus
+	if err := c.Client.Post(ctx, "GetAzureEnvStatus", GetAzureEnvStatusDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const CreateAzureEnvDocument = `mutation CreateAzureEnv ($input: CreateAzureEnvInput!) {
+	createAzureEnv(input: $input) {
+		mutationId
+		spec {
+			... AzureEnvSpecFragment
+		}
+		specRevision
+	}
+}
+fragment AzureEnvSpecFragment on AzureEnvSpec {
+	loadBalancers {
+		public {
+			enabled
+			sourceIPRanges
+		}
+		internal {
+			enabled
+			sourceIPRanges
+		}
+	}
+	loadBalancingStrategy
+	customDomain
+	nodeGroups {
+		name
+		nodeType
+		capacityPerZone
+		reservations
+		zones
+	}
+	maintenanceWindows {
+		name
+		enabled
+		hour
+		lengthInHours
+		days
+	}
+	region
+	zones
+	cidr
+	tenantID
+	subscriptionID
+	cloudConnect
+}
+`
+
+func (c *Client) CreateAzureEnv(ctx context.Context, input CreateAzureEnvInput, interceptors ...clientv2.RequestInterceptor) (*CreateAzureEnv, error) {
+	vars := map[string]interface{}{
+		"input": input,
+	}
+
+	var res CreateAzureEnv
+	if err := c.Client.Post(ctx, "CreateAzureEnv", CreateAzureEnvDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const UpdateAzureEnvDocument = `mutation UpdateAzureEnv ($input: UpdateAzureEnvInput!) {
+	updateAzureEnv(input: $input) {
+		mutationId
+		spec {
+			... AzureEnvSpecFragment
+		}
+		specRevision
+	}
+}
+fragment AzureEnvSpecFragment on AzureEnvSpec {
+	loadBalancers {
+		public {
+			enabled
+			sourceIPRanges
+		}
+		internal {
+			enabled
+			sourceIPRanges
+		}
+	}
+	loadBalancingStrategy
+	customDomain
+	nodeGroups {
+		name
+		nodeType
+		capacityPerZone
+		reservations
+		zones
+	}
+	maintenanceWindows {
+		name
+		enabled
+		hour
+		lengthInHours
+		days
+	}
+	region
+	zones
+	cidr
+	tenantID
+	subscriptionID
+	cloudConnect
+}
+`
+
+func (c *Client) UpdateAzureEnv(ctx context.Context, input UpdateAzureEnvInput, interceptors ...clientv2.RequestInterceptor) (*UpdateAzureEnv, error) {
+	vars := map[string]interface{}{
+		"input": input,
+	}
+
+	var res UpdateAzureEnv
+	if err := c.Client.Post(ctx, "UpdateAzureEnv", UpdateAzureEnvDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const DeleteAzureEnvDocument = `mutation DeleteAzureEnv ($input: DeleteAzureEnvInput!) {
+	deleteAzureEnv(input: $input) {
+		mutationId
+	}
+}
+`
+
+func (c *Client) DeleteAzureEnv(ctx context.Context, input DeleteAzureEnvInput, interceptors ...clientv2.RequestInterceptor) (*DeleteAzureEnv, error) {
+	vars := map[string]interface{}{
+		"input": input,
+	}
+
+	var res DeleteAzureEnv
+	if err := c.Client.Post(ctx, "DeleteAzureEnv", DeleteAzureEnvDocument, &res, vars, interceptors...); err != nil {
 		if c.Client.ParseDataWhenErrors {
 			return &res, err
 		}
@@ -4487,19 +5524,24 @@ func (c *Client) DeleteK8SEnv(ctx context.Context, input DeleteK8SEnvInput, inte
 }
 
 var DocumentOperationNames = map[string]string{
-	GetAWSEnvDocument:       "GetAWSEnv",
-	GetAWSEnvStatusDocument: "GetAWSEnvStatus",
-	CreateAWSEnvDocument:    "CreateAWSEnv",
-	UpdateAWSEnvDocument:    "UpdateAWSEnv",
-	DeleteAWSEnvDocument:    "DeleteAWSEnv",
-	GetGCPEnvDocument:       "GetGCPEnv",
-	GetGCPEnvStatusDocument: "GetGCPEnvStatus",
-	CreateGCPEnvDocument:    "CreateGCPEnv",
-	UpdateGCPEnvDocument:    "UpdateGCPEnv",
-	DeleteGCPEnvDocument:    "DeleteGCPEnv",
-	GetK8SEnvDocument:       "GetK8SEnv",
-	GetK8SEnvStatusDocument: "GetK8SEnvStatus",
-	CreateK8SEnvDocument:    "CreateK8SEnv",
-	UpdateK8SEnvDocument:    "UpdateK8SEnv",
-	DeleteK8SEnvDocument:    "DeleteK8SEnv",
+	GetAWSEnvDocument:         "GetAWSEnv",
+	GetAWSEnvStatusDocument:   "GetAWSEnvStatus",
+	CreateAWSEnvDocument:      "CreateAWSEnv",
+	UpdateAWSEnvDocument:      "UpdateAWSEnv",
+	DeleteAWSEnvDocument:      "DeleteAWSEnv",
+	GetAzureEnvDocument:       "GetAzureEnv",
+	GetAzureEnvStatusDocument: "GetAzureEnvStatus",
+	CreateAzureEnvDocument:    "CreateAzureEnv",
+	UpdateAzureEnvDocument:    "UpdateAzureEnv",
+	DeleteAzureEnvDocument:    "DeleteAzureEnv",
+	GetGCPEnvDocument:         "GetGCPEnv",
+	GetGCPEnvStatusDocument:   "GetGCPEnvStatus",
+	CreateGCPEnvDocument:      "CreateGCPEnv",
+	UpdateGCPEnvDocument:      "UpdateGCPEnv",
+	DeleteGCPEnvDocument:      "DeleteGCPEnv",
+	GetK8SEnvDocument:         "GetK8SEnv",
+	GetK8SEnvStatusDocument:   "GetK8SEnvStatus",
+	CreateK8SEnvDocument:      "CreateK8SEnv",
+	UpdateK8SEnvDocument:      "UpdateK8SEnv",
+	DeleteK8SEnvDocument:      "DeleteK8SEnv",
 }

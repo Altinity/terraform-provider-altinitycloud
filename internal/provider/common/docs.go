@@ -177,3 +177,8 @@ const GCS_STORAGE_DESCRIPTION = "Google Cloud Storage configuration"
 const BUCKET_NAME_DESCRIPTION = "Bucket name"
 const METRICS_DESCRIPTION = "Metrics configuration"
 const METRICS_RETENTION_PERIOD_IN_DAYS_DESCRIPTION = "Metrics retention period in days (default `30`)."
+
+const AZURE_ZONES_DESCRIPTION = `TBA`
+const AZURE_REGION_DESCRIPTION = `TBA`
+const AZURE_TENANT_ID_DESCRIPTION = "TBA"
+const AZURE_SUBSCRIPTION_ID_DESCRIPTION = "TBA"

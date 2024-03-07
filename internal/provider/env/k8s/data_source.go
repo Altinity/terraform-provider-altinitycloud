@@ -15,7 +15,7 @@ var (
 	_ datasource.DataSourceWithConfigure = &K8SEnvDataSource{}
 )
 
-func NewAWSEnvDataSource() datasource.DataSource {
+func NewK8SEnvDataSource() datasource.DataSource {
 	return &K8SEnvDataSource{}
 }
 

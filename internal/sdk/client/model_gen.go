@@ -346,6 +346,217 @@ type AWSEnvUpdateSpecInput struct {
 	Tags []*KeyValueInput `json:"tags,omitempty"`
 }
 
+// Azure environment.
+type AzureEnv struct {
+	// A globally-unique environment identifier.
+	Name string `json:"name"`
+	// Environment spec.
+	Spec AzureEnvSpec `json:"spec"`
+	// Spec revision (monotonically-increasing).
+	SpecRevision int64 `json:"specRevision"`
+	// Environment status.
+	Status AzureEnvStatus `json:"status"`
+}
+
+// Azure environments query filter.
+type AzureEnvFilter struct {
+	// Names of the environments to return.
+	// Names that don't match any of the existing environments are ignored.
+	Names []string `json:"names,omitempty"`
+}
+
+// Azure environment internal load balancer configuration.
+type AzureEnvLoadBalancerInternalSpec struct {
+	// True if load balancer is enabled,
+	// false otherwise.
+	Enabled bool `json:"enabled"`
+	// IP addresses/blocks to allow traffic from.
+	//
+	// 0.0.0.0/0 by default.
+	SourceIPRanges []string `json:"sourceIPRanges"`
+}
+
+type AzureEnvLoadBalancerInternalSpecInput struct {
+	// True if load balancer is enabled,
+	// false otherwise.
+	//
+	// False by default.
+	Enabled *bool `json:"enabled,omitempty"`
+	// IP addresses/blocks to allow traffic from.
+	//
+	// 0.0.0.0/0 by default.
+	SourceIPRanges []string `json:"sourceIPRanges,omitempty"`
+}
+
+// Azure environment internal load balancer status.
+type AzureEnvLoadBalancerInternalStatus struct {
+	// Globally unique name for your service in prefix.GUID.suffix format.
+	PrivateLinkServiceAlias *string `json:"privateLinkServiceAlias,omitempty"`
+}
+
+// Azure environment public load balancer configuration.
+type AzureEnvLoadBalancerPublicSpec struct {
+	// True if load balancer is enabled,
+	// false otherwise.
+	Enabled bool `json:"enabled"`
+	// IP addresses/blocks to allow traffic from.
+	//
+	// 0.0.0.0/0 by default.
+	SourceIPRanges []string `json:"sourceIPRanges"`
+}
+
+type AzureEnvLoadBalancerPublicSpecInput struct {
+	// True if load balancer is enabled,
+	// false otherwise.
+	//
+	// False by default.
+	Enabled *bool `json:"enabled,omitempty"`
+	// IP addresses/blocks to allow traffic from.
+	//
+	// 0.0.0.0/0 by default.
+	SourceIPRanges []string `json:"sourceIPRanges,omitempty"`
+}
+
+// Azure environment load balancers configuration.
+type AzureEnvLoadBalancersSpec struct {
+	// Public load balancer configuration.
+	//
+	// Accessible via *.$env_name.altinity.cloud.
+	Public AzureEnvLoadBalancerPublicSpec `json:"public"`
+	// Internal load balancer configuration.
+	//
+	// Accessible via *.internal.$env_name.altinity.cloud.
+	Internal AzureEnvLoadBalancerInternalSpec `json:"internal"`
+}
+
+// Azure environment load balancers configuration input.
+type AzureEnvLoadBalancersSpecInput struct {
+	// Public load balancer configuration.
+	//
+	// Accessible via *.$env_name.altinity.cloud.
+	Public *AzureEnvLoadBalancerPublicSpecInput `json:"public,omitempty"`
+	// Internal load balancer configuration.
+	//
+	// Accessible via *.internal.$env_name.altinity.cloud.
+	Internal *AzureEnvLoadBalancerInternalSpecInput `json:"internal,omitempty"`
+}
+
+// Azure environment load balancers status.
+type AzureEnvLoadBalancersStatus struct {
+	// Status of internal load balancer.
+	Internal AzureEnvLoadBalancerInternalStatus `json:"internal"`
+}
+
+// Azure environment node group configuration.
+type AzureEnvNodeGroupSpec struct {
+	// Unique (among environment node groups) node group identifier.
+	Name string `json:"name"`
+	// Instance type (https://azure.microsoft.com/en-us/pricing/details/virtual-machines/series).
+	//
+	// Example: "PremiumV2_LRS"
+	NodeType string `json:"nodeType"`
+	// Availability zones.
+	Zones []string `json:"zones"`
+	// Maximum number of instances per availability zone.
+	CapacityPerZone int64 `json:"capacityPerZone"`
+	// Types of workload that are allowed to be scheduled onto the nodes that belong to this group.
+	Reservations []NodeReservation `json:"reservations"`
+}
+
+// Azure environment node group configuration input.
+type AzureEnvNodeGroupSpecInput struct {
+	// Unique (among environment node groups) node group identifier.
+	//
+	// Defaults to $nodeType.
+	Name *string `json:"name,omitempty"`
+	// Machine type (https://azure.microsoft.com/en-us/pricing/details/virtual-machines/series).
+	//
+	// Example: "PremiumV2_LRS"
+	NodeType string `json:"nodeType"`
+	// Azure zones.
+	//
+	// Defaults to environment zones.
+	Zones []string `json:"zones,omitempty"`
+	// Maximum number of instances per zone.
+	CapacityPerZone int64 `json:"capacityPerZone"`
+	// Types of workloads that are allowed to be scheduled onto the nodes that belong to this group.
+	Reservations []NodeReservation `json:"reservations,omitempty"`
+}
+
+// Azure environment configuration.
+type AzureEnvSpec struct {
+	// ID linking the environment to a specific Azure subscription for resource management.
+	//
+	// Immutable.
+	TenantID string `json:"tenantID"`
+	// ID of the Azure Active Directory tenant for user identity and access management.
+	//
+	// Immutable.
+	SubscriptionID string `json:"subscriptionID"`
+	// VPC CIDR block from the private IPv4 address ranges as specified in RFC 1918
+	// (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16).
+	//
+	// At least /21 required.
+	//
+	// Examples: "10.136.0.0/21"
+	//
+	// Immutable.
+	Cidr string `json:"cidr"`
+	// Azure region (https://azure.microsoft.com/en-us/explore/global-infrastructure/geographies).
+	//
+	// Example: "eastus"
+	//
+	// Immutable.
+	Region string `json:"region"`
+	// Explicit list of Azure availability zones.
+	// At least 2 required.
+	//
+	// Example: ["eastus-1", "eastus-2"]
+	Zones []string `json:"zones"`
+	// Load balancers configuration.
+	LoadBalancers AzureEnvLoadBalancersSpec `json:"loadBalancers"`
+	// Load balancing strategy.
+	LoadBalancingStrategy LoadBalancingStrategy `json:"loadBalancingStrategy"`
+	// List of node groups.
+	// At least one required.
+	NodeGroups []*AzureEnvNodeGroupSpec `json:"nodeGroups"`
+	// List of maintenance windows during which automatic maintenance is permitted.
+	// By default updates are applied as soon as they are available.
+	MaintenanceWindows []*MaintenanceWindowSpec `json:"maintenanceWindows"`
+	// Custom domain.
+	//
+	// Examples:
+	// - "example.com"
+	// - "foo.bar.com"
+	//
+	// Before specifying custom domain, please create the following DNS records:
+	// - CNAME _acme-challenge.example.com. $env_name.altinity.cloud.
+	// - (optional, public load balancer)
+	//   CNAME *.example.com. _.$env_name.altinity.cloud.
+	// - (optional, internal load balancer)
+	//   CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
+	// - (optional, privatelink)
+	//   CNAME *.privatelink.example.com. _.privatelink.$env_name.altinity.cloud.
+	CustomDomain *string `json:"customDomain,omitempty"`
+	// Azure Private Link service configuration.
+	PrivateLinkService PrivateLinkServiceSpec `json:"privateLinkService"`
+	// Tags to apply to Azure resources.
+	Tags []*KeyValue `json:"tags"`
+	// True indicates that cloud resources are to be managed via altinity/cloud-connect.
+	// False means direct management.
+	CloudConnect bool `json:"cloudConnect"`
+}
+
+// Azure environment status.
+type AzureEnvStatus struct {
+	// Applied spec revision (monotonically-increasing).
+	AppliedSpecRevision int64 `json:"appliedSpecRevision"`
+	// Status of load balancers.
+	LoadBalancers AzureEnvLoadBalancersStatus `json:"loadBalancers"`
+	// True indicates that environment is pending deletion.
+	PendingDelete bool `json:"pendingDelete"`
+}
+
 // AWS environment create request input.
 type CreateAWSEnvInput struct {
 	// A globally-unique environment identifier.
@@ -432,6 +643,97 @@ type CreateAWSEnvSpecInput struct {
 	Endpoints []*AWSEnvEndpointSpecInput `json:"endpoints,omitempty"`
 	// Tags to apply to AWS resources.
 	Tags []*KeyValueInput `json:"tags,omitempty"`
+	// True indicates that cloud resources are to be managed via altinity/cloud-connect.
+	// False means direct management (default).
+	//
+	// Immutable.
+	CloudConnect *bool `json:"cloudConnect,omitempty"`
+}
+
+// Azure environment create request input.
+type CreateAzureEnvInput struct {
+	// A globally-unique environment identifier.
+	//
+	// Immutable.
+	Name string `json:"name"`
+	// Environment spec.
+	Spec CreateAzureEnvSpecInput `json:"spec"`
+}
+
+// Azure environment create request result.
+type CreateAzureEnvResult struct {
+	// Mutation unique identifier.
+	MutationID string `json:"mutationId"`
+	// Azure environment active configuration.
+	Spec AzureEnvSpec `json:"spec"`
+	// Spec revision (monotonically-increasing).
+	SpecRevision int64 `json:"specRevision"`
+}
+
+// Azure environment configuration create request input.
+type CreateAzureEnvSpecInput struct {
+	// ID linking the environment to a specific Azure subscription for resource management.
+	//
+	// Immutable.
+	SubscriptionID string `json:"subscriptionID"`
+	// ID of the Azure Active Directory tenant for user identity and access management.
+	//
+	// Immutable.
+	TenantID string `json:"tenantID"`
+	// Network CIDR block from the private IPv4 address ranges as specified in RFC 1918
+	// (10/8, 172.16/12, 192.168/16).
+	//
+	// At least /21 required.
+	//
+	// Example: "10.136.0.0/21"
+	//
+	// Immutable.
+	Cidr string `json:"cidr"`
+	// Azure region (https://azure.microsoft.com/en-us/explore/global-infrastructure/geographies).
+	//
+	// Example: "eastus".
+	//
+	// Immutable.
+	Region string `json:"region"`
+	// Number of Azure zones.
+	// At least 2 required.
+	//
+	// This field is optional if "zones" is specified.
+	NumberOfZones *int64 `json:"numberOfZones,omitempty"`
+	// Explicit list of Azure zones.
+	// At least 2 required.
+	//
+	// Example: ["eastus-1", "eastus-2"]
+	Zones []string `json:"zones,omitempty"`
+	// Load balancers configuration.
+	LoadBalancers *AzureEnvLoadBalancersSpecInput `json:"loadBalancers,omitempty"`
+	// Load balancing strategy.
+	// ZONE_BEST_EFFORT by default.
+	LoadBalancingStrategy *LoadBalancingStrategy `json:"loadBalancingStrategy,omitempty"`
+	// List of node groups.
+	// At least one required.
+	NodeGroups []*AzureEnvNodeGroupSpecInput `json:"nodeGroups"`
+	// List of maintenance windows during which automatic maintenance is permitted.
+	// By default updates are applied as soon as they are available.
+	MaintenanceWindows []*MaintenanceWindowSpecInput `json:"maintenanceWindows,omitempty"`
+	// Custom domain.
+	//
+	// Examples:
+	// - "example.com"
+	// - "foo.bar.com"
+	//
+	// Before specifying custom domain, please create the following DNS records:
+	// - CNAME _acme-challenge.example.com. $env_name.altinity.cloud.
+	// - (optional, public load balancer)
+	// CNAME *.example.com. _.$env_name.altinity.cloud.
+	// - (optional, internal load balancer)
+	// CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
+	// - (optional, privatelink)
+	// CNAME *.privatelink.example.com. _.privatelink.$env_name.altinity.cloud.
+	CustomDomain *string `json:"customDomain,omitempty"`
+	// Azure Private Link service configuration.
+	PrivateLinkService *PrivateLinkServiceSpecInput `json:"privateLinkService,omitempty"`
+	Tags               []*KeyValueInput             `json:"tags,omitempty"`
 	// True indicates that cloud resources are to be managed via altinity/cloud-connect.
 	// False means direct management (default).
 	//
@@ -600,6 +902,26 @@ type DeleteAWSEnvInput struct {
 
 // AWS environment delete request result.
 type DeleteAWSEnvResult struct {
+	// Mutation unique identifier.
+	MutationID string `json:"mutationId"`
+}
+
+// Azure environment delete request input.
+type DeleteAzureEnvInput struct {
+	// The name of Azure environment to delete.
+	Name string `json:"name"`
+	// By default, delete mutation does not delete the env but rather marks it to be
+	// removed once it's deprovisioned (which may take some time).
+	// Set "force" to true to skip deprovisioning.
+	Force *bool `json:"force,omitempty"`
+	// By default, the delete operation will not delete any provisioned clusters and
+	// the deletion will fail until the clusters get removed.
+	// Set "forceDestroyClusters" to true remove all provisioned clusters as part of the environment deletion process.
+	ForceDestroyClusters *bool `json:"forceDestroyClusters,omitempty"`
+}
+
+// Azure environment delete request result.
+type DeleteAzureEnvResult struct {
 	// Mutation unique identifier.
 	MutationID string `json:"mutationId"`
 }
@@ -1173,6 +1495,26 @@ type NodeTolerationSpecInput struct {
 	Effect   NodeTolerationEffect   `json:"effect"`
 }
 
+// Specifies Azure Private Link Service settings, including allowed subscription IDs for
+// private access. This enhances network security by ensuring only authorized subscriptions
+// connect to your services.
+//
+// Example: ["34d1b48e-6471-4129-be6b-9e3c2df6955c", "23f44dbf-02a0-4fd7-b821-5e82652bd920"]
+type PrivateLinkServiceSpec struct {
+	// Lists subscription IDs permitted for Private Link access, securing service connections.
+	AllowedSubscriptions []string `json:"AllowedSubscriptions"`
+}
+
+// Specifies Azure Private Link Service settings, including allowed subscription IDs for
+// private access. This enhances network security by ensuring only authorized subscriptions
+// connect to your services.
+//
+// Example: ["34d1b48e-6471-4129-be6b-9e3c2df6955c", "23f44dbf-02a0-4fd7-b821-5e82652bd920"]
+type PrivateLinkServiceSpecInput struct {
+	// Lists subscription IDs permitted for Private Link access, securing service connections.
+	AllowedSubscriptions []string `json:"AllowedSubscriptions"`
+}
+
 // AWS environment update request input.
 type UpdateAWSEnvInput struct {
 	// Environment name.
@@ -1192,6 +1534,68 @@ type UpdateAWSEnvResult struct {
 	Spec AWSEnvSpec `json:"spec"`
 	// Spec revision (monotonically-increasing).
 	SpecRevision int64 `json:"specRevision"`
+}
+
+// Azure environment update request input.
+type UpdateAzureEnvInput struct {
+	// Environment name.
+	Name string `json:"name"`
+	// Environment spec.
+	Spec UpdateAzureEnvSpecInput `json:"spec"`
+	// Environment spec update strategy.
+	// MERGE by default.
+	UpdateStrategy *UpdateStrategy `json:"updateStrategy,omitempty"`
+}
+
+// Azure environment update request result.
+type UpdateAzureEnvResult struct {
+	// Mutation unique identifier.
+	MutationID string `json:"mutationId"`
+	// Azure environment active configuration.
+	Spec AzureEnvSpec `json:"spec"`
+	// Spec revision (monotonically-increasing).
+	SpecRevision int64 `json:"specRevision"`
+}
+
+// Azure environment configuration update request input.
+type UpdateAzureEnvSpecInput struct {
+	// Number of Azure zones.
+	// At least 2 required (if specified).
+	NumberOfZones *int64 `json:"numberOfZones,omitempty"`
+	// Explicit list of Azure zones.
+	// At least 2 required (if specified).
+	//
+	// Example: ["eastus-1", "eastus-2"]
+	Zones []string `json:"zones,omitempty"`
+	// Load balancers configuration.
+	LoadBalancers *AzureEnvLoadBalancersSpecInput `json:"loadBalancers,omitempty"`
+	// Load balancing strategy.
+	// ZONE_BEST_EFFORT by default.
+	LoadBalancingStrategy *LoadBalancingStrategy `json:"loadBalancingStrategy,omitempty"`
+	// List of node groups.
+	// At least one required.
+	NodeGroups []*AzureEnvNodeGroupSpecInput `json:"nodeGroups,omitempty"`
+	// List of maintenance windows during which automatic maintenance is permitted.
+	// By default updates are applied as soon as they are available.
+	MaintenanceWindows []*MaintenanceWindowSpecInput `json:"maintenanceWindows,omitempty"`
+	// Custom domain.
+	//
+	// Examples:
+	// - "example.com"
+	// - "foo.bar.com"
+	//
+	// Before specifying custom domain, please create the following DNS records:
+	// - CNAME _acme-challenge.example.com. $env_name.altinity.cloud.
+	// - (optional, public load balancer)
+	// CNAME *.example.com. _.$env_name.altinity.cloud.
+	// - (optional, internal load balancer)
+	// CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
+	// - (optional, privatelink)
+	// CNAME *.privatelink.example.com. _.privatelink.$env_name.altinity.cloud.
+	CustomDomain *string `json:"customDomain,omitempty"`
+	// Azure Private Link service configuration.
+	PrivateLinkService *PrivateLinkServiceSpecInput `json:"privateLinkService,omitempty"`
+	Tags               []*KeyValueInput             `json:"tags"`
 }
 
 // GCP environment update request input.
