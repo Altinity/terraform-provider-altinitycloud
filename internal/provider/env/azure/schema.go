@@ -36,7 +36,7 @@ func (r *AzureEnvResource) Schema(ctx context.Context, req resource.SchemaReques
 			"tenant_id":                   getAzureTenantIDAttribute(true, false, false),
 			"subscription_id":             getAzureSubscriptionIDAttribute(true, false, false),
 			"tags":                        common.GetTagsAttribute(false, true, false),
-			"private_link_service":        getPrivateLinkServiceAttribute(false, true, false),
+			"private_link_service":        getPrivateLinkServiceAttribute(false, true, true),
 			"spec_revision":               common.SpecRevisionAttribute,
 			"force_destroy":               common.GetForceDestroyAttribute(false, true, true),
 			"force_destroy_clusters":      common.GetForceDestroyClustersAttribute(false, true, true),
@@ -60,8 +60,8 @@ func (d *AzureEnvDataSource) Schema(ctx context.Context, req datasource.SchemaRe
 			"number_of_zones":         common.GetNumberOfZonesAttribute(false, false, true),
 			"node_groups":             common.GetNodeGroupsAttribure(false, false, true),
 			"region":                  common.GetRegionAttribure(false, false, true, common.AZURE_REGION_DESCRIPTION),
-			"tenant_id":               getAzureTenantIDAttribute(true, false, false),
-			"subscription_id":         getAzureSubscriptionIDAttribute(true, false, false),
+			"tenant_id":               getAzureTenantIDAttribute(false, false, true),
+			"subscription_id":         getAzureSubscriptionIDAttribute(false, false, true),
 			"tags":                    common.GetTagsAttribute(false, false, true),
 			"private_link_service":    getPrivateLinkServiceAttribute(false, false, true),
 			"spec_revision":           common.SpecRevisionAttribute,
@@ -142,6 +142,7 @@ func getPrivateLinkServiceAttribute(required, optional, computed bool) rschema.S
 		Required:            required,
 		Computed:            computed,
 		MarkdownDescription: "TBA",
+		Default:             objectdefault.StaticValue(privateLinkServiceDefaultObject),
 		Attributes: map[string]rschema.Attribute{
 			"allowed_subscriptions": rschema.ListAttribute{
 				ElementType:         types.StringType,
@@ -154,6 +155,17 @@ func getPrivateLinkServiceAttribute(required, optional, computed bool) rschema.S
 		},
 	}
 }
+
+var privateLinkServiceDefaultObject, _ = types.ObjectValue(
+	map[string]attr.Type{
+		"allowed_subscriptions": types.ListType{
+			ElemType: types.StringType,
+		},
+	},
+	map[string]attr.Value{
+		"allowed_subscriptions": types.ListNull(types.StringType),
+	},
+)
 
 var loadBalancerDefaultObject, _ = types.ObjectValue(
 	map[string]attr.Type{

@@ -2206,9 +2206,32 @@ func (t *GetAzureEnv_AzureEnv) GetSpecRevision() int64 {
 	return t.SpecRevision
 }
 
+type GetAzureEnvStatus_AzureEnv_Status_LoadBalancers_Internal struct {
+	PrivateLinkServiceAlias *string "json:\"privateLinkServiceAlias,omitempty\" graphql:\"privateLinkServiceAlias\""
+}
+
+func (t *GetAzureEnvStatus_AzureEnv_Status_LoadBalancers_Internal) GetPrivateLinkServiceAlias() *string {
+	if t == nil {
+		t = &GetAzureEnvStatus_AzureEnv_Status_LoadBalancers_Internal{}
+	}
+	return t.PrivateLinkServiceAlias
+}
+
+type GetAzureEnvStatus_AzureEnv_Status_LoadBalancers struct {
+	Internal GetAzureEnvStatus_AzureEnv_Status_LoadBalancers_Internal "json:\"internal\" graphql:\"internal\""
+}
+
+func (t *GetAzureEnvStatus_AzureEnv_Status_LoadBalancers) GetInternal() *GetAzureEnvStatus_AzureEnv_Status_LoadBalancers_Internal {
+	if t == nil {
+		t = &GetAzureEnvStatus_AzureEnv_Status_LoadBalancers{}
+	}
+	return &t.Internal
+}
+
 type GetAzureEnvStatus_AzureEnv_Status struct {
-	AppliedSpecRevision int64 "json:\"appliedSpecRevision\" graphql:\"appliedSpecRevision\""
-	PendingDelete       bool  "json:\"pendingDelete\" graphql:\"pendingDelete\""
+	AppliedSpecRevision int64                                           "json:\"appliedSpecRevision\" graphql:\"appliedSpecRevision\""
+	PendingDelete       bool                                            "json:\"pendingDelete\" graphql:\"pendingDelete\""
+	LoadBalancers       GetAzureEnvStatus_AzureEnv_Status_LoadBalancers "json:\"loadBalancers\" graphql:\"loadBalancers\""
 }
 
 func (t *GetAzureEnvStatus_AzureEnv_Status) GetAppliedSpecRevision() int64 {
@@ -2222,6 +2245,12 @@ func (t *GetAzureEnvStatus_AzureEnv_Status) GetPendingDelete() bool {
 		t = &GetAzureEnvStatus_AzureEnv_Status{}
 	}
 	return t.PendingDelete
+}
+func (t *GetAzureEnvStatus_AzureEnv_Status) GetLoadBalancers() *GetAzureEnvStatus_AzureEnv_Status_LoadBalancers {
+	if t == nil {
+		t = &GetAzureEnvStatus_AzureEnv_Status{}
+	}
+	return &t.LoadBalancers
 }
 
 type GetAzureEnvStatus_AzureEnv struct {
@@ -4895,6 +4924,11 @@ const GetAzureEnvStatusDocument = `query GetAzureEnvStatus ($name: String!) {
 		status {
 			appliedSpecRevision
 			pendingDelete
+			loadBalancers {
+				internal {
+					privateLinkServiceAlias
+				}
+			}
 		}
 	}
 }

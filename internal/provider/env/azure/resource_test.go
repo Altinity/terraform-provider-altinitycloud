@@ -51,14 +51,14 @@ func GetAzureEnvResource(envName string) string {
 resource "%s" "dummy" {
   name            = "%s"
 	cidr            = "10.0.0.0/16"
-	region          = "us-east1"
+	region          = "eastus"
 	tenant_id       = "123456789012"
-	sbuscription_id = "123456789012"
-	zones           = ["us-east1-c"]
+	subscription_id = "123456789012"
+	zones           = ["eastus1"]
 
 	node_groups = [{
-		zones             = ["us-east1-c"]
-		node_type         = "c2-standard-16"
+		zones             = ["eastus1"]
+		node_type         = "Standard_D2s_v3"
 		capacity_per_zone = 1
 		reservations      = ["SYSTEM","CLICKHOUSE","ZOOKEEPER"]
 	}]

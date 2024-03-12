@@ -15,6 +15,11 @@ query GetAzureEnvStatus($name: String!) {
     status {
       appliedSpecRevision
       pendingDelete
+      loadBalancers {
+        internal {
+          privateLinkServiceAlias
+        }
+      }
     }
   }
 }
