@@ -1502,7 +1502,7 @@ type NodeTolerationSpecInput struct {
 // Example: ["34d1b48e-6471-4129-be6b-9e3c2df6955c", "23f44dbf-02a0-4fd7-b821-5e82652bd920"]
 type PrivateLinkServiceSpec struct {
 	// Lists subscription IDs permitted for Private Link access, securing service connections.
-	AllowedSubscriptions []string `json:"AllowedSubscriptions"`
+	AllowedSubscriptions []string `json:"allowedSubscriptions"`
 }
 
 // Specifies Azure Private Link Service settings, including allowed subscription IDs for
@@ -1512,7 +1512,7 @@ type PrivateLinkServiceSpec struct {
 // Example: ["34d1b48e-6471-4129-be6b-9e3c2df6955c", "23f44dbf-02a0-4fd7-b821-5e82652bd920"]
 type PrivateLinkServiceSpecInput struct {
 	// Lists subscription IDs permitted for Private Link access, securing service connections.
-	AllowedSubscriptions []string `json:"AllowedSubscriptions"`
+	AllowedSubscriptions []string `json:"allowedSubscriptions"`
 }
 
 // AWS environment update request input.
@@ -1595,7 +1595,7 @@ type UpdateAzureEnvSpecInput struct {
 	CustomDomain *string `json:"customDomain,omitempty"`
 	// Azure Private Link service configuration.
 	PrivateLinkService *PrivateLinkServiceSpecInput `json:"privateLinkService,omitempty"`
-	Tags               []*KeyValueInput             `json:"tags"`
+	Tags               []*KeyValueInput             `json:"tags,omitempty"`
 }
 
 // GCP environment update request input.

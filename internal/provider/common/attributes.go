@@ -241,6 +241,19 @@ func GetReservationsAttribute(required, optional, computed bool) rschema.SetAttr
 	}
 }
 
+func GetTagsAttribute(required, optional, computed bool) rschema.ListNestedAttribute {
+	return rschema.ListNestedAttribute{
+		NestedObject:        KeyValueAttribute,
+		Optional:            optional,
+		Required:            required,
+		Computed:            computed,
+		MarkdownDescription: TAGS_DESCRIPTION,
+		Validators: []validator.List{
+			listvalidator.SizeAtLeast(1),
+		},
+	}
+}
+
 var PendingDeleteAttribute = rschema.BoolAttribute{
 	Required:            false,
 	Optional:            false,

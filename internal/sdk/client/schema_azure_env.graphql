@@ -72,6 +72,13 @@ fragment AzureEnvSpecFragment on AzureEnvSpec {
     lengthInHours
     days
   }
+  tags {
+    key
+    value
+  }
+  privateLinkService {
+    allowedSubscriptions
+  }
   region
   zones
   cidr

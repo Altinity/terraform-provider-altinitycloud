@@ -22,11 +22,17 @@ type AzureEnvResourceModel struct {
 	LoadBalancers         *LoadBalancersModel             `tfsdk:"load_balancers"`
 	LoadBalancingStrategy types.String                    `tfsdk:"load_balancing_strategy"`
 	MaintenanceWindows    []common.MaintenanceWindowModel `tfsdk:"maintenance_windows"`
+	Tags                  []common.KeyValueModel          `tfsdk:"tags"`
+	PrivateLinkService    *PrivateLinkServiceModel        `tfsdk:"private_link_service"`
 
 	SpecRevision             types.Int64 `tfsdk:"spec_revision"`
 	ForceDestroy             types.Bool  `tfsdk:"force_destroy"`
 	ForceDestroyClusters     types.Bool  `tfsdk:"force_destroy_clusters"`
 	SkipDeprovisionOnDestroy types.Bool  `tfsdk:"skip_deprovision_on_destroy"`
+}
+
+type PrivateLinkServiceModel struct {
+	AllowedSubscriptions []types.String `tfsdk:"allowed_subscriptions"`
 }
 
 type LoadBalancersModel struct {
@@ -52,7 +58,22 @@ func (e AzureEnvResourceModel) toSDK() (client.CreateAzureEnvInput, client.Updat
 	LoadBalancers := loadBalancersToSDK(e.LoadBalancers)
 	nodeGroups := nodeGroupsToSDK(e.NodeGroups)
 	loadBalancingStrategy := (*client.LoadBalancingStrategy)(e.LoadBalancingStrategy.ValueStringPointer())
-	cloudConnect := false
+	cloudConnect := true
+
+	var tags []*client.KeyValueInput
+	for _, t := range e.Tags {
+		tags = append(tags, &client.KeyValueInput{
+			Key:   t.Key.ValueString(),
+			Value: t.Value.ValueString(),
+		})
+	}
+
+	var allowedSubscriptions = []string{}
+	if e.PrivateLinkService != nil {
+		for _, as := range e.PrivateLinkService.AllowedSubscriptions {
+			allowedSubscriptions = append(allowedSubscriptions, as.ValueString())
+		}
+	}
 
 	create := client.CreateAzureEnvInput{
 		Name: e.Name.ValueString(),
@@ -69,6 +90,10 @@ func (e AzureEnvResourceModel) toSDK() (client.CreateAzureEnvInput, client.Updat
 			NumberOfZones:         e.NumberOfZones.ValueInt64Pointer(),
 			MaintenanceWindows:    maintenanceWindows,
 			CloudConnect:          &cloudConnect,
+			Tags:                  tags,
+			PrivateLinkService: &client.PrivateLinkServiceSpecInput{
+				AllowedSubscriptions: allowedSubscriptions,
+			},
 		},
 	}
 
@@ -84,6 +109,10 @@ func (e AzureEnvResourceModel) toSDK() (client.CreateAzureEnvInput, client.Updat
 			LoadBalancers:         LoadBalancers,
 			NumberOfZones:         e.NumberOfZones.ValueInt64Pointer(),
 			MaintenanceWindows:    maintenanceWindows,
+			Tags:                  tags,
+			PrivateLinkService: &client.PrivateLinkServiceSpecInput{
+				AllowedSubscriptions: allowedSubscriptions,
+			},
 		},
 	}
 
@@ -102,6 +131,20 @@ func (model *AzureEnvResourceModel) toModel(env client.GetAzureEnv_AzureEnv) {
 	model.NodeGroups = nodeGroupsToModel(env.Spec.NodeGroups)
 	model.MaintenanceWindows = maintenanceWindowsToModel(env.Spec.MaintenanceWindows)
 	model.Zones = common.ListToModel(env.Spec.Zones)
+
+	var tags []common.KeyValueModel
+	for _, t := range env.Spec.Tags {
+		tags = append(tags, common.KeyValueModel{
+			Key:   types.StringValue(t.Key),
+			Value: types.StringValue(t.Value),
+		})
+	}
+
+	model.PrivateLinkService = &PrivateLinkServiceModel{
+		AllowedSubscriptions: common.ListStringToModel(env.Spec.PrivateLinkService.AllowedSubscriptions),
+	}
+
+	model.Tags = tags
 }
 
 func loadBalancersToSDK(loadBalancers *LoadBalancersModel) *client.AzureEnvLoadBalancersSpecInput {

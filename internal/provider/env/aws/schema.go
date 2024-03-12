@@ -37,7 +37,7 @@ func (r *AWSEnvResource) Schema(ctx context.Context, req resource.SchemaRequest,
 			"region":                      common.GetRegionAttribure(true, false, false, common.AWS_REGION_DESCRIPTION),
 			"peering_connections":         getPeeringConnectionsAttribute(false, true, false),
 			"endpoints":                   getEndpointsAttribute(false, true, false),
-			"tags":                        getTagsAttribute(false, true, false),
+			"tags":                        common.GetTagsAttribute(false, true, false),
 			"cloud_connect":               cloudConnectAttribute,
 			"spec_revision":               common.SpecRevisionAttribute,
 			"force_destroy":               common.GetForceDestroyAttribute(false, true, true),
@@ -65,7 +65,7 @@ func (d *AWSEnvDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 			"region":                  common.GetRegionAttribure(false, false, true, common.AWS_REGION_DESCRIPTION),
 			"peering_connections":     getPeeringConnectionsAttribute(false, false, true),
 			"endpoints":               getEndpointsAttribute(false, false, true),
-			"tags":                    getTagsAttribute(false, false, true),
+			"tags":                    common.GetTagsAttribute(false, false, true),
 			"cloud_connect":           cloudConnectAttribute,
 			"spec_revision":           common.SpecRevisionAttribute,
 
@@ -157,19 +157,6 @@ func getEndpointsAttribute(required, optional, computed bool) rschema.ListNested
 		Required:            required,
 		Computed:            computed,
 		MarkdownDescription: common.ENDPOINT_DESCRIPTION,
-		Validators: []validator.List{
-			listvalidator.SizeAtLeast(1),
-		},
-	}
-}
-
-func getTagsAttribute(required, optional, computed bool) rschema.ListNestedAttribute {
-	return rschema.ListNestedAttribute{
-		NestedObject:        common.KeyValueAttribute,
-		Optional:            optional,
-		Required:            required,
-		Computed:            computed,
-		MarkdownDescription: common.TAGS_DESCRIPTION,
 		Validators: []validator.List{
 			listvalidator.SizeAtLeast(1),
 		},

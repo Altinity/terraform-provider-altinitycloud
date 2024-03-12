@@ -900,7 +900,7 @@ type PrivateLinkServiceSpec {
   """
   Lists subscription IDs permitted for Private Link access, securing service connections.
   """
-  AllowedSubscriptions: [String!]!
+  allowedSubscriptions: [String!]!
 }
 
 """
@@ -1170,7 +1170,7 @@ input PrivateLinkServiceSpecInput {
   """
   Lists subscription IDs permitted for Private Link access, securing service connections.
   """
-  AllowedSubscriptions: [String!]!
+  allowedSubscriptions: [String!]!
 }
 
 """
@@ -1398,7 +1398,7 @@ input UpdateAzureEnvSpecInput {
   # """
   # Tags to apply to Azure resources.
   # """
-  tags: [KeyValueInput!]!
+  tags: [KeyValueInput!]
 }
 
 """

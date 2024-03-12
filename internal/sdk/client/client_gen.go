@@ -142,6 +142,8 @@ type AzureEnvSpecFragment struct {
 	CustomDomain          *string                                    "json:\"customDomain,omitempty\" graphql:\"customDomain\""
 	NodeGroups            []*AzureEnvSpecFragment_NodeGroups         "json:\"nodeGroups\" graphql:\"nodeGroups\""
 	MaintenanceWindows    []*AzureEnvSpecFragment_MaintenanceWindows "json:\"maintenanceWindows\" graphql:\"maintenanceWindows\""
+	Tags                  []*AzureEnvSpecFragment_Tags               "json:\"tags\" graphql:\"tags\""
+	PrivateLinkService    AzureEnvSpecFragment_PrivateLinkService    "json:\"privateLinkService\" graphql:\"privateLinkService\""
 	Region                string                                     "json:\"region\" graphql:\"region\""
 	Zones                 []string                                   "json:\"zones\" graphql:\"zones\""
 	Cidr                  string                                     "json:\"cidr\" graphql:\"cidr\""
@@ -179,6 +181,18 @@ func (t *AzureEnvSpecFragment) GetMaintenanceWindows() []*AzureEnvSpecFragment_M
 		t = &AzureEnvSpecFragment{}
 	}
 	return t.MaintenanceWindows
+}
+func (t *AzureEnvSpecFragment) GetTags() []*AzureEnvSpecFragment_Tags {
+	if t == nil {
+		t = &AzureEnvSpecFragment{}
+	}
+	return t.Tags
+}
+func (t *AzureEnvSpecFragment) GetPrivateLinkService() *AzureEnvSpecFragment_PrivateLinkService {
+	if t == nil {
+		t = &AzureEnvSpecFragment{}
+	}
+	return &t.PrivateLinkService
 }
 func (t *AzureEnvSpecFragment) GetRegion() string {
 	if t == nil {
@@ -702,6 +716,35 @@ func (t *AzureEnvSpecFragment_MaintenanceWindows) GetDays() []Day {
 		t = &AzureEnvSpecFragment_MaintenanceWindows{}
 	}
 	return t.Days
+}
+
+type AzureEnvSpecFragment_Tags struct {
+	Key   string "json:\"key\" graphql:\"key\""
+	Value string "json:\"value\" graphql:\"value\""
+}
+
+func (t *AzureEnvSpecFragment_Tags) GetKey() string {
+	if t == nil {
+		t = &AzureEnvSpecFragment_Tags{}
+	}
+	return t.Key
+}
+func (t *AzureEnvSpecFragment_Tags) GetValue() string {
+	if t == nil {
+		t = &AzureEnvSpecFragment_Tags{}
+	}
+	return t.Value
+}
+
+type AzureEnvSpecFragment_PrivateLinkService struct {
+	AllowedSubscriptions []string "json:\"allowedSubscriptions\" graphql:\"allowedSubscriptions\""
+}
+
+func (t *AzureEnvSpecFragment_PrivateLinkService) GetAllowedSubscriptions() []string {
+	if t == nil {
+		t = &AzureEnvSpecFragment_PrivateLinkService{}
+	}
+	return t.AllowedSubscriptions
 }
 
 type GCPEnvSpecFragment_LoadBalancers_Public struct {
@@ -2133,6 +2176,35 @@ func (t *GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows) GetD
 	return t.Days
 }
 
+type GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_Tags struct {
+	Key   string "json:\"key\" graphql:\"key\""
+	Value string "json:\"value\" graphql:\"value\""
+}
+
+func (t *GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_Tags) GetKey() string {
+	if t == nil {
+		t = &GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_Tags{}
+	}
+	return t.Key
+}
+func (t *GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_Tags) GetValue() string {
+	if t == nil {
+		t = &GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_Tags{}
+	}
+	return t.Value
+}
+
+type GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_PrivateLinkService struct {
+	AllowedSubscriptions []string "json:\"allowedSubscriptions\" graphql:\"allowedSubscriptions\""
+}
+
+func (t *GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_PrivateLinkService) GetAllowedSubscriptions() []string {
+	if t == nil {
+		t = &GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_PrivateLinkService{}
+	}
+	return t.AllowedSubscriptions
+}
+
 type GetAzureEnv_AzureEnv struct {
 	Name         string                "json:\"name\" graphql:\"name\""
 	Spec         *AzureEnvSpecFragment "json:\"spec\" graphql:\"spec\""
@@ -2333,6 +2405,35 @@ func (t *CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWind
 	return t.Days
 }
 
+type CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_Tags struct {
+	Key   string "json:\"key\" graphql:\"key\""
+	Value string "json:\"value\" graphql:\"value\""
+}
+
+func (t *CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_Tags) GetKey() string {
+	if t == nil {
+		t = &CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_Tags{}
+	}
+	return t.Key
+}
+func (t *CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_Tags) GetValue() string {
+	if t == nil {
+		t = &CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_Tags{}
+	}
+	return t.Value
+}
+
+type CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_PrivateLinkService struct {
+	AllowedSubscriptions []string "json:\"allowedSubscriptions\" graphql:\"allowedSubscriptions\""
+}
+
+func (t *CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_PrivateLinkService) GetAllowedSubscriptions() []string {
+	if t == nil {
+		t = &CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_PrivateLinkService{}
+	}
+	return t.AllowedSubscriptions
+}
+
 type CreateAzureEnv_CreateAzureEnv struct {
 	MutationID   string                "json:\"mutationId\" graphql:\"mutationId\""
 	Spec         *AzureEnvSpecFragment "json:\"spec\" graphql:\"spec\""
@@ -2488,6 +2589,35 @@ func (t *UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWind
 		t = &UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows{}
 	}
 	return t.Days
+}
+
+type UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_Tags struct {
+	Key   string "json:\"key\" graphql:\"key\""
+	Value string "json:\"value\" graphql:\"value\""
+}
+
+func (t *UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_Tags) GetKey() string {
+	if t == nil {
+		t = &UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_Tags{}
+	}
+	return t.Key
+}
+func (t *UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_Tags) GetValue() string {
+	if t == nil {
+		t = &UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_Tags{}
+	}
+	return t.Value
+}
+
+type UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_PrivateLinkService struct {
+	AllowedSubscriptions []string "json:\"allowedSubscriptions\" graphql:\"allowedSubscriptions\""
+}
+
+func (t *UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_PrivateLinkService) GetAllowedSubscriptions() []string {
+	if t == nil {
+		t = &UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_PrivateLinkService{}
+	}
+	return t.AllowedSubscriptions
 }
 
 type UpdateAzureEnv_UpdateAzureEnv struct {
@@ -4749,6 +4879,13 @@ fragment AzureEnvSpecFragment on AzureEnvSpec {
 		lengthInHours
 		days
 	}
+	tags {
+		key
+		value
+	}
+	privateLinkService {
+		allowedSubscriptions
+	}
 	region
 	zones
 	cidr
@@ -4840,6 +4977,13 @@ fragment AzureEnvSpecFragment on AzureEnvSpec {
 		lengthInHours
 		days
 	}
+	tags {
+		key
+		value
+	}
+	privateLinkService {
+		allowedSubscriptions
+	}
 	region
 	zones
 	cidr
@@ -4901,6 +5045,13 @@ fragment AzureEnvSpecFragment on AzureEnvSpec {
 		hour
 		lengthInHours
 		days
+	}
+	tags {
+		key
+		value
+	}
+	privateLinkService {
+		allowedSubscriptions
 	}
 	region
 	zones

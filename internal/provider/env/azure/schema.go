@@ -6,6 +6,7 @@ import (
 	"github.com/MakeNowJust/heredoc/v2"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/provider/common"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/provider/modifiers"
+	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	dschema "github.com/hashicorp/terraform-plugin-framework/datasource/schema"
@@ -13,6 +14,7 @@ import (
 	rschema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -33,6 +35,8 @@ func (r *AzureEnvResource) Schema(ctx context.Context, req resource.SchemaReques
 			"region":                      common.GetRegionAttribure(true, false, false, common.AZURE_REGION_DESCRIPTION),
 			"tenant_id":                   getAzureTenantIDAttribute(true, false, false),
 			"subscription_id":             getAzureSubscriptionIDAttribute(true, false, false),
+			"tags":                        common.GetTagsAttribute(false, true, false),
+			"private_link_service":        getPrivateLinkServiceAttribute(false, true, false),
 			"spec_revision":               common.SpecRevisionAttribute,
 			"force_destroy":               common.GetForceDestroyAttribute(false, true, true),
 			"force_destroy_clusters":      common.GetForceDestroyClustersAttribute(false, true, true),
@@ -55,9 +59,11 @@ func (d *AzureEnvDataSource) Schema(ctx context.Context, req datasource.SchemaRe
 			"zones":                   common.GetZonesAttribute(false, false, true, common.AZURE_ZONES_DESCRIPTION),
 			"number_of_zones":         common.GetNumberOfZonesAttribute(false, false, true),
 			"node_groups":             common.GetNodeGroupsAttribure(false, false, true),
+			"region":                  common.GetRegionAttribure(false, false, true, common.AZURE_REGION_DESCRIPTION),
 			"tenant_id":               getAzureTenantIDAttribute(true, false, false),
 			"subscription_id":         getAzureSubscriptionIDAttribute(true, false, false),
-			"region":                  common.GetRegionAttribure(false, false, true, common.AZURE_REGION_DESCRIPTION),
+			"tags":                    common.GetTagsAttribute(false, false, true),
+			"private_link_service":    getPrivateLinkServiceAttribute(false, false, true),
 			"spec_revision":           common.SpecRevisionAttribute,
 
 			// these options are not used in data sources,
@@ -126,6 +132,25 @@ func getAzureSubscriptionIDAttribute(required, optional, computed bool) rschema.
 		MarkdownDescription: common.AZURE_SUBSCRIPTION_ID_DESCRIPTION,
 		PlanModifiers: []planmodifier.String{
 			modifiers.ImmutableString("subscription_id"),
+		},
+	}
+}
+
+func getPrivateLinkServiceAttribute(required, optional, computed bool) rschema.SingleNestedAttribute {
+	return rschema.SingleNestedAttribute{
+		Optional:            optional,
+		Required:            required,
+		Computed:            computed,
+		MarkdownDescription: "TBA",
+		Attributes: map[string]rschema.Attribute{
+			"allowed_subscriptions": rschema.ListAttribute{
+				ElementType:         types.StringType,
+				Optional:            true,
+				MarkdownDescription: "TBA",
+				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
+				},
+			},
 		},
 	}
 }
