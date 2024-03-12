@@ -77,7 +77,7 @@ func (e AzureEnvResourceModel) toSDK() (client.CreateAzureEnvInput, client.Updat
 
 	create := client.CreateAzureEnvInput{
 		Name: e.Name.ValueString(),
-		Spec: client.CreateAzureEnvSpecInput{
+		Spec: &client.CreateAzureEnvSpecInput{
 			CustomDomain:          e.CustomDomain.ValueStringPointer(),
 			NodeGroups:            nodeGroups,
 			TenantID:              e.TenantID.ValueString(),
@@ -101,7 +101,7 @@ func (e AzureEnvResourceModel) toSDK() (client.CreateAzureEnvInput, client.Updat
 	update := client.UpdateAzureEnvInput{
 		Name:           e.Name.ValueString(),
 		UpdateStrategy: &strategy,
-		Spec: client.UpdateAzureEnvSpecInput{
+		Spec: &client.UpdateAzureEnvSpecInput{
 			CustomDomain:          e.CustomDomain.ValueStringPointer(),
 			NodeGroups:            nodeGroups,
 			Zones:                 zones,

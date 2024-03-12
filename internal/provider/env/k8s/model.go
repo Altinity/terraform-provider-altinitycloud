@@ -101,7 +101,7 @@ func (e K8SEnvResourceModel) toSDK() (client.CreateK8SEnvInput, client.UpdateK8S
 
 	create := client.CreateK8SEnvInput{
 		Name: e.Name.ValueString(),
-		Spec: client.CreateK8SEnvSpecInput{
+		Spec: &client.CreateK8SEnvSpecInput{
 			Distribution:          distribution,
 			CustomDomain:          e.CustomDomain.ValueStringPointer(),
 			LoadBalancingStrategy: loadBalancingStrategy,
@@ -118,7 +118,7 @@ func (e K8SEnvResourceModel) toSDK() (client.CreateK8SEnvInput, client.UpdateK8S
 	update := client.UpdateK8SEnvInput{
 		Name:           e.Name.ValueString(),
 		UpdateStrategy: &strategy,
-		Spec: client.UpdateK8SEnvSpecInput{
+		Spec: &client.UpdateK8SEnvSpecInput{
 			CustomDomain:          e.CustomDomain.ValueStringPointer(),
 			LoadBalancingStrategy: loadBalancingStrategy,
 			LoadBalancers:         loadBalancers,

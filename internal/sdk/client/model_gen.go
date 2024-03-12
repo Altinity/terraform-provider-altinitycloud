@@ -13,11 +13,11 @@ type AWSEnv struct {
 	// A globally-unique environment identifier.
 	Name string `json:"name"`
 	// Environment spec.
-	Spec AWSEnvSpec `json:"spec"`
+	Spec *AWSEnvSpec `json:"spec"`
 	// Spec revision (monotonically-increasing).
 	SpecRevision int64 `json:"specRevision"`
 	// Environment status.
-	Status AWSEnvStatus `json:"status"`
+	Status *AWSEnvStatus `json:"status"`
 }
 
 // AWS environment VPC endpoint configuration.
@@ -134,11 +134,11 @@ type AWSEnvLoadBalancersSpec struct {
 	// Public load balancer configuration.
 	//
 	// Accessible via *.$env_name.altinity.cloud.
-	Public AWSEnvLoadBalancerPublicSpec `json:"public"`
+	Public *AWSEnvLoadBalancerPublicSpec `json:"public"`
 	// Internal load balancer configuration.
 	//
 	// Accessible via *.internal.$env_name.altinity.cloud.
-	Internal AWSEnvLoadBalancerInternalSpec `json:"internal"`
+	Internal *AWSEnvLoadBalancerInternalSpec `json:"internal"`
 }
 
 // AWS environment load balancers configuration input.
@@ -156,7 +156,7 @@ type AWSEnvLoadBalancersSpecInput struct {
 // AWS environment load balancers status.
 type AWSEnvLoadBalancersStatus struct {
 	// Status of internal load balancer.
-	Internal AWSEnvLoadBalancerInternalStatus `json:"internal"`
+	Internal *AWSEnvLoadBalancerInternalStatus `json:"internal"`
 }
 
 // AWS environment node group configuration.
@@ -257,7 +257,7 @@ type AWSEnvSpec struct {
 	// Example: ["us-east-1a", "us-east-1b"]
 	Zones []string `json:"zones"`
 	// Load balancers configuration.
-	LoadBalancers AWSEnvLoadBalancersSpec `json:"loadBalancers"`
+	LoadBalancers *AWSEnvLoadBalancersSpec `json:"loadBalancers"`
 	// Load balancing strategy.
 	LoadBalancingStrategy LoadBalancingStrategy `json:"loadBalancingStrategy"`
 	// List of node groups.
@@ -297,7 +297,7 @@ type AWSEnvStatus struct {
 	// Applied spec revision (monotonically-increasing).
 	AppliedSpecRevision int64 `json:"appliedSpecRevision"`
 	// Status of load balancers.
-	LoadBalancers AWSEnvLoadBalancersStatus `json:"loadBalancers"`
+	LoadBalancers *AWSEnvLoadBalancersStatus `json:"loadBalancers"`
 	// Status of peering connections.
 	PeeringConnections []*AWSEnvPeeringConnectionStatus `json:"peeringConnections"`
 	// True indicates that environment is pending deletion.
@@ -351,11 +351,11 @@ type AzureEnv struct {
 	// A globally-unique environment identifier.
 	Name string `json:"name"`
 	// Environment spec.
-	Spec AzureEnvSpec `json:"spec"`
+	Spec *AzureEnvSpec `json:"spec"`
 	// Spec revision (monotonically-increasing).
 	SpecRevision int64 `json:"specRevision"`
 	// Environment status.
-	Status AzureEnvStatus `json:"status"`
+	Status *AzureEnvStatus `json:"status"`
 }
 
 // Azure environments query filter.
@@ -422,11 +422,11 @@ type AzureEnvLoadBalancersSpec struct {
 	// Public load balancer configuration.
 	//
 	// Accessible via *.$env_name.altinity.cloud.
-	Public AzureEnvLoadBalancerPublicSpec `json:"public"`
+	Public *AzureEnvLoadBalancerPublicSpec `json:"public"`
 	// Internal load balancer configuration.
 	//
 	// Accessible via *.internal.$env_name.altinity.cloud.
-	Internal AzureEnvLoadBalancerInternalSpec `json:"internal"`
+	Internal *AzureEnvLoadBalancerInternalSpec `json:"internal"`
 }
 
 // Azure environment load balancers configuration input.
@@ -444,7 +444,7 @@ type AzureEnvLoadBalancersSpecInput struct {
 // Azure environment load balancers status.
 type AzureEnvLoadBalancersStatus struct {
 	// Status of internal load balancer.
-	Internal AzureEnvLoadBalancerInternalStatus `json:"internal"`
+	Internal *AzureEnvLoadBalancerInternalStatus `json:"internal"`
 }
 
 // Azure environment node group configuration.
@@ -514,7 +514,7 @@ type AzureEnvSpec struct {
 	// Example: ["eastus-1", "eastus-2"]
 	Zones []string `json:"zones"`
 	// Load balancers configuration.
-	LoadBalancers AzureEnvLoadBalancersSpec `json:"loadBalancers"`
+	LoadBalancers *AzureEnvLoadBalancersSpec `json:"loadBalancers"`
 	// Load balancing strategy.
 	LoadBalancingStrategy LoadBalancingStrategy `json:"loadBalancingStrategy"`
 	// List of node groups.
@@ -539,7 +539,7 @@ type AzureEnvSpec struct {
 	//   CNAME *.privatelink.example.com. _.privatelink.$env_name.altinity.cloud.
 	CustomDomain *string `json:"customDomain,omitempty"`
 	// Azure Private Link service configuration.
-	PrivateLinkService PrivateLinkServiceSpec `json:"privateLinkService"`
+	PrivateLinkService *PrivateLinkServiceSpec `json:"privateLinkService"`
 	// Tags to apply to Azure resources.
 	Tags []*KeyValue `json:"tags"`
 	// True indicates that cloud resources are to be managed via altinity/cloud-connect.
@@ -552,7 +552,7 @@ type AzureEnvStatus struct {
 	// Applied spec revision (monotonically-increasing).
 	AppliedSpecRevision int64 `json:"appliedSpecRevision"`
 	// Status of load balancers.
-	LoadBalancers AzureEnvLoadBalancersStatus `json:"loadBalancers"`
+	LoadBalancers *AzureEnvLoadBalancersStatus `json:"loadBalancers"`
 	// True indicates that environment is pending deletion.
 	PendingDelete bool `json:"pendingDelete"`
 }
@@ -564,7 +564,7 @@ type CreateAWSEnvInput struct {
 	// Immutable.
 	Name string `json:"name"`
 	// Environment spec.
-	Spec CreateAWSEnvSpecInput `json:"spec"`
+	Spec *CreateAWSEnvSpecInput `json:"spec"`
 }
 
 // AWS environment create request result.
@@ -572,7 +572,7 @@ type CreateAWSEnvResult struct {
 	// Mutation unique identifier.
 	MutationID string `json:"mutationId"`
 	// AWS environment active configuration.
-	Spec AWSEnvSpec `json:"spec"`
+	Spec *AWSEnvSpec `json:"spec"`
 	// Spec revision (monotonically-increasing).
 	SpecRevision int64 `json:"specRevision"`
 }
@@ -657,7 +657,7 @@ type CreateAzureEnvInput struct {
 	// Immutable.
 	Name string `json:"name"`
 	// Environment spec.
-	Spec CreateAzureEnvSpecInput `json:"spec"`
+	Spec *CreateAzureEnvSpecInput `json:"spec"`
 }
 
 // Azure environment create request result.
@@ -665,7 +665,7 @@ type CreateAzureEnvResult struct {
 	// Mutation unique identifier.
 	MutationID string `json:"mutationId"`
 	// Azure environment active configuration.
-	Spec AzureEnvSpec `json:"spec"`
+	Spec *AzureEnvSpec `json:"spec"`
 	// Spec revision (monotonically-increasing).
 	SpecRevision int64 `json:"specRevision"`
 }
@@ -748,7 +748,7 @@ type CreateGCPEnvInput struct {
 	// Immutable.
 	Name string `json:"name"`
 	// Environment spec.
-	Spec CreateGCPEnvSpecInput `json:"spec"`
+	Spec *CreateGCPEnvSpecInput `json:"spec"`
 }
 
 // GCP environment create request result.
@@ -756,7 +756,7 @@ type CreateGCPEnvResult struct {
 	// Mutation unique identifier.
 	MutationID string `json:"mutationId"`
 	// GCP environment active configuration.
-	Spec GCPEnvSpec `json:"spec"`
+	Spec *GCPEnvSpec `json:"spec"`
 	// Spec revision (monotonically-increasing).
 	SpecRevision int64 `json:"specRevision"`
 }
@@ -833,7 +833,7 @@ type CreateK8SEnvInput struct {
 	// Immutable.
 	Name string `json:"name"`
 	// Environment spec.
-	Spec CreateK8SEnvSpecInput `json:"spec"`
+	Spec *CreateK8SEnvSpecInput `json:"spec"`
 }
 
 // Kubernetes environment create request result.
@@ -841,7 +841,7 @@ type CreateK8SEnvResult struct {
 	// Mutation unique identifier.
 	MutationID string `json:"mutationId"`
 	// Kubernetes environment active configuration.
-	Spec K8SEnvSpec `json:"spec"`
+	Spec *K8SEnvSpec `json:"spec"`
 	// Spec revision (monotonically-increasing).
 	SpecRevision int64 `json:"specRevision"`
 }
@@ -971,11 +971,11 @@ type GCPEnv struct {
 	// A globally-unique environment identifier.
 	Name string `json:"name"`
 	// Environment spec.
-	Spec GCPEnvSpec `json:"spec"`
+	Spec *GCPEnvSpec `json:"spec"`
 	// Spec revision (monotonically-increasing).
 	SpecRevision int64 `json:"specRevision"`
 	// Environment status.
-	Status GCPEnvStatus `json:"status"`
+	Status *GCPEnvStatus `json:"status"`
 }
 
 // GCP environments query filter.
@@ -1036,11 +1036,11 @@ type GCPEnvLoadBalancersSpec struct {
 	// Public load balancer configuration.
 	//
 	// Accessible via *.$env_name.altinity.cloud.
-	Public GCPEnvLoadBalancerPublicSpec `json:"public"`
+	Public *GCPEnvLoadBalancerPublicSpec `json:"public"`
 	// Internal load balancer configuration.
 	//
 	// Accessible via *.internal.$env_name.altinity.cloud.
-	Internal GCPEnvLoadBalancerInternalSpec `json:"internal"`
+	Internal *GCPEnvLoadBalancerInternalSpec `json:"internal"`
 }
 
 // GCP environment load balancers configuration input.
@@ -1118,7 +1118,7 @@ type GCPEnvSpec struct {
 	// Example: ["us-west1a", "us-west1b"]
 	Zones []string `json:"zones"`
 	// Load balancers configuration.
-	LoadBalancers GCPEnvLoadBalancersSpec `json:"loadBalancers"`
+	LoadBalancers *GCPEnvLoadBalancersSpec `json:"loadBalancers"`
 	// Load balancing strategy.
 	LoadBalancingStrategy LoadBalancingStrategy `json:"loadBalancingStrategy"`
 	// List of node groups.
@@ -1160,11 +1160,11 @@ type K8SEnv struct {
 	// A globally-unique environment identifier.
 	Name string `json:"name"`
 	// Environment spec.
-	Spec K8SEnvSpec `json:"spec"`
+	Spec *K8SEnvSpec `json:"spec"`
 	// Spec revision (monotonically-increasing).
 	SpecRevision int64 `json:"specRevision"`
 	// Environment status.
-	Status K8SEnvStatus `json:"status"`
+	Status *K8SEnvStatus `json:"status"`
 }
 
 // Kubernetes custom node type configuration.
@@ -1255,11 +1255,11 @@ type K8SEnvLoadBalancersSpec struct {
 	// Public load balancer configuration.
 	//
 	// Accessible via *.$env_name.altinity.cloud.
-	Public K8SEnvLoadBalancerPublicSpec `json:"public"`
+	Public *K8SEnvLoadBalancerPublicSpec `json:"public"`
 	// Internal load balancer configuration.
 	//
 	// Accessible via *.internal.$env_name.altinity.cloud.
-	Internal K8SEnvLoadBalancerInternalSpec `json:"internal"`
+	Internal *K8SEnvLoadBalancerInternalSpec `json:"internal"`
 }
 
 // Kubernetes environment load balancers configuration.
@@ -1277,7 +1277,7 @@ type K8SEnvLoadBalancersSpecInput struct {
 // Kubernetes environment logs configuration.
 type K8SEnvLogsSpec struct {
 	// Storage backend configuration.
-	Storage K8SEnvLogsStorageSpec `json:"storage"`
+	Storage *K8SEnvLogsStorageSpec `json:"storage"`
 }
 
 // Kubernetes environment logs configuration input.
@@ -1370,7 +1370,7 @@ type K8SEnvSpec struct {
 	// Immutable.
 	Distribution K8SDistribution `json:"distribution"`
 	// Load balancers configuration.
-	LoadBalancers K8SEnvLoadBalancersSpec `json:"loadBalancers"`
+	LoadBalancers *K8SEnvLoadBalancersSpec `json:"loadBalancers"`
 	// Load balancing strategy.
 	LoadBalancingStrategy LoadBalancingStrategy `json:"loadBalancingStrategy"`
 	// List of node groups.
@@ -1379,9 +1379,9 @@ type K8SEnvSpec struct {
 	// Custom node types.
 	CustomNodeTypes []*K8SEnvCustomNodeTypeSpec `json:"customNodeTypes"`
 	// Metrics configuration.
-	Metrics K8SEnvMetricsSpec `json:"metrics"`
+	Metrics *K8SEnvMetricsSpec `json:"metrics"`
 	// Logs configuration.
-	Logs K8SEnvLogsSpec `json:"logs"`
+	Logs *K8SEnvLogsSpec `json:"logs"`
 	// List of maintenance windows during which automatic maintenance is permitted.
 	// By default updates are applied as soon as they are available.
 	MaintenanceWindows []*MaintenanceWindowSpec `json:"maintenanceWindows"`
@@ -1478,6 +1478,9 @@ type MaintenanceWindowSpecInput struct {
 	Days []Day `json:"days"`
 }
 
+type Mutation struct {
+}
+
 type NodeToleration struct {
 	// Taint key, e.g. "dedicated".
 	Key      string                 `json:"key"`
@@ -1515,12 +1518,15 @@ type PrivateLinkServiceSpecInput struct {
 	AllowedSubscriptions []string `json:"allowedSubscriptions"`
 }
 
+type Query struct {
+}
+
 // AWS environment update request input.
 type UpdateAWSEnvInput struct {
 	// Environment name.
 	Name string `json:"name"`
 	// Environment spec.
-	Spec AWSEnvUpdateSpecInput `json:"spec"`
+	Spec *AWSEnvUpdateSpecInput `json:"spec"`
 	// Environment spec update strategy.
 	// MERGE by default.
 	UpdateStrategy *UpdateStrategy `json:"updateStrategy,omitempty"`
@@ -1531,7 +1537,7 @@ type UpdateAWSEnvResult struct {
 	// Mutation unique identifier.
 	MutationID string `json:"mutationId"`
 	// AWS environment active configuration.
-	Spec AWSEnvSpec `json:"spec"`
+	Spec *AWSEnvSpec `json:"spec"`
 	// Spec revision (monotonically-increasing).
 	SpecRevision int64 `json:"specRevision"`
 }
@@ -1541,7 +1547,7 @@ type UpdateAzureEnvInput struct {
 	// Environment name.
 	Name string `json:"name"`
 	// Environment spec.
-	Spec UpdateAzureEnvSpecInput `json:"spec"`
+	Spec *UpdateAzureEnvSpecInput `json:"spec"`
 	// Environment spec update strategy.
 	// MERGE by default.
 	UpdateStrategy *UpdateStrategy `json:"updateStrategy,omitempty"`
@@ -1552,7 +1558,7 @@ type UpdateAzureEnvResult struct {
 	// Mutation unique identifier.
 	MutationID string `json:"mutationId"`
 	// Azure environment active configuration.
-	Spec AzureEnvSpec `json:"spec"`
+	Spec *AzureEnvSpec `json:"spec"`
 	// Spec revision (monotonically-increasing).
 	SpecRevision int64 `json:"specRevision"`
 }
@@ -1603,7 +1609,7 @@ type UpdateGCPEnvInput struct {
 	// Environment name.
 	Name string `json:"name"`
 	// Environment spec.
-	Spec UpdateGCPEnvSpecInput `json:"spec"`
+	Spec *UpdateGCPEnvSpecInput `json:"spec"`
 	// Environment spec update strategy.
 	// MERGE by default.
 	UpdateStrategy *UpdateStrategy `json:"updateStrategy,omitempty"`
@@ -1614,7 +1620,7 @@ type UpdateGCPEnvResult struct {
 	// Mutation unique identifier.
 	MutationID string `json:"mutationId"`
 	// GCP environment active configuration.
-	Spec GCPEnvSpec `json:"spec"`
+	Spec *GCPEnvSpec `json:"spec"`
 	// Spec revision (monotonically-increasing).
 	SpecRevision int64 `json:"specRevision"`
 }
@@ -1662,7 +1668,7 @@ type UpdateK8SEnvInput struct {
 	// Environment name.
 	Name string `json:"name"`
 	// Environment spec.
-	Spec UpdateK8SEnvSpecInput `json:"spec"`
+	Spec *UpdateK8SEnvSpecInput `json:"spec"`
 	// Environment spec update strategy.
 	// MERGE by default.
 	UpdateStrategy *UpdateStrategy `json:"updateStrategy,omitempty"`
@@ -1673,7 +1679,7 @@ type UpdateK8SEnvResult struct {
 	// Mutation unique identifier.
 	MutationID string `json:"mutationId"`
 	// Kubernetes environment active configuration.
-	Spec K8SEnvSpec `json:"spec"`
+	Spec *K8SEnvSpec `json:"spec"`
 	// Spec revision (monotonically-increasing).
 	SpecRevision int64 `json:"specRevision"`
 }

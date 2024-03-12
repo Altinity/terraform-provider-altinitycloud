@@ -55,7 +55,7 @@ func (e GCPEnvResourceModel) toSDK() (client.CreateGCPEnvInput, client.UpdateGCP
 
 	create := client.CreateGCPEnvInput{
 		Name: e.Name.ValueString(),
-		Spec: client.CreateGCPEnvSpecInput{
+		Spec: &client.CreateGCPEnvSpecInput{
 			CustomDomain:          e.CustomDomain.ValueStringPointer(),
 			NodeGroups:            nodeGroups,
 			GcpProjectID:          e.GCPProjectID.ValueString(),
@@ -74,7 +74,7 @@ func (e GCPEnvResourceModel) toSDK() (client.CreateGCPEnvInput, client.UpdateGCP
 	update := client.UpdateGCPEnvInput{
 		Name:           e.Name.ValueString(),
 		UpdateStrategy: &strategy,
-		Spec: client.UpdateGCPEnvSpecInput{
+		Spec: &client.UpdateGCPEnvSpecInput{
 			CustomDomain:          e.CustomDomain.ValueStringPointer(),
 			NodeGroups:            nodeGroups,
 			Zones:                 zones,

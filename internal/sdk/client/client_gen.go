@@ -17,30 +17,6 @@ func NewClient(cli *http.Client, baseURL string, options *clientv2.Options, inte
 	return &Client{Client: clientv2.NewClient(cli, baseURL, options, interceptors...)}
 }
 
-type Query struct {
-	AwsEnvs   []*AWSEnv   "json:\"awsEnvs\" graphql:\"awsEnvs\""
-	AwsEnv    *AWSEnv     "json:\"awsEnv,omitempty\" graphql:\"awsEnv\""
-	AzureEnvs []*AzureEnv "json:\"azureEnvs\" graphql:\"azureEnvs\""
-	AzureEnv  *AzureEnv   "json:\"azureEnv,omitempty\" graphql:\"azureEnv\""
-	GcpEnvs   []*GCPEnv   "json:\"gcpEnvs\" graphql:\"gcpEnvs\""
-	GcpEnv    *GCPEnv     "json:\"gcpEnv,omitempty\" graphql:\"gcpEnv\""
-	K8sEnvs   []*K8SEnv   "json:\"k8sEnvs\" graphql:\"k8sEnvs\""
-	K8sEnv    *K8SEnv     "json:\"k8sEnv,omitempty\" graphql:\"k8sEnv\""
-}
-type Mutation struct {
-	CreateAWSEnv   CreateAWSEnvResult   "json:\"createAWSEnv\" graphql:\"createAWSEnv\""
-	DeleteAWSEnv   DeleteAWSEnvResult   "json:\"deleteAWSEnv\" graphql:\"deleteAWSEnv\""
-	UpdateAWSEnv   UpdateAWSEnvResult   "json:\"updateAWSEnv\" graphql:\"updateAWSEnv\""
-	CreateAzureEnv CreateAzureEnvResult "json:\"createAzureEnv\" graphql:\"createAzureEnv\""
-	DeleteAzureEnv DeleteAzureEnvResult "json:\"deleteAzureEnv\" graphql:\"deleteAzureEnv\""
-	UpdateAzureEnv UpdateAzureEnvResult "json:\"updateAzureEnv\" graphql:\"updateAzureEnv\""
-	CreateGCPEnv   CreateGCPEnvResult   "json:\"createGCPEnv\" graphql:\"createGCPEnv\""
-	DeleteGCPEnv   DeleteGCPEnvResult   "json:\"deleteGCPEnv\" graphql:\"deleteGCPEnv\""
-	UpdateGCPEnv   UpdateGCPEnvResult   "json:\"updateGCPEnv\" graphql:\"updateGCPEnv\""
-	CreateK8SEnv   CreateK8SEnvResult   "json:\"createK8SEnv\" graphql:\"createK8SEnv\""
-	DeleteK8SEnv   DeleteK8SEnvResult   "json:\"deleteK8SEnv\" graphql:\"deleteK8SEnv\""
-	UpdateK8SEnv   UpdateK8SEnvResult   "json:\"updateK8SEnv\" graphql:\"updateK8SEnv\""
-}
 type AWSEnvSpecFragment struct {
 	LoadBalancers         AWSEnvSpecFragment_LoadBalancers         "json:\"loadBalancers\" graphql:\"loadBalancers\""
 	LoadBalancingStrategy LoadBalancingStrategy                    "json:\"loadBalancingStrategy\" graphql:\"loadBalancingStrategy\""
