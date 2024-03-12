@@ -99,7 +99,7 @@ func (e AWSEnvResourceModel) toSDK() (sdk.CreateAWSEnvInput, sdk.UpdateAWSEnvInp
 
 	create := sdk.CreateAWSEnvInput{
 		Name: e.Name.ValueString(),
-		Spec: sdk.CreateAWSEnvSpecInput{
+		Spec: &sdk.CreateAWSEnvSpecInput{
 			CustomDomain:          e.CustomDomain.ValueStringPointer(),
 			LoadBalancingStrategy: loadBalancingStrategy,
 			LoadBalancers:         LoadBalancers,
@@ -121,7 +121,7 @@ func (e AWSEnvResourceModel) toSDK() (sdk.CreateAWSEnvInput, sdk.UpdateAWSEnvInp
 	update := sdk.UpdateAWSEnvInput{
 		Name:           e.Name.ValueString(),
 		UpdateStrategy: &strategy,
-		Spec: sdk.AWSEnvUpdateSpecInput{
+		Spec: &sdk.AWSEnvUpdateSpecInput{
 			CustomDomain:          e.CustomDomain.ValueStringPointer(),
 			LoadBalancingStrategy: loadBalancingStrategy,
 			LoadBalancers:         LoadBalancers,
