@@ -763,6 +763,661 @@ type UpdateAWSEnvResult {
   """
   specRevision: Int!
 }
+extend type Query {
+  """
+  List Azure environments.
+  """
+  azureEnvs(filter: AzureEnvFilter): [AzureEnv!]!
+  """
+  Look up Azure environment.
+  This query returns null when the environment is not found.
+  """
+  azureEnv(name: String!): AzureEnv
+}
+
+"""
+Azure environment.
+"""
+type AzureEnv {
+  """
+  A globally-unique environment identifier.
+  """
+  name: String!
+  """
+  Environment spec.
+  """
+  spec: AzureEnvSpec!
+  """
+  Spec revision (monotonically-increasing).
+  """
+  specRevision: Int!
+  """
+  Environment status.
+  """
+  status: AzureEnvStatus!
+}
+
+"""
+Azure environment configuration.
+"""
+type AzureEnvSpec {
+  """
+  ID linking the environment to a specific Azure subscription for resource management.
+
+  Immutable.
+  """
+  tenantID: String!
+  """
+  ID of the Azure Active Directory tenant for user identity and access management.
+
+  Immutable.
+  """
+  subscriptionID: String!
+  """
+  VPC CIDR block from the private IPv4 address ranges as specified in RFC 1918
+  (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16).
+
+  At least /21 required.
+
+  Examples: "10.136.0.0/21"
+
+  Immutable.
+  """
+  cidr: String!
+  """
+  Azure region (https://azure.microsoft.com/en-us/explore/global-infrastructure/geographies).
+
+  Example: "eastus"
+
+  Immutable.
+  """
+  region: String!
+  """
+  Explicit list of Azure availability zones.
+  At least 2 required.
+
+  Example: ["eastus-1", "eastus-2"]
+  """
+  zones: [String!]!
+  """
+  Load balancers configuration.
+  """
+  loadBalancers: AzureEnvLoadBalancersSpec!
+  """
+  Load balancing strategy.
+  """
+  loadBalancingStrategy: LoadBalancingStrategy!
+  """
+  List of node groups.
+  At least one required.
+  """
+  nodeGroups: [AzureEnvNodeGroupSpec!]!
+  """
+  List of maintenance windows during which automatic maintenance is permitted.
+  By default updates are applied as soon as they are available.
+  """
+  maintenanceWindows: [MaintenanceWindowSpec!]!
+  """
+  Custom domain.
+
+  Examples:
+  - "example.com"
+  - "foo.bar.com"
+
+  Before specifying custom domain, please create the following DNS records:
+  - CNAME _acme-challenge.example.com. $env_name.altinity.cloud.
+  - (optional, public load balancer)
+    CNAME *.example.com. _.$env_name.altinity.cloud.
+  - (optional, internal load balancer)
+    CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
+  - (optional, privatelink)
+    CNAME *.privatelink.example.com. _.privatelink.$env_name.altinity.cloud.
+  """
+  customDomain: String
+  """
+  Azure Private Link service configuration.
+  """
+  privateLinkService: PrivateLinkServiceSpec!
+  """
+  Tags to apply to Azure resources.
+  """
+  tags: [KeyValue!]!
+  """
+  True indicates that cloud resources are to be managed via altinity/cloud-connect.
+  False means direct management.
+  """
+  cloudConnect: Boolean!
+}
+
+"""
+Specifies Azure Private Link Service settings, including allowed subscription IDs for
+private access. This enhances network security by ensuring only authorized subscriptions
+connect to your services.
+
+Example: ["34d1b48e-6471-4129-be6b-9e3c2df6955c", "23f44dbf-02a0-4fd7-b821-5e82652bd920"]
+"""
+type PrivateLinkServiceSpec {
+  """
+  Lists subscription IDs permitted for Private Link access, securing service connections.
+  """
+  AllowedSubscriptions: [String!]!
+}
+
+"""
+Azure environment load balancers configuration.
+"""
+type AzureEnvLoadBalancersSpec {
+  """
+  Public load balancer configuration.
+
+  Accessible via *.$env_name.altinity.cloud.
+  """
+  public: AzureEnvLoadBalancerPublicSpec!
+  """
+  Internal load balancer configuration.
+
+  Accessible via *.internal.$env_name.altinity.cloud.
+  """
+  internal: AzureEnvLoadBalancerInternalSpec!
+}
+
+"""
+Azure environment public load balancer configuration.
+"""
+type AzureEnvLoadBalancerPublicSpec {
+  """
+  True if load balancer is enabled,
+  false otherwise.
+  """
+  enabled: Boolean!
+  """
+  IP addresses/blocks to allow traffic from.
+
+  0.0.0.0/0 by default.
+  """
+  sourceIPRanges: [String!]!
+}
+
+"""
+Azure environment internal load balancer configuration.
+"""
+type AzureEnvLoadBalancerInternalSpec {
+  """
+  True if load balancer is enabled,
+  false otherwise.
+  """
+  enabled: Boolean!
+  """
+  IP addresses/blocks to allow traffic from.
+
+  0.0.0.0/0 by default.
+  """
+  sourceIPRanges: [String!]!
+}
+
+"""
+Azure environment node group configuration.
+"""
+type AzureEnvNodeGroupSpec {
+  """
+  Unique (among environment node groups) node group identifier.
+  """
+  name: String!
+  """
+  Instance type (https://azure.microsoft.com/en-us/pricing/details/virtual-machines/series).
+
+  Example: "PremiumV2_LRS"
+  """
+  nodeType: String!
+  """
+  Availability zones.
+  """
+  zones: [String!]!
+  """
+  Maximum number of instances per availability zone.
+  """
+  capacityPerZone: Int!
+  """
+  Types of workload that are allowed to be scheduled onto the nodes that belong to this group.
+  """
+  reservations: [NodeReservation!]!
+}
+
+"""
+Azure environment status.
+"""
+type AzureEnvStatus {
+  """
+  Applied spec revision (monotonically-increasing).
+  """
+  appliedSpecRevision: Int!
+  """
+  Status of load balancers.
+  """
+  loadBalancers: AzureEnvLoadBalancersStatus!
+  """
+  True indicates that environment is pending deletion.
+  """
+  pendingDelete: Boolean!
+}
+
+"""
+Azure environment load balancers status.
+"""
+type AzureEnvLoadBalancersStatus {
+  """
+  Status of internal load balancer.
+  """
+  internal: AzureEnvLoadBalancerInternalStatus!
+}
+
+"""
+Azure environment internal load balancer status.
+"""
+type AzureEnvLoadBalancerInternalStatus {
+  """
+  Globally unique name for your service in prefix.GUID.suffix format.
+  """
+  privateLinkServiceAlias: String
+}
+
+"""
+Azure environments query filter.
+"""
+input AzureEnvFilter {
+  """
+  Names of the environments to return.
+  Names that don't match any of the existing environments are ignored.
+  """
+  names: [String!]
+}
+extend type Mutation {
+  """
+  Create Azure environment record.
+
+  Possible error codes:
+  - "CONFLICT" if environment name is already taken.
+  """
+  createAzureEnv(input: CreateAzureEnvInput!): CreateAzureEnvResult!
+}
+
+"""
+Azure environment create request input.
+"""
+input CreateAzureEnvInput {
+  """
+  A globally-unique environment identifier.
+
+  Immutable.
+  """
+  name: String!
+  """
+  Environment spec.
+  """
+  spec: CreateAzureEnvSpecInput!
+}
+
+"""
+Azure environment configuration create request input.
+"""
+input CreateAzureEnvSpecInput {
+  """
+  ID linking the environment to a specific Azure subscription for resource management.
+
+  Immutable.
+  """
+  subscriptionID: String!
+  """
+  ID of the Azure Active Directory tenant for user identity and access management.
+
+  Immutable.
+  """
+  tenantID: String!
+  """
+  Network CIDR block from the private IPv4 address ranges as specified in RFC 1918
+  (10/8, 172.16/12, 192.168/16).
+
+  At least /21 required.
+
+  Example: "10.136.0.0/21"
+
+  Immutable.
+  """
+  cidr: String!
+  """
+  Azure region (https://azure.microsoft.com/en-us/explore/global-infrastructure/geographies).
+
+  Example: "eastus".
+
+  Immutable.
+  """
+  region: String!
+  """
+  Number of Azure zones.
+  At least 2 required.
+
+  This field is optional if "zones" is specified.
+  """
+  numberOfZones: Int
+  """
+  Explicit list of Azure zones.
+  At least 2 required.
+
+  Example: ["eastus-1", "eastus-2"]
+  """
+  zones: [String!]
+  """
+  Load balancers configuration.
+  """
+  loadBalancers: AzureEnvLoadBalancersSpecInput
+  """
+  Load balancing strategy.
+  ZONE_BEST_EFFORT by default.
+  """
+  loadBalancingStrategy: LoadBalancingStrategy
+  """
+  List of node groups.
+  At least one required.
+  """
+  nodeGroups: [AzureEnvNodeGroupSpecInput!]!
+  """
+  List of maintenance windows during which automatic maintenance is permitted.
+  By default updates are applied as soon as they are available.
+  """
+  maintenanceWindows: [MaintenanceWindowSpecInput!]
+  """
+  Custom domain.
+
+  Examples:
+  - "example.com"
+  - "foo.bar.com"
+
+  Before specifying custom domain, please create the following DNS records:
+  - CNAME _acme-challenge.example.com. $env_name.altinity.cloud.
+  - (optional, public load balancer)
+  CNAME *.example.com. _.$env_name.altinity.cloud.
+  - (optional, internal load balancer)
+  CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
+  - (optional, privatelink)
+  CNAME *.privatelink.example.com. _.privatelink.$env_name.altinity.cloud.
+  """
+  customDomain: String
+  """
+  Azure Private Link service configuration.
+  """
+  privateLinkService: PrivateLinkServiceSpecInput
+  # """
+  # Tags to apply to Azure resources.
+  # """
+  tags: [KeyValueInput!]
+  """
+  True indicates that cloud resources are to be managed via altinity/cloud-connect.
+  False means direct management (default).
+
+  Immutable.
+  """
+  cloudConnect: Boolean
+}
+
+"""
+Specifies Azure Private Link Service settings, including allowed subscription IDs for
+private access. This enhances network security by ensuring only authorized subscriptions
+connect to your services.
+
+Example: ["34d1b48e-6471-4129-be6b-9e3c2df6955c", "23f44dbf-02a0-4fd7-b821-5e82652bd920"]
+"""
+input PrivateLinkServiceSpecInput {
+  """
+  Lists subscription IDs permitted for Private Link access, securing service connections.
+  """
+  AllowedSubscriptions: [String!]!
+}
+
+"""
+Azure environment load balancers configuration input.
+"""
+input AzureEnvLoadBalancersSpecInput {
+  """
+  Public load balancer configuration.
+
+  Accessible via *.$env_name.altinity.cloud.
+  """
+  public: AzureEnvLoadBalancerPublicSpecInput
+  """
+  Internal load balancer configuration.
+
+  Accessible via *.internal.$env_name.altinity.cloud.
+  """
+  internal: AzureEnvLoadBalancerInternalSpecInput
+}
+
+input AzureEnvLoadBalancerPublicSpecInput {
+  """
+  True if load balancer is enabled,
+  false otherwise.
+
+  False by default.
+  """
+  enabled: Boolean
+  """
+  IP addresses/blocks to allow traffic from.
+
+  0.0.0.0/0 by default.
+  """
+  sourceIPRanges: [String!]
+}
+
+input AzureEnvLoadBalancerInternalSpecInput {
+  """
+  True if load balancer is enabled,
+  false otherwise.
+
+  False by default.
+  """
+  enabled: Boolean
+  """
+  IP addresses/blocks to allow traffic from.
+
+  0.0.0.0/0 by default.
+  """
+  sourceIPRanges: [String!]
+}
+
+"""
+Azure environment node group configuration input.
+"""
+input AzureEnvNodeGroupSpecInput {
+  """
+  Unique (among environment node groups) node group identifier.
+
+  Defaults to $nodeType.
+  """
+  name: String
+  """
+  Machine type (https://azure.microsoft.com/en-us/pricing/details/virtual-machines/series).
+
+  Example: "PremiumV2_LRS"
+  """
+  nodeType: String!
+  """
+  Azure zones.
+
+  Defaults to environment zones.
+  """
+  zones: [String!]
+  """
+  Maximum number of instances per zone.
+  """
+  capacityPerZone: Int!
+  """
+  Types of workloads that are allowed to be scheduled onto the nodes that belong to this group.
+  """
+  reservations: [NodeReservation!]
+}
+
+"""
+Azure environment create request result.
+"""
+type CreateAzureEnvResult {
+  """
+  Mutation unique identifier.
+  """
+  mutationId: ID!
+  """
+  Azure environment active configuration.
+  """
+  spec: AzureEnvSpec!
+  """
+  Spec revision (monotonically-increasing).
+  """
+  specRevision: Int!
+}
+extend type Mutation {
+  """
+  Marks Azure environment for removal (if exists; noop otherwise).
+
+  This triggers env deprovisioning which deletes all the data (except for backups),
+  as well as all provisioned Azure resources.
+  """
+  deleteAzureEnv(input: DeleteAzureEnvInput!): DeleteAzureEnvResult!
+}
+
+"""
+Azure environment delete request input.
+"""
+input DeleteAzureEnvInput {
+  """
+  The name of Azure environment to delete.
+  """
+  name: String!
+  """
+  By default, delete mutation does not delete the env but rather marks it to be
+  removed once it's deprovisioned (which may take some time).
+  Set "force" to true to skip deprovisioning.
+  """
+  force: Boolean = false
+  """
+  By default, the delete operation will not delete any provisioned clusters and
+  the deletion will fail until the clusters get removed.
+  Set "forceDestroyClusters" to true remove all provisioned clusters as part of the environment deletion process.
+  """
+  forceDestroyClusters: Boolean = false
+}
+
+"""
+Azure environment delete request result.
+"""
+type DeleteAzureEnvResult {
+  """
+  Mutation unique identifier.
+  """
+  mutationId: ID!
+}
+extend type Mutation {
+  """
+  Update Azure environment record.
+  """
+  updateAzureEnv(input: UpdateAzureEnvInput!): UpdateAzureEnvResult!
+}
+
+"""
+Azure environment update request input.
+"""
+input UpdateAzureEnvInput {
+  """
+  Environment name.
+  """
+  name: String!
+  """
+  Environment spec.
+  """
+  spec: UpdateAzureEnvSpecInput!
+  """
+  Environment spec update strategy.
+  MERGE by default.
+  """
+  updateStrategy: UpdateStrategy
+}
+
+"""
+Azure environment configuration update request input.
+"""
+input UpdateAzureEnvSpecInput {
+  """
+  Number of Azure zones.
+  At least 2 required (if specified).
+  """
+  numberOfZones: Int
+  """
+  Explicit list of Azure zones.
+  At least 2 required (if specified).
+
+  Example: ["eastus-1", "eastus-2"]
+  """
+  zones: [String!]
+  """
+  Load balancers configuration.
+  """
+  loadBalancers: AzureEnvLoadBalancersSpecInput
+  """
+  Load balancing strategy.
+  ZONE_BEST_EFFORT by default.
+  """
+  loadBalancingStrategy: LoadBalancingStrategy
+  """
+  List of node groups.
+  At least one required.
+  """
+  nodeGroups: [AzureEnvNodeGroupSpecInput!]
+  """
+  List of maintenance windows during which automatic maintenance is permitted.
+  By default updates are applied as soon as they are available.
+  """
+  maintenanceWindows: [MaintenanceWindowSpecInput!]
+  """
+  Custom domain.
+
+  Examples:
+  - "example.com"
+  - "foo.bar.com"
+
+  Before specifying custom domain, please create the following DNS records:
+  - CNAME _acme-challenge.example.com. $env_name.altinity.cloud.
+  - (optional, public load balancer)
+  CNAME *.example.com. _.$env_name.altinity.cloud.
+  - (optional, internal load balancer)
+  CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
+  - (optional, privatelink)
+  CNAME *.privatelink.example.com. _.privatelink.$env_name.altinity.cloud.
+  """
+  customDomain: String
+  """
+  Azure Private Link service configuration.
+  """
+  privateLinkService: PrivateLinkServiceSpecInput
+  # """
+  # Tags to apply to Azure resources.
+  # """
+  tags: [KeyValueInput!]!
+}
+
+"""
+Azure environment update request result.
+"""
+type UpdateAzureEnvResult {
+  """
+  Mutation unique identifier.
+  """
+  mutationId: ID!
+  """
+  Azure environment active configuration.
+  """
+  spec: AzureEnvSpec!
+  """
+  Spec revision (monotonically-increasing).
+  """
+  specRevision: Int!
+}
 """
 Update strategy.
 """
