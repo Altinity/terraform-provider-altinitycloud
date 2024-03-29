@@ -655,6 +655,7 @@ type DeleteAWSEnvResult {
   Mutation unique identifier.
   """
   mutationId: ID!
+  pendingMFA: Boolean!
 }
 extend type Mutation {
   """
@@ -1312,6 +1313,7 @@ type DeleteAzureEnvResult {
   Mutation unique identifier.
   """
   mutationId: ID!
+  pendingMFA: Boolean!
 }
 extend type Mutation {
   """
@@ -2045,6 +2047,7 @@ type DeleteGCPEnvResult {
   Mutation unique identifier.
   """
   mutationId: ID!
+  pendingMFA: Boolean!
 }
 extend type Mutation {
   """
@@ -2783,6 +2786,7 @@ type DeleteK8SEnvResult {
   Mutation unique identifier.
   """
   mutationId: ID!
+  pendingMFA: Boolean!
 }
 extend type Mutation {
   """

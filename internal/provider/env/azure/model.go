@@ -58,7 +58,7 @@ func (e AzureEnvResourceModel) toSDK() (client.CreateAzureEnvInput, client.Updat
 	LoadBalancers := loadBalancersToSDK(e.LoadBalancers)
 	nodeGroups := nodeGroupsToSDK(e.NodeGroups)
 	loadBalancingStrategy := (*client.LoadBalancingStrategy)(e.LoadBalancingStrategy.ValueStringPointer())
-	cloudConnect := true
+	cloudConnect := false
 
 	var tags []*client.KeyValueInput
 	for _, t := range e.Tags {

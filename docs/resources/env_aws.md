@@ -68,6 +68,10 @@ provider "aws" {
   region = "us-east-1"
 }
 
+locals {
+  account_id = "123456789012"
+}
+
 module "altinitycloud_connect_aws" {
   source = "altinity/connect-aws/altinitycloud"
   pem    = altinitycloud_env_certificate.this.pem
@@ -75,7 +79,7 @@ module "altinitycloud_connect_aws" {
 
 resource "altinitycloud_env_aws" "this" {
   name           = altinitycloud_env_certificate.this.env_name
-  aws_account_id = "123456789012"
+  aws_account_id = local.account_id
   region         = "us-east-1"
   zones          = ["us-east-1a", "us-east-1b"]
   cidr           = "10.67.0.0/21"

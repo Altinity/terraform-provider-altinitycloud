@@ -904,6 +904,7 @@ type DeleteAWSEnvInput struct {
 type DeleteAWSEnvResult struct {
 	// Mutation unique identifier.
 	MutationID string `json:"mutationId"`
+	PendingMfa bool   `json:"pendingMFA"`
 }
 
 // Azure environment delete request input.
@@ -924,6 +925,7 @@ type DeleteAzureEnvInput struct {
 type DeleteAzureEnvResult struct {
 	// Mutation unique identifier.
 	MutationID string `json:"mutationId"`
+	PendingMfa bool   `json:"pendingMFA"`
 }
 
 // GCP environment delete request input.
@@ -944,6 +946,7 @@ type DeleteGCPEnvInput struct {
 type DeleteGCPEnvResult struct {
 	// Mutation unique identifier.
 	MutationID string `json:"mutationId"`
+	PendingMfa bool   `json:"pendingMFA"`
 }
 
 // Kubernetes environment delete request input.
@@ -964,6 +967,7 @@ type DeleteK8SEnvInput struct {
 type DeleteK8SEnvResult struct {
 	// Mutation unique identifier.
 	MutationID string `json:"mutationId"`
+	PendingMfa bool   `json:"pendingMFA"`
 }
 
 // GCP environment.

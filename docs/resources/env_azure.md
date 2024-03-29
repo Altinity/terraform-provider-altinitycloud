@@ -153,3 +153,11 @@ Required:
 
 - `key` (String) Name of the key
 - `value` (String) Value of the key
+
+## Import
+
+Import is supported using the following syntax:
+
+```shell
+terraform import altinitycloud_env_azure.this "replace-with-environment-name"
+```

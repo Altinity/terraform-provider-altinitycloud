@@ -28,6 +28,10 @@ data "altinitycloud_env_k8s_status" "current" {
 		Examples:
 			- "acme-aws-prod" (where "acme" is your account name)
 
+### Optional
+
+- `wait_for_applied_spec_revision` (Number) Applied spec revision
+
 ### Read-Only
 
 - `applied_spec_revision` (Number) Applied spec revision
