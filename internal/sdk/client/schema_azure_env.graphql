@@ -1,0 +1,93 @@
+query GetAzureEnv($name: String!) {
+  azureEnv(name: $name) {
+    name
+    spec {
+      ...AzureEnvSpecFragment
+    }
+    specRevision
+  }
+}
+
+query GetAzureEnvStatus($name: String!) {
+  azureEnv(name: $name) {
+    name
+    specRevision
+    status {
+      appliedSpecRevision
+      pendingDelete
+      loadBalancers {
+        internal {
+          privateLinkServiceAlias
+        }
+      }
+    }
+  }
+}
+
+mutation CreateAzureEnv($input: CreateAzureEnvInput!) {
+  createAzureEnv(input: $input) {
+    mutationId
+    spec {
+      ...AzureEnvSpecFragment
+    }
+    specRevision
+  }
+}
+
+mutation UpdateAzureEnv($input: UpdateAzureEnvInput!) {
+  updateAzureEnv(input: $input) {
+    mutationId
+    spec {
+      ...AzureEnvSpecFragment
+    }
+    specRevision
+  }
+}
+
+mutation DeleteAzureEnv($input: DeleteAzureEnvInput!) {
+  deleteAzureEnv(input: $input) {
+    mutationId
+  }
+}
+
+fragment AzureEnvSpecFragment on AzureEnvSpec {
+  loadBalancers {
+    public {
+      enabled
+      sourceIPRanges
+    }
+    internal {
+      enabled
+      sourceIPRanges
+    }
+  }
+  loadBalancingStrategy
+  customDomain
+  nodeGroups {
+    name
+    nodeType
+    capacityPerZone
+    reservations
+    zones
+  }
+  maintenanceWindows {
+    name
+    enabled
+    hour
+    lengthInHours
+    days
+  }
+  tags {
+    key
+    value
+  }
+  privateLinkService {
+    allowedSubscriptions
+  }
+  region
+  zones
+  cidr
+  tenantID
+  subscriptionID
+  cloudConnect
+}

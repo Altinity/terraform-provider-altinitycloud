@@ -655,6 +655,7 @@ type DeleteAWSEnvResult {
   Mutation unique identifier.
   """
   mutationId: ID!
+  pendingMFA: Boolean!
 }
 extend type Mutation {
   """
@@ -900,7 +901,7 @@ type PrivateLinkServiceSpec {
   """
   Lists subscription IDs permitted for Private Link access, securing service connections.
   """
-  AllowedSubscriptions: [String!]!
+  allowedSubscriptions: [String!]!
 }
 
 """
@@ -1170,7 +1171,7 @@ input PrivateLinkServiceSpecInput {
   """
   Lists subscription IDs permitted for Private Link access, securing service connections.
   """
-  AllowedSubscriptions: [String!]!
+  allowedSubscriptions: [String!]!
 }
 
 """
@@ -1312,6 +1313,7 @@ type DeleteAzureEnvResult {
   Mutation unique identifier.
   """
   mutationId: ID!
+  pendingMFA: Boolean!
 }
 extend type Mutation {
   """
@@ -1398,7 +1400,7 @@ input UpdateAzureEnvSpecInput {
   # """
   # Tags to apply to Azure resources.
   # """
-  tags: [KeyValueInput!]!
+  tags: [KeyValueInput!]
 }
 
 """
@@ -2045,6 +2047,7 @@ type DeleteGCPEnvResult {
   Mutation unique identifier.
   """
   mutationId: ID!
+  pendingMFA: Boolean!
 }
 extend type Mutation {
   """
@@ -2783,6 +2786,7 @@ type DeleteK8SEnvResult {
   Mutation unique identifier.
   """
   mutationId: ID!
+  pendingMFA: Boolean!
 }
 extend type Mutation {
   """

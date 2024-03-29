@@ -1,3 +1,3 @@
 data "altinitycloud_env_aws_status" "current" {
-  name = "aws-env"
+  name = "acme-staging"
 }

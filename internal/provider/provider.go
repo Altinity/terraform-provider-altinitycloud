@@ -11,10 +11,12 @@ import (
 	"time"
 
 	env_aws "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env/aws"
+	env_azure "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env/azure"
 	env_gcp "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env/gcp"
 	env_k8s "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env/k8s"
 	env_certificate "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env_certificate"
 	env_status_aws "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env_status/aws"
+	env_status_azure "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env_status/azure"
 	env_status_gcp "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env_status/gcp"
 	env_status_k8s "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env_status/k8s"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/auth"
@@ -163,6 +165,7 @@ func (p *altinityCloudProvider) Resources(ctx context.Context) []func() resource
 		env_aws.NewAWSEnvResource,
 		env_gcp.NewGCPEnvResource,
 		env_k8s.NewK8SEnvResource,
+		env_azure.NewAzureEnvResource,
 		env_certificate.NewCertificateResource,
 	}
 }
@@ -170,8 +173,11 @@ func (p *altinityCloudProvider) Resources(ctx context.Context) []func() resource
 func (p *altinityCloudProvider) DataSources(ctx context.Context) []func() datasource.DataSource {
 	return []func() datasource.DataSource{
 		env_aws.NewAWSEnvDataSource,
-		env_gcp.NewAWSEnvDataSource,
-		env_k8s.NewAWSEnvDataSource,
+		env_gcp.NewGCPEnvDataSource,
+		env_k8s.NewK8SEnvDataSource,
+		env_azure.NewAzureEnvDataSource,
+
+		env_status_azure.NewAzureEnvStatusDataSource,
 		env_status_aws.NewAWSEnvStatusDataSource,
 		env_status_gcp.NewGCPEnvStatusDataSource,
 		env_status_k8s.NewK8SEnvStatusDataSource,

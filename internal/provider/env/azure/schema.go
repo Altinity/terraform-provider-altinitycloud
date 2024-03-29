@@ -12,16 +12,15 @@ import (
 	dschema "github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	rschema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
-	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/objectdefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-func (r *AWSEnvResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *AzureEnvResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = rschema.Schema{
-		MarkdownDescription: heredoc.Doc(`Bring Your Own Cloud (BYOC) AWS environment resource.`),
+		MarkdownDescription: heredoc.Doc(`Bring Your Own Cloud (BYOC) Azure environment resource.`),
 		Attributes: map[string]rschema.Attribute{
 			"id":                          common.IDAttribute,
 			"name":                        common.NameAttribute,
@@ -30,15 +29,14 @@ func (r *AWSEnvResource) Schema(ctx context.Context, req resource.SchemaRequest,
 			"load_balancing_strategy":     common.GetLoadBalancingStrategyAttribute(false, true, true),
 			"maintenance_windows":         common.GetMaintenanceWindowAttribute(false, true, false),
 			"cidr":                        common.GetCIDRAttribute(true, false, false),
-			"zones":                       common.GetZonesAttribute(false, true, true, common.AWS_ZONES_DESCRIPTION),
+			"zones":                       common.GetZonesAttribute(false, true, true, common.AZURE_ZONES_DESCRIPTION),
 			"number_of_zones":             common.GetNumberOfZonesAttribute(false, true, true),
 			"node_groups":                 common.GetNodeGroupsAttribure(true, false, false),
-			"aws_account_id":              getAWSAccountIDAttribute(true, false, false),
-			"region":                      common.GetRegionAttribure(true, false, false, common.AWS_REGION_DESCRIPTION),
-			"peering_connections":         getPeeringConnectionsAttribute(false, true, false),
-			"endpoints":                   getEndpointsAttribute(false, true, false),
+			"region":                      common.GetRegionAttribure(true, false, false, common.AZURE_REGION_DESCRIPTION),
+			"tenant_id":                   getAzureTenantIDAttribute(true, false, false),
+			"subscription_id":             getAzureSubscriptionIDAttribute(true, false, false),
 			"tags":                        common.GetTagsAttribute(false, true, false),
-			"cloud_connect":               cloudConnectAttribute,
+			"private_link_service":        getPrivateLinkServiceAttribute(false, true, true),
 			"spec_revision":               common.SpecRevisionAttribute,
 			"force_destroy":               common.GetForceDestroyAttribute(false, true, true),
 			"force_destroy_clusters":      common.GetForceDestroyClustersAttribute(false, true, true),
@@ -47,9 +45,9 @@ func (r *AWSEnvResource) Schema(ctx context.Context, req resource.SchemaRequest,
 	}
 }
 
-func (d *AWSEnvDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *AzureEnvDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = dschema.Schema{
-		MarkdownDescription: heredoc.Doc(`Bring Your Own Cloud (BYOC) AWS environment data source.`),
+		MarkdownDescription: heredoc.Doc(`Bring Your Own Cloud (BYOC) Azure environment data source.`),
 		Attributes: map[string]dschema.Attribute{
 			"id":                      common.IDAttribute,
 			"name":                    common.NameAttribute,
@@ -58,15 +56,14 @@ func (d *AWSEnvDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 			"load_balancing_strategy": common.GetLoadBalancingStrategyAttribute(false, false, true),
 			"maintenance_windows":     common.GetMaintenanceWindowAttribute(false, false, true),
 			"cidr":                    common.GetCIDRAttribute(false, false, true),
-			"zones":                   common.GetZonesAttribute(false, false, true, common.AWS_ZONES_DESCRIPTION),
+			"zones":                   common.GetZonesAttribute(false, false, true, common.AZURE_ZONES_DESCRIPTION),
 			"number_of_zones":         common.GetNumberOfZonesAttribute(false, false, true),
 			"node_groups":             common.GetNodeGroupsAttribure(false, false, true),
-			"aws_account_id":          getAWSAccountIDAttribute(false, false, true),
-			"region":                  common.GetRegionAttribure(false, false, true, common.AWS_REGION_DESCRIPTION),
-			"peering_connections":     getPeeringConnectionsAttribute(false, false, true),
-			"endpoints":               getEndpointsAttribute(false, false, true),
+			"region":                  common.GetRegionAttribure(false, false, true, common.AZURE_REGION_DESCRIPTION),
+			"tenant_id":               getAzureTenantIDAttribute(false, false, true),
+			"subscription_id":         getAzureSubscriptionIDAttribute(false, false, true),
 			"tags":                    common.GetTagsAttribute(false, false, true),
-			"cloud_connect":           cloudConnectAttribute,
+			"private_link_service":    getPrivateLinkServiceAttribute(false, false, true),
 			"spec_revision":           common.SpecRevisionAttribute,
 
 			// these options are not used in data sources,
@@ -86,157 +83,99 @@ func getLoadBalancersAttribute(required, optional, computed bool) rschema.Single
 		MarkdownDescription: common.LOAD_BALANCER_DESCRIPTION,
 		PlanModifiers: []planmodifier.Object{
 			modifiers.DefaultObject(map[string]attr.Value{
-				"public":   loadBalancerPublicDefaultObject,
-				"internal": loadBalancerInternalDefaultObject,
+				"public":   loadBalancerDefaultObject,
+				"internal": loadBalancerDefaultObject,
 			}),
 		},
 		Attributes: map[string]rschema.Attribute{
 			"public": rschema.SingleNestedAttribute{
 				Optional:            true,
 				Computed:            true,
-				Default:             objectdefault.StaticValue(loadBalancerPublicDefaultObject),
 				MarkdownDescription: common.LOAD_BALANCER_PUBLIC_DESCRIPTION,
+				Default:             objectdefault.StaticValue(loadBalancerDefaultObject),
 				Attributes: map[string]rschema.Attribute{
 					"enabled":          common.EnabledAttribute,
 					"source_ip_ranges": common.SourceIPRangesAttribute,
-					"cross_zone":       crossZoneAttribute,
 				},
 			},
 			"internal": rschema.SingleNestedAttribute{
 				Optional:            true,
 				Computed:            true,
-				Default:             objectdefault.StaticValue(loadBalancerInternalDefaultObject),
 				MarkdownDescription: common.LOAD_BALANCER_INTERNAL_DESCRIPTION,
+				Default:             objectdefault.StaticValue(loadBalancerDefaultObject),
 				Attributes: map[string]rschema.Attribute{
 					"enabled":          common.EnabledAttribute,
 					"source_ip_ranges": common.SourceIPRangesAttribute,
-					"cross_zone":       crossZoneAttribute,
-					"endpoint_service_allowed_principals": rschema.ListAttribute{
-						ElementType:         types.StringType,
-						Optional:            true,
-						MarkdownDescription: common.AWS_LOAD_BALANCER_ENDPOINT_SERVICE_ALLOWED_PRINCIPALS_DESCRIPTION,
-						Validators: []validator.List{
-							listvalidator.SizeAtLeast(1),
-						},
-					},
 				},
 			},
 		},
 	}
 }
 
-func getAWSAccountIDAttribute(required, optional, computed bool) rschema.StringAttribute {
+func getAzureTenantIDAttribute(required, optional, computed bool) rschema.StringAttribute {
 	return rschema.StringAttribute{
 		Optional:            optional,
 		Required:            required,
 		Computed:            computed,
-		MarkdownDescription: common.AWS_ACCOUNT_ID_DESCRIPTION,
+		MarkdownDescription: common.AZURE_TENANT_ID_DESCRIPTION,
 		PlanModifiers: []planmodifier.String{
-			modifiers.ImmutableString("aws_account_id"),
+			modifiers.ImmutableString("tenant_id"),
 		},
 	}
 }
 
-func getPeeringConnectionsAttribute(required, optional, computed bool) rschema.ListNestedAttribute {
-	return rschema.ListNestedAttribute{
-		NestedObject:        peeringAttribute,
+func getAzureSubscriptionIDAttribute(required, optional, computed bool) rschema.StringAttribute {
+	return rschema.StringAttribute{
 		Optional:            optional,
 		Required:            required,
 		Computed:            computed,
-		MarkdownDescription: common.PEERING_CONNECTION_DESCRIPTION,
-		Validators: []validator.List{
-			listvalidator.SizeAtLeast(1),
+		MarkdownDescription: common.AZURE_SUBSCRIPTION_ID_DESCRIPTION,
+		PlanModifiers: []planmodifier.String{
+			modifiers.ImmutableString("subscription_id"),
 		},
 	}
 }
 
-func getEndpointsAttribute(required, optional, computed bool) rschema.ListNestedAttribute {
-	return rschema.ListNestedAttribute{
-		NestedObject:        endpointAttribute,
+func getPrivateLinkServiceAttribute(required, optional, computed bool) rschema.SingleNestedAttribute {
+	return rschema.SingleNestedAttribute{
 		Optional:            optional,
 		Required:            required,
 		Computed:            computed,
-		MarkdownDescription: common.ENDPOINT_DESCRIPTION,
-		Validators: []validator.List{
-			listvalidator.SizeAtLeast(1),
+		MarkdownDescription: common.AZURE_PRIVATE_LINK_SERVICE_DESCRIPTION,
+		Default:             objectdefault.StaticValue(privateLinkServiceDefaultObject),
+		Attributes: map[string]rschema.Attribute{
+			"allowed_subscriptions": rschema.ListAttribute{
+				ElementType:         types.StringType,
+				Optional:            true,
+				MarkdownDescription: common.AZURE_PRIVATE_LINK_SERVICE_ALLOWED_SUBSCRIPTIONS_DESCRIPTION,
+				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
+				},
+			},
 		},
 	}
 }
 
-var cloudConnectAttribute = rschema.BoolAttribute{
-	Optional:            true,
-	Computed:            true,
-	MarkdownDescription: common.CLOUD_CONNECT_DESCRIPTION,
-	Default:             booldefault.StaticBool(true),
-}
-
-var endpointAttribute = rschema.NestedAttributeObject{
-	Attributes: map[string]rschema.Attribute{
-		"service_name": rschema.StringAttribute{
-			Required:            true,
-			MarkdownDescription: common.ENDPOINT_SERVICE_NAME_DESCRIPTION,
-		},
-		"alias": rschema.StringAttribute{
-			Required:            true,
-			MarkdownDescription: common.ENDPOINT_ALIAS_DESCRIPTION,
-		},
-	},
-}
-
-var peeringAttribute = rschema.NestedAttributeObject{
-	Attributes: map[string]rschema.Attribute{
-		"aws_account_id": rschema.StringAttribute{
-			Optional:            true,
-			MarkdownDescription: common.AWS_ACCOUNT_ID_DESCRIPTION,
-		},
-		"vpc_id": rschema.StringAttribute{
-			Required:            true,
-			MarkdownDescription: common.PEERING_CONNECTION_VPC_ID_DESCRIPTION,
-		},
-		"vpc_region": rschema.StringAttribute{
-			Optional:            true,
-			MarkdownDescription: common.PEERING_CONNECTION_VPC_REGION_DESCRIPTION,
-		},
-	},
-}
-
-var crossZoneAttribute = rschema.BoolAttribute{
-	Optional:            true,
-	Computed:            true,
-	MarkdownDescription: common.AWS_LOAD_BALANCER_CROSS_ZONE_DESCRIPTION,
-	Default:             booldefault.StaticBool(false),
-}
-
-var loadBalancerInternalDefaultObject, _ = types.ObjectValue(
+var privateLinkServiceDefaultObject, _ = types.ObjectValue(
 	map[string]attr.Type{
-		"enabled":    types.BoolType,
-		"cross_zone": types.BoolType,
-		"source_ip_ranges": types.ListType{
-			ElemType: types.StringType,
-		},
-		"endpoint_service_allowed_principals": types.ListType{
+		"allowed_subscriptions": types.ListType{
 			ElemType: types.StringType,
 		},
 	},
 	map[string]attr.Value{
-		"enabled":                             types.BoolValue(false),
-		"cross_zone":                          types.BoolValue(false),
-		"source_ip_ranges":                    types.ListNull(types.StringType),
-		"endpoint_service_allowed_principals": types.ListNull(types.StringType),
+		"allowed_subscriptions": types.ListNull(types.StringType),
 	},
 )
 
-var loadBalancerPublicDefaultObject, _ = types.ObjectValue(
+var loadBalancerDefaultObject, _ = types.ObjectValue(
 	map[string]attr.Type{
-		"enabled":    types.BoolType,
-		"cross_zone": types.BoolType,
+		"enabled": types.BoolType,
 		"source_ip_ranges": types.ListType{
 			ElemType: types.StringType,
 		},
 	},
 	map[string]attr.Value{
 		"enabled":          types.BoolValue(false),
-		"cross_zone":       types.BoolValue(false),
 		"source_ip_ranges": types.ListNull(types.StringType),
 	},
 )

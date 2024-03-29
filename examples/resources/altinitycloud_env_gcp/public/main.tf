@@ -35,12 +35,14 @@ resource "altinitycloud_env_gcp" "this" {
   region         = "us-east1"
   zones          = ["us-east1-b", "us-east1-d"]
   cidr           = "10.67.0.0/21"
+
   load_balancers = {
     public = {
       enabled          = true
       source_ip_ranges = ["0.0.0.0/0"]
     }
   }
+
   node_groups = [
     {
       node_type         = "e2-standard-2"

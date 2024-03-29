@@ -14,7 +14,7 @@ Altinity.Cloud GCP environment status data source. It will long pool the status 
 
 ```terraform
 data "altinitycloud_env_gcp_status" "current" {
-  name = "gcp-env"
+  name = "acme-staging"
 }
 ```
 
@@ -27,6 +27,10 @@ data "altinitycloud_env_gcp_status" "current" {
 
 		Examples:
 			- "acme-aws-prod" (where "acme" is your account name)
+
+### Optional
+
+- `wait_for_applied_spec_revision` (Number) Applied spec revision
 
 ### Read-Only
 

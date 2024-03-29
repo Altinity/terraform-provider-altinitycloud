@@ -11,23 +11,23 @@ import (
 )
 
 var (
-	_ datasource.DataSource              = &GCPEnvDataSource{}
-	_ datasource.DataSourceWithConfigure = &GCPEnvDataSource{}
+	_ datasource.DataSource              = &AzureEnvDataSource{}
+	_ datasource.DataSourceWithConfigure = &AzureEnvDataSource{}
 )
 
-func NewGCPEnvDataSource() datasource.DataSource {
-	return &GCPEnvDataSource{}
+func NewAzureEnvDataSource() datasource.DataSource {
+	return &AzureEnvDataSource{}
 }
 
-type GCPEnvDataSource struct {
+type AzureEnvDataSource struct {
 	client *client.Client
 }
 
-func (d *GCPEnvDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
-	resp.TypeName = req.ProviderTypeName + "_env_gcp"
+func (d *AzureEnvDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
+	resp.TypeName = req.ProviderTypeName + "_env_azure"
 }
 
-func (d *GCPEnvDataSource) Configure(ctx context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
+func (d *AzureEnvDataSource) Configure(ctx context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
 	if req.ProviderData == nil {
 		return
 	}
@@ -46,10 +46,10 @@ func (d *GCPEnvDataSource) Configure(ctx context.Context, req datasource.Configu
 	d.client = sdk.Client
 }
 
-func (d *GCPEnvDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	tflog.Trace(ctx, "reading aws env state source")
+func (d *AzureEnvDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
+	tflog.Trace(ctx, "reading Azure env state source")
 
-	var data GCPEnvResourceModel
+	var data AzureEnvResourceModel
 	diags := req.Config.Get(ctx, &data)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -57,18 +57,18 @@ func (d *GCPEnvDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	}
 
 	envName := data.Name.ValueString()
-	apiResp, err := d.client.GetGCPEnv(ctx, envName)
+	apiResp, err := d.client.GetAzureEnv(ctx, envName)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read env %s, got error: %s", envName, err))
 		return
 	}
 
-	if apiResp.GcpEnv == nil {
+	if apiResp.AzureEnv == nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Environment %s was not found", envName))
 		return
 	}
 
-	data.toModel(*apiResp.GcpEnv)
+	data.toModel(*apiResp.AzureEnv)
 	data.Id = data.Name
 
 	diags = resp.State.Set(ctx, &data)
