@@ -7,7 +7,7 @@ description: |-
 
 # Altinity.Cloud Provider
 
-The Terraform provider for [Altinity.Cloud](https://altinity.cloud/).  
+The Terraform provider for [Altinity.Cloud](https://altinity.cloud/).
 
 ## Authentication
 
@@ -27,7 +27,7 @@ terraform {
     altinitycloud = {
       source = "altinity/altinitycloud"
       # https://github.com/altinity/terraform-provider-altinitycloud/blob/master/CHANGELOG.md
-      version = "0.1.2"
+      version = "0.2.0"
     }
   }
 }
@@ -43,7 +43,7 @@ provider "altinitycloud" {
 
 ### Optional
 
-- `api_token` (String) Altinity.Cloud API Token.  
+- `api_token` (String) Altinity.Cloud API Token.
 The value can be omitted if `ALTINITYCLOUD_API_TOKEN` environment variable is set.
 - `api_url` (String) Altinity.Cloud API URL. Defaults to `https://anywhere.altinity.cloud` unless `ALTINITYCLOUD_API_URL` env var is set.
 - `ca_crt` (String) CA bundle for Altinity.Cloud.
@@ -59,9 +59,9 @@ There are 2 types of environments supported by [Altinity.Cloud Anywhere](https:/
 
 See
 
-- [`altinitycloud_env_aws` resource examples](resources/env_aws#example-usage)   
+- [`altinitycloud_env_aws` resource examples](resources/env_aws#example-usage)
   on how to create Bring Your Own Cloud (BYOC) AWS environment.
-- [`altinitycloud_env_gcp` resource examples](resources/env_gcp#example-usage)  
+- [`altinitycloud_env_gcp` resource examples](resources/env_gcp#example-usage)
   on how to create Bring Your Own Cloud (BYOC) GCP environment.
-- [`altinitycloud_env_k8s` resource examples](resources/env_gcp#example-usage)  
+- [`altinitycloud_env_k8s` resource examples](resources/env_gcp#example-usage)
   on how to create Bring Your Own Kubernetes (BYOK) environment.

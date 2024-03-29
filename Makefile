@@ -43,7 +43,6 @@ local: build
 	cd ${LOCAL_DIRECTOY} && TF_LOG=TRACE terraform init -upgrade
 
 .PHONY: bump
-.PHONY: bump
 bump:
 	@if [ -z "$(type)" ]; then \
 		echo "Error: 'type' not specified. Use 'make bump type=major', 'make bump type=minor', or 'make bump type=patch'."; \
