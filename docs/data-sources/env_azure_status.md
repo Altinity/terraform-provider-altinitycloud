@@ -14,7 +14,7 @@ Altinity.Cloud Azure environment status data source. It will long pool the statu
 
 ```terraform
 data "altinitycloud_env_azure_status" "current" {
-  name = "azure-env"
+  name = "acme-staging"
 }
 ```
 

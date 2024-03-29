@@ -61,14 +61,21 @@ data "altinitycloud_env_azure" "current" {
 - `maintenance_windows` (Attributes List) List of maintenance windows during which automatic maintenance is permitted. By default updates are applied as soon as they are available. (see [below for nested schema](#nestedatt--maintenance_windows))
 - `node_groups` (Attributes Set) List of node groups. At least one required. (see [below for nested schema](#nestedatt--node_groups))
 - `number_of_zones` (Number) Number of zones where the environment will be available. When set, zones will be set automatically based on your cloud provider (Do not use it together with zones)
-- `private_link_service` (Attributes) TBA (see [below for nested schema](#nestedatt--private_link_service))
-- `region` (String) TBA
+- `private_link_service` (Attributes) Azure Private Link service configuration. (see [below for nested schema](#nestedatt--private_link_service))
+- `region` (String) Azure region ([docs](https://azure.microsoft.com/en-us/explore/global-infrastructure/geographies/#overview)). **[IMMUTABLE]**
+
+Examples:
+- "eastus"
+- "westus"
 - `skip_deprovision_on_destroy` (Boolean)
 - `spec_revision` (Number) Spec revision
-- `subscription_id` (String) TBA
+- `subscription_id` (String) ID of the Azure Active Directory tenant for user identity and access management. **[IMMUTABLE]**
 - `tags` (Attributes List) Tags to apply to AWS resources (see [below for nested schema](#nestedatt--tags))
-- `tenant_id` (String) TBA
-- `zones` (List of String) TBA
+- `tenant_id` (String) ID linking the environment to a specific Azure subscription for resource management. **[IMMUTABLE]**
+- `zones` (List of String) Explicit list of Azure availability zones. At least 2 required.
+
+Examples:
+- ["eastus-1", "eastus-2"]
 
 <a id="nestedatt--load_balancers"></a>
 ### Nested Schema for `load_balancers`
@@ -146,7 +153,7 @@ Optional:
 
 Optional:
 
-- `allowed_subscriptions` (List of String) TBA
+- `allowed_subscriptions` (List of String) Lists subscription IDs permitted for Private Link access, securing service connections.
 
 
 <a id="nestedatt--tags"></a>

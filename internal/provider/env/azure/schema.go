@@ -141,13 +141,13 @@ func getPrivateLinkServiceAttribute(required, optional, computed bool) rschema.S
 		Optional:            optional,
 		Required:            required,
 		Computed:            computed,
-		MarkdownDescription: "TBA",
+		MarkdownDescription: common.AZURE_PRIVATE_LINK_SERVICE_DESCRIPTION,
 		Default:             objectdefault.StaticValue(privateLinkServiceDefaultObject),
 		Attributes: map[string]rschema.Attribute{
 			"allowed_subscriptions": rschema.ListAttribute{
 				ElementType:         types.StringType,
 				Optional:            true,
-				MarkdownDescription: "TBA",
+				MarkdownDescription: common.AZURE_PRIVATE_LINK_SERVICE_ALLOWED_SUBSCRIPTIONS_DESCRIPTION,
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 				},

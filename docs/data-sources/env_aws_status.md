@@ -14,7 +14,7 @@ Altinity.Cloud AWS environment status data source. It will long pool the status 
 
 ```terraform
 data "altinitycloud_env_aws_status" "current" {
-  name = "aws-env"
+  name = "acme-staging"
 }
 ```
 

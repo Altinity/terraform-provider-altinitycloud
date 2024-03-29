@@ -178,7 +178,19 @@ const BUCKET_NAME_DESCRIPTION = "Bucket name"
 const METRICS_DESCRIPTION = "Metrics configuration"
 const METRICS_RETENTION_PERIOD_IN_DAYS_DESCRIPTION = "Metrics retention period in days (default `30`)."
 
-const AZURE_ZONES_DESCRIPTION = `TBA`
-const AZURE_REGION_DESCRIPTION = `TBA`
-const AZURE_TENANT_ID_DESCRIPTION = "TBA"
-const AZURE_SUBSCRIPTION_ID_DESCRIPTION = "TBA"
+// Azure descriptions.
+const AZURE_ZONES_DESCRIPTION = `Explicit list of Azure availability zones. At least 2 required.
+
+Examples:
+- ["eastus-1", "eastus-2"]
+`
+const AZURE_REGION_DESCRIPTION = `Azure region ([docs](https://azure.microsoft.com/en-us/explore/global-infrastructure/geographies/#overview)). **[IMMUTABLE]**
+
+Examples:
+- "eastus"
+- "westus"
+`
+const AZURE_SUBSCRIPTION_ID_DESCRIPTION = "ID of the Azure Active Directory tenant for user identity and access management. **[IMMUTABLE]**"
+const AZURE_TENANT_ID_DESCRIPTION = "ID linking the environment to a specific Azure subscription for resource management. **[IMMUTABLE]**"
+const AZURE_PRIVATE_LINK_SERVICE_DESCRIPTION = "Azure Private Link service configuration."
+const AZURE_PRIVATE_LINK_SERVICE_ALLOWED_SUBSCRIPTIONS_DESCRIPTION = "Lists subscription IDs permitted for Private Link access, securing service connections."
