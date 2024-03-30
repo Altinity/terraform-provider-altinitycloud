@@ -104,7 +104,7 @@ resource "altinitycloud_env_k8s" "this" {
 - `name` (String) A globally-unique environment identifier. All environment names must start with your account name as prefix. **[IMMUTABLE]**
 
 		Examples:
-			- "acme-aws-prod" (where "acme" is your account name)
+		- "acme-staging" (where "acme" is your account name)
 - `node_groups` (Attributes List) List of node groups. At least one required. (see [below for nested schema](#nestedatt--node_groups))
 
 ### Optional

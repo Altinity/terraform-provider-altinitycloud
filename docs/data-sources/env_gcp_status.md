@@ -26,7 +26,7 @@ data "altinitycloud_env_gcp_status" "current" {
 - `name` (String) A globally-unique environment identifier. All environment names must start with your account name as prefix. **[IMMUTABLE]**
 
 		Examples:
-			- "acme-aws-prod" (where "acme" is your account name)
+		- "acme-staging" (where "acme" is your account name)
 
 ### Optional
 

@@ -26,7 +26,7 @@ data "altinitycloud_env_azure_status" "current" {
 - `name` (String) A globally-unique environment identifier. All environment names must start with your account name as prefix. **[IMMUTABLE]**
 
 		Examples:
-			- "acme-aws-prod" (where "acme" is your account name)
+		- "acme-staging" (where "acme" is your account name)
 
 ### Optional
 
@@ -51,4 +51,4 @@ Read-Only:
 
 Read-Only:
 
-- `private_link_service_alias` (String) VPC endpoint service name in $endpoint_service_id.$region.vpce.amazonaws.com format (if any)
+- `private_link_service_alias` (String) Private Link Service Alias / DNS Name in prefix.GUID.suffix format.

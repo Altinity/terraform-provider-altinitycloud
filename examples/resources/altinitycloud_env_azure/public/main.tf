@@ -3,14 +3,10 @@ provider "azurerm" {
   features {}
 }
 
-variable "subscription_id" {
-  type        = string
-  description = "The ID of subscription to connect to Altinity.Cloud"
-}
-
-variable "tenant_id" {
-  type        = string
-  description = "The ID of tenant to connect to Altinity.Cloud"
+locals {
+  # Replace these values with your own Azure tenant and subscription IDs
+  tenant_id       = "f3c1e3cb-3d92-4315-b98c-0a66676da2e8"
+  subscription_id = "3f919947-3102-4210-82ee-4d2ca69f2a01"
 }
 
 data "azuread_client_config" "current" {}
@@ -24,23 +20,18 @@ resource "random_uuid" "azurerm_role_assignment_altinity_cloud" {}
 
 resource "azurerm_role_assignment" "altinity_cloud" {
   name                 = random_uuid.azurerm_role_assignment_altinity_cloud.id
-  scope                = "/subscriptions/${var.subscription_id}"
+  scope                = "/subscriptions/${local.subscription_id}"
   role_definition_name = "Owner"
   principal_id         = data.azuread_service_principal.altinity_cloud.object_id
-}
-
-locals {
-  region = "eastus"
-  zones  = ["eastus-1", "eastus-2"]
 }
 
 resource "altinitycloud_env_azure" "azure" {
   name            = "acme-staging"
   cidr            = "10.136.0.0/21"
-  region          = local.region
-  tenant_id       = var.tenant_id
-  subscription_id = var.subscription_id
-  zones           = local.zones
+  region          = "eastus"
+  zones           = ["eastus-1", "eastus-2"]
+  tenant_id       = local.tenant_id
+  subscription_id = local.subscription_id
 
   load_balancers = {
     public = {

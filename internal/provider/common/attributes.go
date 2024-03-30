@@ -23,12 +23,16 @@ import (
 var CIDR_REGEX = regexp.MustCompile(`^([0-9]{1,3}\.){3}[0-9]{1,3}\/[0-9]{1,2}$`)
 var DOMAIN_REGEX = regexp.MustCompile("^[a-z0-9][a-z0-9-]{0,63}([.][a-z0-9][a-z0-9-]{0,63})+$")
 
-func GetCustomDomainAttribute(required, optional, computed bool) rschema.StringAttribute {
+func GetCommonCustomDomainAttribute(required, optional, computed bool) rschema.StringAttribute {
+	return GetCustomDomainAttribute(required, optional, computed, CUSTOM_DOMAIN_DESCRIPTION)
+}
+
+func GetCustomDomainAttribute(required, optional, computed bool, description string) rschema.StringAttribute {
 	return rschema.StringAttribute{
 		Required:            required,
 		Optional:            optional,
 		Computed:            computed,
-		MarkdownDescription: CUSTOM_DOMAIN_DESCRIPTION,
+		MarkdownDescription: description,
 		Validators: []validator.String{
 			stringvalidator.RegexMatches(
 				DOMAIN_REGEX,
@@ -241,13 +245,13 @@ func GetReservationsAttribute(required, optional, computed bool) rschema.SetAttr
 	}
 }
 
-func GetTagsAttribute(required, optional, computed bool) rschema.ListNestedAttribute {
+func GetTagsAttribute(required, optional, computed bool, description string) rschema.ListNestedAttribute {
 	return rschema.ListNestedAttribute{
 		NestedObject:        KeyValueAttribute,
 		Optional:            optional,
 		Required:            required,
 		Computed:            computed,
-		MarkdownDescription: TAGS_DESCRIPTION,
+		MarkdownDescription: description,
 		Validators: []validator.List{
 			listvalidator.SizeAtLeast(1),
 		},

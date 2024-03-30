@@ -22,7 +22,7 @@ func (r *GCPEnvResource) Schema(ctx context.Context, req resource.SchemaRequest,
 		Attributes: map[string]rschema.Attribute{
 			"id":                          common.IDAttribute,
 			"name":                        common.NameAttribute,
-			"custom_domain":               common.GetCustomDomainAttribute(false, true, false),
+			"custom_domain":               common.GetCommonCustomDomainAttribute(false, true, false),
 			"load_balancers":              getLoadBalancersAttribute(false, true, true),
 			"load_balancing_strategy":     common.GetLoadBalancingStrategyAttribute(false, true, true),
 			"maintenance_windows":         common.GetMaintenanceWindowAttribute(false, true, false),
@@ -46,7 +46,7 @@ func (d *GCPEnvDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 		Attributes: map[string]dschema.Attribute{
 			"id":                      common.IDAttribute,
 			"name":                    common.NameAttribute,
-			"custom_domain":           common.GetCustomDomainAttribute(false, false, true),
+			"custom_domain":           common.GetCommonCustomDomainAttribute(false, false, true),
 			"load_balancers":          getLoadBalancersAttribute(false, false, true),
 			"load_balancing_strategy": common.GetLoadBalancingStrategyAttribute(false, false, true),
 			"maintenance_windows":     common.GetMaintenanceWindowAttribute(false, false, true),

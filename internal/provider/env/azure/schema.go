@@ -24,7 +24,7 @@ func (r *AzureEnvResource) Schema(ctx context.Context, req resource.SchemaReques
 		Attributes: map[string]rschema.Attribute{
 			"id":                          common.IDAttribute,
 			"name":                        common.NameAttribute,
-			"custom_domain":               common.GetCustomDomainAttribute(false, true, false),
+			"custom_domain":               getCustomDomainAttribute(false, true, false),
 			"load_balancers":              getLoadBalancersAttribute(false, true, true),
 			"load_balancing_strategy":     common.GetLoadBalancingStrategyAttribute(false, true, true),
 			"maintenance_windows":         common.GetMaintenanceWindowAttribute(false, true, false),
@@ -35,7 +35,7 @@ func (r *AzureEnvResource) Schema(ctx context.Context, req resource.SchemaReques
 			"region":                      common.GetRegionAttribure(true, false, false, common.AZURE_REGION_DESCRIPTION),
 			"tenant_id":                   getAzureTenantIDAttribute(true, false, false),
 			"subscription_id":             getAzureSubscriptionIDAttribute(true, false, false),
-			"tags":                        common.GetTagsAttribute(false, true, false),
+			"tags":                        getTagsAttribute(false, true, false),
 			"private_link_service":        getPrivateLinkServiceAttribute(false, true, true),
 			"spec_revision":               common.SpecRevisionAttribute,
 			"force_destroy":               common.GetForceDestroyAttribute(false, true, true),
@@ -51,7 +51,7 @@ func (d *AzureEnvDataSource) Schema(ctx context.Context, req datasource.SchemaRe
 		Attributes: map[string]dschema.Attribute{
 			"id":                      common.IDAttribute,
 			"name":                    common.NameAttribute,
-			"custom_domain":           common.GetCustomDomainAttribute(false, false, true),
+			"custom_domain":           getCustomDomainAttribute(false, false, true),
 			"load_balancers":          getLoadBalancersAttribute(false, false, true),
 			"load_balancing_strategy": common.GetLoadBalancingStrategyAttribute(false, false, true),
 			"maintenance_windows":     common.GetMaintenanceWindowAttribute(false, false, true),
@@ -62,7 +62,7 @@ func (d *AzureEnvDataSource) Schema(ctx context.Context, req datasource.SchemaRe
 			"region":                  common.GetRegionAttribure(false, false, true, common.AZURE_REGION_DESCRIPTION),
 			"tenant_id":               getAzureTenantIDAttribute(false, false, true),
 			"subscription_id":         getAzureSubscriptionIDAttribute(false, false, true),
-			"tags":                    common.GetTagsAttribute(false, false, true),
+			"tags":                    getTagsAttribute(false, false, true),
 			"private_link_service":    getPrivateLinkServiceAttribute(false, false, true),
 			"spec_revision":           common.SpecRevisionAttribute,
 
@@ -124,6 +124,10 @@ func getAzureTenantIDAttribute(required, optional, computed bool) rschema.String
 	}
 }
 
+func getCustomDomainAttribute(required, optional, computed bool) rschema.StringAttribute {
+	return common.GetCustomDomainAttribute(required, optional, computed, common.AZURE_CUSTOM_DOMAIN_DESCRIPTION)
+}
+
 func getAzureSubscriptionIDAttribute(required, optional, computed bool) rschema.StringAttribute {
 	return rschema.StringAttribute{
 		Optional:            optional,
@@ -134,6 +138,10 @@ func getAzureSubscriptionIDAttribute(required, optional, computed bool) rschema.
 			modifiers.ImmutableString("subscription_id"),
 		},
 	}
+}
+
+func getTagsAttribute(required, optional, computed bool) rschema.ListNestedAttribute {
+	return common.GetTagsAttribute(required, optional, computed, common.AZURE_TAGS_DESCRIPTION)
 }
 
 func getPrivateLinkServiceAttribute(required, optional, computed bool) rschema.SingleNestedAttribute {
