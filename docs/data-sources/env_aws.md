@@ -26,7 +26,7 @@ data "altinitycloud_env_aws" "current" {
 - `name` (String) A globally-unique environment identifier. All environment names must start with your account name as prefix. **[IMMUTABLE]**
 
 		Examples:
-			- "acme-aws-prod" (where "acme" is your account name)
+		- "acme-staging" (where "acme" is your account name)
 
 ### Optional
 
@@ -75,7 +75,7 @@ data "altinitycloud_env_aws" "current" {
 		- "sa-east-1"
 - `skip_deprovision_on_destroy` (Boolean)
 - `spec_revision` (Number) Spec revision
-- `tags` (Attributes List) Tags to apply to AWS resources (see [below for nested schema](#nestedatt--tags))
+- `tags` (Attributes List) Tags to apply to AWS resources. (see [below for nested schema](#nestedatt--tags))
 - `zones` (List of String) Explicit list of AWS availability zones. At least 2 required.
 
 		Examples:

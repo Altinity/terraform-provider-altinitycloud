@@ -26,7 +26,7 @@ data "altinitycloud_env_azure" "current" {
 - `name` (String) A globally-unique environment identifier. All environment names must start with your account name as prefix. **[IMMUTABLE]**
 
 		Examples:
-			- "acme-aws-prod" (where "acme" is your account name)
+		- "acme-staging" (where "acme" is your account name)
 
 ### Read-Only
 
@@ -47,8 +47,8 @@ data "altinitycloud_env_azure" "current" {
 			CNAME *.example.com. _.$env_name.altinity.cloud.
 		- (optional, internal load balancer)
 			CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
-		- (optional, vpce)
-			CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
+		- (optional, privatelink)
+			CNAME *.privatelink.example.com. _.privatelink.$env_name.altinity.cloud.
 - `force_destroy` (Boolean) Locks the environment for accidental deletion when running `terraform destroy` command. Your environment will be deleted, only when setting this parameter to `false`. Once this parameter is set to `false`, there must be a successful `terraform apply` run (before running the `terraform destroy`) to update this value in the state. Without a successful `terraform apply` after this parameter is set, this flag will have no effect. (default `false`)
 - `force_destroy_clusters` (Boolean) By default, the destroy operation will not delete any provisioned clusters and the deletion will fail until the clusters get removed. Set to `true` to remove all provisioned clusters as part of the environment deletion process.
 - `id` (String) ID of the environment (automatically generated based on the name)
@@ -64,18 +64,18 @@ data "altinitycloud_env_azure" "current" {
 - `private_link_service` (Attributes) Azure Private Link service configuration. (see [below for nested schema](#nestedatt--private_link_service))
 - `region` (String) Azure region ([docs](https://azure.microsoft.com/en-us/explore/global-infrastructure/geographies/#overview)). **[IMMUTABLE]**
 
-Examples:
-- "eastus"
-- "westus"
+		Examples:
+		- "eastus"
+		- "westus"
 - `skip_deprovision_on_destroy` (Boolean)
 - `spec_revision` (Number) Spec revision
-- `subscription_id` (String) ID of the Azure Active Directory tenant for user identity and access management. **[IMMUTABLE]**
-- `tags` (Attributes List) Tags to apply to AWS resources (see [below for nested schema](#nestedatt--tags))
-- `tenant_id` (String) ID linking the environment to a specific Azure subscription for resource management. **[IMMUTABLE]**
+- `subscription_id` (String) ID linking the environment to a specific Azure subscription for resource management. **[IMMUTABLE]**
+- `tags` (Attributes List) Tags to apply to Azure resources. (see [below for nested schema](#nestedatt--tags))
+- `tenant_id` (String) ID of the Azure Active Directory tenant for user identity and access management. **[IMMUTABLE]**
 - `zones` (List of String) Explicit list of Azure availability zones. At least 2 required.
 
-Examples:
-- ["eastus-1", "eastus-2"]
+		Examples:
+		- ["eastus-1", "eastus-2"]
 
 <a id="nestedatt--load_balancers"></a>
 ### Nested Schema for `load_balancers`

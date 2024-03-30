@@ -25,7 +25,7 @@ func (r *AWSEnvResource) Schema(ctx context.Context, req resource.SchemaRequest,
 		Attributes: map[string]rschema.Attribute{
 			"id":                          common.IDAttribute,
 			"name":                        common.NameAttribute,
-			"custom_domain":               common.GetCustomDomainAttribute(false, true, false),
+			"custom_domain":               common.GetCommonCustomDomainAttribute(false, true, false),
 			"load_balancers":              getLoadBalancersAttribute(false, true, true),
 			"load_balancing_strategy":     common.GetLoadBalancingStrategyAttribute(false, true, true),
 			"maintenance_windows":         common.GetMaintenanceWindowAttribute(false, true, false),
@@ -37,7 +37,7 @@ func (r *AWSEnvResource) Schema(ctx context.Context, req resource.SchemaRequest,
 			"region":                      common.GetRegionAttribure(true, false, false, common.AWS_REGION_DESCRIPTION),
 			"peering_connections":         getPeeringConnectionsAttribute(false, true, false),
 			"endpoints":                   getEndpointsAttribute(false, true, false),
-			"tags":                        common.GetTagsAttribute(false, true, false),
+			"tags":                        getTagsAttribute(false, true, false),
 			"cloud_connect":               cloudConnectAttribute,
 			"spec_revision":               common.SpecRevisionAttribute,
 			"force_destroy":               common.GetForceDestroyAttribute(false, true, true),
@@ -53,7 +53,7 @@ func (d *AWSEnvDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 		Attributes: map[string]dschema.Attribute{
 			"id":                      common.IDAttribute,
 			"name":                    common.NameAttribute,
-			"custom_domain":           common.GetCustomDomainAttribute(false, false, true),
+			"custom_domain":           common.GetCommonCustomDomainAttribute(false, false, true),
 			"load_balancers":          getLoadBalancersAttribute(false, false, true),
 			"load_balancing_strategy": common.GetLoadBalancingStrategyAttribute(false, false, true),
 			"maintenance_windows":     common.GetMaintenanceWindowAttribute(false, false, true),
@@ -65,7 +65,7 @@ func (d *AWSEnvDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 			"region":                  common.GetRegionAttribure(false, false, true, common.AWS_REGION_DESCRIPTION),
 			"peering_connections":     getPeeringConnectionsAttribute(false, false, true),
 			"endpoints":               getEndpointsAttribute(false, false, true),
-			"tags":                    common.GetTagsAttribute(false, false, true),
+			"tags":                    getTagsAttribute(false, false, true),
 			"cloud_connect":           cloudConnectAttribute,
 			"spec_revision":           common.SpecRevisionAttribute,
 
@@ -148,6 +148,10 @@ func getPeeringConnectionsAttribute(required, optional, computed bool) rschema.L
 			listvalidator.SizeAtLeast(1),
 		},
 	}
+}
+
+func getTagsAttribute(required, optional, computed bool) rschema.ListNestedAttribute {
+	return common.GetTagsAttribute(required, optional, computed, common.AWS_TAGS_DESCRIPTION)
 }
 
 func getEndpointsAttribute(required, optional, computed bool) rschema.ListNestedAttribute {

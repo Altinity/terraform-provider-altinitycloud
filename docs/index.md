@@ -43,7 +43,7 @@ provider "altinitycloud" {
 
 ### Optional
 
-- `api_token` (String) Altinity.Cloud API Token.
+- `api_token` (String) Altinity.Cloud API Token.  
 The value can be omitted if `ALTINITYCLOUD_API_TOKEN` environment variable is set.
 - `api_url` (String) Altinity.Cloud API URL. Defaults to `https://anywhere.altinity.cloud` unless `ALTINITYCLOUD_API_URL` env var is set.
 - `ca_crt` (String) CA bundle for Altinity.Cloud.
@@ -63,5 +63,7 @@ See
   on how to create Bring Your Own Cloud (BYOC) AWS environment.
 - [`altinitycloud_env_gcp` resource examples](resources/env_gcp#example-usage)
   on how to create Bring Your Own Cloud (BYOC) GCP environment.
+- [`altinitycloud_env_azure` resource examples](resources/env_azure#example-usage)
+  on how to create Bring Your Own Cloud (BYOC) Azure environment.
 - [`altinitycloud_env_k8s` resource examples](resources/env_gcp#example-usage)
   on how to create Bring Your Own Kubernetes (BYOK) environment.

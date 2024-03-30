@@ -36,7 +36,7 @@ func (r *AzureEnvStatusDataSource) Schema(ctx context.Context, req datasource.Sc
 								Required:            false,
 								Optional:            false,
 								Computed:            true,
-								MarkdownDescription: common.STATUS_LOAD_BALANCERS_ENDPOINT_SERVICE_NAME_DESCRIPTION,
+								MarkdownDescription: common.AZURE_PRIVATE_LINK_SERVICE_ALIAS_DESCRIPTION,
 							},
 						},
 					},

@@ -201,7 +201,7 @@ resource "aws_vpc_peering_connection_accepter" "peer" {
 - `name` (String) A globally-unique environment identifier. All environment names must start with your account name as prefix. **[IMMUTABLE]**
 
 		Examples:
-			- "acme-aws-prod" (where "acme" is your account name)
+		- "acme-staging" (where "acme" is your account name)
 - `node_groups` (Attributes Set) List of node groups. At least one required. (see [below for nested schema](#nestedatt--node_groups))
 - `region` (String) AWS region ([docs](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.RegionsAndAvailabilityZones.html#Concepts.RegionsAndAvailabilityZones.Regions)). **[IMMUTABLE]**
 
@@ -239,7 +239,7 @@ resource "aws_vpc_peering_connection_accepter" "peer" {
 - `number_of_zones` (Number) Number of zones where the environment will be available. When set, zones will be set automatically based on your cloud provider (Do not use it together with zones)
 - `peering_connections` (Attributes List) AWS environment VPC peering configuration. (see [below for nested schema](#nestedatt--peering_connections))
 - `skip_deprovision_on_destroy` (Boolean)
-- `tags` (Attributes List) Tags to apply to AWS resources (see [below for nested schema](#nestedatt--tags))
+- `tags` (Attributes List) Tags to apply to AWS resources. (see [below for nested schema](#nestedatt--tags))
 - `zones` (List of String) Explicit list of AWS availability zones. At least 2 required.
 
 		Examples:

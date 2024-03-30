@@ -5,9 +5,14 @@ const ID_DESCRIPTION = "ID of the environment (automatically generated based on 
 const NAME_DESCRIPTION = `A globally-unique environment identifier. All environment names must start with your account name as prefix. **[IMMUTABLE]**
 
 		Examples:
-			- "acme-aws-prod" (where "acme" is your account name)
+		- "acme-staging" (where "acme" is your account name)
 `
+const CIDR_DESCRIPTION = `VPC CIDR block from the private IPv4 address ranges as specified in RFC 1918 (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16). At least /21 required. **[IMMUTABLE]**
 
+		Examples:
+		- "10.136.0.0/21"
+		- "172.20.0.0/21"
+`
 const CUSTOM_DOMAIN_DESCRIPTION = `Custom domain.
 
 		Examples:
@@ -22,12 +27,6 @@ const CUSTOM_DOMAIN_DESCRIPTION = `Custom domain.
 			CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
 		- (optional, vpce)
 			CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
-`
-const CIDR_DESCRIPTION = `VPC CIDR block from the private IPv4 address ranges as specified in RFC 1918 (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16). At least /21 required. **[IMMUTABLE]**
-
-		Examples:
-		- "10.136.0.0/21"
-		- "172.20.0.0/21"
 `
 const NUMBER_OF_ZONES_DESCRIPTION = "Number of zones where the environment will be available. When set, zones will be set automatically based on your cloud provider (Do not use it together with zones)"
 const SOURCE_IP_RANGES_DESCRIPTION = " IP addresses/blocks to allow traffic from (default `\"0.0.0.0/0\"`)."
@@ -55,10 +54,9 @@ const LOAD_BALANCING_STRATEGY_DESCRIPTION = `Load balancing strategy for the env
 		- "ROUND_ROBIN": load balance traffic across all zones in round-robin fashion (default)
 		- "ZONE_BEST_EFFORT": keep traffic within same zone
 `
-
-const LOAD_BALANCER_DESCRIPTION = "Load balancers configuration."
 const LOAD_BALANCER_PUBLIC_DESCRIPTION = "Public load balancer configuration. Accessible via `*.$env_name.altinity.cloud`."
 const LOAD_BALANCER_INTERNAL_DESCRIPTION = "Internal load balancer configuration. Accessible via `*.internal.$env_name.altinity.cloud`."
+const LOAD_BALANCER_DESCRIPTION = "Load balancers configuration."
 const LOAD_BALANCER_ENABLED_DESCRIPTION = "Set to `true` if load balancer is enabled, `false` otherwise. (default `false`)"
 const NODE_GROUP_DESCRIPTION = "List of node groups. At least one required."
 const NODE_GROUP_CAPACITY_PER_ZONE_DESCRIPTION = "Maximum number of instances per availability zone."
@@ -102,7 +100,7 @@ const STATUS_LOAD_BALANCERS_ENDPOINT_SERVICE_NAME_DESCRIPTION = "VPC endpoint se
 
 // AWS descriptions.
 const AWS_ACCOUNT_ID_DESCRIPTION = "ID of the AWS account ([docs](https://docs.aws.amazon.com/IAM/latest/UserGuide/console_account-alias.html#ViewYourAWSId)) in which to provision AWS resources. **[IMMUTABLE]**"
-const TAGS_DESCRIPTION = "Tags to apply to AWS resources"
+const AWS_TAGS_DESCRIPTION = "Tags to apply to AWS resources."
 const AWS_REGION_DESCRIPTION = `AWS region ([docs](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.RegionsAndAvailabilityZones.html#Concepts.RegionsAndAvailabilityZones.Regions)). **[IMMUTABLE]**
 
 		Examples:
@@ -179,18 +177,36 @@ const METRICS_DESCRIPTION = "Metrics configuration"
 const METRICS_RETENTION_PERIOD_IN_DAYS_DESCRIPTION = "Metrics retention period in days (default `30`)."
 
 // Azure descriptions.
+const AZURE_CUSTOM_DOMAIN_DESCRIPTION = `Custom domain.
+
+		Examples:
+		- "example.com"
+		- "foo.bar.com"
+
+		Before specifying custom domain, please create the following DNS records:
+		- CNAME _acme-challenge.example.com. $env_name.altinity.cloud.
+		- (optional, public load balancer)
+			CNAME *.example.com. _.$env_name.altinity.cloud.
+		- (optional, internal load balancer)
+			CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
+		- (optional, privatelink)
+			CNAME *.privatelink.example.com. _.privatelink.$env_name.altinity.cloud.
+`
 const AZURE_ZONES_DESCRIPTION = `Explicit list of Azure availability zones. At least 2 required.
 
-Examples:
-- ["eastus-1", "eastus-2"]
+		Examples:
+		- ["eastus-1", "eastus-2"]
 `
 const AZURE_REGION_DESCRIPTION = `Azure region ([docs](https://azure.microsoft.com/en-us/explore/global-infrastructure/geographies/#overview)). **[IMMUTABLE]**
 
-Examples:
-- "eastus"
-- "westus"
+		Examples:
+		- "eastus"
+		- "westus"
 `
-const AZURE_SUBSCRIPTION_ID_DESCRIPTION = "ID of the Azure Active Directory tenant for user identity and access management. **[IMMUTABLE]**"
-const AZURE_TENANT_ID_DESCRIPTION = "ID linking the environment to a specific Azure subscription for resource management. **[IMMUTABLE]**"
+
+const AZURE_TENANT_ID_DESCRIPTION = "ID of the Azure Active Directory tenant for user identity and access management. **[IMMUTABLE]**"
+const AZURE_SUBSCRIPTION_ID_DESCRIPTION = "ID linking the environment to a specific Azure subscription for resource management. **[IMMUTABLE]**"
 const AZURE_PRIVATE_LINK_SERVICE_DESCRIPTION = "Azure Private Link service configuration."
+const AZURE_PRIVATE_LINK_SERVICE_ALIAS_DESCRIPTION = "Private Link Service Alias / DNS Name in prefix.GUID.suffix format."
 const AZURE_PRIVATE_LINK_SERVICE_ALLOWED_SUBSCRIPTIONS_DESCRIPTION = "Lists subscription IDs permitted for Private Link access, securing service connections."
+const AZURE_TAGS_DESCRIPTION = "Tags to apply to Azure resources."

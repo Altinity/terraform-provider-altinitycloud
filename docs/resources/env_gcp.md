@@ -87,7 +87,7 @@ resource "altinitycloud_env_gcp" "this" {
 - `name` (String) A globally-unique environment identifier. All environment names must start with your account name as prefix. **[IMMUTABLE]**
 
 		Examples:
-			- "acme-aws-prod" (where "acme" is your account name)
+		- "acme-staging" (where "acme" is your account name)
 - `node_groups` (Attributes Set) List of node groups. At least one required. (see [below for nested schema](#nestedatt--node_groups))
 - `region` (String) GCP region ([docs](https://cloud.google.com/about/locations)). **[IMMUTABLE]**
 
