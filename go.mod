@@ -3,7 +3,7 @@ module github.com/altinity/terraform-provider-altinitycloud
 go 1.20
 
 require (
-	github.com/Yamashou/gqlgenc v0.19.3
+	github.com/Yamashou/gqlgenc v0.21.1
 	github.com/hashicorp/terraform-plugin-docs v0.19.0
 	github.com/hashicorp/terraform-plugin-framework v1.7.0
 	github.com/hashicorp/terraform-plugin-go v0.22.1
