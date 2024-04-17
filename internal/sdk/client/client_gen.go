@@ -4616,7 +4616,7 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 `
 
 func (c *Client) GetAWSEnv(ctx context.Context, name string, interceptors ...clientv2.RequestInterceptor) (*GetAWSEnv, error) {
-	vars := map[string]interface{}{
+	vars := map[string]any{
 		"name": name,
 	}
 
@@ -4654,7 +4654,7 @@ const GetAWSEnvStatusDocument = `query GetAWSEnvStatus ($name: String!) {
 `
 
 func (c *Client) GetAWSEnvStatus(ctx context.Context, name string, interceptors ...clientv2.RequestInterceptor) (*GetAWSEnvStatus, error) {
-	vars := map[string]interface{}{
+	vars := map[string]any{
 		"name": name,
 	}
 
@@ -4731,7 +4731,7 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 `
 
 func (c *Client) CreateAWSEnv(ctx context.Context, input CreateAWSEnvInput, interceptors ...clientv2.RequestInterceptor) (*CreateAWSEnv, error) {
-	vars := map[string]interface{}{
+	vars := map[string]any{
 		"input": input,
 	}
 
@@ -4808,7 +4808,7 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 `
 
 func (c *Client) UpdateAWSEnv(ctx context.Context, input UpdateAWSEnvInput, interceptors ...clientv2.RequestInterceptor) (*UpdateAWSEnv, error) {
-	vars := map[string]interface{}{
+	vars := map[string]any{
 		"input": input,
 	}
 
@@ -4832,7 +4832,7 @@ const DeleteAWSEnvDocument = `mutation DeleteAWSEnv ($input: DeleteAWSEnvInput!)
 `
 
 func (c *Client) DeleteAWSEnv(ctx context.Context, input DeleteAWSEnvInput, interceptors ...clientv2.RequestInterceptor) (*DeleteAWSEnv, error) {
-	vars := map[string]interface{}{
+	vars := map[string]any{
 		"input": input,
 	}
 
@@ -4901,7 +4901,7 @@ fragment AzureEnvSpecFragment on AzureEnvSpec {
 `
 
 func (c *Client) GetAzureEnv(ctx context.Context, name string, interceptors ...clientv2.RequestInterceptor) (*GetAzureEnv, error) {
-	vars := map[string]interface{}{
+	vars := map[string]any{
 		"name": name,
 	}
 
@@ -4935,7 +4935,7 @@ const GetAzureEnvStatusDocument = `query GetAzureEnvStatus ($name: String!) {
 `
 
 func (c *Client) GetAzureEnvStatus(ctx context.Context, name string, interceptors ...clientv2.RequestInterceptor) (*GetAzureEnvStatus, error) {
-	vars := map[string]interface{}{
+	vars := map[string]any{
 		"name": name,
 	}
 
@@ -5004,7 +5004,7 @@ fragment AzureEnvSpecFragment on AzureEnvSpec {
 `
 
 func (c *Client) CreateAzureEnv(ctx context.Context, input CreateAzureEnvInput, interceptors ...clientv2.RequestInterceptor) (*CreateAzureEnv, error) {
-	vars := map[string]interface{}{
+	vars := map[string]any{
 		"input": input,
 	}
 
@@ -5073,7 +5073,7 @@ fragment AzureEnvSpecFragment on AzureEnvSpec {
 `
 
 func (c *Client) UpdateAzureEnv(ctx context.Context, input UpdateAzureEnvInput, interceptors ...clientv2.RequestInterceptor) (*UpdateAzureEnv, error) {
-	vars := map[string]interface{}{
+	vars := map[string]any{
 		"input": input,
 	}
 
@@ -5097,7 +5097,7 @@ const DeleteAzureEnvDocument = `mutation DeleteAzureEnv ($input: DeleteAzureEnvI
 `
 
 func (c *Client) DeleteAzureEnv(ctx context.Context, input DeleteAzureEnvInput, interceptors ...clientv2.RequestInterceptor) (*DeleteAzureEnv, error) {
-	vars := map[string]interface{}{
+	vars := map[string]any{
 		"input": input,
 	}
 
@@ -5158,7 +5158,7 @@ fragment GCPEnvSpecFragment on GCPEnvSpec {
 `
 
 func (c *Client) GetGCPEnv(ctx context.Context, name string, interceptors ...clientv2.RequestInterceptor) (*GetGCPEnv, error) {
-	vars := map[string]interface{}{
+	vars := map[string]any{
 		"name": name,
 	}
 
@@ -5187,7 +5187,7 @@ const GetGCPEnvStatusDocument = `query GetGCPEnvStatus ($name: String!) {
 `
 
 func (c *Client) GetGCPEnvStatus(ctx context.Context, name string, interceptors ...clientv2.RequestInterceptor) (*GetGCPEnvStatus, error) {
-	vars := map[string]interface{}{
+	vars := map[string]any{
 		"name": name,
 	}
 
@@ -5248,7 +5248,7 @@ fragment GCPEnvSpecFragment on GCPEnvSpec {
 `
 
 func (c *Client) CreateGCPEnv(ctx context.Context, input CreateGCPEnvInput, interceptors ...clientv2.RequestInterceptor) (*CreateGCPEnv, error) {
-	vars := map[string]interface{}{
+	vars := map[string]any{
 		"input": input,
 	}
 
@@ -5309,7 +5309,7 @@ fragment GCPEnvSpecFragment on GCPEnvSpec {
 `
 
 func (c *Client) UpdateGCPEnv(ctx context.Context, input UpdateGCPEnvInput, interceptors ...clientv2.RequestInterceptor) (*UpdateGCPEnv, error) {
-	vars := map[string]interface{}{
+	vars := map[string]any{
 		"input": input,
 	}
 
@@ -5333,7 +5333,7 @@ const DeleteGCPEnvDocument = `mutation DeleteGCPEnv ($input: DeleteGCPEnvInput!)
 `
 
 func (c *Client) DeleteGCPEnv(ctx context.Context, input DeleteGCPEnvInput, interceptors ...clientv2.RequestInterceptor) (*DeleteGCPEnv, error) {
-	vars := map[string]interface{}{
+	vars := map[string]any{
 		"input": input,
 	}
 
@@ -5427,7 +5427,7 @@ fragment K8SEnvSpecFragment on K8SEnvSpec {
 `
 
 func (c *Client) GetK8SEnv(ctx context.Context, name string, interceptors ...clientv2.RequestInterceptor) (*GetK8SEnv, error) {
-	vars := map[string]interface{}{
+	vars := map[string]any{
 		"name": name,
 	}
 
@@ -5456,7 +5456,7 @@ const GetK8SEnvStatusDocument = `query GetK8SEnvStatus ($name: String!) {
 `
 
 func (c *Client) GetK8SEnvStatus(ctx context.Context, name string, interceptors ...clientv2.RequestInterceptor) (*GetK8SEnvStatus, error) {
-	vars := map[string]interface{}{
+	vars := map[string]any{
 		"name": name,
 	}
 
@@ -5550,7 +5550,7 @@ fragment K8SEnvSpecFragment on K8SEnvSpec {
 `
 
 func (c *Client) CreateK8SEnv(ctx context.Context, input CreateK8SEnvInput, interceptors ...clientv2.RequestInterceptor) (*CreateK8SEnv, error) {
-	vars := map[string]interface{}{
+	vars := map[string]any{
 		"input": input,
 	}
 
@@ -5644,7 +5644,7 @@ fragment K8SEnvSpecFragment on K8SEnvSpec {
 `
 
 func (c *Client) UpdateK8SEnv(ctx context.Context, input UpdateK8SEnvInput, interceptors ...clientv2.RequestInterceptor) (*UpdateK8SEnv, error) {
-	vars := map[string]interface{}{
+	vars := map[string]any{
 		"input": input,
 	}
 
@@ -5668,7 +5668,7 @@ const DeleteK8SEnvDocument = `mutation DeleteK8SEnv ($input: DeleteK8SEnvInput!)
 `
 
 func (c *Client) DeleteK8SEnv(ctx context.Context, input DeleteK8SEnvInput, interceptors ...clientv2.RequestInterceptor) (*DeleteK8SEnv, error) {
-	vars := map[string]interface{}{
+	vars := map[string]any{
 		"input": input,
 	}
 
