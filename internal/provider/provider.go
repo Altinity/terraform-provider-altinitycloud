@@ -70,7 +70,7 @@ func (p *altinityCloudProvider) Schema(ctx context.Context, req provider.SchemaR
 				Optional:            true,
 			},
 			"api_token": schema.StringAttribute{
-				MarkdownDescription: fmt.Sprintf("Altinity.Cloud API Token.  \n"+
+				MarkdownDescription: fmt.Sprintf("Altinity.Cloud API Token.\n"+
 					"The value can be omitted if `%s` environment variable is set. ",
 					ENV_VAR_API_TOKEN),
 				Optional: true,

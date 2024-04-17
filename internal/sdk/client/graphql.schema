@@ -803,13 +803,13 @@ Azure environment configuration.
 """
 type AzureEnvSpec {
   """
-  ID linking the environment to a specific Azure subscription for resource management.
+  ID of the Azure Active Directory tenant for user identity and access management.
 
   Immutable.
   """
   tenantID: String!
   """
-  ID of the Azure Active Directory tenant for user identity and access management.
+  ID linking the environment to a specific Azure subscription for resource management.
 
   Immutable.
   """
@@ -1017,7 +1017,7 @@ Azure environment internal load balancer status.
 """
 type AzureEnvLoadBalancerInternalStatus {
   """
-  Globally unique name for your service in prefix.GUID.suffix format.
+  Private Link Service Alias / DNS Name in prefix.GUID.suffix format.
   """
   privateLinkServiceAlias: String
 }
@@ -1063,17 +1063,17 @@ Azure environment configuration create request input.
 """
 input CreateAzureEnvSpecInput {
   """
-  ID linking the environment to a specific Azure subscription for resource management.
-
-  Immutable.
-  """
-  subscriptionID: String!
-  """
   ID of the Azure Active Directory tenant for user identity and access management.
 
   Immutable.
   """
   tenantID: String!
+  """
+  ID linking the environment to a specific Azure subscription for resource management.
+
+  Immutable.
+  """
+  subscriptionID: String!
   """
   Network CIDR block from the private IPv4 address ranges as specified in RFC 1918
   (10/8, 172.16/12, 192.168/16).
