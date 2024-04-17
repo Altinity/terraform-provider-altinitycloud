@@ -390,7 +390,7 @@ type AzureEnvLoadBalancerInternalSpecInput struct {
 
 // Azure environment internal load balancer status.
 type AzureEnvLoadBalancerInternalStatus struct {
-	// Globally unique name for your service in prefix.GUID.suffix format.
+	// Private Link Service Alias / DNS Name in prefix.GUID.suffix format.
 	PrivateLinkServiceAlias *string `json:"privateLinkServiceAlias,omitempty"`
 }
 
@@ -485,11 +485,11 @@ type AzureEnvNodeGroupSpecInput struct {
 
 // Azure environment configuration.
 type AzureEnvSpec struct {
-	// ID linking the environment to a specific Azure subscription for resource management.
+	// ID of the Azure Active Directory tenant for user identity and access management.
 	//
 	// Immutable.
 	TenantID string `json:"tenantID"`
-	// ID of the Azure Active Directory tenant for user identity and access management.
+	// ID linking the environment to a specific Azure subscription for resource management.
 	//
 	// Immutable.
 	SubscriptionID string `json:"subscriptionID"`
@@ -672,14 +672,14 @@ type CreateAzureEnvResult struct {
 
 // Azure environment configuration create request input.
 type CreateAzureEnvSpecInput struct {
-	// ID linking the environment to a specific Azure subscription for resource management.
-	//
-	// Immutable.
-	SubscriptionID string `json:"subscriptionID"`
 	// ID of the Azure Active Directory tenant for user identity and access management.
 	//
 	// Immutable.
 	TenantID string `json:"tenantID"`
+	// ID linking the environment to a specific Azure subscription for resource management.
+	//
+	// Immutable.
+	SubscriptionID string `json:"subscriptionID"`
 	// Network CIDR block from the private IPv4 address ranges as specified in RFC 1918
 	// (10/8, 172.16/12, 192.168/16).
 	//
