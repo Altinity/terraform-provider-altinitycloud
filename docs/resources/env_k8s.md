@@ -11,7 +11,7 @@ Bring Your Own Kubernetes (BYOK) environment resource.
 
 ## Example Usage
 
-BYOC/EKS (AWS)
+BYOK/EKS (AWS)
 ```terraform
 resource "altinitycloud_env_certificate" "this" {
   env_name = "acme-staging"
@@ -50,7 +50,7 @@ resource "altinitycloud_env_k8s" "this" {
 }
 ```
 
-BYOC/GKE (GCP):
+BYOK/GKE (GCP):
 ```terraform
 resource "altinitycloud_env_certificate" "this" {
   env_name = "acme-staging"
