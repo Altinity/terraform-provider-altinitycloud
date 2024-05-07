@@ -2011,6 +2011,7 @@ func (t *UpdateAWSEnv_UpdateAWSEnv) GetSpecRevision() int64 {
 
 type DeleteAWSEnv_DeleteAWSEnv struct {
 	MutationID string "json:\"mutationId\" graphql:\"mutationId\""
+	PendingMfa bool   "json:\"pendingMFA\" graphql:\"pendingMFA\""
 }
 
 func (t *DeleteAWSEnv_DeleteAWSEnv) GetMutationID() string {
@@ -2018,6 +2019,12 @@ func (t *DeleteAWSEnv_DeleteAWSEnv) GetMutationID() string {
 		t = &DeleteAWSEnv_DeleteAWSEnv{}
 	}
 	return t.MutationID
+}
+func (t *DeleteAWSEnv_DeleteAWSEnv) GetPendingMfa() bool {
+	if t == nil {
+		t = &DeleteAWSEnv_DeleteAWSEnv{}
+	}
+	return t.PendingMfa
 }
 
 type GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Public struct {
@@ -2652,6 +2659,7 @@ func (t *UpdateAzureEnv_UpdateAzureEnv) GetSpecRevision() int64 {
 
 type DeleteAzureEnv_DeleteAzureEnv struct {
 	MutationID string "json:\"mutationId\" graphql:\"mutationId\""
+	PendingMfa bool   "json:\"pendingMFA\" graphql:\"pendingMFA\""
 }
 
 func (t *DeleteAzureEnv_DeleteAzureEnv) GetMutationID() string {
@@ -2659,6 +2667,12 @@ func (t *DeleteAzureEnv_DeleteAzureEnv) GetMutationID() string {
 		t = &DeleteAzureEnv_DeleteAzureEnv{}
 	}
 	return t.MutationID
+}
+func (t *DeleteAzureEnv_DeleteAzureEnv) GetPendingMfa() bool {
+	if t == nil {
+		t = &DeleteAzureEnv_DeleteAzureEnv{}
+	}
+	return t.PendingMfa
 }
 
 type GetGCPEnv_GcpEnv_Spec_GCPEnvSpecFragment_LoadBalancers_Public struct {
@@ -3177,6 +3191,7 @@ func (t *UpdateGCPEnv_UpdateGCPEnv) GetSpecRevision() int64 {
 
 type DeleteGCPEnv_DeleteGCPEnv struct {
 	MutationID string "json:\"mutationId\" graphql:\"mutationId\""
+	PendingMfa bool   "json:\"pendingMFA\" graphql:\"pendingMFA\""
 }
 
 func (t *DeleteGCPEnv_DeleteGCPEnv) GetMutationID() string {
@@ -3184,6 +3199,12 @@ func (t *DeleteGCPEnv_DeleteGCPEnv) GetMutationID() string {
 		t = &DeleteGCPEnv_DeleteGCPEnv{}
 	}
 	return t.MutationID
+}
+func (t *DeleteGCPEnv_DeleteGCPEnv) GetPendingMfa() bool {
+	if t == nil {
+		t = &DeleteGCPEnv_DeleteGCPEnv{}
+	}
+	return t.PendingMfa
 }
 
 type GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Public_Annotations struct {
@@ -4326,6 +4347,7 @@ func (t *UpdateK8SEnv_UpdateK8SEnv) GetSpecRevision() int64 {
 
 type DeleteK8SEnv_DeleteK8SEnv struct {
 	MutationID string "json:\"mutationId\" graphql:\"mutationId\""
+	PendingMfa bool   "json:\"pendingMFA\" graphql:\"pendingMFA\""
 }
 
 func (t *DeleteK8SEnv_DeleteK8SEnv) GetMutationID() string {
@@ -4333,6 +4355,12 @@ func (t *DeleteK8SEnv_DeleteK8SEnv) GetMutationID() string {
 		t = &DeleteK8SEnv_DeleteK8SEnv{}
 	}
 	return t.MutationID
+}
+func (t *DeleteK8SEnv_DeleteK8SEnv) GetPendingMfa() bool {
+	if t == nil {
+		t = &DeleteK8SEnv_DeleteK8SEnv{}
+	}
+	return t.PendingMfa
 }
 
 type GetAWSEnv struct {
@@ -4827,6 +4855,7 @@ func (c *Client) UpdateAWSEnv(ctx context.Context, input UpdateAWSEnvInput, inte
 const DeleteAWSEnvDocument = `mutation DeleteAWSEnv ($input: DeleteAWSEnvInput!) {
 	deleteAWSEnv(input: $input) {
 		mutationId
+		pendingMFA
 	}
 }
 `
@@ -5092,6 +5121,7 @@ func (c *Client) UpdateAzureEnv(ctx context.Context, input UpdateAzureEnvInput, 
 const DeleteAzureEnvDocument = `mutation DeleteAzureEnv ($input: DeleteAzureEnvInput!) {
 	deleteAzureEnv(input: $input) {
 		mutationId
+		pendingMFA
 	}
 }
 `
@@ -5328,6 +5358,7 @@ func (c *Client) UpdateGCPEnv(ctx context.Context, input UpdateGCPEnvInput, inte
 const DeleteGCPEnvDocument = `mutation DeleteGCPEnv ($input: DeleteGCPEnvInput!) {
 	deleteGCPEnv(input: $input) {
 		mutationId
+		pendingMFA
 	}
 }
 `
@@ -5663,6 +5694,7 @@ func (c *Client) UpdateK8SEnv(ctx context.Context, input UpdateK8SEnvInput, inte
 const DeleteK8SEnvDocument = `mutation DeleteK8SEnv ($input: DeleteK8SEnvInput!) {
 	deleteK8SEnv(input: $input) {
 		mutationId
+		pendingMFA
 	}
 }
 `

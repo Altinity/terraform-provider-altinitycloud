@@ -51,6 +51,7 @@ mutation UpdateAWSEnv($input: UpdateAWSEnvInput!) {
 mutation DeleteAWSEnv($input: DeleteAWSEnvInput!) {
   deleteAWSEnv(input: $input) {
     mutationId
+    pendingMFA
   }
 }
 

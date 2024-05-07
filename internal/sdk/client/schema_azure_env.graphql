@@ -47,6 +47,7 @@ mutation UpdateAzureEnv($input: UpdateAzureEnvInput!) {
 mutation DeleteAzureEnv($input: DeleteAzureEnvInput!) {
   deleteAzureEnv(input: $input) {
     mutationId
+    pendingMFA
   }
 }
 

@@ -42,6 +42,7 @@ mutation UpdateK8SEnv($input: UpdateK8SEnvInput!) {
 mutation DeleteK8SEnv($input: DeleteK8SEnvInput!) {
   deleteK8SEnv(input: $input) {
     mutationId
+    pendingMFA
   }
 }
 
