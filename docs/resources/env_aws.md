@@ -132,8 +132,13 @@ resource "altinitycloud_env_certificate" "this" {
   env_name = "acme-staging"
 }
 
+locals {
+  aws_account_id = "123456789012"
+  region         = "us-east-1"
+}
+
 provider "aws" {
-  region = "us-east-1"
+  region = local.region
 }
 
 module "altinitycloud_connect_aws" {
@@ -143,20 +148,21 @@ module "altinitycloud_connect_aws" {
 
 resource "altinitycloud_env_aws" "this" {
   name           = altinitycloud_env_certificate.this.env_name
-  aws_account_id = "123456789012"
-  region         = "us-east-1"
+  aws_account_id = local.aws_account_id
+  region         = local.region
   zones          = ["us-east-1a", "us-east-1b"]
   cidr           = "10.67.0.0/21"
   load_balancers = {
     internal = {
       enabled = true
-      peering_connections = [
-        {
-          vcp_id = "vpc-xyz"
-        }
-      ]
     }
   }
+  peering_connections = [
+    {
+      aws_account_id = local.aws_account_id # This only required if the VPC is it not in the same account as the environment.
+      vpc_id         = "vpc-xyz"
+    }
+  ]
   node_groups = [
     {
       node_type         = "t4g.large"
