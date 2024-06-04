@@ -5,7 +5,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [0.2.4](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.2.3...v0.2.4)
-> TBA
+
+### Changed
+- Bump github.com/hashicorp/terraform-plugin-docs to `0.19.3` [#54](https://github.com/Altinity/terraform-provider-altinitycloud/pull/54).
+- Bump github.com/hashicorp/terraform-plugin-framework to `1.9.0` [#55](https://github.com/Altinity/terraform-provider-altinitycloud/pull/55).
+- Bump github.com/hashicorp/terraform-plugin-testing to `1.8.0` [#53](https://github.com/Altinity/terraform-provider-altinitycloud/pull/53).
+
+### Fixed
+- Documentation error when setting up peering connections for AWS environments [3851c8d](https://github.com/Altinity/terraform-provider-altinitycloud/commit/3851c8d)
 
 ## [0.2.3](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.2.2...v0.2.3)
 
