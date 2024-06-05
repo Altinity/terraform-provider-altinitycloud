@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bump github.com/hashicorp/terraform-plugin-testing to `1.8.0` [#53](https://github.com/Altinity/terraform-provider-altinitycloud/pull/53).
 
 ### Fixed
-- Documentation error when setting up peering connections for AWS environments [3851c8d](https://github.com/Altinity/terraform-provider-altinitycloud/commit/3851c8d)
+- Documentation error when setting up peering connections for AWS environments [3851c8d](https://github.com/Altinity/terraform-provider-altinitycloud/commit/3851c8d).
 
 ## [0.2.3](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.2.2...v0.2.3)
 
@@ -23,7 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.2.2](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.2.1...v0.2.2)
 
 ### Added
-- Add `pendingMFA` property to environment SDK schemas [fd67661](https://github.com/Altinity/terraform-provider-altinitycloud/commit/fd67661)
+- Add `pendingMFA` property to environment SDK schemas [fd67661](https://github.com/Altinity/terraform-provider-altinitycloud/commit/fd67661).
 
 ### Changed
 - Bump github.com/Yamashou/gqlgenc to `0.23.1` [#28](https://github.com/Altinity/terraform-provider-altinitycloud/pull/28).
@@ -31,7 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bump github.com/hashicorp/terraform-plugin-framework to `1.8.0` [#36](https://github.com/Altinity/terraform-provider-altinitycloud/pull/36).
 
 ### Fixed
-- Documentation typos on K8s environment [5f96183](https://github.com/Altinity/terraform-provider-altinitycloud/commit/5f96183)
+- Documentation typos on K8s environment [5f96183](https://github.com/Altinity/terraform-provider-altinitycloud/commit/5f96183).
 
 ## [0.2.1](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.2.0...v0.2.1)
 
