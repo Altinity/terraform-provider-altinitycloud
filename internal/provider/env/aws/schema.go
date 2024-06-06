@@ -6,6 +6,7 @@ import (
 	"github.com/MakeNowJust/heredoc/v2"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/provider/common"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/provider/modifiers"
+	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -38,11 +39,14 @@ func (r *AWSEnvResource) Schema(ctx context.Context, req resource.SchemaRequest,
 			"peering_connections":         getPeeringConnectionsAttribute(false, true, false),
 			"endpoints":                   getEndpointsAttribute(false, true, false),
 			"tags":                        getTagsAttribute(false, true, false),
-			"cloud_connect":               cloudConnectAttribute,
+			"cloud_connect":               getCloudConnectAttribute(false, true, true),
 			"spec_revision":               common.SpecRevisionAttribute,
 			"force_destroy":               common.GetForceDestroyAttribute(false, true, true),
 			"force_destroy_clusters":      common.GetForceDestroyClustersAttribute(false, true, true),
 			"skip_deprovision_on_destroy": common.GetSkipProvisioningOnDestroyAttribute(false, true, true),
+			"timeouts": timeouts.Attributes(ctx, timeouts.Opts{
+				Delete: true,
+			}),
 		},
 	}
 }
@@ -66,7 +70,7 @@ func (d *AWSEnvDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 			"peering_connections":     getPeeringConnectionsAttribute(false, false, true),
 			"endpoints":               getEndpointsAttribute(false, false, true),
 			"tags":                    getTagsAttribute(false, false, true),
-			"cloud_connect":           cloudConnectAttribute,
+			"cloud_connect":           getCloudConnectAttribute(false, false, true),
 			"spec_revision":           common.SpecRevisionAttribute,
 
 			// these options are not used in data sources,
@@ -74,6 +78,7 @@ func (d *AWSEnvDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 			"force_destroy":               common.GetForceDestroyAttribute(false, false, true),
 			"force_destroy_clusters":      common.GetForceDestroyClustersAttribute(false, false, true),
 			"skip_deprovision_on_destroy": common.GetSkipProvisioningOnDestroyAttribute(false, false, true),
+			"timeouts":                    timeouts.Attributes(ctx, timeouts.Opts{}),
 		},
 	}
 }
@@ -167,12 +172,18 @@ func getEndpointsAttribute(required, optional, computed bool) rschema.ListNested
 	}
 }
 
-var cloudConnectAttribute = rschema.BoolAttribute{
-	Optional:            true,
-	Computed:            true,
-	MarkdownDescription: common.CLOUD_CONNECT_DESCRIPTION,
-	Default:             booldefault.StaticBool(true),
+func getCloudConnectAttribute(required, optional, computed bool) rschema.BoolAttribute {
+	return rschema.BoolAttribute{
+		Optional:            optional,
+		Required:            required,
+		Computed:            computed,
+		MarkdownDescription: common.CLOUD_CONNECT_DESCRIPTION,
+		Default:             booldefault.StaticBool(true),
+	}
 }
+
+// Optional:            true,
+// 	Computed:            true,
 
 var endpointAttribute = rschema.NestedAttributeObject{
 	Attributes: map[string]rschema.Attribute{

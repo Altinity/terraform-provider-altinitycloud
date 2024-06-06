@@ -28,6 +28,10 @@ data "altinitycloud_env_azure" "current" {
 		Examples:
 		- "acme-staging" (where "acme" is your account name)
 
+### Optional
+
+- `timeouts` (Attributes) (see [below for nested schema](#nestedatt--timeouts))
+
 ### Read-Only
 
 - `cidr` (String) VPC CIDR block from the private IPv4 address ranges as specified in RFC 1918 (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16). At least /21 required. **[IMMUTABLE]**
@@ -76,6 +80,14 @@ data "altinitycloud_env_azure" "current" {
 
 		Examples:
 		- ["eastus-1", "eastus-2"]
+
+<a id="nestedatt--timeouts"></a>
+### Nested Schema for `timeouts`
+
+Optional:
+
+- `delete` (String) A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours). Setting a timeout for a Delete operation is only applicable if changes are saved into state before the destroy operation occurs.
+
 
 <a id="nestedatt--load_balancers"></a>
 ### Nested Schema for `load_balancers`

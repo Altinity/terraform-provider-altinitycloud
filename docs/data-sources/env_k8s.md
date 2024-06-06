@@ -28,6 +28,10 @@ data "altinitycloud_env_k8s" "current" {
 		Examples:
 		- "acme-staging" (where "acme" is your account name)
 
+### Optional
+
+- `timeouts` (Attributes) (see [below for nested schema](#nestedatt--timeouts))
+
 ### Read-Only
 
 - `custom_domain` (String) Custom domain.
@@ -67,6 +71,14 @@ data "altinitycloud_env_k8s" "current" {
 - `node_groups` (Attributes List) List of node groups. At least one required. (see [below for nested schema](#nestedatt--node_groups))
 - `skip_deprovision_on_destroy` (Boolean)
 - `spec_revision` (Number) Spec revision
+
+<a id="nestedatt--timeouts"></a>
+### Nested Schema for `timeouts`
+
+Optional:
+
+- `delete` (String) A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours). Setting a timeout for a Delete operation is only applicable if changes are saved into state before the destroy operation occurs.
+
 
 <a id="nestedatt--custom_node_types"></a>
 ### Nested Schema for `custom_node_types`

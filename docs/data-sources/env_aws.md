@@ -30,7 +30,7 @@ data "altinitycloud_env_aws" "current" {
 
 ### Optional
 
-- `cloud_connect` (Boolean) `true` indicates that cloud resources are to be managed via altinity/cloud-connect and `false` means direct management (default `true`). **[IMMUTABLE]**
+- `timeouts` (Attributes) (see [below for nested schema](#nestedatt--timeouts))
 
 ### Read-Only
 
@@ -40,6 +40,7 @@ data "altinitycloud_env_aws" "current" {
 		Examples:
 		- "10.136.0.0/21"
 		- "172.20.0.0/21"
+- `cloud_connect` (Boolean) `true` indicates that cloud resources are to be managed via altinity/cloud-connect and `false` means direct management (default `true`). **[IMMUTABLE]**
 - `custom_domain` (String) Custom domain.
 
 		Examples:
@@ -81,6 +82,10 @@ data "altinitycloud_env_aws" "current" {
 		Examples:
 		- ["us-east-1a", "us-east-1b"]
 		- ["sa-east-1c", "sa-east-1d"]
+
+<a id="nestedatt--timeouts"></a>
+### Nested Schema for `timeouts`
+
 
 <a id="nestedatt--endpoints"></a>
 ### Nested Schema for `endpoints`

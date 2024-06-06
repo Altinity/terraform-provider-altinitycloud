@@ -7,6 +7,7 @@ import (
 	"github.com/altinity/terraform-provider-altinitycloud/internal/provider/common"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/provider/modifiers"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/client"
+	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework-validators/float64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
@@ -41,6 +42,9 @@ func (r *K8SEnvResource) Schema(ctx context.Context, req resource.SchemaRequest,
 			"force_destroy":               common.GetForceDestroyAttribute(false, true, true),
 			"force_destroy_clusters":      common.GetForceDestroyClustersAttribute(false, true, true),
 			"skip_deprovision_on_destroy": common.GetSkipProvisioningOnDestroyAttribute(false, true, true),
+			"timeouts": timeouts.Attributes(ctx, timeouts.Opts{
+				Delete: true,
+			}),
 		},
 	}
 }
@@ -67,6 +71,9 @@ func (d *K8SEnvDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 			"force_destroy":               common.GetForceDestroyAttribute(false, false, true),
 			"force_destroy_clusters":      common.GetForceDestroyClustersAttribute(false, false, true),
 			"skip_deprovision_on_destroy": common.GetSkipProvisioningOnDestroyAttribute(false, false, true),
+			"timeouts": timeouts.Attributes(ctx, timeouts.Opts{
+				Delete: true,
+			}),
 		},
 	}
 }
