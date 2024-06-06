@@ -28,10 +28,6 @@ data "altinitycloud_env_aws" "current" {
 		Examples:
 		- "acme-staging" (where "acme" is your account name)
 
-### Optional
-
-- `cloud_connect` (Boolean) `true` indicates that cloud resources are to be managed via altinity/cloud-connect and `false` means direct management (default `true`). **[IMMUTABLE]**
-
 ### Read-Only
 
 - `aws_account_id` (String) ID of the AWS account ([docs](https://docs.aws.amazon.com/IAM/latest/UserGuide/console_account-alias.html#ViewYourAWSId)) in which to provision AWS resources. **[IMMUTABLE]**
@@ -40,6 +36,7 @@ data "altinitycloud_env_aws" "current" {
 		Examples:
 		- "10.136.0.0/21"
 		- "172.20.0.0/21"
+- `cloud_connect` (Boolean) `true` indicates that cloud resources are to be managed via altinity/cloud-connect and `false` means direct management (default `true`). **[IMMUTABLE]**
 - `custom_domain` (String) Custom domain.
 
 		Examples:
