@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.5](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.2.4...v0.2.5)
+
+### Changed
+- Increase delete timeout to 60 minutes when deleting environments[ac426d7](https://github.com/Altinity/terraform-provider-altinitycloud/commit/ac426d7)
+- Bump github.com/hashicorp/terraform-plugin-docs to `0.19.4` [#56](https://github.com/Altinity/terraform-provider-altinitycloud/pull/56).
+
+### Fixed
+- Make `cloud_connect` read-only for `altinitycloud_env_aws` data source[bfdd203](https://github.com/Altinity/terraform-provider-altinitycloud/commit/bfdd203)
+
 ## [0.2.4](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.2.3...v0.2.4)
 
 ### Changed
