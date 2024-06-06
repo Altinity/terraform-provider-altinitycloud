@@ -115,6 +115,7 @@ resource "altinitycloud_env_azure" "azure" {
 - `private_link_service` (Attributes) Azure Private Link service configuration. (see [below for nested schema](#nestedatt--private_link_service))
 - `skip_deprovision_on_destroy` (Boolean)
 - `tags` (Attributes List) Tags to apply to Azure resources. (see [below for nested schema](#nestedatt--tags))
+- `timeouts` (Attributes) (see [below for nested schema](#nestedatt--timeouts))
 - `zones` (List of String) Explicit list of Azure availability zones. At least 2 required.
 
 		Examples:
@@ -211,6 +212,14 @@ Required:
 
 - `key` (String) Name of the key
 - `value` (String) Value of the key
+
+
+<a id="nestedatt--timeouts"></a>
+### Nested Schema for `timeouts`
+
+Optional:
+
+- `delete` (String) Adjust timeout for deleting the environment.
 
 ## Import
 

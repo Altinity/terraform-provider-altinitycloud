@@ -1,14 +1,15 @@
 package common
 
 import (
+	"context"
 	"regexp"
-
-	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
 
 	"github.com/altinity/terraform-provider-altinitycloud/internal/provider/modifiers"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/client"
+	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	rschema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -256,6 +257,13 @@ func GetTagsAttribute(required, optional, computed bool, description string) rsc
 			listvalidator.SizeAtLeast(1),
 		},
 	}
+}
+
+func GetTimeoutsAttribute(ctx context.Context) rschema.Attribute {
+	return timeouts.Attributes(ctx, timeouts.Opts{
+		Delete:            true,
+		DeleteDescription: "Adjust timeout for deleting the environment.",
+	})
 }
 
 var PendingDeleteAttribute = rschema.BoolAttribute{

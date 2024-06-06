@@ -136,6 +136,7 @@ resource "altinitycloud_env_k8s" "this" {
 - `maintenance_windows` (Attributes List) List of maintenance windows during which automatic maintenance is permitted. By default updates are applied as soon as they are available. (see [below for nested schema](#nestedatt--maintenance_windows))
 - `metrics` (Attributes) Metrics configuration (see [below for nested schema](#nestedatt--metrics))
 - `skip_deprovision_on_destroy` (Boolean)
+- `timeouts` (Attributes) (see [below for nested schema](#nestedatt--timeouts))
 
 ### Read-Only
 
@@ -321,6 +322,14 @@ Optional:
 Optional:
 
 - `retention_period_in_days` (Number) Metrics retention period in days (default `30`).
+
+
+<a id="nestedatt--timeouts"></a>
+### Nested Schema for `timeouts`
+
+Optional:
+
+- `delete` (String) Adjust timeout for deleting the environment.
 
 ## Import
 

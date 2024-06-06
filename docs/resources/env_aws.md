@@ -159,7 +159,7 @@ resource "altinitycloud_env_aws" "this" {
   }
   peering_connections = [
     {
-      aws_account_id = local.aws_account_id # This only required if the VPC is it not in the same account as the environment.
+      aws_account_id = local.aws_account_id # This only required if the VPC is not in the same account as the environment.
       vpc_id         = "vpc-xyz"
     }
   ]
@@ -246,6 +246,7 @@ resource "aws_vpc_peering_connection_accepter" "peer" {
 - `peering_connections` (Attributes List) AWS environment VPC peering configuration. (see [below for nested schema](#nestedatt--peering_connections))
 - `skip_deprovision_on_destroy` (Boolean)
 - `tags` (Attributes List) Tags to apply to AWS resources. (see [below for nested schema](#nestedatt--tags))
+- `timeouts` (Attributes) (see [below for nested schema](#nestedatt--timeouts))
 - `zones` (List of String) Explicit list of AWS availability zones. At least 2 required.
 
 		Examples:
@@ -363,6 +364,14 @@ Required:
 
 - `key` (String) Name of the key
 - `value` (String) Value of the key
+
+
+<a id="nestedatt--timeouts"></a>
+### Nested Schema for `timeouts`
+
+Optional:
+
+- `delete` (String) Adjust timeout for deleting the environment.
 
 ## Import
 

@@ -28,6 +28,10 @@ data "altinitycloud_env_k8s" "current" {
 		Examples:
 		- "acme-staging" (where "acme" is your account name)
 
+### Optional
+
+- `timeouts` (Attributes) (see [below for nested schema](#nestedatt--timeouts))
+
 ### Read-Only
 
 - `custom_domain` (String) Custom domain.
@@ -67,6 +71,14 @@ data "altinitycloud_env_k8s" "current" {
 - `node_groups` (Attributes List) List of node groups. At least one required. (see [below for nested schema](#nestedatt--node_groups))
 - `skip_deprovision_on_destroy` (Boolean)
 - `spec_revision` (Number) Spec revision
+
+<a id="nestedatt--timeouts"></a>
+### Nested Schema for `timeouts`
+
+Optional:
+
+- `delete` (String) Adjust timeout for deleting the environment.
+
 
 <a id="nestedatt--custom_node_types"></a>
 ### Nested Schema for `custom_node_types`

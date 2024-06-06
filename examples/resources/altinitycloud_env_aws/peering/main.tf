@@ -29,7 +29,7 @@ resource "altinitycloud_env_aws" "this" {
   }
   peering_connections = [
     {
-      aws_account_id = local.aws_account_id # This only required if the VPC is it not in the same account as the environment.
+      aws_account_id = local.aws_account_id # This only required if the VPC is not in the same account as the environment.
       vpc_id         = "vpc-xyz"
     }
   ]

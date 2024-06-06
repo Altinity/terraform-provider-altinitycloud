@@ -41,6 +41,7 @@ func (r *AzureEnvResource) Schema(ctx context.Context, req resource.SchemaReques
 			"force_destroy":               common.GetForceDestroyAttribute(false, true, true),
 			"force_destroy_clusters":      common.GetForceDestroyClustersAttribute(false, true, true),
 			"skip_deprovision_on_destroy": common.GetSkipProvisioningOnDestroyAttribute(false, true, true),
+			"timeouts":                    common.GetTimeoutsAttribute(ctx),
 		},
 	}
 }
@@ -71,6 +72,7 @@ func (d *AzureEnvDataSource) Schema(ctx context.Context, req datasource.SchemaRe
 			"force_destroy":               common.GetForceDestroyAttribute(false, false, true),
 			"force_destroy_clusters":      common.GetForceDestroyClustersAttribute(false, false, true),
 			"skip_deprovision_on_destroy": common.GetSkipProvisioningOnDestroyAttribute(false, false, true),
+			"timeouts":                    common.GetTimeoutsAttribute(ctx),
 		},
 	}
 }

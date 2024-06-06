@@ -177,8 +177,14 @@ func (r *AWSEnvResource) Delete(ctx context.Context, req resource.DeleteRequest,
 		return
 	}
 
+	deleteTimeout, diags := data.Timeouts.Delete(ctx, 60*time.Minute)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	// Polling to wait for deletion to complete
-	timeout := time.After(time.Duration(30) * time.Minute)
+	timeout := time.After(deleteTimeout)
 	ticker := time.NewTicker(30 * time.Second)
 	defer ticker.Stop()
 

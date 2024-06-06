@@ -28,6 +28,10 @@ data "altinitycloud_env_gcp" "current" {
 		Examples:
 		- "acme-staging" (where "acme" is your account name)
 
+### Optional
+
+- `timeouts` (Attributes) (see [below for nested schema](#nestedatt--timeouts))
+
 ### Read-Only
 
 - `cidr` (String) VPC CIDR block from the private IPv4 address ranges as specified in RFC 1918 (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16). At least /21 required. **[IMMUTABLE]**
@@ -71,6 +75,14 @@ data "altinitycloud_env_gcp" "current" {
 - `zones` (List of String) Explicit list of GCP zones. At least 2 required.
 		Examples:
 		- ["us-west1a", "us-west1b"]
+
+<a id="nestedatt--timeouts"></a>
+### Nested Schema for `timeouts`
+
+Optional:
+
+- `delete` (String) Adjust timeout for deleting the environment.
+
 
 <a id="nestedatt--load_balancers"></a>
 ### Nested Schema for `load_balancers`

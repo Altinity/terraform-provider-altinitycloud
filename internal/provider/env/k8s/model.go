@@ -5,6 +5,7 @@ import (
 
 	common "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env/common"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/client"
+	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -21,10 +22,11 @@ type K8SEnvResourceModel struct {
 	Metrics               *MetricsModel                   `tfsdk:"metrics"`
 	MaintenanceWindows    []common.MaintenanceWindowModel `tfsdk:"maintenance_windows"`
 
-	SpecRevision             types.Int64 `tfsdk:"spec_revision"`
-	ForceDestroy             types.Bool  `tfsdk:"force_destroy"`
-	ForceDestroyClusters     types.Bool  `tfsdk:"force_destroy_clusters"`
-	SkipDeprovisionOnDestroy types.Bool  `tfsdk:"skip_deprovision_on_destroy"`
+	SpecRevision             types.Int64    `tfsdk:"spec_revision"`
+	ForceDestroy             types.Bool     `tfsdk:"force_destroy"`
+	ForceDestroyClusters     types.Bool     `tfsdk:"force_destroy_clusters"`
+	SkipDeprovisionOnDestroy types.Bool     `tfsdk:"skip_deprovision_on_destroy"`
+	Timeouts                 timeouts.Value `tfsdk:"timeouts"`
 }
 
 type LogsModel struct {
