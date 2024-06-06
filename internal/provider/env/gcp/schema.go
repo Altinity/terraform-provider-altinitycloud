@@ -6,7 +6,6 @@ import (
 	"github.com/MakeNowJust/heredoc/v2"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/provider/common"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/provider/modifiers"
-	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	dschema "github.com/hashicorp/terraform-plugin-framework/datasource/schema"
@@ -37,9 +36,7 @@ func (r *GCPEnvResource) Schema(ctx context.Context, req resource.SchemaRequest,
 			"force_destroy":               common.GetForceDestroyAttribute(false, true, true),
 			"force_destroy_clusters":      common.GetForceDestroyClustersAttribute(false, true, true),
 			"skip_deprovision_on_destroy": common.GetSkipProvisioningOnDestroyAttribute(false, true, true),
-			"timeouts": timeouts.Attributes(ctx, timeouts.Opts{
-				Delete: true,
-			}),
+			"timeouts":                    common.GetTimeoutsAttribute(ctx),
 		},
 	}
 }
@@ -67,9 +64,7 @@ func (d *GCPEnvDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 			"force_destroy":               common.GetForceDestroyAttribute(false, false, true),
 			"force_destroy_clusters":      common.GetForceDestroyClustersAttribute(false, false, true),
 			"skip_deprovision_on_destroy": common.GetSkipProvisioningOnDestroyAttribute(false, false, true),
-			"timeouts": timeouts.Attributes(ctx, timeouts.Opts{
-				Delete: true,
-			}),
+			"timeouts":                    common.GetTimeoutsAttribute(ctx),
 		},
 	}
 }

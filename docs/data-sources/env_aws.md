@@ -86,6 +86,10 @@ data "altinitycloud_env_aws" "current" {
 <a id="nestedatt--timeouts"></a>
 ### Nested Schema for `timeouts`
 
+Optional:
+
+- `delete` (String) Adjust timeout for deleting the environment.
+
 
 <a id="nestedatt--endpoints"></a>
 ### Nested Schema for `endpoints`
