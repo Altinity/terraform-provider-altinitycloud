@@ -18,6 +18,8 @@ import (
 
 var _ resource.Resource = &AzureEnvResource{}
 var _ resource.ResourceWithImportState = &AzureEnvResource{}
+var DELETE_TIMEOUT = time.Duration(60) * time.Minute
+var DELETE_POLL_INTERVAL = 30 * time.Second
 
 func NewAzureEnvResource() resource.Resource {
 	return &AzureEnvResource{}
@@ -179,8 +181,8 @@ func (r *AzureEnvResource) Delete(ctx context.Context, req resource.DeleteReques
 	}
 
 	// Polling to wait for deletion to complete
-	timeout := time.After(time.Duration(30) * time.Minute)
-	ticker := time.NewTicker(30 * time.Second)
+	timeout := time.After(DELETE_TIMEOUT)
+	ticker := time.NewTicker(DELETE_POLL_INTERVAL)
 	defer ticker.Stop()
 
 	for {
