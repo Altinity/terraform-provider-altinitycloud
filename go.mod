@@ -15,7 +15,7 @@ require (
 
 require (
 	github.com/MakeNowJust/heredoc/v2 v2.0.1
-	github.com/hashicorp/terraform-plugin-framework-validators v0.12.0
+	github.com/hashicorp/terraform-plugin-framework-validators v0.13.0
 	github.com/hashicorp/terraform-plugin-testing v1.9.0
 )
 
