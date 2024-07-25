@@ -128,7 +128,7 @@ func GetZonesAttribute(required, optional, computed bool, description string) rs
 		Computed:            computed,
 		MarkdownDescription: description,
 		Validators: []validator.List{
-			listvalidator.SizeAtLeast(1),
+			listvalidator.SizeAtLeast(2),
 		},
 	}
 }
@@ -140,7 +140,7 @@ func GetNumberOfZonesAttribute(required, optional, computed bool) rschema.Int64A
 		Computed:            computed,
 		MarkdownDescription: NUMBER_OF_ZONES_DESCRIPTION,
 		Validators: []validator.Int64{
-			int64validator.AtLeast(1),
+			int64validator.AtLeast(2),
 		},
 		PlanModifiers: []planmodifier.Int64{
 			modifiers.ZonesAttributePlanModifier(),
