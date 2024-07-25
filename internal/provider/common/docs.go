@@ -89,7 +89,7 @@ const NODE_GROUP_TOLERATIONS_OPERATOR = `Node toleration operator used to match 
 
 const FORCE_DESTROY_DESCRIPTION = "Locks the environment for accidental deletion when running `terraform destroy` command. Your environment will be deleted, only when setting this parameter to `false`. Once this parameter is set to `false`, there must be a successful `terraform apply` run (before running the `terraform destroy`) to update this value in the state. Without a successful `terraform apply` after this parameter is set, this flag will have no effect. (default `false`)"
 const FORCE_DESTROY_CLUSTERS_DESCRIPTION = "By default, the destroy operation will not delete any provisioned clusters and the deletion will fail until the clusters get removed. Set to `true` to remove all provisioned clusters as part of the environment deletion process."
-const SKIP_DEPROVISION_ON_DESTROY_DESCRIPTION = "Set to `true` will delete without waiting for environment deprovisioning. Use this with precaution (default `false`)."
+const SKIP_PROVISIONING_ON_DESTROY_DESCRIPTION = "Set to `true` will delete without waiting for environment deprovisioning. Use this with precaution (default `false`)."
 const STATUS_DESCRIPTION = "Environment status"
 const STATUS_SPEC_REVISION_DESCRIPTION = "Spec revision"
 const STATUS_APPLIED_SPEC_REVISION_DESCRIPTION = "Applied spec revision"

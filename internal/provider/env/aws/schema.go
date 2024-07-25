@@ -30,7 +30,7 @@ func (r *AWSEnvResource) Schema(ctx context.Context, req resource.SchemaRequest,
 			"load_balancing_strategy":     common.GetLoadBalancingStrategyAttribute(false, true, true),
 			"maintenance_windows":         common.GetMaintenanceWindowAttribute(false, true, false),
 			"cidr":                        common.GetCIDRAttribute(true, false, false),
-			"zones":                       common.GetZonesAttribute(false, true, true, common.AWS_ZONES_DESCRIPTION),
+			"zones":                       getZonesAttribute(false, true, true, common.AWS_ZONES_DESCRIPTION),
 			"number_of_zones":             common.GetNumberOfZonesAttribute(false, true, true),
 			"node_groups":                 common.GetNodeGroupsAttribure(true, false, false),
 			"aws_account_id":              getAWSAccountIDAttribute(true, false, false),
@@ -58,7 +58,7 @@ func (d *AWSEnvDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 			"load_balancing_strategy": common.GetLoadBalancingStrategyAttribute(false, false, true),
 			"maintenance_windows":     common.GetMaintenanceWindowAttribute(false, false, true),
 			"cidr":                    common.GetCIDRAttribute(false, false, true),
-			"zones":                   common.GetZonesAttribute(false, false, true, common.AWS_ZONES_DESCRIPTION),
+			"zones":                   getZonesAttribute(false, false, true, common.AWS_ZONES_DESCRIPTION),
 			"number_of_zones":         common.GetNumberOfZonesAttribute(false, false, true),
 			"node_groups":             common.GetNodeGroupsAttribure(false, false, true),
 			"aws_account_id":          getAWSAccountIDAttribute(false, false, true),
@@ -175,6 +175,15 @@ func getCloudConnectAttribute(required, optional, computed bool) rschema.BoolAtt
 		MarkdownDescription: common.CLOUD_CONNECT_DESCRIPTION,
 		Default:             booldefault.StaticBool(true),
 	}
+}
+
+func getZonesAttribute(required, optional, computed bool, description string) rschema.ListAttribute {
+	zonesAttribute := common.GetZonesAttribute(required, optional, computed, description)
+	zonesAttribute.Validators = []validator.List{
+		listvalidator.SizeAtLeast(2),
+	}
+
+	return zonesAttribute
 }
 
 var endpointAttribute = rschema.NestedAttributeObject{

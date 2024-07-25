@@ -128,7 +128,7 @@ func GetZonesAttribute(required, optional, computed bool, description string) rs
 		Computed:            computed,
 		MarkdownDescription: description,
 		Validators: []validator.List{
-			listvalidator.SizeAtLeast(2),
+			listvalidator.SizeAtLeast(1),
 		},
 	}
 }
@@ -211,10 +211,11 @@ func GetForceDestroyClustersAttribute(required, optional, computed bool) rschema
 
 func GetSkipProvisioningOnDestroyAttribute(required, optional, computed bool) rschema.BoolAttribute {
 	return rschema.BoolAttribute{
-		Required: required,
-		Optional: optional,
-		Computed: computed,
-		Default:  booldefault.StaticBool(false),
+		Required:            required,
+		Optional:            optional,
+		Computed:            computed,
+		MarkdownDescription: SKIP_PROVISIONING_ON_DESTROY_DESCRIPTION,
+		Default:             booldefault.StaticBool(false),
 	}
 }
 

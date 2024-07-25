@@ -83,7 +83,11 @@ sync:
 
 .PHONY: docs
 docs:
+ifeq ($(OS), darwin)
+	GOOS=darwin GOARCH=amd64 go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs
+else
 	go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs
+endif
 
 .PHONY: sdk
 sdk:
