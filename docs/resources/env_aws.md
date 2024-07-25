@@ -244,7 +244,7 @@ resource "aws_vpc_peering_connection_accepter" "peer" {
 - `maintenance_windows` (Attributes List) List of maintenance windows during which automatic maintenance is permitted. By default updates are applied as soon as they are available. (see [below for nested schema](#nestedatt--maintenance_windows))
 - `number_of_zones` (Number) Number of zones where the environment will be available. When set, zones will be set automatically based on your cloud provider (Do not use it together with zones)
 - `peering_connections` (Attributes List) AWS environment VPC peering configuration. (see [below for nested schema](#nestedatt--peering_connections))
-- `skip_deprovision_on_destroy` (Boolean)
+- `skip_deprovision_on_destroy` (Boolean) Set to `true` will delete without waiting for environment deprovisioning. Use this with precaution (default `false`).
 - `tags` (Attributes List) Tags to apply to AWS resources. (see [below for nested schema](#nestedatt--tags))
 - `zones` (List of String) Explicit list of AWS availability zones. At least 2 required.
 

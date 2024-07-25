@@ -66,7 +66,7 @@ data "altinitycloud_env_gcp" "current" {
 
 		Examples:
 		- "us-west1".
-- `skip_deprovision_on_destroy` (Boolean)
+- `skip_deprovision_on_destroy` (Boolean) Set to `true` will delete without waiting for environment deprovisioning. Use this with precaution (default `false`).
 - `spec_revision` (Number) Spec revision
 - `zones` (List of String) Explicit list of GCP zones. At least 2 required.
 		Examples:

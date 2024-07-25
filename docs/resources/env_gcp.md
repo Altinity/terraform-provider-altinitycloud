@@ -120,7 +120,7 @@ resource "altinitycloud_env_gcp" "this" {
 		- "ZONE_BEST_EFFORT": keep traffic within same zone
 - `maintenance_windows` (Attributes List) List of maintenance windows during which automatic maintenance is permitted. By default updates are applied as soon as they are available. (see [below for nested schema](#nestedatt--maintenance_windows))
 - `number_of_zones` (Number) Number of zones where the environment will be available. When set, zones will be set automatically based on your cloud provider (Do not use it together with zones)
-- `skip_deprovision_on_destroy` (Boolean)
+- `skip_deprovision_on_destroy` (Boolean) Set to `true` will delete without waiting for environment deprovisioning. Use this with precaution (default `false`).
 - `zones` (List of String) Explicit list of GCP zones. At least 2 required.
 		Examples:
 		- ["us-west1a", "us-west1b"]

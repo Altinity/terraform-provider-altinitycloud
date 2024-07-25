@@ -67,7 +67,7 @@ data "altinitycloud_env_azure" "current" {
 		Examples:
 		- "eastus"
 		- "westus"
-- `skip_deprovision_on_destroy` (Boolean)
+- `skip_deprovision_on_destroy` (Boolean) Set to `true` will delete without waiting for environment deprovisioning. Use this with precaution (default `false`).
 - `spec_revision` (Number) Spec revision
 - `subscription_id` (String) ID linking the environment to a specific Azure subscription for resource management. **[IMMUTABLE]**
 - `tags` (Attributes List) Tags to apply to Azure resources. (see [below for nested schema](#nestedatt--tags))
