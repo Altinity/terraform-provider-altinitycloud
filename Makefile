@@ -15,9 +15,9 @@ LOCAL_DIRECTOY:=local
 ifeq ($(shell uname -s), Linux)
   OS := linux
 endif
-ifeq ($(shell uname -m), arm64)
-  ARCH=arm64
-endif
+# ifeq ($(shell uname -m), arm64)
+#   ARCH=arm64
+# endif
 
 default: help
 

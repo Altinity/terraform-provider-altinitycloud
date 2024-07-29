@@ -98,17 +98,17 @@ func (r *K8SEnvResource) Read(ctx context.Context, req resource.ReadRequest, res
 	apiResp, err := r.client.GetK8SEnv(ctx, envName)
 
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read env %s, got error: %s", envName, err))
-		return
-	}
-
-	if apiResp.K8sEnv == nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Environment %s was not found", envName))
+		notFound, _ := client.IsNotFoundError(err)
+		if notFound {
+			tflog.Trace(ctx, "removing resource from state", map[string]interface{}{"name": envName})
+			resp.State.RemoveResource(ctx)
+		} else {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read env %s, got error: %s", envName, err))
+		}
 		return
 	}
 
 	data.toModel(apiResp.K8sEnv.Name, *apiResp.K8sEnv.Spec)
-
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
 }

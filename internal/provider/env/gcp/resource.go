@@ -99,17 +99,17 @@ func (r *GCPEnvResource) Read(ctx context.Context, req resource.ReadRequest, res
 	apiResp, err := r.client.GetGCPEnv(ctx, envName)
 
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read env %s, got error: %s", envName, err))
-		return
-	}
-
-	if apiResp.GcpEnv == nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Environment %s was not found", envName))
+		notFound, _ := client.IsNotFoundError(err)
+		if notFound {
+			tflog.Trace(ctx, "removing resource from state", map[string]interface{}{"name": envName})
+			resp.State.RemoveResource(ctx)
+		} else {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read env %s, got error: %s", envName, err))
+		}
 		return
 	}
 
 	data.toModel(*apiResp.GcpEnv)
-
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
 }
@@ -171,7 +171,7 @@ func (r *GCPEnvResource) Delete(ctx context.Context, req resource.DeleteRequest,
 
 	_, err = r.client.GetGCPEnv(ctx, envName)
 	if err != nil {
-		notFound, err := client.IsNotFoundError(err)
+		notFound, _ := client.IsNotFoundError(err)
 		if notFound {
 			tflog.Trace(ctx, "deleted resource", map[string]interface{}{"name": envName})
 		} else {
