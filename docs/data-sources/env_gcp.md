@@ -49,7 +49,7 @@ data "altinitycloud_env_gcp" "current" {
 			CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
 		- (optional, vpce)
 			CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
-- `force_destroy` (Boolean) Locks the environment for accidental deletion when running `terraform destroy` command. Your environment will be deleted, only when setting this parameter to `false`. Once this parameter is set to `false`, there must be a successful `terraform apply` run (before running the `terraform destroy`) to update this value in the state. Without a successful `terraform apply` after this parameter is set, this flag will have no effect. (default `false`)
+- `force_destroy` (Boolean) Locks the environment for accidental deletion when running `terraform destroy` command. Your environment will be deleted, only when setting this parameter to `true`. Once this parameter is set to `true`, there must be a successful `terraform apply` run (before running the `terraform destroy`) to update this value in the state. Without a successful `terraform apply` after this parameter is set, this flag will have no effect. (default `false`)
 - `force_destroy_clusters` (Boolean) By default, the destroy operation will not delete any provisioned clusters and the deletion will fail until the clusters get removed. Set to `true` to remove all provisioned clusters as part of the environment deletion process.
 - `gcp_project_id` (String) ID of the GCP project ([docs](https://support.google.com/googleapi/answer/7014113?hl=en#:~:text=The%20project%20ID%20is%20a,ID%20or%20create%20your%20own.)) in which to provision GCP resources. **[IMMUTABLE]**
 - `id` (String) ID of the environment (automatically generated based on the name)
