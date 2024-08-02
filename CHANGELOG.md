@@ -4,10 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.7](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.2.6...v0.2.7)
+
+### Changed
+- New documentation templates for environment status data sources [f611072](https://github.com/Altinity/terraform-provider-altinitycloud/commit/f611072).
+
+
 ## [0.2.6](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.2.5...v0.2.6)
 
 ### Added
-- Remove resource environments from planning state when get not found [5a1d473](https://github.com/Altinity/terraform-provider-altinitycloud/commit/9915a01).
+- Remove resource environments from planning state when get not found [5a1d473](https://github.com/Altinity/terraform-provider-altinitycloud/commit/5a1d473).
 - Add missing docs for `skip_deprovision_on_destroy` environment resource property [9915a01](https://github.com/Altinity/terraform-provider-altinitycloud/commit/9915a01).
 - New examples and better descriptions for `altinitycloud_env_***_status` data sources [ff1d62a](https://github.com/Altinity/terraform-provider-altinitycloud/commit/ff1d62a)
 
