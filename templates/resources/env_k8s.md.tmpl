@@ -7,6 +7,8 @@ description: |-
 
 # {{.Name}} ({{.Type}})
 
+> For a detailed guide on provisioning a K8S environment using Terraform, check our official [documentation](https://docs.altinity.com/altinitycloudanywhere/bring-your-own-kubernetes-byok/terraform/).
+
 {{ .Description | trimspace }}
 
 ## Example Usage
@@ -16,6 +18,9 @@ BYOK/EKS (AWS)
 
 BYOK/GKE (GCP):
 {{tffile "examples/resources/altinitycloud_env_k8s/gke/main.tf"}}
+
+BYOK/AKS (Azure):
+{{tffile "examples/resources/altinitycloud_env_k8s/aks/main.tf"}}
 
 {{ .SchemaMarkdown | trimspace }}
 {{- if .HasImport }}

@@ -7,6 +7,8 @@ description: |-
 
 # altinitycloud_env_aws (Resource)
 
+> For a detailed guide on provisioning an AWS environment using Terraform, check our official [documentation](https://docs.altinity.com/altinitycloudanywhere/bring-your-own-cloud-byoc/aws-remote-provisioning/#method-1-using-our-terraform-module).
+
 Bring Your Own Cloud (BYOC) AWS environment resource.
 
 ## Example Usage
