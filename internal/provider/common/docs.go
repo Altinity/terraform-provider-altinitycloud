@@ -93,6 +93,7 @@ const SKIP_PROVISIONING_ON_DESTROY_DESCRIPTION = "Set to `true` will delete with
 const STATUS_DESCRIPTION = "Environment status"
 const STATUS_SPEC_REVISION_DESCRIPTION = "Spec revision"
 const STATUS_APPLIED_SPEC_REVISION_DESCRIPTION = "Applied spec revision"
+const STATUS_WAIT_FOR_APPLIED_SPEC_REVISION_DESCRIPTION = "Use this attribute to wait for the environment to be fully provisioned. It will long pull environment status until it matches the applied spec revision."
 const STATUS_PENDING_DELETE_DESCRIPTION = "`true` indicates that environment is pending deletion"
 const STATUS_LOAD_BALANCERS_DESCRIPTION = "Status of internal load balancer."
 const STATUS_LOAD_BALANCERS_INTERNAL_DESCRIPTION = "Status of load balancers."

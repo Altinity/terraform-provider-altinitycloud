@@ -13,18 +13,18 @@ description: |-
 
 ## Example Usage
 
-AWS environment with public Load Balancer:
+### AWS environment with public Load Balancer:
 {{tffile "examples/resources/altinitycloud_env_aws/public/main.tf"}}
 
-AWS environment accessible over VPC Endpoint:
+### AWS environment accessible over VPC Endpoint:
 {{tffile "examples/resources/altinitycloud_env_aws/vpce/main.tf"}}
 
-AWS environment with VPC peering:
+### AWS environment with VPC peering:
 {{tffile "examples/resources/altinitycloud_env_aws/peering/main.tf"}}
 
 {{ .SchemaMarkdown | trimspace }}
-{{- if .HasImport }}
 
+{{- if .HasImport }}
 ## Import
 
 Import is supported using the following syntax:

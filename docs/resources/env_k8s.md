@@ -13,7 +13,7 @@ Bring Your Own Kubernetes (BYOK) environment resource.
 
 ## Example Usage
 
-BYOK/EKS (AWS)
+### BYOK/EKS (AWS)
 ```terraform
 resource "altinitycloud_env_certificate" "this" {
   env_name = "acme-staging"
@@ -50,9 +50,15 @@ resource "altinitycloud_env_k8s" "this" {
     module.altinitycloud_connect
   ]
 }
+
+// Since the environment provisioning is an async process, this data source is used to wait for environment to be fully provisioned.
+data "altinitycloud_env_k8s_status" "this" {
+  name                           = altinitycloud_env_k8s.this.name
+  wait_for_applied_spec_revision = altinitycloud_env_k8s.this.spec_revision
+}
 ```
 
-BYOK/GKE (GCP):
+### BYOK/GKE (GCP):
 ```terraform
 resource "altinitycloud_env_certificate" "this" {
   env_name = "acme-staging"
@@ -89,9 +95,15 @@ resource "altinitycloud_env_k8s" "this" {
     module.altinitycloud_connect
   ]
 }
+
+// Since the environment provisioning is an async process, this data source is used to wait for environment to be fully provisioned.
+data "altinitycloud_env_k8s_status" "this" {
+  name                           = altinitycloud_env_k8s.this.name
+  wait_for_applied_spec_revision = altinitycloud_env_k8s.this.spec_revision
+}
 ```
 
-BYOK/AKS (Azure):
+### BYOK/AKS (Azure):
 ```terraform
 resource "altinitycloud_env_certificate" "this" {
   env_name = "acme-staging"
@@ -122,6 +134,12 @@ resource "altinitycloud_env_k8s" "this" {
     // "depends_on" is here to enforce "this resource, then altinitycloud_connect" order on destroy.
     module.altinitycloud_connect
   ]
+}
+
+// Since the environment provisioning is an async process, this data source is used to wait for environment to be fully provisioned.
+data "altinitycloud_env_k8s_status" "this" {
+  name                           = altinitycloud_env_k8s.this.name
+  wait_for_applied_spec_revision = altinitycloud_env_k8s.this.spec_revision
 }
 ```
 
@@ -357,7 +375,6 @@ Optional:
 Optional:
 
 - `retention_period_in_days` (Number) Metrics retention period in days (default `30`).
-
 ## Import
 
 Import is supported using the following syntax:

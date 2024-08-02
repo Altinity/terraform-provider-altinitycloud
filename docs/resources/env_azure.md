@@ -13,7 +13,7 @@ Bring Your Own Cloud (BYOC) Azure environment resource.
 
 ## Example Usage
 
-Azure environment with public Load Balancer:
+### Azure environment with public Load Balancer:
 ```terraform
 provider "azurerm" {
   skip_provider_registration = true
@@ -62,6 +62,12 @@ resource "altinitycloud_env_azure" "azure" {
     capacity_per_zone = 3
     reservations      = ["CLICKHOUSE", "ZOOKEEPER", "SYSTEM"]
   }]
+}
+
+// Since the environment provisioning is an async process, this data source is used to wait for environment to be fully provisioned.
+data "altinitycloud_env_azure_status" "this" {
+  name                           = altinitycloud_env_azure.this.name
+  wait_for_applied_spec_revision = altinitycloud_env_azure.this.spec_revision
 }
 ```
 
@@ -213,7 +219,6 @@ Required:
 
 - `key` (String) Name of the key
 - `value` (String) Value of the key
-
 ## Import
 
 Import is supported using the following syntax:

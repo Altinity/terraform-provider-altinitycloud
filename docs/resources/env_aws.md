@@ -13,7 +13,7 @@ Bring Your Own Cloud (BYOC) AWS environment resource.
 
 ## Example Usage
 
-AWS environment with public Load Balancer:
+### AWS environment with public Load Balancer:
 ```terraform
 resource "altinitycloud_env_certificate" "this" {
   env_name = "acme-staging"
@@ -58,9 +58,15 @@ resource "altinitycloud_env_aws" "this" {
     module.altinitycloud_connect_aws
   ]
 }
+
+// Since the environment provisioning is an async process, this data source is used to wait for environment to be fully provisioned.
+data "altinitycloud_env_aws_status" "this" {
+  name                           = altinitycloud_env_aws.this.name
+  wait_for_applied_spec_revision = altinitycloud_env_aws.this.spec_revision
+}
 ```
 
-AWS environment accessible over VPC Endpoint:
+### AWS environment accessible over VPC Endpoint:
 ```terraform
 resource "altinitycloud_env_certificate" "this" {
   env_name = "acme-staging"
@@ -112,6 +118,7 @@ resource "altinitycloud_env_aws" "this" {
   ]
 }
 
+// Since the environment provisioning is an async process, this data source is used to wait for environment to be fully provisioned.
 data "altinitycloud_env_aws_status" "this" {
   name                           = altinitycloud_env_aws.this.name
   wait_for_applied_spec_revision = altinitycloud_env_aws.this.spec_revision
@@ -128,7 +135,7 @@ resource "aws_vpc_endpoint" "this" {
 }
 ```
 
-AWS environment with VPC peering:
+### AWS environment with VPC peering:
 ```terraform
 resource "altinitycloud_env_certificate" "this" {
   env_name = "acme-staging"
@@ -184,6 +191,7 @@ resource "altinitycloud_env_aws" "this" {
   ]
 }
 
+// Since the environment provisioning is an async process, this data source is used to wait for environment to be fully provisioned.
 data "altinitycloud_env_aws_status" "this" {
   name                           = altinitycloud_env_aws.this.name
   wait_for_applied_spec_revision = altinitycloud_env_aws.this.spec_revision
@@ -365,7 +373,6 @@ Required:
 
 - `key` (String) Name of the key
 - `value` (String) Value of the key
-
 ## Import
 
 Import is supported using the following syntax:

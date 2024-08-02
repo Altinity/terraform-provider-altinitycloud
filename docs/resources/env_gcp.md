@@ -11,7 +11,7 @@ Bring Your Own Cloud (BYOC) GCP environment resource.
 
 ## Example Usage
 
-GCP environment with public Load Balancer:
+### GCP environment with public Load Balancer:
 ```terraform
 provider "google" {
 }
@@ -70,6 +70,12 @@ resource "altinitycloud_env_gcp" "this" {
       reservations      = ["CLICKHOUSE"]
     }
   ]
+}
+
+// Since the environment provisioning is an async process, this data source is used to wait for environment to be fully provisioned.
+data "altinitycloud_env_gcp_status" "this" {
+  name                           = altinitycloud_env_gcp.this.name
+  wait_for_applied_spec_revision = altinitycloud_env_gcp.this.spec_revision
 }
 ```
 
@@ -199,7 +205,6 @@ Required:
 Optional:
 
 - `enabled` (Boolean) Set to `true` if maintenance window is enabled, `false` otherwise. (default `false`)
-
 ## Import
 
 Import is supported using the following syntax:

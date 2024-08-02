@@ -13,18 +13,18 @@ description: |-
 
 ## Example Usage
 
-BYOK/EKS (AWS)
+### BYOK/EKS (AWS)
 {{tffile "examples/resources/altinitycloud_env_k8s/eks/main.tf"}}
 
-BYOK/GKE (GCP):
+### BYOK/GKE (GCP):
 {{tffile "examples/resources/altinitycloud_env_k8s/gke/main.tf"}}
 
-BYOK/AKS (Azure):
+### BYOK/AKS (Azure):
 {{tffile "examples/resources/altinitycloud_env_k8s/aks/main.tf"}}
 
 {{ .SchemaMarkdown | trimspace }}
-{{- if .HasImport }}
 
+{{- if .HasImport }}
 ## Import
 
 Import is supported using the following syntax:

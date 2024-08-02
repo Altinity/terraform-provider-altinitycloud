@@ -11,7 +11,7 @@ import (
 
 func (r *GCPEnvStatusDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = schema.Schema{
-		MarkdownDescription: heredoc.Doc("Altinity.Cloud GCP environment status data source. It will long pool the status until `matching_spec` is `true`."),
+		MarkdownDescription: heredoc.Doc("Altinity.Cloud GCP environment status data source. It will long pool the status until `matching_spec` is `true`. Use this data source to wait for the environment is fully provisioned."),
 
 		Attributes: map[string]schema.Attribute{
 			"id":                             common.IDAttribute,

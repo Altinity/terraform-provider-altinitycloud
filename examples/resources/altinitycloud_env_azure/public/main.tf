@@ -46,3 +46,9 @@ resource "altinitycloud_env_azure" "azure" {
     reservations      = ["CLICKHOUSE", "ZOOKEEPER", "SYSTEM"]
   }]
 }
+
+// Since the environment provisioning is an async process, this data source is used to wait for environment to be fully provisioned.
+data "altinitycloud_env_azure_status" "this" {
+  name                           = altinitycloud_env_azure.this.name
+  wait_for_applied_spec_revision = altinitycloud_env_azure.this.spec_revision
+}

@@ -273,7 +273,7 @@ var SpecRevisionAttribute = rschema.Int64Attribute{
 
 var WaitForAppliedSpecRevisionAttribute = rschema.Int64Attribute{
 	Optional:            true,
-	MarkdownDescription: STATUS_APPLIED_SPEC_REVISION_DESCRIPTION,
+	MarkdownDescription: STATUS_WAIT_FOR_APPLIED_SPEC_REVISION_DESCRIPTION,
 }
 
 var AppliedSpecRevisionAttribute = rschema.Int64Attribute{
