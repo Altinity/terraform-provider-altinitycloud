@@ -4,6 +4,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.6](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.2.5...v0.2.6)
+
+### Added
+- Remove resource environments from planning state when get not found [5a1d473](https://github.com/Altinity/terraform-provider-altinitycloud/commit/9915a01).
+- Add missing docs for `skip_deprovision_on_destroy` environment resource property [9915a01](https://github.com/Altinity/terraform-provider-altinitycloud/commit/9915a01).
+- New examples and better descriptions for `altinitycloud_env_***_status` data sources [ff1d62a](https://github.com/Altinity/terraform-provider-altinitycloud/commit/ff1d62a)
+
+### Changed
+- Bump github.com/hashicorp/terraform-plugin-framework-validators to `0.13.0` [#66](https://github.com/Altinity/terraform-provider-altinitycloud/pull/66).
+- Bump github.com/Yamashou/gqlgenc to `0.23.2` [#62](https://github.com/Altinity/terraform-provider-altinitycloud/pull/62).
+- Bump github.com/hashicorp/terraform-plugin-framework to `1.10.0` [#64](https://github.com/Altinity/terraform-provider-altinitycloud/pull/64).
+- Bump github.com/hashicorp/terraform-plugin-testing to `1.9.0` [#65](https://github.com/Altinity/terraform-provider-altinitycloud/pull/65).
+
+### Fixed
+- Increase minimun `zones` value to `2` for `altinitycloud_env_aws` [dd77f53](https://github.com/Altinity/terraform-provider-altinitycloud/commit/dd77f53)
+- Fix `force_destroy` description on environment resources docs [19a695d](https://github.com/Altinity/terraform-provider-altinitycloud/commit/19a695d).
+- Add reference to Altinity docs in environment resources docs [55d69b5](https://github.com/Altinity/terraform-provider-altinitycloud/commit/55d69b5)
+
+
 ## [0.2.5](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.2.4...v0.2.5)
 
 ### Changed
