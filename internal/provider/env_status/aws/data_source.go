@@ -11,10 +11,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
-var (
-	_ datasource.DataSource              = &AWSEnvStatusDataSource{}
-	_ datasource.DataSourceWithConfigure = &AWSEnvStatusDataSource{}
-)
+var _ datasource.DataSource = &AWSEnvStatusDataSource{}
+var _ datasource.DataSourceWithConfigure = &AWSEnvStatusDataSource{}
+var DELETE_TIMEOUT = time.Duration(60) * time.Minute
+var DELETE_POLL_INTERVAL = 30 * time.Second
 
 func NewAWSEnvStatusDataSource() datasource.DataSource {
 	return &AWSEnvStatusDataSource{}
@@ -82,8 +82,8 @@ func (d *AWSEnvStatusDataSource) Read(ctx context.Context, req datasource.ReadRe
 	}
 
 	// Polling to wait for deletion to complete
-	timeout := time.After(30 * time.Minute)
-	ticker := time.NewTicker(30 * time.Second)
+	timeout := time.After(DELETE_TIMEOUT)
+	ticker := time.NewTicker(DELETE_POLL_INTERVAL)
 	defer ticker.Stop()
 
 	for {
