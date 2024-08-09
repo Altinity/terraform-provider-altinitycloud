@@ -186,6 +186,9 @@ func GetRegionAttribure(required, optional, computed bool, description string) r
 		PlanModifiers: []planmodifier.String{
 			modifiers.ImmutableString("region"),
 		},
+		Validators: []validator.String{
+			stringvalidator.LengthAtLeast(1),
+		},
 	}
 }
 
