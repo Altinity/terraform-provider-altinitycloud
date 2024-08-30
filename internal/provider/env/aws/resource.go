@@ -165,13 +165,19 @@ func (r *AWSEnvResource) Delete(ctx context.Context, req resource.DeleteRequest,
 	})
 
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete env %s, got error: %s", envName, err))
+		errMessage := fmt.Sprintf("Unable to delete env %s, got error: %s", envName, err)
+		activeClustes, _ := client.IsActiceClustersError(err)
+		if activeClustes {
+			errMessage = fmt.Sprintf("Unable to delete env %s, it has active ClickHouse/Zookeeper clusters (use force_destroy_clusters=true to force delete them)", envName)
+		}
+
+		resp.Diagnostics.AddError("Client Error", errMessage)
 		return
 	}
 
 	_, err = r.client.GetAWSEnv(ctx, envName)
 	if err != nil {
-		notFound, err := client.IsNotFoundError(err)
+		notFound, _ := client.IsNotFoundError(err)
 		if notFound {
 			tflog.Trace(ctx, "deleted resource", map[string]interface{}{"name": envName})
 		} else {

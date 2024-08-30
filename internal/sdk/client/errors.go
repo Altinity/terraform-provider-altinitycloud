@@ -3,6 +3,7 @@ package client
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 )
 
 type GraphQLError struct {
@@ -42,6 +43,21 @@ func IsNotFoundError(err error) (bool, error) {
 	for _, gqlError := range parsedError.GraphqlErrors {
 		if code, ok := gqlError.Extensions["code"]; ok && code == "NOT_FOUND" {
 			return true, nil
+		}
+	}
+
+	return false, nil
+}
+
+func IsActiceClustersError(err error) (bool, error) {
+	parsedError, parseErr := ParseError(err)
+	if parseErr != nil {
+		return false, parseErr
+	}
+
+	for _, gqlError := range parsedError.GraphqlErrors {
+		if code, ok := gqlError.Extensions["code"]; ok && code == "CONFLICT" {
+			return strings.Contains(gqlError.Message, "forceDestroyClusters=true"), nil
 		}
 	}
 
