@@ -33,6 +33,6 @@ func GenerateRandomEnvName() string {
 }
 
 // randIntRange returns a random integer between min (inclusive) and max (exclusive).
-func randIntRange(rng *rand.Rand, min, max int) int {
-	return min + rng.Intn(max-min)
+func randIntRange(rng *rand.Rand, minVal, maxVal int) int {
+	return minVal + rng.Intn(maxVal-minVal)
 }
