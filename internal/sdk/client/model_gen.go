@@ -864,6 +864,8 @@ type CreateK8SEnvSpecInput struct {
 	CustomNodeTypes []*K8SEnvCustomNodeTypeSpecInput `json:"customNodeTypes,omitempty"`
 	// Metrics configuration.
 	Metrics *K8SEnvMetricsSpecInput `json:"metrics,omitempty"`
+	// Coroot configuration.
+	Coroot *K8SEnvCorootSpecInput `json:"coroot,omitempty"`
 	// Logs configuration.
 	Logs *K8SEnvLogsSpecInput `json:"logs,omitempty"`
 	// List of maintenance windows during which automatic maintenance is permitted.
@@ -1171,6 +1173,18 @@ type K8SEnv struct {
 	Status *K8SEnvStatus `json:"status"`
 }
 
+// Kubernetes environment Coroot configuration.
+type K8SEnvCorootSpec struct {
+	// True if Coroot is enabled, false otherwise.
+	Enabled *bool `json:"enabled,omitempty"`
+}
+
+// Kubernetes environment coroot configuration input.
+type K8SEnvCorootSpecInput struct {
+	// Enable coroot
+	Enabled *bool `json:"enabled,omitempty"`
+}
+
 // Kubernetes custom node type configuration.
 type K8SEnvCustomNodeTypeSpec struct {
 	// Custom node type unique identifier.
@@ -1384,6 +1398,8 @@ type K8SEnvSpec struct {
 	CustomNodeTypes []*K8SEnvCustomNodeTypeSpec `json:"customNodeTypes"`
 	// Metrics configuration.
 	Metrics *K8SEnvMetricsSpec `json:"metrics"`
+	// Coroot configuration.
+	Coroot *K8SEnvCorootSpec `json:"coroot,omitempty"`
 	// Logs configuration.
 	Logs *K8SEnvLogsSpec `json:"logs"`
 	// List of maintenance windows during which automatic maintenance is permitted.
@@ -1700,6 +1716,8 @@ type UpdateK8SEnvSpecInput struct {
 	CustomNodeTypes []*K8SEnvCustomNodeTypeSpecInput `json:"customNodeTypes,omitempty"`
 	// Metrics configuration.
 	Metrics *K8SEnvMetricsSpecInput `json:"metrics,omitempty"`
+	// Coroot configuration.
+	Coroot *K8SEnvCorootSpecInput `json:"coroot,omitempty"`
 	// Logs configuration.
 	Logs *K8SEnvLogsSpecInput `json:"logs,omitempty"`
 	// List of maintenance windows during which automatic maintenance is permitted.
