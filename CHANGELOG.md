@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.8](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.2.7...v0.2.8)
+
+### Added
+- Friendly error message when deleting env with active clusters [6a4f437](https://github.com/Altinity/terraform-provider-altinitycloud/commit/6a4f437).
+
+### Changed
+- Bump github.com/hashicorp/terraform-plugin-framework to `1.11.0` [#87](https://github.com/Altinity/terraform-provider-altinitycloud/pull/87).
+- Bump github.com/hashicorp/terraform-plugin-testing to `1.10.0` [#84](https://github.com/Altinity/terraform-provider-altinitycloud/pull/84).
+- Bump github.com/Yamashou/gqlgenc to `0.24.0` [#88](https://github.com/Altinity/terraform-provider-altinitycloud/pull/88).
+- Sync GraphQL schema with the latest version [c26a7e9](https://github.com/Altinity/terraform-provider-altinitycloud/commit/c26a7e9).
+- Add resource force-replacement warning to the `name` property on environment resources [4a6c731](https://github.com/Altinity/terraform-provider-altinitycloud/commit/4a6c731).
+- Don't allow to set empty region on environment resources [86ae9da](https://github.com/Altinity/terraform-provider-altinitycloud/commit/86ae9da).
+
 ## [0.2.7](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.2.6...v0.2.7)
 
 ### Changed
