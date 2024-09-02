@@ -81,7 +81,10 @@ data "altinitycloud_env_azure_status" "this" {
 		Examples:
 		- "10.136.0.0/21"
 		- "172.20.0.0/21"
-- `name` (String) A globally-unique environment identifier. All environment names must start with your account name as prefix. **[IMMUTABLE]**
+- `name` (String) A globally-unique environment identifier. **[IMMUTABLE]**
+
+		- All environment names must start with your account name as prefix.
+		- ⚠️ Changing environment name after creation will force a resource replacement.
 
 		Examples:
 		- "acme-staging" (where "acme" is your account name)

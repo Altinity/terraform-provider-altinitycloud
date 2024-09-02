@@ -2,7 +2,10 @@ package common
 
 // Shared descriptions.
 const ID_DESCRIPTION = "ID of the environment (automatically generated based on the name)"
-const NAME_DESCRIPTION = `A globally-unique environment identifier. All environment names must start with your account name as prefix. **[IMMUTABLE]**
+const NAME_DESCRIPTION = `A globally-unique environment identifier. **[IMMUTABLE]**
+
+		- All environment names must start with your account name as prefix.
+		- ⚠️ Changing environment name after creation will force a resource replacement.
 
 		Examples:
 		- "acme-staging" (where "acme" is your account name)

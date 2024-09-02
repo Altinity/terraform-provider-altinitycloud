@@ -90,7 +90,10 @@ data "altinitycloud_env_gcp_status" "this" {
 		- "10.136.0.0/21"
 		- "172.20.0.0/21"
 - `gcp_project_id` (String) ID of the GCP project ([docs](https://support.google.com/googleapi/answer/7014113?hl=en#:~:text=The%20project%20ID%20is%20a,ID%20or%20create%20your%20own.)) in which to provision GCP resources. **[IMMUTABLE]**
-- `name` (String) A globally-unique environment identifier. All environment names must start with your account name as prefix. **[IMMUTABLE]**
+- `name` (String) A globally-unique environment identifier. **[IMMUTABLE]**
+
+		- All environment names must start with your account name as prefix.
+		- ⚠️ Changing environment name after creation will force a resource replacement.
 
 		Examples:
 		- "acme-staging" (where "acme" is your account name)

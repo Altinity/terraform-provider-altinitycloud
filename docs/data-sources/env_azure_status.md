@@ -53,7 +53,10 @@ data "altinitycloud_env_aws_status" "current" {
 
 ### Required
 
-- `name` (String) A globally-unique environment identifier. All environment names must start with your account name as prefix. **[IMMUTABLE]**
+- `name` (String) A globally-unique environment identifier. **[IMMUTABLE]**
+
+		- All environment names must start with your account name as prefix.
+		- ⚠️ Changing environment name after creation will force a resource replacement.
 
 		Examples:
 		- "acme-staging" (where "acme" is your account name)
