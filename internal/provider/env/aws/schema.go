@@ -2,11 +2,13 @@ package env
 
 import (
 	"context"
+	"regexp"
 
 	"github.com/MakeNowJust/heredoc/v2"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/provider/common"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/provider/modifiers"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	dschema "github.com/hashicorp/terraform-plugin-framework/datasource/schema"
@@ -133,6 +135,10 @@ func getAWSAccountIDAttribute(required, optional, computed bool) rschema.StringA
 		MarkdownDescription: common.AWS_ACCOUNT_ID_DESCRIPTION,
 		PlanModifiers: []planmodifier.String{
 			modifiers.ImmutableString("aws_account_id"),
+		},
+		Validators: []validator.String{
+			stringvalidator.RegexMatches(regexp.MustCompile(`^\d{12}$`),
+				"must be a 12-digit number"),
 		},
 	}
 }
