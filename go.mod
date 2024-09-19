@@ -1,12 +1,12 @@
 module github.com/altinity/terraform-provider-altinitycloud
 
-go 1.22
+go 1.22.0
 toolchain go1.22.5
 
 require (
 	github.com/Yamashou/gqlgenc v0.25.0
 	github.com/hashicorp/terraform-plugin-docs v0.19.4
-	github.com/hashicorp/terraform-plugin-framework v1.11.0
+	github.com/hashicorp/terraform-plugin-framework v1.12.0
 	github.com/hashicorp/terraform-plugin-go v0.24.0
 	github.com/hashicorp/terraform-plugin-log v0.9.0
 	golang.org/x/net v0.26.0 // indirect
