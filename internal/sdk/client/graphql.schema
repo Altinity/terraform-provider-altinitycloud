@@ -2212,10 +2212,6 @@ type K8SEnvSpec {
   """
   metrics: K8SEnvMetricsSpec!
   """
-  Coroot configuration.
-  """
-  coroot: K8SEnvCorootSpec
-  """
   Logs configuration.
   """
   logs: K8SEnvLogsSpec!
@@ -2390,17 +2386,6 @@ type K8SEnvMetricsSpec {
 }
 
 """
-Kubernetes environment Coroot configuration.
-"""
-type K8SEnvCorootSpec {
-  """
-  True if Coroot is enabled, false otherwise.
-  """
-  enabled: Boolean
-}
-
-
-"""
 Kubernetes environment logs configuration.
 """
 type K8SEnvLogsSpec {
@@ -2532,10 +2517,6 @@ input CreateK8SEnvSpecInput {
   Metrics configuration.
   """
   metrics: K8SEnvMetricsSpecInput
-  """
-  Coroot configuration.
-  """
-  coroot: K8SEnvCorootSpecInput
   """
   Logs configuration.
   """
@@ -2699,16 +2680,6 @@ input K8SEnvMetricsSpecInput {
 }
 
 """
-Kubernetes environment coroot configuration input.
-"""
-input K8SEnvCorootSpecInput {
-  """
-  Enable coroot
-  """
-  enabled: Boolean
-}
-
-"""
 Kubernetes environment logs configuration input.
 """
 input K8SEnvLogsSpecInput {
@@ -2867,10 +2838,6 @@ input UpdateK8SEnvSpecInput {
   Metrics configuration.
   """
   metrics: K8SEnvMetricsSpecInput
-  """
-  Coroot configuration.
-  """
-  coroot: K8SEnvCorootSpecInput
   """
   Logs configuration.
   """
