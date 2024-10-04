@@ -109,6 +109,7 @@ func (r *AWSEnvResource) Read(ctx context.Context, req resource.ReadRequest, res
 	}
 
 	data.toModel(*apiResp.AwsEnv)
+	data.Id = data.Name
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
 }

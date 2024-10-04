@@ -110,6 +110,7 @@ func (r *AzureEnvResource) Read(ctx context.Context, req resource.ReadRequest, r
 	}
 
 	data.toModel(*apiResp.AzureEnv)
+	data.Id = data.Name
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
 }

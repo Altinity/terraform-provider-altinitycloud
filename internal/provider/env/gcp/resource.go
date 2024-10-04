@@ -110,6 +110,7 @@ func (r *GCPEnvResource) Read(ctx context.Context, req resource.ReadRequest, res
 	}
 
 	data.toModel(*apiResp.GcpEnv)
+	data.Id = data.Name
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
 }
