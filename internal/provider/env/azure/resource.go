@@ -218,7 +218,7 @@ func (r *AzureEnvResource) Delete(ctx context.Context, req resource.DeleteReques
 }
 
 func (r *AzureEnvResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
+	common.Import(ctx, req, resp)
 }
 
 func (r AzureEnvResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {

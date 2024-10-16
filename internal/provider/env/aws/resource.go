@@ -218,7 +218,7 @@ func (r *AWSEnvResource) Delete(ctx context.Context, req resource.DeleteRequest,
 }
 
 func (r *AWSEnvResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
+	common.Import(ctx, req, resp)
 }
 
 func (r AWSEnvResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {

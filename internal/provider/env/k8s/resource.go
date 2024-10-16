@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	common "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env/common"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk"
@@ -215,7 +216,7 @@ func (r *K8SEnvResource) Delete(ctx context.Context, req resource.DeleteRequest,
 }
 
 func (r *K8SEnvResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
+	common.Import(ctx, req, resp)
 }
 
 func (r K8SEnvResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
