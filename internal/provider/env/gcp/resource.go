@@ -11,15 +11,12 @@ import (
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/auth"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/client"
-	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 var _ resource.Resource = &GCPEnvResource{}
 var _ resource.ResourceWithImportState = &GCPEnvResource{}
-var DELETE_TIMEOUT = time.Duration(60) * time.Minute
-var DELETE_POLL_INTERVAL = 30 * time.Second
 
 func NewGCPEnvResource() resource.Resource {
 	return &GCPEnvResource{}
@@ -159,7 +156,7 @@ func (r *GCPEnvResource) Delete(ctx context.Context, req resource.DeleteRequest,
 		return
 	}
 
-	_, err := r.client.DeleteGCPEnv(ctx, client.DeleteGCPEnvInput{
+	apiResp, err := r.client.DeleteGCPEnv(ctx, client.DeleteGCPEnvInput{
 		Name:                 envName,
 		Force:                data.SkipDeprovisionOnDestroy.ValueBoolPointer(),
 		ForceDestroyClusters: data.ForceDestroyClusters.ValueBoolPointer(),
@@ -176,7 +173,8 @@ func (r *GCPEnvResource) Delete(ctx context.Context, req resource.DeleteRequest,
 		return
 	}
 
-	_, err = r.client.GetGCPEnv(ctx, envName)
+	pendingMfa := apiResp.DeleteGCPEnv.PendingMfa
+	_, err = r.client.GetGCPEnvStatus(ctx, envName)
 	if err != nil {
 		notFound, _ := client.IsNotFoundError(err)
 		if notFound {
@@ -188,8 +186,9 @@ func (r *GCPEnvResource) Delete(ctx context.Context, req resource.DeleteRequest,
 	}
 
 	// Polling to wait for deletion to complete
-	timeout := time.After(DELETE_TIMEOUT)
-	ticker := time.NewTicker(DELETE_POLL_INTERVAL)
+	mfaTimeout := time.After(common.MFA_TIMEOUT)
+	deleteTimeout := time.After(common.DELETE_TIMEOUT)
+	ticker := time.NewTicker(common.DELETE_POLL_INTERVAL)
 	defer ticker.Stop()
 
 	for {
@@ -197,12 +196,18 @@ func (r *GCPEnvResource) Delete(ctx context.Context, req resource.DeleteRequest,
 		case <-ctx.Done():
 			resp.Diagnostics.AddError("Context Cancelled", "The context was cancelled, stopping env deletion.")
 			return
-		case <-timeout:
+		case <-mfaTimeout:
+			if pendingMfa {
+				resp.Diagnostics.AddError("MFA Timeout", "Timeout reached while waiting for MFA to be confirmed.\nPlease check your MFA device, confirm deletion and run `terraform destroy` again.")
+				return
+			}
+		case <-deleteTimeout:
 			resp.Diagnostics.AddError("Timeout", "Timeout reached while waiting for env to be deleted.")
 			return
 		case <-ticker.C:
 			tflog.Trace(ctx, "checking if env was deleted", map[string]interface{}{"name": envName})
-			_, err := r.client.GetGCPEnv(ctx, envName)
+			envStatus, err := r.client.GetGCPEnvStatus(ctx, envName)
+			pendingMfa = !envStatus.GcpEnv.Status.PendingDelete
 
 			if err != nil {
 				notFound, err := client.IsNotFoundError(err)
@@ -222,12 +227,5 @@ func (r *GCPEnvResource) ImportState(ctx context.Context, req resource.ImportSta
 }
 
 func (r GCPEnvResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	if req.Plan.Raw.IsNull() {
-		var skipDeprovision types.Bool
-		req.State.GetAttribute(ctx, path.Root("skip_deprovision_on_destroy"), &skipDeprovision)
-
-		if skipDeprovision.ValueBool() {
-			resp.Diagnostics.AddAttributeWarning(path.Root("skip_deprovision_on_destroy"), "Skip Deprovision on Destroy", "This resource is using the 'skip_deprovision_on_destroy'.\nUse this with precaution as it will delete the environment without deleting any of your cloud resources.")
-		}
-	}
+	common.ModifyPlan(ctx, req, resp)
 }
