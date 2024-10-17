@@ -8,8 +8,6 @@ import (
 	common "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env/common"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
-	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk"
-	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/auth"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/client"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -23,32 +21,11 @@ func NewK8SEnvResource() resource.Resource {
 }
 
 type K8SEnvResource struct {
-	client *client.Client
-	auth   *auth.Auth
+	common.EnvResourceBase
 }
 
 func (r *K8SEnvResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_env_k8s"
-}
-
-func (r *K8SEnvResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
-	if req.ProviderData == nil {
-		return
-	}
-
-	sdk, ok := req.ProviderData.(*sdk.AltinityCloudSDK)
-
-	if !ok {
-		resp.Diagnostics.AddError(
-			"Unexpected Resource Configure Type",
-			fmt.Sprintf("Expected *sdk.AltinityCloudSDK, got: %T. Please report this issue to the provider developers.", req.ProviderData),
-		)
-
-		return
-	}
-
-	r.client = sdk.Client
-	r.auth = sdk.Auth
 }
 
 func (r *K8SEnvResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
@@ -64,7 +41,7 @@ func (r *K8SEnvResource) Create(ctx context.Context, req resource.CreateRequest,
 	tflog.Trace(ctx, "creating resource", map[string]interface{}{"name": name})
 
 	sdkEnv, _ := data.toSDK()
-	apiResp, err := r.client.CreateK8SEnv(ctx, sdkEnv)
+	apiResp, err := r.Client.CreateK8SEnv(ctx, sdkEnv)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create env %s, got error: %s", name, err))
@@ -93,7 +70,7 @@ func (r *K8SEnvResource) Read(ctx context.Context, req resource.ReadRequest, res
 
 	envName := data.Name.ValueString()
 	tflog.Trace(ctx, "getting environment", map[string]interface{}{"name": envName})
-	apiResp, err := r.client.GetK8SEnv(ctx, envName)
+	apiResp, err := r.Client.GetK8SEnv(ctx, envName)
 
 	if err != nil {
 		notFound, _ := client.IsNotFoundError(err)
@@ -125,7 +102,7 @@ func (r *K8SEnvResource) Update(ctx context.Context, req resource.UpdateRequest,
 	tflog.Trace(ctx, "updating resource", map[string]interface{}{"name": name})
 
 	_, sdkEnv := data.toSDK()
-	apiResp, err := r.client.UpdateK8SEnv(ctx, sdkEnv)
+	apiResp, err := r.Client.UpdateK8SEnv(ctx, sdkEnv)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update env %s, got error: %s", name, err))
@@ -155,7 +132,7 @@ func (r *K8SEnvResource) Delete(ctx context.Context, req resource.DeleteRequest,
 		return
 	}
 
-	apiResp, err := r.client.DeleteK8SEnv(ctx, client.DeleteK8SEnvInput{
+	apiResp, err := r.Client.DeleteK8SEnv(ctx, client.DeleteK8SEnvInput{
 		Name:                 envName,
 		Force:                data.SkipDeprovisionOnDestroy.ValueBoolPointer(),
 		ForceDestroyClusters: data.ForceDestroyClusters.ValueBoolPointer(),
@@ -173,7 +150,7 @@ func (r *K8SEnvResource) Delete(ctx context.Context, req resource.DeleteRequest,
 	}
 
 	pendingMfa := apiResp.DeleteK8SEnv.PendingMfa
-	_, err = r.client.GetK8SEnvStatus(ctx, envName)
+	_, err = r.Client.GetK8SEnvStatus(ctx, envName)
 	if err != nil {
 		notFound, err := client.IsNotFoundError(err)
 		if notFound {
@@ -205,7 +182,7 @@ func (r *K8SEnvResource) Delete(ctx context.Context, req resource.DeleteRequest,
 			return
 		case <-ticker.C:
 			tflog.Trace(ctx, "checking if env was deleted", map[string]interface{}{"name": envName})
-			envStatus, err := r.client.GetK8SEnvStatus(ctx, envName)
+			envStatus, err := r.Client.GetK8SEnvStatus(ctx, envName)
 			pendingMfa = !envStatus.K8sEnv.Status.PendingDelete
 
 			if err != nil {
@@ -219,12 +196,4 @@ func (r *K8SEnvResource) Delete(ctx context.Context, req resource.DeleteRequest,
 			}
 		}
 	}
-}
-
-func (r *K8SEnvResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	common.Import(ctx, req, resp)
-}
-
-func (r K8SEnvResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	common.ModifyPlan(ctx, req, resp)
 }

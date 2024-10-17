@@ -8,8 +8,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
 	common "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env/common"
-	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk"
-	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/auth"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/client"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -23,32 +21,11 @@ func NewAzureEnvResource() resource.Resource {
 }
 
 type AzureEnvResource struct {
-	client *client.Client
-	auth   *auth.Auth
+	common.EnvResourceBase
 }
 
 func (r *AzureEnvResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_env_azure"
-}
-
-func (r *AzureEnvResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
-	if req.ProviderData == nil {
-		return
-	}
-
-	sdk, ok := req.ProviderData.(*sdk.AltinityCloudSDK)
-
-	if !ok {
-		resp.Diagnostics.AddError(
-			"Unexpected Resource Configure Type",
-			fmt.Sprintf("Expected *http.Client, got: %T. Please report this issue to the provider developers.", req.ProviderData),
-		)
-
-		return
-	}
-
-	r.client = sdk.Client
-	r.auth = sdk.Auth
 }
 
 func (r *AzureEnvResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
@@ -65,7 +42,7 @@ func (r *AzureEnvResource) Create(ctx context.Context, req resource.CreateReques
 
 	sdkEnv, _ := data.toSDK()
 
-	apiResp, err := r.client.CreateAzureEnv(ctx, sdkEnv)
+	apiResp, err := r.Client.CreateAzureEnv(ctx, sdkEnv)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create env %s, got error: %s", name, err))
@@ -93,7 +70,7 @@ func (r *AzureEnvResource) Read(ctx context.Context, req resource.ReadRequest, r
 
 	envName := data.Name.ValueString()
 	tflog.Trace(ctx, "getting environment", map[string]interface{}{"name": envName})
-	apiResp, err := r.client.GetAzureEnv(ctx, envName)
+	apiResp, err := r.Client.GetAzureEnv(ctx, envName)
 
 	if err != nil {
 		notFound, _ := client.IsNotFoundError(err)
@@ -125,7 +102,7 @@ func (r *AzureEnvResource) Update(ctx context.Context, req resource.UpdateReques
 	tflog.Trace(ctx, "updating resource", map[string]interface{}{"name": name})
 
 	_, sdkEnv := data.toSDK()
-	apiResp, err := r.client.UpdateAzureEnv(ctx, sdkEnv)
+	apiResp, err := r.Client.UpdateAzureEnv(ctx, sdkEnv)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update env %s, got error: %s", name, err))
@@ -156,7 +133,7 @@ func (r *AzureEnvResource) Delete(ctx context.Context, req resource.DeleteReques
 		return
 	}
 
-	apiResp, err := r.client.DeleteAzureEnv(ctx, client.DeleteAzureEnvInput{
+	apiResp, err := r.Client.DeleteAzureEnv(ctx, client.DeleteAzureEnvInput{
 		Name:                 envName,
 		Force:                data.SkipDeprovisionOnDestroy.ValueBoolPointer(),
 		ForceDestroyClusters: data.ForceDestroyClusters.ValueBoolPointer(),
@@ -174,7 +151,7 @@ func (r *AzureEnvResource) Delete(ctx context.Context, req resource.DeleteReques
 	}
 
 	pendingMfa := apiResp.DeleteAzureEnv.PendingMfa
-	_, err = r.client.GetAzureEnvStatus(ctx, envName)
+	_, err = r.Client.GetAzureEnvStatus(ctx, envName)
 	if err != nil {
 		notFound, err := client.IsNotFoundError(err)
 		if notFound {
@@ -206,7 +183,7 @@ func (r *AzureEnvResource) Delete(ctx context.Context, req resource.DeleteReques
 			return
 		case <-ticker.C:
 			tflog.Trace(ctx, "checking if env was deleted", map[string]interface{}{"name": envName})
-			envStatus, err := r.client.GetAzureEnvStatus(ctx, envName)
+			envStatus, err := r.Client.GetAzureEnvStatus(ctx, envName)
 			pendingMfa = !envStatus.AzureEnv.Status.PendingDelete
 
 			if err != nil {
@@ -220,12 +197,4 @@ func (r *AzureEnvResource) Delete(ctx context.Context, req resource.DeleteReques
 			}
 		}
 	}
-}
-
-func (r *AzureEnvResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	common.Import(ctx, req, resp)
-}
-
-func (r AzureEnvResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	common.ModifyPlan(ctx, req, resp)
 }

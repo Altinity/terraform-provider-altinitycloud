@@ -8,8 +8,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
 	common "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env/common"
-	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk"
-	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/auth"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/client"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -23,32 +21,11 @@ func NewGCPEnvResource() resource.Resource {
 }
 
 type GCPEnvResource struct {
-	client *client.Client
-	auth   *auth.Auth
+	common.EnvResourceBase
 }
 
 func (r *GCPEnvResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_env_gcp"
-}
-
-func (r *GCPEnvResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
-	if req.ProviderData == nil {
-		return
-	}
-
-	sdk, ok := req.ProviderData.(*sdk.AltinityCloudSDK)
-
-	if !ok {
-		resp.Diagnostics.AddError(
-			"Unexpected Resource Configure Type",
-			fmt.Sprintf("Expected *http.Client, got: %T. Please report this issue to the provider developers.", req.ProviderData),
-		)
-
-		return
-	}
-
-	r.client = sdk.Client
-	r.auth = sdk.Auth
 }
 
 func (r *GCPEnvResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
@@ -65,7 +42,7 @@ func (r *GCPEnvResource) Create(ctx context.Context, req resource.CreateRequest,
 
 	sdkEnv, _ := data.toSDK()
 
-	apiResp, err := r.client.CreateGCPEnv(ctx, sdkEnv)
+	apiResp, err := r.Client.CreateGCPEnv(ctx, sdkEnv)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create env %s, got error: %s", name, err))
@@ -93,7 +70,7 @@ func (r *GCPEnvResource) Read(ctx context.Context, req resource.ReadRequest, res
 
 	envName := data.Name.ValueString()
 	tflog.Trace(ctx, "getting environment", map[string]interface{}{"name": envName})
-	apiResp, err := r.client.GetGCPEnv(ctx, envName)
+	apiResp, err := r.Client.GetGCPEnv(ctx, envName)
 
 	if err != nil {
 		notFound, _ := client.IsNotFoundError(err)
@@ -125,7 +102,7 @@ func (r *GCPEnvResource) Update(ctx context.Context, req resource.UpdateRequest,
 	tflog.Trace(ctx, "updating resource", map[string]interface{}{"name": name})
 
 	_, sdkEnv := data.toSDK()
-	apiResp, err := r.client.UpdateGCPEnv(ctx, sdkEnv)
+	apiResp, err := r.Client.UpdateGCPEnv(ctx, sdkEnv)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update env %s, got error: %s", name, err))
@@ -156,7 +133,7 @@ func (r *GCPEnvResource) Delete(ctx context.Context, req resource.DeleteRequest,
 		return
 	}
 
-	apiResp, err := r.client.DeleteGCPEnv(ctx, client.DeleteGCPEnvInput{
+	apiResp, err := r.Client.DeleteGCPEnv(ctx, client.DeleteGCPEnvInput{
 		Name:                 envName,
 		Force:                data.SkipDeprovisionOnDestroy.ValueBoolPointer(),
 		ForceDestroyClusters: data.ForceDestroyClusters.ValueBoolPointer(),
@@ -174,7 +151,7 @@ func (r *GCPEnvResource) Delete(ctx context.Context, req resource.DeleteRequest,
 	}
 
 	pendingMfa := apiResp.DeleteGCPEnv.PendingMfa
-	_, err = r.client.GetGCPEnvStatus(ctx, envName)
+	_, err = r.Client.GetGCPEnvStatus(ctx, envName)
 	if err != nil {
 		notFound, _ := client.IsNotFoundError(err)
 		if notFound {
@@ -206,7 +183,7 @@ func (r *GCPEnvResource) Delete(ctx context.Context, req resource.DeleteRequest,
 			return
 		case <-ticker.C:
 			tflog.Trace(ctx, "checking if env was deleted", map[string]interface{}{"name": envName})
-			envStatus, err := r.client.GetGCPEnvStatus(ctx, envName)
+			envStatus, err := r.Client.GetGCPEnvStatus(ctx, envName)
 			pendingMfa = !envStatus.GcpEnv.Status.PendingDelete
 
 			if err != nil {
@@ -220,12 +197,4 @@ func (r *GCPEnvResource) Delete(ctx context.Context, req resource.DeleteRequest,
 			}
 		}
 	}
-}
-
-func (r *GCPEnvResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	common.Import(ctx, req, resp)
-}
-
-func (r GCPEnvResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	common.ModifyPlan(ctx, req, resp)
 }

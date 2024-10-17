@@ -8,8 +8,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
 	common "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env/common"
-	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk"
-	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/auth"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/client"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -23,32 +21,11 @@ func NewAWSEnvResource() resource.Resource {
 }
 
 type AWSEnvResource struct {
-	client *client.Client
-	auth   *auth.Auth
+	common.EnvResourceBase
 }
 
 func (r *AWSEnvResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_env_aws"
-}
-
-func (r *AWSEnvResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
-	if req.ProviderData == nil {
-		return
-	}
-
-	sdk, ok := req.ProviderData.(*sdk.AltinityCloudSDK)
-
-	if !ok {
-		resp.Diagnostics.AddError(
-			"Unexpected Resource Configure Type",
-			fmt.Sprintf("Expected *http.Client, got: %T. Please report this issue to the provider developers.", req.ProviderData),
-		)
-
-		return
-	}
-
-	r.client = sdk.Client
-	r.auth = sdk.Auth
 }
 
 func (r *AWSEnvResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
@@ -64,7 +41,7 @@ func (r *AWSEnvResource) Create(ctx context.Context, req resource.CreateRequest,
 	tflog.Trace(ctx, "creating resource", map[string]interface{}{"name": envName})
 
 	sdkEnv, _ := data.toSDK()
-	apiResp, err := r.client.CreateAWSEnv(ctx, sdkEnv)
+	apiResp, err := r.Client.CreateAWSEnv(ctx, sdkEnv)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create env %s, got error: %s", envName, err))
@@ -92,7 +69,7 @@ func (r *AWSEnvResource) Read(ctx context.Context, req resource.ReadRequest, res
 
 	envName := data.Name.ValueString()
 	tflog.Trace(ctx, "getting environment", map[string]interface{}{"name": envName})
-	apiResp, err := r.client.GetAWSEnv(ctx, envName)
+	apiResp, err := r.Client.GetAWSEnv(ctx, envName)
 
 	if err != nil {
 		notFound, _ := client.IsNotFoundError(err)
@@ -124,7 +101,7 @@ func (r *AWSEnvResource) Update(ctx context.Context, req resource.UpdateRequest,
 	tflog.Trace(ctx, "updating resource", map[string]interface{}{"name": envName})
 
 	_, sdkEnv := data.toSDK()
-	apiResp, err := r.client.UpdateAWSEnv(ctx, sdkEnv)
+	apiResp, err := r.Client.UpdateAWSEnv(ctx, sdkEnv)
 
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update env %s, got error: %s", envName, err))
@@ -156,7 +133,7 @@ func (r *AWSEnvResource) Delete(ctx context.Context, req resource.DeleteRequest,
 		return
 	}
 
-	apiResp, err := r.client.DeleteAWSEnv(ctx, client.DeleteAWSEnvInput{
+	apiResp, err := r.Client.DeleteAWSEnv(ctx, client.DeleteAWSEnvInput{
 		Name:                 envName,
 		Force:                data.SkipDeprovisionOnDestroy.ValueBoolPointer(),
 		ForceDestroyClusters: data.ForceDestroyClusters.ValueBoolPointer(),
@@ -174,7 +151,7 @@ func (r *AWSEnvResource) Delete(ctx context.Context, req resource.DeleteRequest,
 	}
 
 	pendingMfa := apiResp.DeleteAWSEnv.PendingMfa
-	_, err = r.client.GetAWSEnvStatus(ctx, envName)
+	_, err = r.Client.GetAWSEnvStatus(ctx, envName)
 	if err != nil {
 		notFound, _ := client.IsNotFoundError(err)
 		if notFound {
@@ -206,7 +183,7 @@ func (r *AWSEnvResource) Delete(ctx context.Context, req resource.DeleteRequest,
 			}
 		case <-ticker.C:
 			tflog.Trace(ctx, "checking if env was deleted", map[string]interface{}{"name": envName})
-			envStatus, err := r.client.GetAWSEnvStatus(ctx, envName)
+			envStatus, err := r.Client.GetAWSEnvStatus(ctx, envName)
 			pendingMfa = !envStatus.AwsEnv.Status.PendingDelete
 
 			if err != nil {
@@ -220,12 +197,4 @@ func (r *AWSEnvResource) Delete(ctx context.Context, req resource.DeleteRequest,
 			}
 		}
 	}
-}
-
-func (r *AWSEnvResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	common.Import(ctx, req, resp)
-}
-
-func (r AWSEnvResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
-	common.ModifyPlan(ctx, req, resp)
 }
