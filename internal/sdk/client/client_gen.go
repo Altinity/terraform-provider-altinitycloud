@@ -1474,11 +1474,30 @@ func (t *GetAWSEnvStatus_AwsEnv_Status_PeeringConnections) GetVpcID() string {
 	return t.VpcID
 }
 
+type GetAWSEnvStatus_AwsEnv_Status_Errors struct {
+	Code    EnvStatusErrorCode "json:\"code\" graphql:\"code\""
+	Message string             "json:\"message\" graphql:\"message\""
+}
+
+func (t *GetAWSEnvStatus_AwsEnv_Status_Errors) GetCode() *EnvStatusErrorCode {
+	if t == nil {
+		t = &GetAWSEnvStatus_AwsEnv_Status_Errors{}
+	}
+	return &t.Code
+}
+func (t *GetAWSEnvStatus_AwsEnv_Status_Errors) GetMessage() string {
+	if t == nil {
+		t = &GetAWSEnvStatus_AwsEnv_Status_Errors{}
+	}
+	return t.Message
+}
+
 type GetAWSEnvStatus_AwsEnv_Status struct {
 	AppliedSpecRevision int64                                               "json:\"appliedSpecRevision\" graphql:\"appliedSpecRevision\""
 	PendingDelete       bool                                                "json:\"pendingDelete\" graphql:\"pendingDelete\""
 	LoadBalancers       GetAWSEnvStatus_AwsEnv_Status_LoadBalancers         "json:\"loadBalancers\" graphql:\"loadBalancers\""
 	PeeringConnections  []*GetAWSEnvStatus_AwsEnv_Status_PeeringConnections "json:\"peeringConnections\" graphql:\"peeringConnections\""
+	Errors              []*GetAWSEnvStatus_AwsEnv_Status_Errors             "json:\"errors\" graphql:\"errors\""
 }
 
 func (t *GetAWSEnvStatus_AwsEnv_Status) GetAppliedSpecRevision() int64 {
@@ -1504,6 +1523,12 @@ func (t *GetAWSEnvStatus_AwsEnv_Status) GetPeeringConnections() []*GetAWSEnvStat
 		t = &GetAWSEnvStatus_AwsEnv_Status{}
 	}
 	return t.PeeringConnections
+}
+func (t *GetAWSEnvStatus_AwsEnv_Status) GetErrors() []*GetAWSEnvStatus_AwsEnv_Status_Errors {
+	if t == nil {
+		t = &GetAWSEnvStatus_AwsEnv_Status{}
+	}
+	return t.Errors
 }
 
 type GetAWSEnvStatus_AwsEnv struct {
@@ -2235,10 +2260,29 @@ func (t *GetAzureEnvStatus_AzureEnv_Status_LoadBalancers) GetInternal() *GetAzur
 	return &t.Internal
 }
 
+type GetAzureEnvStatus_AzureEnv_Status_Errors struct {
+	Code    EnvStatusErrorCode "json:\"code\" graphql:\"code\""
+	Message string             "json:\"message\" graphql:\"message\""
+}
+
+func (t *GetAzureEnvStatus_AzureEnv_Status_Errors) GetCode() *EnvStatusErrorCode {
+	if t == nil {
+		t = &GetAzureEnvStatus_AzureEnv_Status_Errors{}
+	}
+	return &t.Code
+}
+func (t *GetAzureEnvStatus_AzureEnv_Status_Errors) GetMessage() string {
+	if t == nil {
+		t = &GetAzureEnvStatus_AzureEnv_Status_Errors{}
+	}
+	return t.Message
+}
+
 type GetAzureEnvStatus_AzureEnv_Status struct {
 	AppliedSpecRevision int64                                           "json:\"appliedSpecRevision\" graphql:\"appliedSpecRevision\""
 	PendingDelete       bool                                            "json:\"pendingDelete\" graphql:\"pendingDelete\""
 	LoadBalancers       GetAzureEnvStatus_AzureEnv_Status_LoadBalancers "json:\"loadBalancers\" graphql:\"loadBalancers\""
+	Errors              []*GetAzureEnvStatus_AzureEnv_Status_Errors     "json:\"errors\" graphql:\"errors\""
 }
 
 func (t *GetAzureEnvStatus_AzureEnv_Status) GetAppliedSpecRevision() int64 {
@@ -2258,6 +2302,12 @@ func (t *GetAzureEnvStatus_AzureEnv_Status) GetLoadBalancers() *GetAzureEnvStatu
 		t = &GetAzureEnvStatus_AzureEnv_Status{}
 	}
 	return &t.LoadBalancers
+}
+func (t *GetAzureEnvStatus_AzureEnv_Status) GetErrors() []*GetAzureEnvStatus_AzureEnv_Status_Errors {
+	if t == nil {
+		t = &GetAzureEnvStatus_AzureEnv_Status{}
+	}
+	return t.Errors
 }
 
 type GetAzureEnvStatus_AzureEnv struct {
@@ -2832,9 +2882,28 @@ func (t *GetGCPEnv_GcpEnv) GetSpecRevision() int64 {
 	return t.SpecRevision
 }
 
+type GetGCPEnvStatus_GcpEnv_Status_Errors struct {
+	Code    EnvStatusErrorCode "json:\"code\" graphql:\"code\""
+	Message string             "json:\"message\" graphql:\"message\""
+}
+
+func (t *GetGCPEnvStatus_GcpEnv_Status_Errors) GetCode() *EnvStatusErrorCode {
+	if t == nil {
+		t = &GetGCPEnvStatus_GcpEnv_Status_Errors{}
+	}
+	return &t.Code
+}
+func (t *GetGCPEnvStatus_GcpEnv_Status_Errors) GetMessage() string {
+	if t == nil {
+		t = &GetGCPEnvStatus_GcpEnv_Status_Errors{}
+	}
+	return t.Message
+}
+
 type GetGCPEnvStatus_GcpEnv_Status struct {
-	AppliedSpecRevision int64 "json:\"appliedSpecRevision\" graphql:\"appliedSpecRevision\""
-	PendingDelete       bool  "json:\"pendingDelete\" graphql:\"pendingDelete\""
+	AppliedSpecRevision int64                                   "json:\"appliedSpecRevision\" graphql:\"appliedSpecRevision\""
+	PendingDelete       bool                                    "json:\"pendingDelete\" graphql:\"pendingDelete\""
+	Errors              []*GetGCPEnvStatus_GcpEnv_Status_Errors "json:\"errors\" graphql:\"errors\""
 }
 
 func (t *GetGCPEnvStatus_GcpEnv_Status) GetAppliedSpecRevision() int64 {
@@ -2848,6 +2917,12 @@ func (t *GetGCPEnvStatus_GcpEnv_Status) GetPendingDelete() bool {
 		t = &GetGCPEnvStatus_GcpEnv_Status{}
 	}
 	return t.PendingDelete
+}
+func (t *GetGCPEnvStatus_GcpEnv_Status) GetErrors() []*GetGCPEnvStatus_GcpEnv_Status_Errors {
+	if t == nil {
+		t = &GetGCPEnvStatus_GcpEnv_Status{}
+	}
+	return t.Errors
 }
 
 type GetGCPEnvStatus_GcpEnv struct {
@@ -3572,9 +3647,28 @@ func (t *GetK8SEnv_K8sEnv) GetSpecRevision() int64 {
 	return t.SpecRevision
 }
 
+type GetK8SEnvStatus_K8sEnv_Status_Errors struct {
+	Code    EnvStatusErrorCode "json:\"code\" graphql:\"code\""
+	Message string             "json:\"message\" graphql:\"message\""
+}
+
+func (t *GetK8SEnvStatus_K8sEnv_Status_Errors) GetCode() *EnvStatusErrorCode {
+	if t == nil {
+		t = &GetK8SEnvStatus_K8sEnv_Status_Errors{}
+	}
+	return &t.Code
+}
+func (t *GetK8SEnvStatus_K8sEnv_Status_Errors) GetMessage() string {
+	if t == nil {
+		t = &GetK8SEnvStatus_K8sEnv_Status_Errors{}
+	}
+	return t.Message
+}
+
 type GetK8SEnvStatus_K8sEnv_Status struct {
-	AppliedSpecRevision int64 "json:\"appliedSpecRevision\" graphql:\"appliedSpecRevision\""
-	PendingDelete       bool  "json:\"pendingDelete\" graphql:\"pendingDelete\""
+	AppliedSpecRevision int64                                   "json:\"appliedSpecRevision\" graphql:\"appliedSpecRevision\""
+	PendingDelete       bool                                    "json:\"pendingDelete\" graphql:\"pendingDelete\""
+	Errors              []*GetK8SEnvStatus_K8sEnv_Status_Errors "json:\"errors\" graphql:\"errors\""
 }
 
 func (t *GetK8SEnvStatus_K8sEnv_Status) GetAppliedSpecRevision() int64 {
@@ -3588,6 +3682,12 @@ func (t *GetK8SEnvStatus_K8sEnv_Status) GetPendingDelete() bool {
 		t = &GetK8SEnvStatus_K8sEnv_Status{}
 	}
 	return t.PendingDelete
+}
+func (t *GetK8SEnvStatus_K8sEnv_Status) GetErrors() []*GetK8SEnvStatus_K8sEnv_Status_Errors {
+	if t == nil {
+		t = &GetK8SEnvStatus_K8sEnv_Status{}
+	}
+	return t.Errors
 }
 
 type GetK8SEnvStatus_K8sEnv struct {
@@ -4676,6 +4776,10 @@ const GetAWSEnvStatusDocument = `query GetAWSEnvStatus ($name: String!) {
 				id
 				vpcID
 			}
+			errors {
+				code
+				message
+			}
 		}
 	}
 }
@@ -4958,6 +5062,10 @@ const GetAzureEnvStatusDocument = `query GetAzureEnvStatus ($name: String!) {
 					privateLinkServiceAlias
 				}
 			}
+			errors {
+				code
+				message
+			}
 		}
 	}
 }
@@ -5211,6 +5319,10 @@ const GetGCPEnvStatusDocument = `query GetGCPEnvStatus ($name: String!) {
 		status {
 			appliedSpecRevision
 			pendingDelete
+			errors {
+				code
+				message
+			}
 		}
 	}
 }
@@ -5481,6 +5593,10 @@ const GetK8SEnvStatusDocument = `query GetK8SEnvStatus ($name: String!) {
 		status {
 			appliedSpecRevision
 			pendingDelete
+			errors {
+				code
+				message
+			}
 		}
 	}
 }

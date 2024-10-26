@@ -302,6 +302,8 @@ type AWSEnvStatus struct {
 	PeeringConnections []*AWSEnvPeeringConnectionStatus `json:"peeringConnections"`
 	// True indicates that environment is pending deletion.
 	PendingDelete bool `json:"pendingDelete"`
+	// Status errors.
+	Errors []*EnvStatusError `json:"errors"`
 }
 
 // AWS environment configuration update request input.
@@ -555,6 +557,12 @@ type AzureEnvStatus struct {
 	LoadBalancers *AzureEnvLoadBalancersStatus `json:"loadBalancers"`
 	// True indicates that environment is pending deletion.
 	PendingDelete bool `json:"pendingDelete"`
+	// Status errors.
+	Errors []*EnvStatusError `json:"errors"`
+}
+
+type CodeGenEnvOutput struct {
+	Terraform string `json:"terraform"`
 }
 
 // AWS environment create request input.
@@ -970,6 +978,14 @@ type DeleteK8SEnvResult struct {
 	PendingMfa bool   `json:"pendingMFA"`
 }
 
+// Status error.
+type EnvStatusError struct {
+	// Status error code.
+	Code EnvStatusErrorCode `json:"code"`
+	// Status error message.
+	Message string `json:"message"`
+}
+
 // GCP environment.
 type GCPEnv struct {
 	// A globally-unique environment identifier.
@@ -1157,6 +1173,8 @@ type GCPEnvStatus struct {
 	AppliedSpecRevision int64 `json:"appliedSpecRevision"`
 	// True indicates that environment is pending deletion.
 	PendingDelete bool `json:"pendingDelete"`
+	// Status errors.
+	Errors []*EnvStatusError `json:"errors"`
 }
 
 // Kubernetes environment.
@@ -1436,6 +1454,8 @@ type K8SEnvStatus struct {
 	AppliedSpecRevision int64 `json:"appliedSpecRevision"`
 	// True indicates that environment is pending deletion.
 	PendingDelete bool `json:"pendingDelete"`
+	// Status errors.
+	Errors []*EnvStatusError `json:"errors"`
 }
 
 type KeyValue struct {
@@ -1771,6 +1791,52 @@ func (e *Day) UnmarshalGQL(v interface{}) error {
 }
 
 func (e Day) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+// Status error codes.
+type EnvStatusErrorCode string
+
+const (
+	EnvStatusErrorCodeInternal                   EnvStatusErrorCode = "INTERNAL"
+	EnvStatusErrorCodeDisconnected               EnvStatusErrorCode = "DISCONNECTED"
+	EnvStatusErrorCodeCloudProviderAccessDenied  EnvStatusErrorCode = "CLOUD_PROVIDER_ACCESS_DENIED"
+	EnvStatusErrorCodeCloudProviderQuotaExceeded EnvStatusErrorCode = "CLOUD_PROVIDER_QUOTA_EXCEEDED"
+)
+
+var AllEnvStatusErrorCode = []EnvStatusErrorCode{
+	EnvStatusErrorCodeInternal,
+	EnvStatusErrorCodeDisconnected,
+	EnvStatusErrorCodeCloudProviderAccessDenied,
+	EnvStatusErrorCodeCloudProviderQuotaExceeded,
+}
+
+func (e EnvStatusErrorCode) IsValid() bool {
+	switch e {
+	case EnvStatusErrorCodeInternal, EnvStatusErrorCodeDisconnected, EnvStatusErrorCodeCloudProviderAccessDenied, EnvStatusErrorCodeCloudProviderQuotaExceeded:
+		return true
+	}
+	return false
+}
+
+func (e EnvStatusErrorCode) String() string {
+	return string(e)
+}
+
+func (e *EnvStatusErrorCode) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = EnvStatusErrorCode(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid EnvStatusErrorCode", str)
+	}
+	return nil
+}
+
+func (e EnvStatusErrorCode) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 

@@ -15,6 +15,10 @@ query GetGCPEnvStatus($name: String!) {
     status {
       appliedSpecRevision
       pendingDelete
+      errors {
+        code
+        message
+      }
     }
   }
 }

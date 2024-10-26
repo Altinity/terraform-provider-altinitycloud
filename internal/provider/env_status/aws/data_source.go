@@ -108,6 +108,15 @@ func (d *AWSEnvStatusDataSource) Read(ctx context.Context, req datasource.ReadRe
 				return
 			}
 
+			if len(apiResp.AwsEnv.Status.Errors) > 0 {
+				var errorDetails string
+				for _, err := range apiResp.AwsEnv.Status.Errors {
+					errorDetails += fmt.Sprintf("%s: %s\n", err.Code, err.Message)
+				}
+				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Environment %s has provisioning errors:\n%s", envName, errorDetails))
+				return
+			}
+
 			if apiResp.AwsEnv.Status.AppliedSpecRevision >= waitForAppliedSpecRevision {
 				tflog.Trace(ctx, "env status matchs spec", map[string]interface{}{"name": envName})
 				data.toModel(*apiResp.AwsEnv)

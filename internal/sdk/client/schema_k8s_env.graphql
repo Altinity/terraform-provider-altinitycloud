@@ -15,6 +15,10 @@ query GetK8SEnvStatus($name: String!) {
     status {
       appliedSpecRevision
       pendingDelete
+      errors {
+        code
+        message
+      }
     }
   }
 }

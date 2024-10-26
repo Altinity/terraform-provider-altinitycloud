@@ -281,6 +281,10 @@ type AWSEnvStatus {
   True indicates that environment is pending deletion.
   """
   pendingDelete: Boolean!
+  """
+  Status errors.
+  """
+  errors: [EnvStatusError!]!
 }
 
 """
@@ -1000,6 +1004,10 @@ type AzureEnvStatus {
   True indicates that environment is pending deletion.
   """
   pendingDelete: Boolean!
+  """
+  Status errors.
+  """
+  errors: [EnvStatusError!]!
 }
 
 """
@@ -1420,6 +1428,14 @@ type UpdateAzureEnvResult {
   """
   specRevision: Int!
 }
+extend type Query {
+  codeGenAWSEnv(name: String!): CodeGenEnvOutput!
+  codeGenGCPEnv(name: String!): CodeGenEnvOutput!
+}
+
+type CodeGenEnvOutput {
+  terraform: String!
+}
 """
 Update strategy.
 """
@@ -1578,6 +1594,30 @@ enum Day {
   THURSDAY
   FRIDAY
   SATURDAY
+}
+
+"""
+Status error.
+"""
+type EnvStatusError {
+  """
+  Status error code.
+  """
+  code: EnvStatusErrorCode!
+  """
+  Status error message.
+  """
+  message: String!
+}
+
+"""
+Status error codes.
+"""
+enum EnvStatusErrorCode {
+  INTERNAL
+  DISCONNECTED
+  CLOUD_PROVIDER_ACCESS_DENIED
+  CLOUD_PROVIDER_QUOTA_EXCEEDED
 }
 extend type Query {
   """
@@ -1781,6 +1821,10 @@ type GCPEnvStatus {
   True indicates that environment is pending deletion.
   """
   pendingDelete: Boolean!
+  """
+  Status errors.
+  """
+  errors: [EnvStatusError!]!
 }
 
 """
@@ -2447,6 +2491,10 @@ type K8SEnvStatus {
   True indicates that environment is pending deletion.
   """
   pendingDelete: Boolean!
+  """
+  Status errors.
+  """
+  errors: [EnvStatusError!]!
 }
 
 """

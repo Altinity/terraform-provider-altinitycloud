@@ -108,6 +108,15 @@ func (d *AzureEnvStatusDataSource) Read(ctx context.Context, req datasource.Read
 				return
 			}
 
+			if len(apiResp.AzureEnv.Status.Errors) > 0 {
+				var errorDetails string
+				for _, err := range apiResp.AzureEnv.Status.Errors {
+					errorDetails += fmt.Sprintf("%s: %s\n", err.Code, err.Message)
+				}
+				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Environment %s has provisioning errors:\n%s", envName, errorDetails))
+				return
+			}
+
 			if apiResp.AzureEnv.Status.AppliedSpecRevision >= waitForAppliedSpecRevision {
 				tflog.Trace(ctx, "env status matchs spec", map[string]interface{}{"name": envName})
 				data.toModel(*apiResp.AzureEnv)

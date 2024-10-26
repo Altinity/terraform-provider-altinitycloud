@@ -24,6 +24,10 @@ query GetAWSEnvStatus($name: String!) {
         id
         vpcID
       }
+      errors {
+        code
+        message
+      }
     }
   }
 }
