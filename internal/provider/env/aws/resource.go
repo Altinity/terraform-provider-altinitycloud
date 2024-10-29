@@ -133,6 +133,26 @@ func (r *AWSEnvResource) Delete(ctx context.Context, req resource.DeleteRequest,
 		return
 	}
 
+	envStatus, err := r.Client.GetAWSEnvStatus(ctx, envName)
+	if err != nil {
+		notFound, _ := client.IsNotFoundError(err)
+		if notFound {
+			tflog.Trace(ctx, "deleted resource", map[string]interface{}{"name": envName})
+		} else {
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read env status  %s, got error: %s", envName, err))
+		}
+		return
+	}
+
+	if len(envStatus.AwsEnv.Status.Errors) > 0 {
+		for _, err := range envStatus.AwsEnv.Status.Errors {
+			if err.Code == "DISCONNECTED" {
+				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete env %s, environment is DISCONNECTED", envName))
+				return
+			}
+		}
+	}
+
 	apiResp, err := r.Client.DeleteAWSEnv(ctx, client.DeleteAWSEnvInput{
 		Name:                 envName,
 		Force:                data.SkipDeprovisionOnDestroy.ValueBoolPointer(),
@@ -150,19 +170,8 @@ func (r *AWSEnvResource) Delete(ctx context.Context, req resource.DeleteRequest,
 		return
 	}
 
-	pendingMfa := apiResp.DeleteAWSEnv.PendingMfa
-	_, err = r.Client.GetAWSEnvStatus(ctx, envName)
-	if err != nil {
-		notFound, _ := client.IsNotFoundError(err)
-		if notFound {
-			tflog.Trace(ctx, "deleted resource", map[string]interface{}{"name": envName})
-		} else {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read env %s, got error: %s", envName, err))
-		}
-		return
-	}
-
 	// Polling to wait for deletion to complete
+	pendingMfa := apiResp.DeleteAWSEnv.PendingMfa
 	mfaTimeout := time.After(common.MFA_TIMEOUT)
 	deleteTimeout := time.After(common.DELETE_TIMEOUT)
 	ticker := time.NewTicker(common.DELETE_POLL_INTERVAL)
