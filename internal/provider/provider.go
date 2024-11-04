@@ -14,6 +14,7 @@ import (
 	env_aws "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env/aws"
 	env_azure "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env/azure"
 	env_gcp "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env/gcp"
+	env_hcloud "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env/hcloud"
 	env_k8s "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env/k8s"
 	env_certificate "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env_certificate"
 	env_status_aws "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env_status/aws"
@@ -115,7 +116,7 @@ func (p *altinityCloudProvider) Configure(ctx context.Context, req provider.Conf
 		resp.Diagnostics.AddAttributeError(
 			path.Root("api_token"),
 			"Missing Altinity.Cloud API Token",
-			fmt.Sprintf("%s environment variable or \"api_token\" provider attribure required.\n"+
+			fmt.Sprintf("%s environment variable or \"api_token\" provider attribute required.\n"+
 				"See https://github.com/altinity/terraform-provider-altinitycloud for details.", ENV_VAR_API_TOKEN),
 		)
 	}
@@ -169,8 +170,9 @@ func (p *altinityCloudProvider) Resources(ctx context.Context) []func() resource
 	return []func() resource.Resource{
 		env_aws.NewAWSEnvResource,
 		env_gcp.NewGCPEnvResource,
-		env_k8s.NewK8SEnvResource,
 		env_azure.NewAzureEnvResource,
+		env_hcloud.NewHCloudEnvResource,
+		env_k8s.NewK8SEnvResource,
 		env_certificate.NewCertificateResource,
 		secret.NewSecretResource,
 	}
@@ -180,8 +182,9 @@ func (p *altinityCloudProvider) DataSources(ctx context.Context) []func() dataso
 	return []func() datasource.DataSource{
 		env_aws.NewAWSEnvDataSource,
 		env_gcp.NewGCPEnvDataSource,
-		env_k8s.NewK8SEnvDataSource,
 		env_azure.NewAzureEnvDataSource,
+		env_hcloud.NewHCloudEnvDataSource,
+		env_k8s.NewK8SEnvDataSource,
 
 		env_status_azure.NewAzureEnvStatusDataSource,
 		env_status_aws.NewAWSEnvStatusDataSource,

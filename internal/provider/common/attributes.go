@@ -164,7 +164,7 @@ func GetLoadBalancingStrategyAttribute(required, optional, computed bool) rschem
 	}
 }
 
-func GetNodeGroupsAttribure(required, optional, computed bool) rschema.SetNestedAttribute {
+func GetNodeGroupsAttribute(required, optional, computed bool) rschema.SetNestedAttribute {
 	return rschema.SetNestedAttribute{
 		NestedObject:        NodeGroupAttribute,
 		Optional:            optional,
@@ -177,7 +177,7 @@ func GetNodeGroupsAttribure(required, optional, computed bool) rschema.SetNested
 	}
 }
 
-func GetRegionAttribure(required, optional, computed bool, description string) rschema.StringAttribute {
+func GetRegionAttribute(required, optional, computed bool, description string) rschema.StringAttribute {
 	return rschema.StringAttribute{
 		Optional:            optional,
 		Required:            required,
