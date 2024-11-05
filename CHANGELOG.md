@@ -4,6 +4,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.2.8...v0.2.9)
+### Added
+- Upgrade to go 1.22 [4f85ceb](https://github.com/Altinity/terraform-provider-altinitycloud/commit/4f85ceb)
+- Add 5m MFA timeout when deleting environments [0909241](https://github.com/Altinity/terraform-provider-altinitycloud/commit/0909241).
+- Support error messages in environment status data sources [9ec8a64](https://github.com/Altinity/terraform-provider-altinitycloud/commit/9ec8a64).
+- Do not allow environment deletion when env is disconnected [db5f17e](https://github.com/Altinity/terraform-provider-altinitycloud/commit/db5f17e).
+
+### Changed
+- Add new environment base resource to make env resources more DRY [ee2639a](https://github.com/Altinity/terraform-provider-altinitycloud/commit/ee2639a).
+- Add default "state-only" values when importing environments [e4e4880](https://github.com/Altinity/terraform-provider-altinitycloud/commit/e4e4880).
+- Sync GraphQL schema with the latest version [c7babdc](https://github.com/Altinity/terraform-provider-altinitycloud/commit/c7babdc).
+- Bump github.com/Yamashou/gqlgenc to `0.25.4` [#109](https://github.com/Altinity/terraform-provider-altinitycloud/pull/109).
+- Bump github.com/hashicorp/terraform-plugin-framework-validators to `0.15.0` [#110](https://github.com/Altinity/terraform-provider-altinitycloud/pull/110).
+- Bump github.com/hashicorp/terraform-plugin-framework to `0.12.0` [#93](https://github.com/Altinity/terraform-provider-altinitycloud/pull/93).
+
+
+### Fixed
+- Fix `aws_account_id` regex validation [d924ab2](https://github.com/Altinity/terraform-provider-altinitycloud/commit/d924ab2).
+- Set environment ID when reading them [8c3628e](https://github.com/Altinity/terraform-provider-altinitycloud/commit/8c3628e).
+
+
 ## [0.2.8](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.2.7...v0.2.8)
 
 ### Added
