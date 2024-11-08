@@ -1436,6 +1436,8 @@ extend type Query {
 type CodeGenEnvOutput {
   terraform: String!
 }
+scalar Sensitive
+
 """
 Update strategy.
 """
@@ -2185,6 +2187,610 @@ type UpdateGCPEnvResult {
   GCP environment active configuration.
   """
   spec: GCPEnvSpec!
+  """
+  Spec revision (monotonically-increasing).
+  """
+  specRevision: Int!
+}
+extend type Query {
+  """
+  List HCloud environments.
+  """
+  hcloudEnvs(filter: HCloudEnvFilter): [HCloudEnv!]!
+  """
+  Look up HCloud environment.
+  This query returns null when the environment is not found.
+  """
+  hcloudEnv(name: String!): HCloudEnv
+}
+
+"""
+HCloud environment.
+"""
+type HCloudEnv {
+  """
+  A globally-unique environment identifier.
+  """
+  name: String!
+  """
+  Environment spec.
+  """
+  spec: HCloudEnvSpec!
+  """
+  Spec revision (monotonically-increasing).
+  """
+  specRevision: Int!
+  """
+  Environment status.
+  """
+  status: HCloudEnvStatus!
+}
+
+"""
+HCloud environment configuration.
+"""
+type HCloudEnvSpec {
+  """
+  VPC CIDR block from the private IPv4 address ranges as specified in RFC 1918
+  (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16).
+
+  At least /21 required.
+
+  Examples: "10.136.0.0/21"
+
+  Immutable.
+  """
+  cidr: String!
+  """
+  HCloud network https://docs.hetzner.com/cloud/general/locations/
+
+  Example: "us-west"
+
+  Immutable.
+  """
+  networkZone: String!
+  """
+  Explicit list of HCloud locations.
+  (currently supports single location only)
+
+  Example: ["hil"]
+  """
+  locations: [String!]!
+  """
+  Load balancers configuration.
+  """
+  loadBalancers: HCloudEnvLoadBalancersSpec!
+  """
+  Load balancing strategy.
+  """
+  loadBalancingStrategy: LoadBalancingStrategy!
+  """
+  List of node groups.
+  At least one required.
+  """
+  nodeGroups: [HCloudEnvNodeGroupSpec!]!
+  """
+  List of maintenance windows during which automatic maintenance is permitted.
+  By default updates are applied as soon as they are available.
+  """
+  maintenanceWindows: [MaintenanceWindowSpec!]!
+  """
+  Custom domain.
+
+  Examples:
+  - "example.com"
+  - "foo.bar.com"
+
+  Before specifying custom domain, please create the following DNS records:
+  - CNAME _acme-challenge.example.com. $env_name.altinity.cloud.
+  - (optional, public load balancer)
+    CNAME *.example.com. _.$env_name.altinity.cloud.
+  - (optional, internal load balancer)
+    CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
+  - (optional, vpce)
+    CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
+  """
+  customDomain: String
+  """
+  True indicates that cloud resources are to be managed via altinity/cloud-connect.
+  False means direct management.
+  """
+  cloudConnect: Boolean!
+  """
+  Labels to apply to HCloud resources.
+  """
+  labels: [KeyValue!]!
+  """
+  Wireguard peers configuration.
+  """
+  wireguardPeers: [HCloudEnvWireguardPeerSpec!]!
+}
+
+"""
+HCloud environment load balancers configuration.
+"""
+type HCloudEnvLoadBalancersSpec {
+  """
+  Public load balancer configuration.
+
+  Accessible via *.$env_name.altinity.cloud.
+  """
+  public: HCloudEnvLoadBalancerPublicSpec!
+  """
+  Internal load balancer configuration.
+
+  Accessible via *.internal.$env_name.altinity.cloud.
+  """
+  internal: HCloudEnvLoadBalancerInternalSpec!
+}
+
+"""
+HCloud environment public load balancer configuration.
+"""
+type HCloudEnvLoadBalancerPublicSpec {
+  """
+  True if load balancer is enabled,
+  false otherwise.
+  """
+  enabled: Boolean!
+  """
+  IP addresses/blocks to allow traffic from.
+
+  0.0.0.0/0 by default.
+  """
+  sourceIPRanges: [String!]!
+}
+
+"""
+HCloud environment internal load balancer configuration.
+"""
+type HCloudEnvLoadBalancerInternalSpec {
+  """
+  True if load balancer is enabled,
+  false otherwise.
+  """
+  enabled: Boolean!
+  """
+  IP addresses/blocks to allow traffic from.
+
+  0.0.0.0/0 by default.
+  """
+  sourceIPRanges: [String!]!
+}
+
+"""
+HCloud environment node group configuration.
+"""
+type HCloudEnvNodeGroupSpec {
+  """
+  Unique (among environment node groups) node group identifier.
+  """
+  name: String!
+  """
+  HCloud server type (https://docs.hetzner.com/cloud/servers/overview#server-types).
+
+  Example: "cpx11"
+  """
+  nodeType: String!
+  """
+  Locations.
+  """
+  locations: [String!]!
+  """
+  Maximum number of instances per availability location.
+  """
+  capacityPerLocation: Int!
+  """
+  Types of workload that are allowed to be scheduled onto the nodes that belong to this group.
+  """
+  reservations: [NodeReservation!]!
+}
+
+"""
+HCloud Wireguard peer configuration.
+"""
+type HCloudEnvWireguardPeerSpec {
+  """
+  Peer public key.
+  """
+  publicKey: String!
+  """
+  A list of addresses (in CIDR notation) that should get routed to the peer.
+  """
+  allowedIPs: [String!]!
+  """
+  Peer endpoint.
+  """
+  endpoint: String!
+}
+
+"""
+HCloud environment status.
+"""
+type HCloudEnvStatus {
+  """
+  Applied spec revision (monotonically-increasing).
+  """
+  appliedSpecRevision: Int!
+  """
+  True indicates that environment is pending deletion.
+  """
+  pendingDelete: Boolean!
+  """
+  Status errors.
+  """
+  errors: [EnvStatusError!]!
+}
+
+"""
+HCloud environments query filter.
+"""
+input HCloudEnvFilter {
+  """
+  Names of the environments to return.
+  Names that don't match any of the existing environments are ignored.
+  """
+  names: [String!]
+}
+extend type Mutation {
+  """
+  Create HCloud environment record.
+
+  Possible error codes:
+  - "CONFLICT" if environment name is already taken.
+  """
+  createHCloudEnv(input: CreateHCloudEnvInput!): CreateHCloudEnvResult!
+}
+
+"""
+HCloud environment create request input.
+"""
+input CreateHCloudEnvInput {
+  """
+  A globally-unique environment identifier.
+
+  Immutable.
+  """
+  name: String!
+  """
+  Environment spec.
+  """
+  spec: CreateHCloudEnvSpecInput!
+}
+
+"""
+HCloud environment configuration create request input.
+"""
+input CreateHCloudEnvSpecInput {
+  """
+  Network CIDR block from the private IPv4 address ranges as specified in RFC 1918
+  (10/8, 172.16/12, 192.168/16).
+
+  At least /21 required.
+
+  Example: "10.136.0.0/21"
+
+  Immutable.
+  """
+  cidr: String!
+  """
+  HCloud network https://docs.hetzner.com/cloud/general/locations/
+
+  Example: "us-west"
+
+  Immutable.
+  """
+  networkZone: String!
+  """
+  Explicit list of HCloud locations.
+  (currently supports single location only)
+
+  Example: ["hil"]
+  """
+  locations: [String!]!
+  """
+  Load balancers configuration.
+  """
+  loadBalancers: HCloudEnvLoadBalancersSpecInput
+  """
+  Load balancing strategy.
+  ZONE_BEST_EFFORT by default.
+  """
+  loadBalancingStrategy: LoadBalancingStrategy
+  """
+  List of node groups.
+  At least one required.
+  """
+  nodeGroups: [HCloudEnvNodeGroupSpecInput!]!
+  """
+  List of maintenance windows during which automatic maintenance is permitted.
+  By default updates are applied as soon as they are available.
+  """
+  maintenanceWindows: [MaintenanceWindowSpecInput!]
+  """
+  Custom domain.
+
+  Examples:
+  - "example.com"
+  - "foo.bar.com"
+
+  Before specifying custom domain, please create the following DNS records:
+  - CNAME _acme-challenge.example.com. $env_name.altinity.cloud.
+  - (optional, public load balancer)
+  CNAME *.example.com. _.$env_name.altinity.cloud.
+  - (optional, internal load balancer)
+  CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
+  - (optional, vpce)
+  CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
+  """
+  customDomain: String
+  """
+  True indicates that cloud resources are to be managed via altinity/cloud-connect.
+  False means direct management.
+  """
+  cloudConnect: Boolean
+  """
+  Labels to apply to HCloud resources.
+  """
+  labels: [KeyValueInput!]
+  """
+  Encrypted value of HCLOUD_TOKEN
+  """
+  hcloudTokenEnc: Sensitive!
+  """
+  Wireguard peers configuration.
+  """
+  wireguardPeers: [HCloudEnvWireguardPeerInput!]!
+}
+
+"""
+HCloud environment load balancers configuration input.
+"""
+input HCloudEnvLoadBalancersSpecInput {
+  """
+  Public load balancer configuration.
+
+  Accessible via *.$env_name.altinity.cloud.
+  """
+  public: HCloudEnvLoadBalancerPublicSpecInput
+  """
+  Internal load balancer configuration.
+
+  Accessible via *.internal.$env_name.altinity.cloud.
+  """
+  internal: HCloudEnvLoadBalancerInternalSpecInput
+}
+
+input HCloudEnvLoadBalancerPublicSpecInput {
+  """
+  True if load balancer is enabled,
+  false otherwise.
+
+  False by default.
+  """
+  enabled: Boolean
+  """
+  IP addresses/blocks to allow traffic from.
+
+  0.0.0.0/0 by default.
+  """
+  sourceIPRanges: [String!]
+}
+
+input HCloudEnvLoadBalancerInternalSpecInput {
+  """
+  True if load balancer is enabled,
+  false otherwise.
+
+  False by default.
+  """
+  enabled: Boolean
+  """
+  IP addresses/blocks to allow traffic from.
+
+  0.0.0.0/0 by default.
+  """
+  sourceIPRanges: [String!]
+}
+
+"""
+HCloud environment node group configuration input.
+"""
+input HCloudEnvNodeGroupSpecInput {
+  """
+  Unique (among environment node groups) node group identifier.
+
+  Defaults to $nodeType.
+  """
+  name: String
+  """
+  Machine type (https://cloud.google.com/compute/docs/machine-resource).
+
+  Example: "cpx11"
+  """
+  nodeType: String!
+  """
+  HCloud locations.
+  """
+  locations: [String!]
+  """
+  Maximum number of instances per zone.
+  """
+  capacityPerLocation: Int!
+  """
+  Types of workloads that are allowed to be scheduled onto the nodes that belong to this group.
+  """
+  reservations: [NodeReservation!]
+}
+
+"""
+HCloud Wireguard peer configuration input.
+"""
+input HCloudEnvWireguardPeerInput {
+  """
+  Peer public key.
+  """
+  publicKey: String!
+  """
+  A list of addresses (in CIDR notation) that should get routed to the peer.
+  """
+  allowedIPs: [String!]!
+  """
+  Peer endpoint.
+  """
+  endpoint: String!
+}
+
+"""
+HCloud environment create request result.
+"""
+type CreateHCloudEnvResult {
+  """
+  Mutation unique identifier.
+  """
+  mutationId: ID!
+  """
+  HCloud environment active configuration.
+  """
+  spec: HCloudEnvSpec!
+  """
+  Spec revision (monotonically-increasing).
+  """
+  specRevision: Int!
+}extend type Mutation {
+  """
+  Marks HCloud environment for removal (if exists; noop otherwise).
+
+  This triggers env deprovisioning which deletes all the data (except for backups),
+  as well as all provisioned HCloud resources.
+  """
+  deleteHCloudEnv(input: DeleteHCloudEnvInput!): DeleteHCloudEnvResult!
+}
+
+"""
+HCloud environment delete request input.
+"""
+input DeleteHCloudEnvInput {
+  """
+  The name of HCloud environment to delete.
+  """
+  name: String!
+  """
+  By default, delete mutation does not delete the env but rather marks it to be
+  removed once it's deprovisioned (which may take some time).
+  Set "force" to true to skip deprovisioning.
+  """
+  force: Boolean = false
+  """
+  By default, the delete operation will not delete any provisioned clusters and
+  the deletion will fail until the clusters get removed.
+  Set "forceDestroyClusters" to true remove all provisioned clusters as part of the environment deletion process.
+  """
+  forceDestroyClusters: Boolean = false
+}
+
+"""
+HCloud environment delete request result.
+"""
+type DeleteHCloudEnvResult {
+  """
+  Mutation unique identifier.
+  """
+  mutationId: ID!
+  pendingMFA: Boolean!
+}
+extend type Mutation {
+  """
+  Update HCloud environment record.
+  """
+  updateHCloudEnv(input: UpdateHCloudEnvInput!): UpdateHCloudEnvResult!
+}
+
+"""
+HCloud environment update request input.
+"""
+input UpdateHCloudEnvInput {
+  """
+  Environment name.
+  """
+  name: String!
+  """
+  Environment spec.
+  """
+  spec: UpdateHCloudEnvSpecInput!
+  """
+  Environment spec update strategy.
+  MERGE by default.
+  """
+  updateStrategy: UpdateStrategy
+}
+
+"""
+HCloud environment configuration update request input.
+"""
+input UpdateHCloudEnvSpecInput {
+  """
+  Load balancers configuration.
+  """
+  loadBalancers: HCloudEnvLoadBalancersSpecInput
+  """
+  Load balancing strategy.
+  ZONE_BEST_EFFORT by default.
+  """
+  loadBalancingStrategy: LoadBalancingStrategy
+  """
+  List of node groups.
+  At least one required.
+  """
+  nodeGroups: [HCloudEnvNodeGroupSpecInput!]!
+  """
+  List of maintenance windows during which automatic maintenance is permitted.
+  By default updates are applied as soon as they are available.
+  """
+  maintenanceWindows: [MaintenanceWindowSpecInput!]
+  """
+  Custom domain.
+
+  Examples:
+  - "example.com"
+  - "foo.bar.com"
+
+  Before specifying custom domain, please update the following DNS records:
+  - CNAME _acme-challenge.example.com. $env_name.altinity.cloud.
+  - (optional, public load balancer)
+  CNAME *.example.com. _.$env_name.altinity.cloud.
+  - (optional, internal load balancer)
+  CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
+  - (optional, vpce)
+  CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
+  """
+  customDomain: String
+  """
+  Labels to apply to HCloud resources.
+  """
+  labels: [KeyValueInput!]
+  """
+  Encrypted value of HCLOUD_TOKEN
+  """
+  hcloudTokenEnc: Sensitive
+  """
+  Wireguard peers configuration.
+  """
+  wireguardPeers: [HCloudEnvWireguardPeerInput!]!
+}
+
+"""
+HCloud environment update request result.
+"""
+type UpdateHCloudEnvResult {
+  """
+  Mutation unique identifier.
+  """
+  mutationId: ID!
+  """
+  HCloud environment active configuration.
+  """
+  spec: HCloudEnvSpec!
   """
   Spec revision (monotonically-increasing).
   """

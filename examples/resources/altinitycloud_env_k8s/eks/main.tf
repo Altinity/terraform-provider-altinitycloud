@@ -26,6 +26,14 @@ resource "altinitycloud_env_k8s" "this" {
       node_type         = "m6i.large"
       capacity_per_zone = 10
       reservations      = ["CLICKHOUSE"]
+      tolerations = [
+        {
+          key      = "dedicated"
+          value    = "clickhouse"
+          effect   = "NO_SCHEDULE"
+          operator = "EQUAL"
+        }
+      ]
     }
   ]
   depends_on = [

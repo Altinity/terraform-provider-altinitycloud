@@ -834,6 +834,85 @@ type CreateGCPEnvSpecInput struct {
 	CloudConnect *bool `json:"cloudConnect,omitempty"`
 }
 
+// HCloud environment create request input.
+type CreateHCloudEnvInput struct {
+	// A globally-unique environment identifier.
+	//
+	// Immutable.
+	Name string `json:"name"`
+	// Environment spec.
+	Spec *CreateHCloudEnvSpecInput `json:"spec"`
+}
+
+// HCloud environment create request result.
+type CreateHCloudEnvResult struct {
+	// Mutation unique identifier.
+	MutationID string `json:"mutationId"`
+	// HCloud environment active configuration.
+	Spec *HCloudEnvSpec `json:"spec"`
+	// Spec revision (monotonically-increasing).
+	SpecRevision int64 `json:"specRevision"`
+}
+
+// HCloud environment configuration create request input.
+type CreateHCloudEnvSpecInput struct {
+	// Network CIDR block from the private IPv4 address ranges as specified in RFC 1918
+	// (10/8, 172.16/12, 192.168/16).
+	//
+	// At least /21 required.
+	//
+	// Example: "10.136.0.0/21"
+	//
+	// Immutable.
+	Cidr string `json:"cidr"`
+	// HCloud network https://docs.hetzner.com/cloud/general/locations/
+	//
+	// Example: "us-west"
+	//
+	// Immutable.
+	NetworkZone string `json:"networkZone"`
+	// Explicit list of HCloud locations.
+	// (currently supports single location only)
+	//
+	// Example: ["hil"]
+	Locations []string `json:"locations"`
+	// Load balancers configuration.
+	LoadBalancers *HCloudEnvLoadBalancersSpecInput `json:"loadBalancers,omitempty"`
+	// Load balancing strategy.
+	// ZONE_BEST_EFFORT by default.
+	LoadBalancingStrategy *LoadBalancingStrategy `json:"loadBalancingStrategy,omitempty"`
+	// List of node groups.
+	// At least one required.
+	NodeGroups []*HCloudEnvNodeGroupSpecInput `json:"nodeGroups"`
+	// List of maintenance windows during which automatic maintenance is permitted.
+	// By default updates are applied as soon as they are available.
+	MaintenanceWindows []*MaintenanceWindowSpecInput `json:"maintenanceWindows,omitempty"`
+	// Custom domain.
+	//
+	// Examples:
+	// - "example.com"
+	// - "foo.bar.com"
+	//
+	// Before specifying custom domain, please create the following DNS records:
+	// - CNAME _acme-challenge.example.com. $env_name.altinity.cloud.
+	// - (optional, public load balancer)
+	// CNAME *.example.com. _.$env_name.altinity.cloud.
+	// - (optional, internal load balancer)
+	// CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
+	// - (optional, vpce)
+	// CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
+	CustomDomain *string `json:"customDomain,omitempty"`
+	// True indicates that cloud resources are to be managed via altinity/cloud-connect.
+	// False means direct management.
+	CloudConnect *bool `json:"cloudConnect,omitempty"`
+	// Labels to apply to HCloud resources.
+	Labels []*KeyValueInput `json:"labels,omitempty"`
+	// Encrypted value of HCLOUD_TOKEN
+	HcloudTokenEnc string `json:"hcloudTokenEnc"`
+	// Wireguard peers configuration.
+	WireguardPeers []*HCloudEnvWireguardPeerInput `json:"wireguardPeers"`
+}
+
 // Kubernetes environment create request input.
 type CreateK8SEnvInput struct {
 	// A globally-unique environment identifier.
@@ -952,6 +1031,27 @@ type DeleteGCPEnvInput struct {
 
 // GCP environment delete request result.
 type DeleteGCPEnvResult struct {
+	// Mutation unique identifier.
+	MutationID string `json:"mutationId"`
+	PendingMfa bool   `json:"pendingMFA"`
+}
+
+// HCloud environment delete request input.
+type DeleteHCloudEnvInput struct {
+	// The name of HCloud environment to delete.
+	Name string `json:"name"`
+	// By default, delete mutation does not delete the env but rather marks it to be
+	// removed once it's deprovisioned (which may take some time).
+	// Set "force" to true to skip deprovisioning.
+	Force *bool `json:"force,omitempty"`
+	// By default, the delete operation will not delete any provisioned clusters and
+	// the deletion will fail until the clusters get removed.
+	// Set "forceDestroyClusters" to true remove all provisioned clusters as part of the environment deletion process.
+	ForceDestroyClusters *bool `json:"forceDestroyClusters,omitempty"`
+}
+
+// HCloud environment delete request result.
+type DeleteHCloudEnvResult struct {
 	// Mutation unique identifier.
 	MutationID string `json:"mutationId"`
 	PendingMfa bool   `json:"pendingMFA"`
@@ -1175,6 +1275,215 @@ type GCPEnvStatus struct {
 	PendingDelete bool `json:"pendingDelete"`
 	// Status errors.
 	Errors []*EnvStatusError `json:"errors"`
+}
+
+// HCloud environment.
+type HCloudEnv struct {
+	// A globally-unique environment identifier.
+	Name string `json:"name"`
+	// Environment spec.
+	Spec *HCloudEnvSpec `json:"spec"`
+	// Spec revision (monotonically-increasing).
+	SpecRevision int64 `json:"specRevision"`
+	// Environment status.
+	Status *HCloudEnvStatus `json:"status"`
+}
+
+// HCloud environments query filter.
+type HCloudEnvFilter struct {
+	// Names of the environments to return.
+	// Names that don't match any of the existing environments are ignored.
+	Names []string `json:"names,omitempty"`
+}
+
+// HCloud environment internal load balancer configuration.
+type HCloudEnvLoadBalancerInternalSpec struct {
+	// True if load balancer is enabled,
+	// false otherwise.
+	Enabled bool `json:"enabled"`
+	// IP addresses/blocks to allow traffic from.
+	//
+	// 0.0.0.0/0 by default.
+	SourceIPRanges []string `json:"sourceIPRanges"`
+}
+
+type HCloudEnvLoadBalancerInternalSpecInput struct {
+	// True if load balancer is enabled,
+	// false otherwise.
+	//
+	// False by default.
+	Enabled *bool `json:"enabled,omitempty"`
+	// IP addresses/blocks to allow traffic from.
+	//
+	// 0.0.0.0/0 by default.
+	SourceIPRanges []string `json:"sourceIPRanges,omitempty"`
+}
+
+// HCloud environment public load balancer configuration.
+type HCloudEnvLoadBalancerPublicSpec struct {
+	// True if load balancer is enabled,
+	// false otherwise.
+	Enabled bool `json:"enabled"`
+	// IP addresses/blocks to allow traffic from.
+	//
+	// 0.0.0.0/0 by default.
+	SourceIPRanges []string `json:"sourceIPRanges"`
+}
+
+type HCloudEnvLoadBalancerPublicSpecInput struct {
+	// True if load balancer is enabled,
+	// false otherwise.
+	//
+	// False by default.
+	Enabled *bool `json:"enabled,omitempty"`
+	// IP addresses/blocks to allow traffic from.
+	//
+	// 0.0.0.0/0 by default.
+	SourceIPRanges []string `json:"sourceIPRanges,omitempty"`
+}
+
+// HCloud environment load balancers configuration.
+type HCloudEnvLoadBalancersSpec struct {
+	// Public load balancer configuration.
+	//
+	// Accessible via *.$env_name.altinity.cloud.
+	Public *HCloudEnvLoadBalancerPublicSpec `json:"public"`
+	// Internal load balancer configuration.
+	//
+	// Accessible via *.internal.$env_name.altinity.cloud.
+	Internal *HCloudEnvLoadBalancerInternalSpec `json:"internal"`
+}
+
+// HCloud environment load balancers configuration input.
+type HCloudEnvLoadBalancersSpecInput struct {
+	// Public load balancer configuration.
+	//
+	// Accessible via *.$env_name.altinity.cloud.
+	Public *HCloudEnvLoadBalancerPublicSpecInput `json:"public,omitempty"`
+	// Internal load balancer configuration.
+	//
+	// Accessible via *.internal.$env_name.altinity.cloud.
+	Internal *HCloudEnvLoadBalancerInternalSpecInput `json:"internal,omitempty"`
+}
+
+// HCloud environment node group configuration.
+type HCloudEnvNodeGroupSpec struct {
+	// Unique (among environment node groups) node group identifier.
+	Name string `json:"name"`
+	// HCloud server type (https://docs.hetzner.com/cloud/servers/overview#server-types).
+	//
+	// Example: "cpx11"
+	NodeType string `json:"nodeType"`
+	// Locations.
+	Locations []string `json:"locations"`
+	// Maximum number of instances per availability location.
+	CapacityPerLocation int64 `json:"capacityPerLocation"`
+	// Types of workload that are allowed to be scheduled onto the nodes that belong to this group.
+	Reservations []NodeReservation `json:"reservations"`
+}
+
+// HCloud environment node group configuration input.
+type HCloudEnvNodeGroupSpecInput struct {
+	// Unique (among environment node groups) node group identifier.
+	//
+	// Defaults to $nodeType.
+	Name *string `json:"name,omitempty"`
+	// Machine type (https://cloud.google.com/compute/docs/machine-resource).
+	//
+	// Example: "cpx11"
+	NodeType string `json:"nodeType"`
+	// HCloud locations.
+	Locations []string `json:"locations,omitempty"`
+	// Maximum number of instances per zone.
+	CapacityPerLocation int64 `json:"capacityPerLocation"`
+	// Types of workloads that are allowed to be scheduled onto the nodes that belong to this group.
+	Reservations []NodeReservation `json:"reservations,omitempty"`
+}
+
+// HCloud environment configuration.
+type HCloudEnvSpec struct {
+	// VPC CIDR block from the private IPv4 address ranges as specified in RFC 1918
+	// (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16).
+	//
+	// At least /21 required.
+	//
+	// Examples: "10.136.0.0/21"
+	//
+	// Immutable.
+	Cidr string `json:"cidr"`
+	// HCloud network https://docs.hetzner.com/cloud/general/locations/
+	//
+	// Example: "us-west"
+	//
+	// Immutable.
+	NetworkZone string `json:"networkZone"`
+	// Explicit list of HCloud locations.
+	// (currently supports single location only)
+	//
+	// Example: ["hil"]
+	Locations []string `json:"locations"`
+	// Load balancers configuration.
+	LoadBalancers *HCloudEnvLoadBalancersSpec `json:"loadBalancers"`
+	// Load balancing strategy.
+	LoadBalancingStrategy LoadBalancingStrategy `json:"loadBalancingStrategy"`
+	// List of node groups.
+	// At least one required.
+	NodeGroups []*HCloudEnvNodeGroupSpec `json:"nodeGroups"`
+	// List of maintenance windows during which automatic maintenance is permitted.
+	// By default updates are applied as soon as they are available.
+	MaintenanceWindows []*MaintenanceWindowSpec `json:"maintenanceWindows"`
+	// Custom domain.
+	//
+	// Examples:
+	// - "example.com"
+	// - "foo.bar.com"
+	//
+	// Before specifying custom domain, please create the following DNS records:
+	// - CNAME _acme-challenge.example.com. $env_name.altinity.cloud.
+	// - (optional, public load balancer)
+	//   CNAME *.example.com. _.$env_name.altinity.cloud.
+	// - (optional, internal load balancer)
+	//   CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
+	// - (optional, vpce)
+	//   CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
+	CustomDomain *string `json:"customDomain,omitempty"`
+	// True indicates that cloud resources are to be managed via altinity/cloud-connect.
+	// False means direct management.
+	CloudConnect bool `json:"cloudConnect"`
+	// Labels to apply to HCloud resources.
+	Labels []*KeyValue `json:"labels"`
+	// Wireguard peers configuration.
+	WireguardPeers []*HCloudEnvWireguardPeerSpec `json:"wireguardPeers"`
+}
+
+// HCloud environment status.
+type HCloudEnvStatus struct {
+	// Applied spec revision (monotonically-increasing).
+	AppliedSpecRevision int64 `json:"appliedSpecRevision"`
+	// True indicates that environment is pending deletion.
+	PendingDelete bool `json:"pendingDelete"`
+	// Status errors.
+	Errors []*EnvStatusError `json:"errors"`
+}
+
+// HCloud Wireguard peer configuration input.
+type HCloudEnvWireguardPeerInput struct {
+	// Peer public key.
+	PublicKey string `json:"publicKey"`
+	// A list of addresses (in CIDR notation) that should get routed to the peer.
+	AllowedIPs []string `json:"allowedIPs"`
+	// Peer endpoint.
+	Endpoint string `json:"endpoint"`
+}
+
+// HCloud Wireguard peer configuration.
+type HCloudEnvWireguardPeerSpec struct {
+	// Peer public key.
+	PublicKey string `json:"publicKey"`
+	// A list of addresses (in CIDR notation) that should get routed to the peer.
+	AllowedIPs []string `json:"allowedIPs"`
+	// Peer endpoint.
+	Endpoint string `json:"endpoint"`
 }
 
 // Kubernetes environment.
@@ -1685,6 +1994,63 @@ type UpdateGCPEnvSpecInput struct {
 	// - (optional, vpce)
 	// CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
 	CustomDomain *string `json:"customDomain,omitempty"`
+}
+
+// HCloud environment update request input.
+type UpdateHCloudEnvInput struct {
+	// Environment name.
+	Name string `json:"name"`
+	// Environment spec.
+	Spec *UpdateHCloudEnvSpecInput `json:"spec"`
+	// Environment spec update strategy.
+	// MERGE by default.
+	UpdateStrategy *UpdateStrategy `json:"updateStrategy,omitempty"`
+}
+
+// HCloud environment update request result.
+type UpdateHCloudEnvResult struct {
+	// Mutation unique identifier.
+	MutationID string `json:"mutationId"`
+	// HCloud environment active configuration.
+	Spec *HCloudEnvSpec `json:"spec"`
+	// Spec revision (monotonically-increasing).
+	SpecRevision int64 `json:"specRevision"`
+}
+
+// HCloud environment configuration update request input.
+type UpdateHCloudEnvSpecInput struct {
+	// Load balancers configuration.
+	LoadBalancers *HCloudEnvLoadBalancersSpecInput `json:"loadBalancers,omitempty"`
+	// Load balancing strategy.
+	// ZONE_BEST_EFFORT by default.
+	LoadBalancingStrategy *LoadBalancingStrategy `json:"loadBalancingStrategy,omitempty"`
+	// List of node groups.
+	// At least one required.
+	NodeGroups []*HCloudEnvNodeGroupSpecInput `json:"nodeGroups"`
+	// List of maintenance windows during which automatic maintenance is permitted.
+	// By default updates are applied as soon as they are available.
+	MaintenanceWindows []*MaintenanceWindowSpecInput `json:"maintenanceWindows,omitempty"`
+	// Custom domain.
+	//
+	// Examples:
+	// - "example.com"
+	// - "foo.bar.com"
+	//
+	// Before specifying custom domain, please update the following DNS records:
+	// - CNAME _acme-challenge.example.com. $env_name.altinity.cloud.
+	// - (optional, public load balancer)
+	// CNAME *.example.com. _.$env_name.altinity.cloud.
+	// - (optional, internal load balancer)
+	// CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
+	// - (optional, vpce)
+	// CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
+	CustomDomain *string `json:"customDomain,omitempty"`
+	// Labels to apply to HCloud resources.
+	Labels []*KeyValueInput `json:"labels,omitempty"`
+	// Encrypted value of HCLOUD_TOKEN
+	HcloudTokenEnc *string `json:"hcloudTokenEnc,omitempty"`
+	// Wireguard peers configuration.
+	WireguardPeers []*HCloudEnvWireguardPeerInput `json:"wireguardPeers"`
 }
 
 // Kubernetes environment update request input.

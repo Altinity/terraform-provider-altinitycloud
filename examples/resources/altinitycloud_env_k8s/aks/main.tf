@@ -18,9 +18,22 @@ resource "altinitycloud_env_k8s" "this" {
   // node_groups should match existing node pools configuration.
   node_groups = [
     {
+      node_type         = "Standard_B2pls_v2"
+      capacity_per_zone = 10
+      reservations      = ["SYSTEM", "ZOOKEEPER"]
+    },
+    {
       node_type         = "Standard_B2s_v2"
       capacity_per_zone = 10
-      reservations      = ["CLICKHOUSE", "SYSTEM", "ZOOKEEPER"]
+      reservations      = ["CLICKHOUSE"]
+      tolerations = [
+        {
+          key      = "dedicated"
+          value    = "clickhouse"
+          effect   = "NO_SCHEDULE"
+          operator = "EQUAL"
+        }
+      ]
     }
   ]
   depends_on = [
