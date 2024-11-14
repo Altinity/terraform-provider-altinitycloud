@@ -27,6 +27,8 @@ type AWSEnvEndpointSpec struct {
 	// By default, VPC endpoints get assigned $endpoint_service_id.$env_name.altinity.cloud DNS record.
 	// Alias allows to override DNS record name to $alias.$env_name.altinity.cloud.
 	Alias *string `json:"alias,omitempty"`
+	// True indicates that Private DNS for this endpoint is enabled, false otherwise.
+	PrivateDNS bool `json:"privateDNS"`
 }
 
 // AWS environment VPC endpoint configuration input.
@@ -36,6 +38,8 @@ type AWSEnvEndpointSpecInput struct {
 	// By default, VPC endpoints get assigned $endpoint_service_id.$env_name.altinity.cloud DNS record.
 	// Alias allows to override DNS record name to $alias.$env_name.altinity.cloud.
 	Alias *string `json:"alias,omitempty"`
+	// Set to true to enable Private DNS for this endpoint. False by default.
+	PrivateDNS *bool `json:"privateDNS,omitempty"`
 }
 
 // AWS environments query filter.

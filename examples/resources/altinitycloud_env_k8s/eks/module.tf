@@ -61,13 +61,6 @@ module "eks_clickhouse" {
       min_size      = 0
       zones         = local.zones
       labels        = local.altinity_labels
-      taints = [
-        {
-          key    = "dedicated"
-          value  = "clickhouse"
-          effect = "NO_SCHEDULE"
-        }
-      ]
     },
     {
       name          = "system"

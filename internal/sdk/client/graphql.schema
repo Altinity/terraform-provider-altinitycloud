@@ -259,6 +259,10 @@ type AWSEnvEndpointSpec {
   Alias allows to override DNS record name to $alias.$env_name.altinity.cloud.
   """
   alias: String
+  """
+  True indicates that Private DNS for this endpoint is enabled, false otherwise.
+  """
+  privateDNS: Boolean!
 }
 
 """
@@ -600,6 +604,10 @@ input AWSEnvEndpointSpecInput {
   Alias allows to override DNS record name to $alias.$env_name.altinity.cloud.
   """
   alias: String
+  """
+  Set to true to enable Private DNS for this endpoint. False by default.
+  """
+  privateDNS: Boolean
 }
 
 """
