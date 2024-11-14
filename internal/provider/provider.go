@@ -19,8 +19,10 @@ import (
 	env_status_azure "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env_status/azure"
 	env_status_gcp "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env_status/gcp"
 	env_status_k8s "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env_status/k8s"
+	"github.com/altinity/terraform-provider-altinitycloud/internal/provider/secret"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/auth"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/client"
+	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/crypto"
 
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -120,7 +122,7 @@ func (p *altinityCloudProvider) Configure(ctx context.Context, req provider.Conf
 	var rootCAs *x509.CertPool
 	if caCrt != nil {
 		var err error
-		rootCAs, err = auth.LoadCertPool(*caCrt)
+		rootCAs, err = crypto.LoadCertPool(*caCrt)
 		if err != nil {
 			resp.Diagnostics.AddWarning("Failed to load CA certificate", err.Error())
 		}
@@ -151,9 +153,11 @@ func (p *altinityCloudProvider) Configure(ctx context.Context, req provider.Conf
 	)
 
 	auth := auth.NewAuth(rootCAs, apiUrl, apiToken)
+	crypto := crypto.NewCrypto(rootCAs, apiUrl)
 	sdk := &sdk.AltinityCloudSDK{
 		Client: client,
 		Auth:   auth,
+		Crypto: crypto,
 	}
 
 	resp.DataSourceData = sdk
@@ -167,6 +171,7 @@ func (p *altinityCloudProvider) Resources(ctx context.Context) []func() resource
 		env_k8s.NewK8SEnvResource,
 		env_azure.NewAzureEnvResource,
 		env_certificate.NewCertificateResource,
+		secret.NewSecretResource,
 	}
 }
 
