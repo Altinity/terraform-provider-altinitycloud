@@ -146,8 +146,8 @@ func (r *GCPEnvResource) Delete(ctx context.Context, req resource.DeleteRequest,
 
 	if len(envStatus.GcpEnv.Status.Errors) > 0 {
 		for _, err := range envStatus.GcpEnv.Status.Errors {
-			if err.Code == "DISCONNECTED" {
-				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete env %s, environment is DISCONNECTED", envName))
+			if err.Code == "DISCONNECTED" && !data.SkipDeprovisionOnDestroy.ValueBool() {
+				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete env %s, environment is DISCONNECTED.\nCheck then environment's `cloudconnect` instance or use `skip_deprovision_on_destroy` to delete environment without deprovisioning cloud resources.", envName))
 				return
 			}
 		}

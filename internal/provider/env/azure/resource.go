@@ -146,8 +146,8 @@ func (r *AzureEnvResource) Delete(ctx context.Context, req resource.DeleteReques
 
 	if len(envStatus.AzureEnv.Status.Errors) > 0 {
 		for _, err := range envStatus.AzureEnv.Status.Errors {
-			if err.Code == "DISCONNECTED" {
-				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete env %s, environment is DISCONNECTED", envName))
+			if err.Code == "DISCONNECTED" && !data.SkipDeprovisionOnDestroy.ValueBool() {
+				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete env %s, environment is DISCONNECTED.\nCheck then environment's `cloudconnect` instance or use `skip_deprovision_on_destroy` to delete environment without deprovisioning cloud resources.", envName))
 				return
 			}
 		}

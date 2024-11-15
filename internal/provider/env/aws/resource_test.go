@@ -53,7 +53,7 @@ resource "%s" "dummy" {
 	cidr           = "10.0.0.0/16"
 	region         = "us-east-1"
 	aws_account_id = "123456789012"
-	zones          = ["us-east-1a"]
+	zones          = ["us-east-1a", "us-east-1b"]
 
 	node_groups = [{
 		zones             = ["us-east-1a"]

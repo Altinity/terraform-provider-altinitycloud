@@ -529,6 +529,7 @@ func (t *AWSEnvSpecFragment_PeeringConnections) GetVpcRegion() *string {
 type AWSEnvSpecFragment_Endpoints struct {
 	ServiceName string  "json:\"serviceName\" graphql:\"serviceName\""
 	Alias       *string "json:\"alias,omitempty\" graphql:\"alias\""
+	PrivateDNS  bool    "json:\"privateDNS\" graphql:\"privateDNS\""
 }
 
 func (t *AWSEnvSpecFragment_Endpoints) GetServiceName() string {
@@ -542,6 +543,12 @@ func (t *AWSEnvSpecFragment_Endpoints) GetAlias() *string {
 		t = &AWSEnvSpecFragment_Endpoints{}
 	}
 	return t.Alias
+}
+func (t *AWSEnvSpecFragment_Endpoints) GetPrivateDNS() bool {
+	if t == nil {
+		t = &AWSEnvSpecFragment_Endpoints{}
+	}
+	return t.PrivateDNS
 }
 
 type AWSEnvSpecFragment_Tags struct {
@@ -1376,6 +1383,7 @@ func (t *GetAWSEnv_AwsEnv_Spec_AWSEnvSpecFragment_PeeringConnections) GetVpcRegi
 type GetAWSEnv_AwsEnv_Spec_AWSEnvSpecFragment_Endpoints struct {
 	ServiceName string  "json:\"serviceName\" graphql:\"serviceName\""
 	Alias       *string "json:\"alias,omitempty\" graphql:\"alias\""
+	PrivateDNS  bool    "json:\"privateDNS\" graphql:\"privateDNS\""
 }
 
 func (t *GetAWSEnv_AwsEnv_Spec_AWSEnvSpecFragment_Endpoints) GetServiceName() string {
@@ -1389,6 +1397,12 @@ func (t *GetAWSEnv_AwsEnv_Spec_AWSEnvSpecFragment_Endpoints) GetAlias() *string 
 		t = &GetAWSEnv_AwsEnv_Spec_AWSEnvSpecFragment_Endpoints{}
 	}
 	return t.Alias
+}
+func (t *GetAWSEnv_AwsEnv_Spec_AWSEnvSpecFragment_Endpoints) GetPrivateDNS() bool {
+	if t == nil {
+		t = &GetAWSEnv_AwsEnv_Spec_AWSEnvSpecFragment_Endpoints{}
+	}
+	return t.PrivateDNS
 }
 
 type GetAWSEnv_AwsEnv_Spec_AWSEnvSpecFragment_Tags struct {
@@ -1737,6 +1751,7 @@ func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_PeeringConnections) G
 type CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Endpoints struct {
 	ServiceName string  "json:\"serviceName\" graphql:\"serviceName\""
 	Alias       *string "json:\"alias,omitempty\" graphql:\"alias\""
+	PrivateDNS  bool    "json:\"privateDNS\" graphql:\"privateDNS\""
 }
 
 func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Endpoints) GetServiceName() string {
@@ -1750,6 +1765,12 @@ func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Endpoints) GetAlias()
 		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Endpoints{}
 	}
 	return t.Alias
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Endpoints) GetPrivateDNS() bool {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Endpoints{}
+	}
+	return t.PrivateDNS
 }
 
 type CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Tags struct {
@@ -1976,6 +1997,7 @@ func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_PeeringConnections) G
 type UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Endpoints struct {
 	ServiceName string  "json:\"serviceName\" graphql:\"serviceName\""
 	Alias       *string "json:\"alias,omitempty\" graphql:\"alias\""
+	PrivateDNS  bool    "json:\"privateDNS\" graphql:\"privateDNS\""
 }
 
 func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Endpoints) GetServiceName() string {
@@ -1989,6 +2011,12 @@ func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Endpoints) GetAlias()
 		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Endpoints{}
 	}
 	return t.Alias
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Endpoints) GetPrivateDNS() bool {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Endpoints{}
+	}
+	return t.PrivateDNS
 }
 
 type UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Tags struct {
@@ -4734,6 +4762,7 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 	endpoints {
 		serviceName
 		alias
+		privateDNS
 	}
 	tags {
 		key
@@ -4853,6 +4882,7 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 	endpoints {
 		serviceName
 		alias
+		privateDNS
 	}
 	tags {
 		key
@@ -4930,6 +4960,7 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 	endpoints {
 		serviceName
 		alias
+		privateDNS
 	}
 	tags {
 		key
