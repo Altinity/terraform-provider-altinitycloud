@@ -101,6 +101,7 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
   endpoints {
     serviceName
     alias
+    privateDNS
   }
   tags {
     key

@@ -54,6 +54,7 @@ type InternalLoadBalancerModel struct {
 type AWSEnvEndpointModel struct {
 	ServiceName types.String `tfsdk:"service_name"`
 	Alias       types.String `tfsdk:"alias"`
+	PrivateDNS  types.Bool   `tfsdk:"private_dns"`
 }
 
 type AWSEnvPeeringConnectionModel struct {
@@ -165,6 +166,7 @@ func (model *AWSEnvResourceModel) toModel(env sdk.GetAWSEnv_AwsEnv) {
 		endpoints = append(endpoints, AWSEnvEndpointModel{
 			ServiceName: types.StringValue(e.ServiceName),
 			Alias:       types.StringPointerValue(e.Alias),
+			PrivateDNS:  types.BoolValue(e.PrivateDNS),
 		})
 	}
 	model.Endpoints = endpoints

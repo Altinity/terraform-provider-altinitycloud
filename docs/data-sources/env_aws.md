@@ -81,12 +81,8 @@ Bring Your Own Cloud (BYOC) AWS environment data source.
 
 Required:
 
-- `service_name` (String) VPC endpoint service name in $endpoint_service_id.$region.vpce.amazonaws.com format.
-
-Optional:
-
 - `alias` (String) By default, VPC endpoints get assigned $endpoint_service_id.$env_name.altinity.cloud DNS record. Alias allows to override DNS record name to `$alias.$env_name.altinity.cloud`.
-- `private_dns` (Boolean) Indicates whether to associate a private hosted zone with the specified VPC (default `false`)
+- `service_name` (String) VPC endpoint service name in $endpoint_service_id.$region.vpce.amazonaws.com format.
 
 
 <a id="nestedatt--load_balancers"></a>
