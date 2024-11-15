@@ -6,7 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.3.1](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.3.0...v0.3.1)
 ### Added
-- Add example of BYOK with AWS EKS cluster using Altinity's Terraform module for BYOK on EKS [d2f069a](https://github.com/Altinity/terraform-provider-altinitycloud/commit/d2f069a)
+- Add example of BYOK with AWS EKS cluster using Altinity's Terraform module for BYOK on EKS [45ed7a5](https://github.com/Altinity/terraform-provider-altinitycloud/commit/45ed7a5)\
+- Add support to `PrivateDNS` on `altinitycloud_env_aws` VPC endpoints [598bf7e](https://github.com/Altinity/terraform-provider-altinitycloud/commit/598bf7e)
+
+### Changed
+- Allow deletion of environment while disconnected if it's using `skip_deprovision_on_destroy` property [3b911de](https://github.com/Altinity/terraform-provider-altinitycloud/commit/3b911de)
+- Bump github.com/Yamashou/gqlgenc to `0.26.1` [#114](https://github.com/Altinity/terraform-provider-altinitycloud/pull/114).
+- Bump github.com/hashicorp/terraform-plugin-docs to `0.20.0` [#112](https://github.com/Altinity/terraform-provider-altinitycloud/pull/112).
 
 ## [0.3.0](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.2.8...v0.3.0)
 ### Added
