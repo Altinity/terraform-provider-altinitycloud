@@ -40,7 +40,7 @@ func (c *Crypto) Encrypt(pem string, value string) (string, error) {
 	if len(split) != 2 {
 		return "", fmt.Errorf("malformed %s: expected 2 PEMs, instead got %d", pem, len(split))
 	}
-	tlsCert, err := x509KeyPairWithLeaf([]byte(split[0]), []byte(split[1]))
+	tlsCert, err := x509KeyPairWithLeaf(split[0], split[1])
 	if err != nil {
 		return "", err
 	}
@@ -87,7 +87,7 @@ func (c *Crypto) fetchPublicKey(ctx context.Context, tlsCert tls.Certificate) (p
 func split(data []byte) [][]byte {
 	var r [][]byte
 	for offset, l := 0, len(data); offset < l; {
-		n, token, _ := scanPEMs(data[offset:], true)
+		n, token := scanPEMs(data[offset:], true)
 		if token != nil {
 			r = append(r, token)
 		}
@@ -99,9 +99,9 @@ func split(data []byte) [][]byte {
 	return r
 }
 
-func scanPEMs(data []byte, atEOF bool) (advance int, token []byte, err error) {
+func scanPEMs(data []byte, atEOF bool) (advance int, token []byte) {
 	if atEOF && len(data) == 0 {
-		return 0, nil, nil
+		return 0, nil
 	}
 	var offset int
 	for {
@@ -114,7 +114,7 @@ func scanPEMs(data []byte, atEOF bool) (advance int, token []byte, err error) {
 					// Check if line ends with "-----".
 					if bytes.HasSuffix(d[:i+1+j], pemEndSuffix) {
 						return offset + i + 1 + j + 1,
-							bytes.TrimSpace(data[:offset+i+1+j]), nil
+							bytes.TrimSpace(data[:offset+i+1+j])
 					} else {
 						// Try next line.
 						offset += i + 1 + j + 1
@@ -132,10 +132,10 @@ func scanPEMs(data []byte, atEOF bool) (advance int, token []byte, err error) {
 	}
 	// If we're at EOF, we have a final, non-terminated line. Return it.
 	if atEOF {
-		return len(data), bytes.TrimSpace(data), nil
+		return len(data), bytes.TrimSpace(data)
 	}
 	// Request more data.
-	return 0, nil, nil
+	return 0, nil
 }
 
 func x509KeyPairWithLeaf(certPEMBlock, keyPEMBlock []byte) (tls.Certificate, error) {
