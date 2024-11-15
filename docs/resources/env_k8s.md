@@ -476,16 +476,6 @@ module "eks_clickhouse" {
       min_size      = 0
       zones         = local.zones
       labels        = local.altinity_labels
-<<<<<<< HEAD
-=======
-      taints = [
-        {
-          key    = "dedicated"
-          value  = "clickhouse"
-          effect = "NO_SCHEDULE"
-        }
-      ]
->>>>>>> d2f069a (docs: add BYOK with clickhouse-eks module example)
     },
     {
       name          = "system"
