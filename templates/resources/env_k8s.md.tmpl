@@ -22,15 +22,15 @@ description: |-
 ### BYOK/AKS (Azure):
 {{tffile "examples/resources/altinitycloud_env_k8s/aks/main.tf"}}
 
-{{ .SchemaMarkdown | trimspace }}
-
-{{- if .HasImport }}
-
 ## Set up AWS EKS cluster with [Altinity's Terraform module for BYOK on EKS](https://registry.terraform.io/modules/Altinity/eks-clickhouse/aws)
 
 The Altinity Terraform module for EKS makes it easy to set up an EKS Kubernetes cluster for a Bring Your Own Kubernetes (BYOK) environment.
 
 {{tffile "examples/resources/altinitycloud_env_k8s/eks/module.tf"}}
+
+{{ .SchemaMarkdown | trimspace }}
+
+{{- if .HasImport }}
 
 ## Import
 
