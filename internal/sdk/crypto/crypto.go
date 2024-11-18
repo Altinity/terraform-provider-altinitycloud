@@ -30,13 +30,11 @@ func NewCrypto(rootCAs *x509.CertPool, cryptoUrl string) *Crypto {
 	}
 }
 
-var (
-	pemEndPrefix = []byte("-----END ")
-	pemEndSuffix = []byte("-----")
-)
-
 func (c *Crypto) Encrypt(pem string, value string) (string, error) {
-	split := split([]byte(pem))
+	split, err := split([]byte(pem))
+	if err != nil {
+		return "", err
+	}
 	if len(split) != 2 {
 		return "", fmt.Errorf("malformed %s: expected 2 PEMs, instead got %d", pem, len(split))
 	}
@@ -84,58 +82,24 @@ func (c *Crypto) fetchPublicKey(ctx context.Context, tlsCert tls.Certificate) (p
 	return body, nil
 }
 
-func split(data []byte) [][]byte {
-	var r [][]byte
-	for offset, l := 0, len(data); offset < l; {
-		n, token := scanPEMs(data[offset:], true)
-		if token != nil {
-			r = append(r, token)
-		}
-		if n == 0 {
-			panic("pem: split: advance is 0")
-		}
-		offset += n
-	}
-	return r
-}
-
-func scanPEMs(data []byte, atEOF bool) (advance int, token []byte) {
-	if atEOF && len(data) == 0 {
-		return 0, nil
-	}
-	var offset int
+func split(data []byte) ([][]byte, error) {
+	var blocks [][]byte
+	rest := data
 	for {
-		d := data[offset:]
-		if i := bytes.IndexByte(d, '\n'); i != -1 {
-			// Check if the line following \n starts with "-----END ".
-			if bytes.HasPrefix(d[i+1:], pemEndPrefix) {
-				// Find the end of line.
-				if j := bytes.IndexByte(d[i+1:], '\n'); j != -1 {
-					// Check if line ends with "-----".
-					if bytes.HasSuffix(d[:i+1+j], pemEndSuffix) {
-						return offset + i + 1 + j + 1,
-							bytes.TrimSpace(data[:offset+i+1+j])
-					} else {
-						// Try next line.
-						offset += i + 1 + j + 1
-						continue
-					}
-				}
-				// Break.
-			} else {
-				// Try next line.
-				offset += i + 1
-				continue
-			}
+		var block *pem.Block
+		block, rest = pem.Decode(rest)
+		if block == nil {
+			break
 		}
-		break
+		encodedBlock := pem.EncodeToMemory(block)
+		blocks = append(blocks, encodedBlock)
 	}
-	// If we're at EOF, we have a final, non-terminated line. Return it.
-	if atEOF {
-		return len(data), bytes.TrimSpace(data)
+
+	if len(blocks) == 0 {
+		return nil, fmt.Errorf("no PEM blocks found")
 	}
-	// Request more data.
-	return 0, nil
+
+	return blocks, nil
 }
 
 func x509KeyPairWithLeaf(certPEMBlock, keyPEMBlock []byte) (tls.Certificate, error) {
@@ -207,7 +171,8 @@ func EncodeCertificateRequestDER(der []byte) ([]byte, error) {
 }
 
 func EncodeRSAPrivateKey(p *rsa.PrivateKey) ([]byte, error) {
-	return Encode(x509.MarshalPKCS1PrivateKey(p), "RSA PRIVATE KEY")
+	key := x509.MarshalPKCS1PrivateKey(p)
+	return Encode(key, "RSA PRIVATE KEY")
 }
 
 func Encode(data []byte, blockType string) ([]byte, error) {

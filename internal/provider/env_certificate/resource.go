@@ -59,7 +59,7 @@ func (r *CertificateResource) Create(ctx context.Context, req resource.CreateReq
 	}
 
 	tflog.Trace(ctx, "creating resource")
-	crt, key, err := r.auth.GenerateCertificate(data.EnvironmentName.ValueString())
+	crt, key, err := r.auth.GenerateCertificate(ctx, data.EnvironmentName.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable generate certificate, got error: %s", err))
 		return
@@ -94,7 +94,7 @@ func (r *CertificateResource) Update(ctx context.Context, req resource.UpdateReq
 
 	tflog.Trace(ctx, "updating resource")
 
-	crt, key, err := r.auth.GenerateCertificate(data.EnvironmentName.ValueString())
+	crt, key, err := r.auth.GenerateCertificate(ctx, data.EnvironmentName.ValueString())
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable generate certificate, got error: %s", err))
 		return

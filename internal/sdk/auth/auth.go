@@ -3,6 +3,7 @@ package auth
 import (
 	"bytes"
 	"context"
+	"crypto"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/tls"
@@ -12,7 +13,7 @@ import (
 	"net/http"
 	"time"
 
-	crypto "github.com/altinity/terraform-provider-altinitycloud/internal/sdk/crypto"
+	sdkCrypto "github.com/altinity/terraform-provider-altinitycloud/internal/sdk/crypto"
 	sdkHttp "github.com/altinity/terraform-provider-altinitycloud/internal/sdk/http"
 )
 
@@ -30,7 +31,7 @@ func NewAuth(rootCAs *x509.CertPool, authUrl string, apiToken string) *Auth {
 	}
 }
 
-func (a *Auth) GenerateCertificate(envName string) (string, string, error) {
+func (a *Auth) GenerateCertificate(ctx context.Context, envName string) (string, string, error) {
 	key, err := rsa.GenerateKey(rand.Reader, 4096)
 	if err != nil {
 		return "", "", err
@@ -39,11 +40,11 @@ func (a *Auth) GenerateCertificate(envName string) (string, string, error) {
 	if err != nil {
 		return "", "", err
 	}
-	certPEM, err := a.signCertificateRequest(context.Background(), csrPEM)
+	certPEM, err := a.signCertificateRequest(ctx, csrPEM)
 	if err != nil {
 		return "", "", err
 	}
-	keyPEM, err := crypto.EncodeRSAPrivateKey(key)
+	keyPEM, err := sdkCrypto.EncodeRSAPrivateKey(key)
 	if err != nil {
 		return "", "", err
 	}
@@ -51,7 +52,7 @@ func (a *Auth) GenerateCertificate(envName string) (string, string, error) {
 	return string(certPEM), string(keyPEM), nil
 }
 
-func (a *Auth) createCertificateRequest(pk interface{}, envName string) (csrPEM []byte, err error) {
+func (a *Auth) createCertificateRequest(pk crypto.PrivateKey, envName string) (csrPEM []byte, err error) {
 	req := x509.CertificateRequest{
 		SignatureAlgorithm: x509.SHA256WithRSA,
 		Subject: pkix.Name{
@@ -62,7 +63,7 @@ func (a *Auth) createCertificateRequest(pk interface{}, envName string) (csrPEM 
 	if err != nil {
 		return nil, err
 	}
-	return crypto.EncodeCertificateRequestDER(csrDER)
+	return sdkCrypto.EncodeCertificateRequestDER(csrDER)
 }
 
 func (a *Auth) signCertificateRequest(ctx context.Context, csrPEM []byte) ([]byte, error) {
@@ -89,7 +90,7 @@ func (a *Auth) signCertificateRequest(ctx context.Context, csrPEM []byte) ([]byt
 	if err != nil {
 		return nil, err
 	}
-	if _, err := crypto.DecodeCertificate(body); err != nil {
+	if _, err := sdkCrypto.DecodeCertificate(body); err != nil {
 		return nil, fmt.Errorf("POST %s: parse body %q: %v", url, string(body), err)
 	}
 	return body, nil
