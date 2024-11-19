@@ -20,6 +20,7 @@ type HCloudEnvResourceModel struct {
 	LoadBalancers         *LoadBalancersModel             `tfsdk:"load_balancers"`
 	LoadBalancingStrategy types.String                    `tfsdk:"load_balancing_strategy"`
 	MaintenanceWindows    []common.MaintenanceWindowModel `tfsdk:"maintenance_windows"`
+	WireguardPeers        []WireguardPeers                `tfsdk:"wireguard_peers"`
 
 	SpecRevision             types.Int64 `tfsdk:"spec_revision"`
 	ForceDestroy             types.Bool  `tfsdk:"force_destroy"`
@@ -50,10 +51,16 @@ type NodeGroupsModel struct {
 	Reservations        types.Set    `tfsdk:"reservations"`
 }
 
+type WireguardPeers struct {
+	publicKey  types.String `tfsdk:"public_key"`
+	allowedIPs types.List   `tfsdk:"allowed_ips"`
+	endpoint   types.String `tfsdk:"endpoint"`
+}
+
 func (e HCloudEnvResourceModel) toSDK() (client.CreateHCloudEnvInput, client.UpdateHCloudEnvInput) {
 	var locations []string
 	e.Locations.ElementsAs(context.TODO(), &locations, false)
-
+	wireguardPeers := wireguardPeersToSDK(e.WireguardPeers)
 	maintenanceWindows := common.MaintenanceWindowsToSDK(e.MaintenanceWindows)
 	LoadBalancers := loadBalancersToSDK(e.LoadBalancers)
 	nodeGroups := nodeGroupsToSDK(e.NodeGroups)
@@ -73,6 +80,7 @@ func (e HCloudEnvResourceModel) toSDK() (client.CreateHCloudEnvInput, client.Upd
 			LoadBalancers:         LoadBalancers,
 			MaintenanceWindows:    maintenanceWindows,
 			CloudConnect:          &cloudConnect,
+			WireguardPeers:        wireguardPeers,
 		},
 	}
 
@@ -87,6 +95,7 @@ func (e HCloudEnvResourceModel) toSDK() (client.CreateHCloudEnvInput, client.Upd
 			LoadBalancingStrategy: loadBalancingStrategy,
 			LoadBalancers:         LoadBalancers,
 			MaintenanceWindows:    maintenanceWindows,
+			WireguardPeers:        wireguardPeers,
 		},
 	}
 
@@ -103,6 +112,7 @@ func (model *HCloudEnvResourceModel) toModel(env client.GetHCloudEnv_HcloudEnv) 
 	model.NodeGroups = nodeGroupsToModel(env.Spec.NodeGroups)
 	model.MaintenanceWindows = maintenanceWindowsToModel(env.Spec.MaintenanceWindows)
 	model.Locations = common.ListToModel(env.Spec.Locations)
+	model.WireguardPeers = wireguardPeersToModel(env.Spec.WireguardPeers)
 }
 
 func loadBalancersToSDK(loadBalancers *LoadBalancersModel) *client.HCloudEnvLoadBalancersSpecInput {
@@ -180,6 +190,22 @@ func nodeGroupsToSDK(nodeGroups []NodeGroupsModel) []*client.HCloudEnvNodeGroupS
 	return sdkNodeGroups
 }
 
+func wireguardPeersToSDK(peers []WireguardPeers) []*client.HCloudEnvWireguardPeerSpecInput {
+	var sdkPeers []*client.HCloudEnvWireguardPeerSpecInput
+	for _, p := range peers {
+		var allowedIPs []string
+		p.allowedIPs.ElementsAs(context.TODO(), &allowedIPs, false)
+
+		sdkPeers = append(sdkPeers, &client.HCloudEnvWireguardPeerSpecInput{
+			PublicKey:  p.publicKey.ValueString(),
+			AllowedIPs: allowedIPs,
+			Endpoint:   p.endpoint.ValueString(),
+		})
+	}
+
+	return sdkPeers
+}
+
 func nodeGroupsToModel(nodeGroups []*client.HCloudEnvSpecFragment_NodeGroups) []NodeGroupsModel {
 	var modelNodeGroups []NodeGroupsModel
 	for _, np := range nodeGroups {
@@ -213,4 +239,17 @@ func maintenanceWindowsToModel(input []*client.HCloudEnvSpecFragment_Maintenance
 	}
 
 	return maintenanceWindow
+}
+
+func wireguardPeersToModel(input []*client.HCloudEnvSpecFragment_WireguardPeers) []WireguardPeers {
+	var peers []WireguardPeers
+	for _, p := range input {
+		peers = append(peers, WireguardPeers{
+			publicKey:  types.StringValue(p.PublicKey),
+			allowedIPs: common.ListToModel(p.AllowedIPs),
+			endpoint:   types.StringValue(p.Endpoint),
+		})
+	}
+
+	return peers
 }

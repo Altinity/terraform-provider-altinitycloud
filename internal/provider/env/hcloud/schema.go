@@ -35,6 +35,7 @@ func (r *HCloudEnvResource) Schema(ctx context.Context, req resource.SchemaReque
 			"locations":                   common.GetZonesAttribute(false, true, true, common.HCLOUD_LOCATIONS_DESCRIPTION),
 			"node_groups":                 getNodeGroupsAttribute(true, false, false),
 			"network_zone":                common.GetRegionAttribute(true, false, false, common.HCLOUD_NETWORK_ZONE_DESCRIPTION),
+			"wireguard_peers":             getWireguardPeersAttribute(false, true, false),
 			"spec_revision":               common.SpecRevisionAttribute,
 			"force_destroy":               common.GetForceDestroyAttribute(false, true, true),
 			"force_destroy_clusters":      common.GetForceDestroyClustersAttribute(false, true, true),
@@ -59,6 +60,7 @@ func (d *HCloudEnvDataSource) Schema(ctx context.Context, req datasource.SchemaR
 			"node_groups":             getNodeGroupsAttribute(false, false, true),
 			"network_zone":            common.GetRegionAttribute(false, false, true, common.HCLOUD_NETWORK_ZONE_DESCRIPTION),
 			"spec_revision":           common.SpecRevisionAttribute,
+			"wireguard_peers":         getWireguardPeersAttribute(false, false, true),
 
 			// these options are not used in data sources,
 			// but we need to include them in the schema to avoid conversion errors.
@@ -131,6 +133,19 @@ func getNodeGroupsAttribute(required, optional, computed bool) rschema.SetNested
 	}
 }
 
+func getWireguardPeersAttribute(required, optional, computed bool) rschema.ListNestedAttribute {
+	return rschema.ListNestedAttribute{
+		NestedObject:        wireguardPeersAttribute,
+		Optional:            optional,
+		Required:            required,
+		Computed:            computed,
+		MarkdownDescription: common.HCLOUD_WIREGUARD_PEERS_DESCRIPTION,
+		Validators: []validator.List{
+			listvalidator.SizeAtLeast(1),
+		},
+	}
+}
+
 var loadBalancerDefaultObject, _ = types.ObjectValue(
 	map[string]attr.Type{
 		"enabled": types.BoolType,
@@ -172,5 +187,23 @@ var nodeGroupAttribute = rschema.NestedAttributeObject{
 			},
 		},
 		"reservations": common.GetReservationsAttribute(true, false, false),
+	},
+}
+
+var wireguardPeersAttribute = rschema.NestedAttributeObject{
+	Attributes: map[string]rschema.Attribute{
+		"public_key": rschema.StringAttribute{
+			Required:            true,
+			MarkdownDescription: common.HCLOUD_WIREGUARD_PEERS_PUBLIC_KEY_DESCRIPTION,
+		},
+		"allowed_ips": rschema.ListAttribute{
+			ElementType:         types.StringType,
+			Required:            true,
+			MarkdownDescription: common.HCLOUD_WIREGUARD_PEERS_ALLOWED_IPS_DESCRIPTION,
+		},
+		"endpoint": rschema.StringAttribute{
+			Required:            true,
+			MarkdownDescription: common.HCLOUD_WIREGUARD_PEERS_ENDPOINT_DESCRIPTION,
+		},
 	},
 }

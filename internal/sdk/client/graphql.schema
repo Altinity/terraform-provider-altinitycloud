@@ -2548,7 +2548,7 @@ input CreateHCloudEnvSpecInput {
   """
   Wireguard peers configuration.
   """
-  wireguardPeers: [HCloudEnvWireguardPeerInput!]!
+  wireguardPeers: [HCloudEnvWireguardPeerSpecInput!]!
 }
 
 """
@@ -2634,7 +2634,7 @@ input HCloudEnvNodeGroupSpecInput {
 """
 HCloud Wireguard peer configuration input.
 """
-input HCloudEnvWireguardPeerInput {
+input HCloudEnvWireguardPeerSpecInput {
   """
   Peer public key.
   """
@@ -2784,7 +2784,7 @@ input UpdateHCloudEnvSpecInput {
   """
   Wireguard peers configuration.
   """
-  wireguardPeers: [HCloudEnvWireguardPeerInput!]!
+  wireguardPeers: [HCloudEnvWireguardPeerSpecInput!]!
 }
 
 """

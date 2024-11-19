@@ -92,7 +92,7 @@ endif
 .PHONY: sdk
 sdk:
 	@echo "Fetching GraphQL schema from ${GRAPHQL_SCHEMA_URL} to ${GRAPHQL_SCHEMA_FILE}"
-	curl -o ${GRAPHQL_SCHEMA_FILE} ${GRAPHQL_SCHEMA_URL}
+	# curl -o ${GRAPHQL_SCHEMA_FILE} ${GRAPHQL_SCHEMA_URL}
 	cd internal/sdk/client && go run github.com/Yamashou/gqlgenc
 
 .PHONY: gen

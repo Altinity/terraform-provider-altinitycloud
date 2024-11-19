@@ -228,3 +228,7 @@ const HCLOUD_LOCATIONS_DESCRIPTION = `Explicit list of HCloud locations. Current
 		Examples:
 		- ["hil"]
 `
+const HCLOUD_WIREGUARD_PEERS_DESCRIPTION = "HCloud Wireguard peer configuration."
+const HCLOUD_WIREGUARD_PEERS_PUBLIC_KEY_DESCRIPTION = "Peer public key."
+const HCLOUD_WIREGUARD_PEERS_ALLOWED_IPS_DESCRIPTION = "A list of addresses (in CIDR notation) that should get routed to the peer."
+const HCLOUD_WIREGUARD_PEERS_ENDPOINT_DESCRIPTION = "Peer endpoint."
