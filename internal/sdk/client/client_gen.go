@@ -280,6 +280,80 @@ func (t *GCPEnvSpecFragment) GetCloudConnect() bool {
 	return t.CloudConnect
 }
 
+type HCloudEnvSpecFragment struct {
+	LoadBalancers         HCloudEnvSpecFragment_LoadBalancers         "json:\"loadBalancers\" graphql:\"loadBalancers\""
+	LoadBalancingStrategy LoadBalancingStrategy                       "json:\"loadBalancingStrategy\" graphql:\"loadBalancingStrategy\""
+	CustomDomain          *string                                     "json:\"customDomain,omitempty\" graphql:\"customDomain\""
+	NodeGroups            []*HCloudEnvSpecFragment_NodeGroups         "json:\"nodeGroups\" graphql:\"nodeGroups\""
+	MaintenanceWindows    []*HCloudEnvSpecFragment_MaintenanceWindows "json:\"maintenanceWindows\" graphql:\"maintenanceWindows\""
+	NetworkZone           string                                      "json:\"networkZone\" graphql:\"networkZone\""
+	Locations             []string                                    "json:\"locations\" graphql:\"locations\""
+	Cidr                  string                                      "json:\"cidr\" graphql:\"cidr\""
+	CloudConnect          bool                                        "json:\"cloudConnect\" graphql:\"cloudConnect\""
+	WireguardPeers        []*HCloudEnvSpecFragment_WireguardPeers     "json:\"wireguardPeers\" graphql:\"wireguardPeers\""
+}
+
+func (t *HCloudEnvSpecFragment) GetLoadBalancers() *HCloudEnvSpecFragment_LoadBalancers {
+	if t == nil {
+		t = &HCloudEnvSpecFragment{}
+	}
+	return &t.LoadBalancers
+}
+func (t *HCloudEnvSpecFragment) GetLoadBalancingStrategy() *LoadBalancingStrategy {
+	if t == nil {
+		t = &HCloudEnvSpecFragment{}
+	}
+	return &t.LoadBalancingStrategy
+}
+func (t *HCloudEnvSpecFragment) GetCustomDomain() *string {
+	if t == nil {
+		t = &HCloudEnvSpecFragment{}
+	}
+	return t.CustomDomain
+}
+func (t *HCloudEnvSpecFragment) GetNodeGroups() []*HCloudEnvSpecFragment_NodeGroups {
+	if t == nil {
+		t = &HCloudEnvSpecFragment{}
+	}
+	return t.NodeGroups
+}
+func (t *HCloudEnvSpecFragment) GetMaintenanceWindows() []*HCloudEnvSpecFragment_MaintenanceWindows {
+	if t == nil {
+		t = &HCloudEnvSpecFragment{}
+	}
+	return t.MaintenanceWindows
+}
+func (t *HCloudEnvSpecFragment) GetNetworkZone() string {
+	if t == nil {
+		t = &HCloudEnvSpecFragment{}
+	}
+	return t.NetworkZone
+}
+func (t *HCloudEnvSpecFragment) GetLocations() []string {
+	if t == nil {
+		t = &HCloudEnvSpecFragment{}
+	}
+	return t.Locations
+}
+func (t *HCloudEnvSpecFragment) GetCidr() string {
+	if t == nil {
+		t = &HCloudEnvSpecFragment{}
+	}
+	return t.Cidr
+}
+func (t *HCloudEnvSpecFragment) GetCloudConnect() bool {
+	if t == nil {
+		t = &HCloudEnvSpecFragment{}
+	}
+	return t.CloudConnect
+}
+func (t *HCloudEnvSpecFragment) GetWireguardPeers() []*HCloudEnvSpecFragment_WireguardPeers {
+	if t == nil {
+		t = &HCloudEnvSpecFragment{}
+	}
+	return t.WireguardPeers
+}
+
 type K8SEnvSpecFragment struct {
 	LoadBalancers         K8SEnvSpecFragment_LoadBalancers         "json:\"loadBalancers\" graphql:\"loadBalancers\""
 	LoadBalancingStrategy LoadBalancingStrategy                    "json:\"loadBalancingStrategy\" graphql:\"loadBalancingStrategy\""
@@ -859,6 +933,163 @@ func (t *GCPEnvSpecFragment_MaintenanceWindows) GetDays() []Day {
 		t = &GCPEnvSpecFragment_MaintenanceWindows{}
 	}
 	return t.Days
+}
+
+type HCloudEnvSpecFragment_LoadBalancers_Public struct {
+	Enabled        bool     "json:\"enabled\" graphql:\"enabled\""
+	SourceIPRanges []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
+}
+
+func (t *HCloudEnvSpecFragment_LoadBalancers_Public) GetEnabled() bool {
+	if t == nil {
+		t = &HCloudEnvSpecFragment_LoadBalancers_Public{}
+	}
+	return t.Enabled
+}
+func (t *HCloudEnvSpecFragment_LoadBalancers_Public) GetSourceIPRanges() []string {
+	if t == nil {
+		t = &HCloudEnvSpecFragment_LoadBalancers_Public{}
+	}
+	return t.SourceIPRanges
+}
+
+type HCloudEnvSpecFragment_LoadBalancers_Internal struct {
+	Enabled        bool     "json:\"enabled\" graphql:\"enabled\""
+	SourceIPRanges []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
+}
+
+func (t *HCloudEnvSpecFragment_LoadBalancers_Internal) GetEnabled() bool {
+	if t == nil {
+		t = &HCloudEnvSpecFragment_LoadBalancers_Internal{}
+	}
+	return t.Enabled
+}
+func (t *HCloudEnvSpecFragment_LoadBalancers_Internal) GetSourceIPRanges() []string {
+	if t == nil {
+		t = &HCloudEnvSpecFragment_LoadBalancers_Internal{}
+	}
+	return t.SourceIPRanges
+}
+
+type HCloudEnvSpecFragment_LoadBalancers struct {
+	Public   HCloudEnvSpecFragment_LoadBalancers_Public   "json:\"public\" graphql:\"public\""
+	Internal HCloudEnvSpecFragment_LoadBalancers_Internal "json:\"internal\" graphql:\"internal\""
+}
+
+func (t *HCloudEnvSpecFragment_LoadBalancers) GetPublic() *HCloudEnvSpecFragment_LoadBalancers_Public {
+	if t == nil {
+		t = &HCloudEnvSpecFragment_LoadBalancers{}
+	}
+	return &t.Public
+}
+func (t *HCloudEnvSpecFragment_LoadBalancers) GetInternal() *HCloudEnvSpecFragment_LoadBalancers_Internal {
+	if t == nil {
+		t = &HCloudEnvSpecFragment_LoadBalancers{}
+	}
+	return &t.Internal
+}
+
+type HCloudEnvSpecFragment_NodeGroups struct {
+	Name                string            "json:\"name\" graphql:\"name\""
+	NodeType            string            "json:\"nodeType\" graphql:\"nodeType\""
+	CapacityPerLocation int64             "json:\"capacityPerLocation\" graphql:\"capacityPerLocation\""
+	Locations           []string          "json:\"locations\" graphql:\"locations\""
+	Reservations        []NodeReservation "json:\"reservations\" graphql:\"reservations\""
+}
+
+func (t *HCloudEnvSpecFragment_NodeGroups) GetName() string {
+	if t == nil {
+		t = &HCloudEnvSpecFragment_NodeGroups{}
+	}
+	return t.Name
+}
+func (t *HCloudEnvSpecFragment_NodeGroups) GetNodeType() string {
+	if t == nil {
+		t = &HCloudEnvSpecFragment_NodeGroups{}
+	}
+	return t.NodeType
+}
+func (t *HCloudEnvSpecFragment_NodeGroups) GetCapacityPerLocation() int64 {
+	if t == nil {
+		t = &HCloudEnvSpecFragment_NodeGroups{}
+	}
+	return t.CapacityPerLocation
+}
+func (t *HCloudEnvSpecFragment_NodeGroups) GetLocations() []string {
+	if t == nil {
+		t = &HCloudEnvSpecFragment_NodeGroups{}
+	}
+	return t.Locations
+}
+func (t *HCloudEnvSpecFragment_NodeGroups) GetReservations() []NodeReservation {
+	if t == nil {
+		t = &HCloudEnvSpecFragment_NodeGroups{}
+	}
+	return t.Reservations
+}
+
+type HCloudEnvSpecFragment_MaintenanceWindows struct {
+	Name          string "json:\"name\" graphql:\"name\""
+	Enabled       bool   "json:\"enabled\" graphql:\"enabled\""
+	Hour          int64  "json:\"hour\" graphql:\"hour\""
+	LengthInHours int64  "json:\"lengthInHours\" graphql:\"lengthInHours\""
+	Days          []Day  "json:\"days\" graphql:\"days\""
+}
+
+func (t *HCloudEnvSpecFragment_MaintenanceWindows) GetName() string {
+	if t == nil {
+		t = &HCloudEnvSpecFragment_MaintenanceWindows{}
+	}
+	return t.Name
+}
+func (t *HCloudEnvSpecFragment_MaintenanceWindows) GetEnabled() bool {
+	if t == nil {
+		t = &HCloudEnvSpecFragment_MaintenanceWindows{}
+	}
+	return t.Enabled
+}
+func (t *HCloudEnvSpecFragment_MaintenanceWindows) GetHour() int64 {
+	if t == nil {
+		t = &HCloudEnvSpecFragment_MaintenanceWindows{}
+	}
+	return t.Hour
+}
+func (t *HCloudEnvSpecFragment_MaintenanceWindows) GetLengthInHours() int64 {
+	if t == nil {
+		t = &HCloudEnvSpecFragment_MaintenanceWindows{}
+	}
+	return t.LengthInHours
+}
+func (t *HCloudEnvSpecFragment_MaintenanceWindows) GetDays() []Day {
+	if t == nil {
+		t = &HCloudEnvSpecFragment_MaintenanceWindows{}
+	}
+	return t.Days
+}
+
+type HCloudEnvSpecFragment_WireguardPeers struct {
+	PublicKey  string   "json:\"publicKey\" graphql:\"publicKey\""
+	AllowedIPs []string "json:\"allowedIPs\" graphql:\"allowedIPs\""
+	Endpoint   string   "json:\"endpoint\" graphql:\"endpoint\""
+}
+
+func (t *HCloudEnvSpecFragment_WireguardPeers) GetPublicKey() string {
+	if t == nil {
+		t = &HCloudEnvSpecFragment_WireguardPeers{}
+	}
+	return t.PublicKey
+}
+func (t *HCloudEnvSpecFragment_WireguardPeers) GetAllowedIPs() []string {
+	if t == nil {
+		t = &HCloudEnvSpecFragment_WireguardPeers{}
+	}
+	return t.AllowedIPs
+}
+func (t *HCloudEnvSpecFragment_WireguardPeers) GetEndpoint() string {
+	if t == nil {
+		t = &HCloudEnvSpecFragment_WireguardPeers{}
+	}
+	return t.Endpoint
 }
 
 type K8SEnvSpecFragment_LoadBalancers_Public_Annotations struct {
@@ -3309,6 +3540,638 @@ func (t *DeleteGCPEnv_DeleteGCPEnv) GetPendingMfa() bool {
 	return t.PendingMfa
 }
 
+type GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Public struct {
+	Enabled        bool     "json:\"enabled\" graphql:\"enabled\""
+	SourceIPRanges []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
+}
+
+func (t *GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Public) GetEnabled() bool {
+	if t == nil {
+		t = &GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Public{}
+	}
+	return t.Enabled
+}
+func (t *GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Public) GetSourceIPRanges() []string {
+	if t == nil {
+		t = &GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Public{}
+	}
+	return t.SourceIPRanges
+}
+
+type GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Internal struct {
+	Enabled        bool     "json:\"enabled\" graphql:\"enabled\""
+	SourceIPRanges []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
+}
+
+func (t *GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Internal) GetEnabled() bool {
+	if t == nil {
+		t = &GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Internal{}
+	}
+	return t.Enabled
+}
+func (t *GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Internal) GetSourceIPRanges() []string {
+	if t == nil {
+		t = &GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Internal{}
+	}
+	return t.SourceIPRanges
+}
+
+type GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers struct {
+	Public   GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Public   "json:\"public\" graphql:\"public\""
+	Internal GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Internal "json:\"internal\" graphql:\"internal\""
+}
+
+func (t *GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers) GetPublic() *GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Public {
+	if t == nil {
+		t = &GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers{}
+	}
+	return &t.Public
+}
+func (t *GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers) GetInternal() *GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Internal {
+	if t == nil {
+		t = &GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers{}
+	}
+	return &t.Internal
+}
+
+type GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups struct {
+	Name                string            "json:\"name\" graphql:\"name\""
+	NodeType            string            "json:\"nodeType\" graphql:\"nodeType\""
+	CapacityPerLocation int64             "json:\"capacityPerLocation\" graphql:\"capacityPerLocation\""
+	Locations           []string          "json:\"locations\" graphql:\"locations\""
+	Reservations        []NodeReservation "json:\"reservations\" graphql:\"reservations\""
+}
+
+func (t *GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups) GetName() string {
+	if t == nil {
+		t = &GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups{}
+	}
+	return t.Name
+}
+func (t *GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups) GetNodeType() string {
+	if t == nil {
+		t = &GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups{}
+	}
+	return t.NodeType
+}
+func (t *GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups) GetCapacityPerLocation() int64 {
+	if t == nil {
+		t = &GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups{}
+	}
+	return t.CapacityPerLocation
+}
+func (t *GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups) GetLocations() []string {
+	if t == nil {
+		t = &GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups{}
+	}
+	return t.Locations
+}
+func (t *GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups) GetReservations() []NodeReservation {
+	if t == nil {
+		t = &GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups{}
+	}
+	return t.Reservations
+}
+
+type GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows struct {
+	Name          string "json:\"name\" graphql:\"name\""
+	Enabled       bool   "json:\"enabled\" graphql:\"enabled\""
+	Hour          int64  "json:\"hour\" graphql:\"hour\""
+	LengthInHours int64  "json:\"lengthInHours\" graphql:\"lengthInHours\""
+	Days          []Day  "json:\"days\" graphql:\"days\""
+}
+
+func (t *GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows) GetName() string {
+	if t == nil {
+		t = &GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows{}
+	}
+	return t.Name
+}
+func (t *GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows) GetEnabled() bool {
+	if t == nil {
+		t = &GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows{}
+	}
+	return t.Enabled
+}
+func (t *GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows) GetHour() int64 {
+	if t == nil {
+		t = &GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows{}
+	}
+	return t.Hour
+}
+func (t *GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows) GetLengthInHours() int64 {
+	if t == nil {
+		t = &GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows{}
+	}
+	return t.LengthInHours
+}
+func (t *GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows) GetDays() []Day {
+	if t == nil {
+		t = &GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows{}
+	}
+	return t.Days
+}
+
+type GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_WireguardPeers struct {
+	PublicKey  string   "json:\"publicKey\" graphql:\"publicKey\""
+	AllowedIPs []string "json:\"allowedIPs\" graphql:\"allowedIPs\""
+	Endpoint   string   "json:\"endpoint\" graphql:\"endpoint\""
+}
+
+func (t *GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_WireguardPeers) GetPublicKey() string {
+	if t == nil {
+		t = &GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_WireguardPeers{}
+	}
+	return t.PublicKey
+}
+func (t *GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_WireguardPeers) GetAllowedIPs() []string {
+	if t == nil {
+		t = &GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_WireguardPeers{}
+	}
+	return t.AllowedIPs
+}
+func (t *GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_WireguardPeers) GetEndpoint() string {
+	if t == nil {
+		t = &GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_WireguardPeers{}
+	}
+	return t.Endpoint
+}
+
+type GetHCloudEnv_HcloudEnv struct {
+	Name         string                 "json:\"name\" graphql:\"name\""
+	Spec         *HCloudEnvSpecFragment "json:\"spec\" graphql:\"spec\""
+	SpecRevision int64                  "json:\"specRevision\" graphql:\"specRevision\""
+}
+
+func (t *GetHCloudEnv_HcloudEnv) GetName() string {
+	if t == nil {
+		t = &GetHCloudEnv_HcloudEnv{}
+	}
+	return t.Name
+}
+func (t *GetHCloudEnv_HcloudEnv) GetSpec() *HCloudEnvSpecFragment {
+	if t == nil {
+		t = &GetHCloudEnv_HcloudEnv{}
+	}
+	return t.Spec
+}
+func (t *GetHCloudEnv_HcloudEnv) GetSpecRevision() int64 {
+	if t == nil {
+		t = &GetHCloudEnv_HcloudEnv{}
+	}
+	return t.SpecRevision
+}
+
+type GetHCloudEnvStatus_HcloudEnv_Status_Errors struct {
+	Code    EnvStatusErrorCode "json:\"code\" graphql:\"code\""
+	Message string             "json:\"message\" graphql:\"message\""
+}
+
+func (t *GetHCloudEnvStatus_HcloudEnv_Status_Errors) GetCode() *EnvStatusErrorCode {
+	if t == nil {
+		t = &GetHCloudEnvStatus_HcloudEnv_Status_Errors{}
+	}
+	return &t.Code
+}
+func (t *GetHCloudEnvStatus_HcloudEnv_Status_Errors) GetMessage() string {
+	if t == nil {
+		t = &GetHCloudEnvStatus_HcloudEnv_Status_Errors{}
+	}
+	return t.Message
+}
+
+type GetHCloudEnvStatus_HcloudEnv_Status struct {
+	AppliedSpecRevision int64                                         "json:\"appliedSpecRevision\" graphql:\"appliedSpecRevision\""
+	PendingDelete       bool                                          "json:\"pendingDelete\" graphql:\"pendingDelete\""
+	Errors              []*GetHCloudEnvStatus_HcloudEnv_Status_Errors "json:\"errors\" graphql:\"errors\""
+}
+
+func (t *GetHCloudEnvStatus_HcloudEnv_Status) GetAppliedSpecRevision() int64 {
+	if t == nil {
+		t = &GetHCloudEnvStatus_HcloudEnv_Status{}
+	}
+	return t.AppliedSpecRevision
+}
+func (t *GetHCloudEnvStatus_HcloudEnv_Status) GetPendingDelete() bool {
+	if t == nil {
+		t = &GetHCloudEnvStatus_HcloudEnv_Status{}
+	}
+	return t.PendingDelete
+}
+func (t *GetHCloudEnvStatus_HcloudEnv_Status) GetErrors() []*GetHCloudEnvStatus_HcloudEnv_Status_Errors {
+	if t == nil {
+		t = &GetHCloudEnvStatus_HcloudEnv_Status{}
+	}
+	return t.Errors
+}
+
+type GetHCloudEnvStatus_HcloudEnv struct {
+	Name         string                              "json:\"name\" graphql:\"name\""
+	SpecRevision int64                               "json:\"specRevision\" graphql:\"specRevision\""
+	Status       GetHCloudEnvStatus_HcloudEnv_Status "json:\"status\" graphql:\"status\""
+}
+
+func (t *GetHCloudEnvStatus_HcloudEnv) GetName() string {
+	if t == nil {
+		t = &GetHCloudEnvStatus_HcloudEnv{}
+	}
+	return t.Name
+}
+func (t *GetHCloudEnvStatus_HcloudEnv) GetSpecRevision() int64 {
+	if t == nil {
+		t = &GetHCloudEnvStatus_HcloudEnv{}
+	}
+	return t.SpecRevision
+}
+func (t *GetHCloudEnvStatus_HcloudEnv) GetStatus() *GetHCloudEnvStatus_HcloudEnv_Status {
+	if t == nil {
+		t = &GetHCloudEnvStatus_HcloudEnv{}
+	}
+	return &t.Status
+}
+
+type CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Public struct {
+	Enabled        bool     "json:\"enabled\" graphql:\"enabled\""
+	SourceIPRanges []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
+}
+
+func (t *CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Public) GetEnabled() bool {
+	if t == nil {
+		t = &CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Public{}
+	}
+	return t.Enabled
+}
+func (t *CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Public) GetSourceIPRanges() []string {
+	if t == nil {
+		t = &CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Public{}
+	}
+	return t.SourceIPRanges
+}
+
+type CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Internal struct {
+	Enabled        bool     "json:\"enabled\" graphql:\"enabled\""
+	SourceIPRanges []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
+}
+
+func (t *CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Internal) GetEnabled() bool {
+	if t == nil {
+		t = &CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Internal{}
+	}
+	return t.Enabled
+}
+func (t *CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Internal) GetSourceIPRanges() []string {
+	if t == nil {
+		t = &CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Internal{}
+	}
+	return t.SourceIPRanges
+}
+
+type CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers struct {
+	Public   CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Public   "json:\"public\" graphql:\"public\""
+	Internal CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Internal "json:\"internal\" graphql:\"internal\""
+}
+
+func (t *CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers) GetPublic() *CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Public {
+	if t == nil {
+		t = &CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers{}
+	}
+	return &t.Public
+}
+func (t *CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers) GetInternal() *CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Internal {
+	if t == nil {
+		t = &CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers{}
+	}
+	return &t.Internal
+}
+
+type CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups struct {
+	Name                string            "json:\"name\" graphql:\"name\""
+	NodeType            string            "json:\"nodeType\" graphql:\"nodeType\""
+	CapacityPerLocation int64             "json:\"capacityPerLocation\" graphql:\"capacityPerLocation\""
+	Locations           []string          "json:\"locations\" graphql:\"locations\""
+	Reservations        []NodeReservation "json:\"reservations\" graphql:\"reservations\""
+}
+
+func (t *CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups) GetName() string {
+	if t == nil {
+		t = &CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups{}
+	}
+	return t.Name
+}
+func (t *CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups) GetNodeType() string {
+	if t == nil {
+		t = &CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups{}
+	}
+	return t.NodeType
+}
+func (t *CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups) GetCapacityPerLocation() int64 {
+	if t == nil {
+		t = &CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups{}
+	}
+	return t.CapacityPerLocation
+}
+func (t *CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups) GetLocations() []string {
+	if t == nil {
+		t = &CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups{}
+	}
+	return t.Locations
+}
+func (t *CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups) GetReservations() []NodeReservation {
+	if t == nil {
+		t = &CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups{}
+	}
+	return t.Reservations
+}
+
+type CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows struct {
+	Name          string "json:\"name\" graphql:\"name\""
+	Enabled       bool   "json:\"enabled\" graphql:\"enabled\""
+	Hour          int64  "json:\"hour\" graphql:\"hour\""
+	LengthInHours int64  "json:\"lengthInHours\" graphql:\"lengthInHours\""
+	Days          []Day  "json:\"days\" graphql:\"days\""
+}
+
+func (t *CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows) GetName() string {
+	if t == nil {
+		t = &CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows{}
+	}
+	return t.Name
+}
+func (t *CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows) GetEnabled() bool {
+	if t == nil {
+		t = &CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows{}
+	}
+	return t.Enabled
+}
+func (t *CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows) GetHour() int64 {
+	if t == nil {
+		t = &CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows{}
+	}
+	return t.Hour
+}
+func (t *CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows) GetLengthInHours() int64 {
+	if t == nil {
+		t = &CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows{}
+	}
+	return t.LengthInHours
+}
+func (t *CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows) GetDays() []Day {
+	if t == nil {
+		t = &CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows{}
+	}
+	return t.Days
+}
+
+type CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_WireguardPeers struct {
+	PublicKey  string   "json:\"publicKey\" graphql:\"publicKey\""
+	AllowedIPs []string "json:\"allowedIPs\" graphql:\"allowedIPs\""
+	Endpoint   string   "json:\"endpoint\" graphql:\"endpoint\""
+}
+
+func (t *CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_WireguardPeers) GetPublicKey() string {
+	if t == nil {
+		t = &CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_WireguardPeers{}
+	}
+	return t.PublicKey
+}
+func (t *CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_WireguardPeers) GetAllowedIPs() []string {
+	if t == nil {
+		t = &CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_WireguardPeers{}
+	}
+	return t.AllowedIPs
+}
+func (t *CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_WireguardPeers) GetEndpoint() string {
+	if t == nil {
+		t = &CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_WireguardPeers{}
+	}
+	return t.Endpoint
+}
+
+type CreateHCloudEnv_CreateHCloudEnv struct {
+	MutationID   string                 "json:\"mutationId\" graphql:\"mutationId\""
+	Spec         *HCloudEnvSpecFragment "json:\"spec\" graphql:\"spec\""
+	SpecRevision int64                  "json:\"specRevision\" graphql:\"specRevision\""
+}
+
+func (t *CreateHCloudEnv_CreateHCloudEnv) GetMutationID() string {
+	if t == nil {
+		t = &CreateHCloudEnv_CreateHCloudEnv{}
+	}
+	return t.MutationID
+}
+func (t *CreateHCloudEnv_CreateHCloudEnv) GetSpec() *HCloudEnvSpecFragment {
+	if t == nil {
+		t = &CreateHCloudEnv_CreateHCloudEnv{}
+	}
+	return t.Spec
+}
+func (t *CreateHCloudEnv_CreateHCloudEnv) GetSpecRevision() int64 {
+	if t == nil {
+		t = &CreateHCloudEnv_CreateHCloudEnv{}
+	}
+	return t.SpecRevision
+}
+
+type UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Public struct {
+	Enabled        bool     "json:\"enabled\" graphql:\"enabled\""
+	SourceIPRanges []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
+}
+
+func (t *UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Public) GetEnabled() bool {
+	if t == nil {
+		t = &UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Public{}
+	}
+	return t.Enabled
+}
+func (t *UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Public) GetSourceIPRanges() []string {
+	if t == nil {
+		t = &UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Public{}
+	}
+	return t.SourceIPRanges
+}
+
+type UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Internal struct {
+	Enabled        bool     "json:\"enabled\" graphql:\"enabled\""
+	SourceIPRanges []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
+}
+
+func (t *UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Internal) GetEnabled() bool {
+	if t == nil {
+		t = &UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Internal{}
+	}
+	return t.Enabled
+}
+func (t *UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Internal) GetSourceIPRanges() []string {
+	if t == nil {
+		t = &UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Internal{}
+	}
+	return t.SourceIPRanges
+}
+
+type UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers struct {
+	Public   UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Public   "json:\"public\" graphql:\"public\""
+	Internal UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Internal "json:\"internal\" graphql:\"internal\""
+}
+
+func (t *UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers) GetPublic() *UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Public {
+	if t == nil {
+		t = &UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers{}
+	}
+	return &t.Public
+}
+func (t *UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers) GetInternal() *UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Internal {
+	if t == nil {
+		t = &UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers{}
+	}
+	return &t.Internal
+}
+
+type UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups struct {
+	Name                string            "json:\"name\" graphql:\"name\""
+	NodeType            string            "json:\"nodeType\" graphql:\"nodeType\""
+	CapacityPerLocation int64             "json:\"capacityPerLocation\" graphql:\"capacityPerLocation\""
+	Locations           []string          "json:\"locations\" graphql:\"locations\""
+	Reservations        []NodeReservation "json:\"reservations\" graphql:\"reservations\""
+}
+
+func (t *UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups) GetName() string {
+	if t == nil {
+		t = &UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups{}
+	}
+	return t.Name
+}
+func (t *UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups) GetNodeType() string {
+	if t == nil {
+		t = &UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups{}
+	}
+	return t.NodeType
+}
+func (t *UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups) GetCapacityPerLocation() int64 {
+	if t == nil {
+		t = &UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups{}
+	}
+	return t.CapacityPerLocation
+}
+func (t *UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups) GetLocations() []string {
+	if t == nil {
+		t = &UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups{}
+	}
+	return t.Locations
+}
+func (t *UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups) GetReservations() []NodeReservation {
+	if t == nil {
+		t = &UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups{}
+	}
+	return t.Reservations
+}
+
+type UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows struct {
+	Name          string "json:\"name\" graphql:\"name\""
+	Enabled       bool   "json:\"enabled\" graphql:\"enabled\""
+	Hour          int64  "json:\"hour\" graphql:\"hour\""
+	LengthInHours int64  "json:\"lengthInHours\" graphql:\"lengthInHours\""
+	Days          []Day  "json:\"days\" graphql:\"days\""
+}
+
+func (t *UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows) GetName() string {
+	if t == nil {
+		t = &UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows{}
+	}
+	return t.Name
+}
+func (t *UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows) GetEnabled() bool {
+	if t == nil {
+		t = &UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows{}
+	}
+	return t.Enabled
+}
+func (t *UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows) GetHour() int64 {
+	if t == nil {
+		t = &UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows{}
+	}
+	return t.Hour
+}
+func (t *UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows) GetLengthInHours() int64 {
+	if t == nil {
+		t = &UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows{}
+	}
+	return t.LengthInHours
+}
+func (t *UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows) GetDays() []Day {
+	if t == nil {
+		t = &UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows{}
+	}
+	return t.Days
+}
+
+type UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_WireguardPeers struct {
+	PublicKey  string   "json:\"publicKey\" graphql:\"publicKey\""
+	AllowedIPs []string "json:\"allowedIPs\" graphql:\"allowedIPs\""
+	Endpoint   string   "json:\"endpoint\" graphql:\"endpoint\""
+}
+
+func (t *UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_WireguardPeers) GetPublicKey() string {
+	if t == nil {
+		t = &UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_WireguardPeers{}
+	}
+	return t.PublicKey
+}
+func (t *UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_WireguardPeers) GetAllowedIPs() []string {
+	if t == nil {
+		t = &UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_WireguardPeers{}
+	}
+	return t.AllowedIPs
+}
+func (t *UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_WireguardPeers) GetEndpoint() string {
+	if t == nil {
+		t = &UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_WireguardPeers{}
+	}
+	return t.Endpoint
+}
+
+type UpdateHCloudEnv_UpdateHCloudEnv struct {
+	MutationID   string                 "json:\"mutationId\" graphql:\"mutationId\""
+	Spec         *HCloudEnvSpecFragment "json:\"spec\" graphql:\"spec\""
+	SpecRevision int64                  "json:\"specRevision\" graphql:\"specRevision\""
+}
+
+func (t *UpdateHCloudEnv_UpdateHCloudEnv) GetMutationID() string {
+	if t == nil {
+		t = &UpdateHCloudEnv_UpdateHCloudEnv{}
+	}
+	return t.MutationID
+}
+func (t *UpdateHCloudEnv_UpdateHCloudEnv) GetSpec() *HCloudEnvSpecFragment {
+	if t == nil {
+		t = &UpdateHCloudEnv_UpdateHCloudEnv{}
+	}
+	return t.Spec
+}
+func (t *UpdateHCloudEnv_UpdateHCloudEnv) GetSpecRevision() int64 {
+	if t == nil {
+		t = &UpdateHCloudEnv_UpdateHCloudEnv{}
+	}
+	return t.SpecRevision
+}
+
+type DeleteHCloudEnv_DeleteHCloudEnv struct {
+	MutationID string "json:\"mutationId\" graphql:\"mutationId\""
+	PendingMfa bool   "json:\"pendingMFA\" graphql:\"pendingMFA\""
+}
+
+func (t *DeleteHCloudEnv_DeleteHCloudEnv) GetMutationID() string {
+	if t == nil {
+		t = &DeleteHCloudEnv_DeleteHCloudEnv{}
+	}
+	return t.MutationID
+}
+func (t *DeleteHCloudEnv_DeleteHCloudEnv) GetPendingMfa() bool {
+	if t == nil {
+		t = &DeleteHCloudEnv_DeleteHCloudEnv{}
+	}
+	return t.PendingMfa
+}
+
 type GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Public_Annotations struct {
 	Key   string "json:\"key\" graphql:\"key\""
 	Value string "json:\"value\" graphql:\"value\""
@@ -4655,6 +5518,61 @@ func (t *DeleteGCPEnv) GetDeleteGCPEnv() *DeleteGCPEnv_DeleteGCPEnv {
 	return &t.DeleteGCPEnv
 }
 
+type GetHCloudEnv struct {
+	HcloudEnv *GetHCloudEnv_HcloudEnv "json:\"hcloudEnv,omitempty\" graphql:\"hcloudEnv\""
+}
+
+func (t *GetHCloudEnv) GetHcloudEnv() *GetHCloudEnv_HcloudEnv {
+	if t == nil {
+		t = &GetHCloudEnv{}
+	}
+	return t.HcloudEnv
+}
+
+type GetHCloudEnvStatus struct {
+	HcloudEnv *GetHCloudEnvStatus_HcloudEnv "json:\"hcloudEnv,omitempty\" graphql:\"hcloudEnv\""
+}
+
+func (t *GetHCloudEnvStatus) GetHcloudEnv() *GetHCloudEnvStatus_HcloudEnv {
+	if t == nil {
+		t = &GetHCloudEnvStatus{}
+	}
+	return t.HcloudEnv
+}
+
+type CreateHCloudEnv struct {
+	CreateHCloudEnv CreateHCloudEnv_CreateHCloudEnv "json:\"createHCloudEnv\" graphql:\"createHCloudEnv\""
+}
+
+func (t *CreateHCloudEnv) GetCreateHCloudEnv() *CreateHCloudEnv_CreateHCloudEnv {
+	if t == nil {
+		t = &CreateHCloudEnv{}
+	}
+	return &t.CreateHCloudEnv
+}
+
+type UpdateHCloudEnv struct {
+	UpdateHCloudEnv UpdateHCloudEnv_UpdateHCloudEnv "json:\"updateHCloudEnv\" graphql:\"updateHCloudEnv\""
+}
+
+func (t *UpdateHCloudEnv) GetUpdateHCloudEnv() *UpdateHCloudEnv_UpdateHCloudEnv {
+	if t == nil {
+		t = &UpdateHCloudEnv{}
+	}
+	return &t.UpdateHCloudEnv
+}
+
+type DeleteHCloudEnv struct {
+	DeleteHCloudEnv DeleteHCloudEnv_DeleteHCloudEnv "json:\"deleteHCloudEnv\" graphql:\"deleteHCloudEnv\""
+}
+
+func (t *DeleteHCloudEnv) GetDeleteHCloudEnv() *DeleteHCloudEnv_DeleteHCloudEnv {
+	if t == nil {
+		t = &DeleteHCloudEnv{}
+	}
+	return &t.DeleteHCloudEnv
+}
+
 type GetK8SEnv struct {
 	K8sEnv *GetK8SEnv_K8sEnv "json:\"k8sEnv,omitempty\" graphql:\"k8sEnv\""
 }
@@ -5522,6 +6440,259 @@ func (c *Client) DeleteGCPEnv(ctx context.Context, input DeleteGCPEnvInput, inte
 	return &res, nil
 }
 
+const GetHCloudEnvDocument = `query GetHCloudEnv ($name: String!) {
+	hcloudEnv(name: $name) {
+		name
+		spec {
+			... HCloudEnvSpecFragment
+		}
+		specRevision
+	}
+}
+fragment HCloudEnvSpecFragment on HCloudEnvSpec {
+	loadBalancers {
+		public {
+			enabled
+			sourceIPRanges
+		}
+		internal {
+			enabled
+			sourceIPRanges
+		}
+	}
+	loadBalancingStrategy
+	customDomain
+	nodeGroups {
+		name
+		nodeType
+		capacityPerLocation
+		locations
+		reservations
+	}
+	maintenanceWindows {
+		name
+		enabled
+		hour
+		lengthInHours
+		days
+	}
+	networkZone
+	locations
+	cidr
+	cloudConnect
+	wireguardPeers {
+		publicKey
+		allowedIPs
+		endpoint
+	}
+}
+`
+
+func (c *Client) GetHCloudEnv(ctx context.Context, name string, interceptors ...clientv2.RequestInterceptor) (*GetHCloudEnv, error) {
+	vars := map[string]any{
+		"name": name,
+	}
+
+	var res GetHCloudEnv
+	if err := c.Client.Post(ctx, "GetHCloudEnv", GetHCloudEnvDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const GetHCloudEnvStatusDocument = `query GetHCloudEnvStatus ($name: String!) {
+	hcloudEnv(name: $name) {
+		name
+		specRevision
+		status {
+			appliedSpecRevision
+			pendingDelete
+			errors {
+				code
+				message
+			}
+		}
+	}
+}
+`
+
+func (c *Client) GetHCloudEnvStatus(ctx context.Context, name string, interceptors ...clientv2.RequestInterceptor) (*GetHCloudEnvStatus, error) {
+	vars := map[string]any{
+		"name": name,
+	}
+
+	var res GetHCloudEnvStatus
+	if err := c.Client.Post(ctx, "GetHCloudEnvStatus", GetHCloudEnvStatusDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const CreateHCloudEnvDocument = `mutation CreateHCloudEnv ($input: CreateHCloudEnvInput!) {
+	createHCloudEnv(input: $input) {
+		mutationId
+		spec {
+			... HCloudEnvSpecFragment
+		}
+		specRevision
+	}
+}
+fragment HCloudEnvSpecFragment on HCloudEnvSpec {
+	loadBalancers {
+		public {
+			enabled
+			sourceIPRanges
+		}
+		internal {
+			enabled
+			sourceIPRanges
+		}
+	}
+	loadBalancingStrategy
+	customDomain
+	nodeGroups {
+		name
+		nodeType
+		capacityPerLocation
+		locations
+		reservations
+	}
+	maintenanceWindows {
+		name
+		enabled
+		hour
+		lengthInHours
+		days
+	}
+	networkZone
+	locations
+	cidr
+	cloudConnect
+	wireguardPeers {
+		publicKey
+		allowedIPs
+		endpoint
+	}
+}
+`
+
+func (c *Client) CreateHCloudEnv(ctx context.Context, input CreateHCloudEnvInput, interceptors ...clientv2.RequestInterceptor) (*CreateHCloudEnv, error) {
+	vars := map[string]any{
+		"input": input,
+	}
+
+	var res CreateHCloudEnv
+	if err := c.Client.Post(ctx, "CreateHCloudEnv", CreateHCloudEnvDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const UpdateHCloudEnvDocument = `mutation UpdateHCloudEnv ($input: UpdateHCloudEnvInput!) {
+	updateHCloudEnv(input: $input) {
+		mutationId
+		spec {
+			... HCloudEnvSpecFragment
+		}
+		specRevision
+	}
+}
+fragment HCloudEnvSpecFragment on HCloudEnvSpec {
+	loadBalancers {
+		public {
+			enabled
+			sourceIPRanges
+		}
+		internal {
+			enabled
+			sourceIPRanges
+		}
+	}
+	loadBalancingStrategy
+	customDomain
+	nodeGroups {
+		name
+		nodeType
+		capacityPerLocation
+		locations
+		reservations
+	}
+	maintenanceWindows {
+		name
+		enabled
+		hour
+		lengthInHours
+		days
+	}
+	networkZone
+	locations
+	cidr
+	cloudConnect
+	wireguardPeers {
+		publicKey
+		allowedIPs
+		endpoint
+	}
+}
+`
+
+func (c *Client) UpdateHCloudEnv(ctx context.Context, input UpdateHCloudEnvInput, interceptors ...clientv2.RequestInterceptor) (*UpdateHCloudEnv, error) {
+	vars := map[string]any{
+		"input": input,
+	}
+
+	var res UpdateHCloudEnv
+	if err := c.Client.Post(ctx, "UpdateHCloudEnv", UpdateHCloudEnvDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const DeleteHCloudEnvDocument = `mutation DeleteHCloudEnv ($input: DeleteHCloudEnvInput!) {
+	deleteHCloudEnv(input: $input) {
+		mutationId
+		pendingMFA
+	}
+}
+`
+
+func (c *Client) DeleteHCloudEnv(ctx context.Context, input DeleteHCloudEnvInput, interceptors ...clientv2.RequestInterceptor) (*DeleteHCloudEnv, error) {
+	vars := map[string]any{
+		"input": input,
+	}
+
+	var res DeleteHCloudEnv
+	if err := c.Client.Post(ctx, "DeleteHCloudEnv", DeleteHCloudEnvDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
 const GetK8SEnvDocument = `query GetK8SEnv ($name: String!) {
 	k8sEnv(name: $name) {
 		name
@@ -5863,24 +7034,29 @@ func (c *Client) DeleteK8SEnv(ctx context.Context, input DeleteK8SEnvInput, inte
 }
 
 var DocumentOperationNames = map[string]string{
-	GetAWSEnvDocument:         "GetAWSEnv",
-	GetAWSEnvStatusDocument:   "GetAWSEnvStatus",
-	CreateAWSEnvDocument:      "CreateAWSEnv",
-	UpdateAWSEnvDocument:      "UpdateAWSEnv",
-	DeleteAWSEnvDocument:      "DeleteAWSEnv",
-	GetAzureEnvDocument:       "GetAzureEnv",
-	GetAzureEnvStatusDocument: "GetAzureEnvStatus",
-	CreateAzureEnvDocument:    "CreateAzureEnv",
-	UpdateAzureEnvDocument:    "UpdateAzureEnv",
-	DeleteAzureEnvDocument:    "DeleteAzureEnv",
-	GetGCPEnvDocument:         "GetGCPEnv",
-	GetGCPEnvStatusDocument:   "GetGCPEnvStatus",
-	CreateGCPEnvDocument:      "CreateGCPEnv",
-	UpdateGCPEnvDocument:      "UpdateGCPEnv",
-	DeleteGCPEnvDocument:      "DeleteGCPEnv",
-	GetK8SEnvDocument:         "GetK8SEnv",
-	GetK8SEnvStatusDocument:   "GetK8SEnvStatus",
-	CreateK8SEnvDocument:      "CreateK8SEnv",
-	UpdateK8SEnvDocument:      "UpdateK8SEnv",
-	DeleteK8SEnvDocument:      "DeleteK8SEnv",
+	GetAWSEnvDocument:          "GetAWSEnv",
+	GetAWSEnvStatusDocument:    "GetAWSEnvStatus",
+	CreateAWSEnvDocument:       "CreateAWSEnv",
+	UpdateAWSEnvDocument:       "UpdateAWSEnv",
+	DeleteAWSEnvDocument:       "DeleteAWSEnv",
+	GetAzureEnvDocument:        "GetAzureEnv",
+	GetAzureEnvStatusDocument:  "GetAzureEnvStatus",
+	CreateAzureEnvDocument:     "CreateAzureEnv",
+	UpdateAzureEnvDocument:     "UpdateAzureEnv",
+	DeleteAzureEnvDocument:     "DeleteAzureEnv",
+	GetGCPEnvDocument:          "GetGCPEnv",
+	GetGCPEnvStatusDocument:    "GetGCPEnvStatus",
+	CreateGCPEnvDocument:       "CreateGCPEnv",
+	UpdateGCPEnvDocument:       "UpdateGCPEnv",
+	DeleteGCPEnvDocument:       "DeleteGCPEnv",
+	GetHCloudEnvDocument:       "GetHCloudEnv",
+	GetHCloudEnvStatusDocument: "GetHCloudEnvStatus",
+	CreateHCloudEnvDocument:    "CreateHCloudEnv",
+	UpdateHCloudEnvDocument:    "UpdateHCloudEnv",
+	DeleteHCloudEnvDocument:    "DeleteHCloudEnv",
+	GetK8SEnvDocument:          "GetK8SEnv",
+	GetK8SEnvStatusDocument:    "GetK8SEnvStatus",
+	CreateK8SEnvDocument:       "CreateK8SEnv",
+	UpdateK8SEnvDocument:       "UpdateK8SEnv",
+	DeleteK8SEnvDocument:       "DeleteK8SEnv",
 }

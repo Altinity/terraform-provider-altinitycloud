@@ -1,0 +1,89 @@
+query GetHCloudEnv($name: String!) {
+  hcloudEnv(name: $name) {
+    name
+    spec {
+      ...HCloudEnvSpecFragment
+    }
+    specRevision
+  }
+}
+
+query GetHCloudEnvStatus($name: String!) {
+  hcloudEnv(name: $name) {
+    name
+    specRevision
+    status {
+      appliedSpecRevision
+      pendingDelete
+      errors {
+        code
+        message
+      }
+    }
+  }
+}
+
+mutation CreateHCloudEnv($input: CreateHCloudEnvInput!) {
+  createHCloudEnv(input: $input) {
+    mutationId
+    spec {
+      ...HCloudEnvSpecFragment
+    }
+    specRevision
+  }
+}
+
+mutation UpdateHCloudEnv($input: UpdateHCloudEnvInput!) {
+  updateHCloudEnv(input: $input) {
+    mutationId
+    spec {
+      ...HCloudEnvSpecFragment
+    }
+    specRevision
+  }
+}
+
+mutation DeleteHCloudEnv($input: DeleteHCloudEnvInput!) {
+  deleteHCloudEnv(input: $input) {
+    mutationId
+    pendingMFA
+  }
+}
+
+fragment HCloudEnvSpecFragment on HCloudEnvSpec {
+  loadBalancers {
+    public {
+      enabled
+      sourceIPRanges
+    }
+    internal {
+      enabled
+      sourceIPRanges
+    }
+  }
+  loadBalancingStrategy
+  customDomain
+  nodeGroups {
+    name
+    nodeType
+    capacityPerLocation
+    locations
+    reservations
+  }
+  maintenanceWindows {
+    name
+    enabled
+    hour
+    lengthInHours
+    days
+  }
+  networkZone
+  locations
+  cidr
+  cloudConnect
+  wireguardPeers {
+    publicKey
+    allowedIPs
+    endpoint
+  }
+}

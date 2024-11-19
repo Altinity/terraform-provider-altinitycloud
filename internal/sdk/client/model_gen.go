@@ -914,7 +914,7 @@ type CreateHCloudEnvSpecInput struct {
 	// Encrypted value of HCLOUD_TOKEN
 	HcloudTokenEnc string `json:"hcloudTokenEnc"`
 	// Wireguard peers configuration.
-	WireguardPeers []*HCloudEnvWireguardPeerInput `json:"wireguardPeers"`
+	WireguardPeers []*HCloudEnvWireguardPeerSpecInput `json:"wireguardPeers"`
 }
 
 // Kubernetes environment create request input.
@@ -1470,8 +1470,8 @@ type HCloudEnvStatus struct {
 	Errors []*EnvStatusError `json:"errors"`
 }
 
-// HCloud Wireguard peer configuration input.
-type HCloudEnvWireguardPeerInput struct {
+// HCloud Wireguard peer configuration.
+type HCloudEnvWireguardPeerSpec struct {
 	// Peer public key.
 	PublicKey string `json:"publicKey"`
 	// A list of addresses (in CIDR notation) that should get routed to the peer.
@@ -1480,8 +1480,8 @@ type HCloudEnvWireguardPeerInput struct {
 	Endpoint string `json:"endpoint"`
 }
 
-// HCloud Wireguard peer configuration.
-type HCloudEnvWireguardPeerSpec struct {
+// HCloud Wireguard peer configuration input.
+type HCloudEnvWireguardPeerSpecInput struct {
 	// Peer public key.
 	PublicKey string `json:"publicKey"`
 	// A list of addresses (in CIDR notation) that should get routed to the peer.
@@ -2054,7 +2054,7 @@ type UpdateHCloudEnvSpecInput struct {
 	// Encrypted value of HCLOUD_TOKEN
 	HcloudTokenEnc *string `json:"hcloudTokenEnc,omitempty"`
 	// Wireguard peers configuration.
-	WireguardPeers []*HCloudEnvWireguardPeerInput `json:"wireguardPeers"`
+	WireguardPeers []*HCloudEnvWireguardPeerSpecInput `json:"wireguardPeers"`
 }
 
 // Kubernetes environment update request input.

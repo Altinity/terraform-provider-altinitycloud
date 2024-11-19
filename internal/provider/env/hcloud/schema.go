@@ -6,7 +6,9 @@ import (
 	"github.com/MakeNowJust/heredoc/v2"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/provider/common"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/provider/modifiers"
+	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	dschema "github.com/hashicorp/terraform-plugin-framework/datasource/schema"
@@ -18,25 +20,22 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-func (r *AzureEnvResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
+func (r *HCloudEnvResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = rschema.Schema{
-		MarkdownDescription: heredoc.Doc(`Bring Your Own Cloud (BYOC) Azure environment resource.`),
+		MarkdownDescription: heredoc.Doc(`Bring Your Own Cloud (BYOC) HCloud environment resource.`),
 		Attributes: map[string]rschema.Attribute{
 			"id":                          common.IDAttribute,
 			"name":                        common.NameAttribute,
-			"custom_domain":               getCustomDomainAttribute(false, true, false),
+			"hcloud_token_enc":            getHCloudTokenEncAttribute(true, false, false),
+			"custom_domain":               common.GetCommonCustomDomainAttribute(false, true, false),
 			"load_balancers":              getLoadBalancersAttribute(false, true, true),
 			"load_balancing_strategy":     common.GetLoadBalancingStrategyAttribute(false, true, true),
 			"maintenance_windows":         common.GetMaintenanceWindowAttribute(false, true, false),
 			"cidr":                        common.GetCIDRAttribute(true, false, false),
-			"zones":                       common.GetZonesAttribute(false, true, true, common.AZURE_ZONES_DESCRIPTION),
-			"number_of_zones":             common.GetNumberOfZonesAttribute(false, true, true),
-			"node_groups":                 common.GetNodeGroupsAttribute(true, false, false),
-			"region":                      common.GetRegionAttribute(true, false, false, common.AZURE_REGION_DESCRIPTION),
-			"tenant_id":                   getAzureTenantIDAttribute(true, false, false),
-			"subscription_id":             getAzureSubscriptionIDAttribute(true, false, false),
-			"tags":                        getTagsAttribute(false, true, false),
-			"private_link_service":        getPrivateLinkServiceAttribute(false, true, true),
+			"locations":                   common.GetZonesAttribute(false, true, true, common.HCLOUD_LOCATIONS_DESCRIPTION),
+			"node_groups":                 getNodeGroupsAttribute(true, false, false),
+			"network_zone":                common.GetRegionAttribute(true, false, false, common.HCLOUD_NETWORK_ZONE_DESCRIPTION),
+			"wireguard_peers":             getWireguardPeersAttribute(false, true, false),
 			"spec_revision":               common.SpecRevisionAttribute,
 			"force_destroy":               common.GetForceDestroyAttribute(false, true, true),
 			"force_destroy_clusters":      common.GetForceDestroyClustersAttribute(false, true, true),
@@ -45,26 +44,23 @@ func (r *AzureEnvResource) Schema(ctx context.Context, req resource.SchemaReques
 	}
 }
 
-func (d *AzureEnvDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
+func (d *HCloudEnvDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = dschema.Schema{
-		MarkdownDescription: heredoc.Doc(`Bring Your Own Cloud (BYOC) Azure environment data source.`),
+		MarkdownDescription: heredoc.Doc(`Bring Your Own Cloud (BYOC) HCloud environment data source.`),
 		Attributes: map[string]dschema.Attribute{
 			"id":                      common.IDAttribute,
 			"name":                    common.NameAttribute,
-			"custom_domain":           getCustomDomainAttribute(false, false, true),
+			"hcloud_token_enc":        getHCloudTokenEncAttribute(false, false, true),
+			"custom_domain":           common.GetCommonCustomDomainAttribute(false, false, true),
 			"load_balancers":          getLoadBalancersAttribute(false, false, true),
 			"load_balancing_strategy": common.GetLoadBalancingStrategyAttribute(false, false, true),
 			"maintenance_windows":     common.GetMaintenanceWindowAttribute(false, false, true),
 			"cidr":                    common.GetCIDRAttribute(false, false, true),
-			"zones":                   common.GetZonesAttribute(false, false, true, common.AZURE_ZONES_DESCRIPTION),
-			"number_of_zones":         common.GetNumberOfZonesAttribute(false, false, true),
-			"node_groups":             common.GetNodeGroupsAttribute(false, false, true),
-			"region":                  common.GetRegionAttribute(false, false, true, common.AZURE_REGION_DESCRIPTION),
-			"tenant_id":               getAzureTenantIDAttribute(false, false, true),
-			"subscription_id":         getAzureSubscriptionIDAttribute(false, false, true),
-			"tags":                    getTagsAttribute(false, false, true),
-			"private_link_service":    getPrivateLinkServiceAttribute(false, false, true),
+			"locations":               common.GetZonesAttribute(false, false, true, common.HCLOUD_LOCATIONS_DESCRIPTION),
+			"node_groups":             getNodeGroupsAttribute(false, false, true),
+			"network_zone":            common.GetRegionAttribute(false, false, true, common.HCLOUD_NETWORK_ZONE_DESCRIPTION),
 			"spec_revision":           common.SpecRevisionAttribute,
+			"wireguard_peers":         getWireguardPeersAttribute(false, false, true),
 
 			// these options are not used in data sources,
 			// but we need to include them in the schema to avoid conversion errors.
@@ -112,68 +108,43 @@ func getLoadBalancersAttribute(required, optional, computed bool) rschema.Single
 	}
 }
 
-func getAzureTenantIDAttribute(required, optional, computed bool) rschema.StringAttribute {
+func getHCloudTokenEncAttribute(required, optional, computed bool) rschema.StringAttribute {
 	return rschema.StringAttribute{
 		Optional:            optional,
 		Required:            required,
 		Computed:            computed,
-		MarkdownDescription: common.AZURE_TENANT_ID_DESCRIPTION,
+		MarkdownDescription: common.HCLOUD_TOKEN_ENC_DESCRIPTION,
 		PlanModifiers: []planmodifier.String{
-			modifiers.ImmutableString("tenant_id"),
+			modifiers.ImmutableString("hcloud_token_enc"),
 		},
 	}
 }
 
-func getCustomDomainAttribute(required, optional, computed bool) rschema.StringAttribute {
-	return common.GetCustomDomainAttribute(required, optional, computed, common.AZURE_CUSTOM_DOMAIN_DESCRIPTION)
-}
-
-func getAzureSubscriptionIDAttribute(required, optional, computed bool) rschema.StringAttribute {
-	return rschema.StringAttribute{
+func getNodeGroupsAttribute(required, optional, computed bool) rschema.SetNestedAttribute {
+	return rschema.SetNestedAttribute{
+		NestedObject:        nodeGroupAttribute,
 		Optional:            optional,
 		Required:            required,
 		Computed:            computed,
-		MarkdownDescription: common.AZURE_SUBSCRIPTION_ID_DESCRIPTION,
-		PlanModifiers: []planmodifier.String{
-			modifiers.ImmutableString("subscription_id"),
+		MarkdownDescription: common.NODE_GROUP_DESCRIPTION,
+		Validators: []validator.Set{
+			setvalidator.SizeAtLeast(1),
 		},
 	}
 }
 
-func getTagsAttribute(required, optional, computed bool) rschema.ListNestedAttribute {
-	return common.GetTagsAttribute(required, optional, computed, common.AZURE_TAGS_DESCRIPTION)
-}
-
-func getPrivateLinkServiceAttribute(required, optional, computed bool) rschema.SingleNestedAttribute {
-	return rschema.SingleNestedAttribute{
+func getWireguardPeersAttribute(required, optional, computed bool) rschema.ListNestedAttribute {
+	return rschema.ListNestedAttribute{
+		NestedObject:        wireguardPeersAttribute,
 		Optional:            optional,
 		Required:            required,
 		Computed:            computed,
-		MarkdownDescription: common.AZURE_PRIVATE_LINK_SERVICE_DESCRIPTION,
-		Default:             objectdefault.StaticValue(privateLinkServiceDefaultObject),
-		Attributes: map[string]rschema.Attribute{
-			"allowed_subscriptions": rschema.ListAttribute{
-				ElementType:         types.StringType,
-				Optional:            true,
-				MarkdownDescription: common.AZURE_PRIVATE_LINK_SERVICE_ALLOWED_SUBSCRIPTIONS_DESCRIPTION,
-				Validators: []validator.List{
-					listvalidator.SizeAtLeast(1),
-				},
-			},
+		MarkdownDescription: common.HCLOUD_WIREGUARD_PEERS_DESCRIPTION,
+		Validators: []validator.List{
+			listvalidator.SizeAtLeast(1),
 		},
 	}
 }
-
-var privateLinkServiceDefaultObject, _ = types.ObjectValue(
-	map[string]attr.Type{
-		"allowed_subscriptions": types.ListType{
-			ElemType: types.StringType,
-		},
-	},
-	map[string]attr.Value{
-		"allowed_subscriptions": types.ListNull(types.StringType),
-	},
-)
 
 var loadBalancerDefaultObject, _ = types.ObjectValue(
 	map[string]attr.Type{
@@ -187,3 +158,52 @@ var loadBalancerDefaultObject, _ = types.ObjectValue(
 		"source_ip_ranges": types.ListNull(types.StringType),
 	},
 )
+
+var nodeGroupAttribute = rschema.NestedAttributeObject{
+	Attributes: map[string]rschema.Attribute{
+		"name": rschema.StringAttribute{
+			Optional:            true,
+			Computed:            true,
+			MarkdownDescription: common.NODE_GROUP_NAME_DESCRIPTION,
+		},
+		"node_type": rschema.StringAttribute{
+			Required:            true,
+			MarkdownDescription: common.NODE_GROUP_DESCRIPTION,
+		},
+		"capacity_per_location": rschema.Int64Attribute{
+			Required:            true,
+			MarkdownDescription: common.NODE_GROUP_CAPACITY_PER_ZONE_DESCRIPTION,
+			Validators: []validator.Int64{
+				int64validator.AtLeast(1),
+			},
+		},
+		"locations": rschema.ListAttribute{
+			ElementType:         types.StringType,
+			Optional:            true,
+			Computed:            true,
+			MarkdownDescription: common.NODE_GROUP_ZONES_DESCRIPTION,
+			Validators: []validator.List{
+				listvalidator.SizeAtLeast(1),
+			},
+		},
+		"reservations": common.GetReservationsAttribute(true, false, false),
+	},
+}
+
+var wireguardPeersAttribute = rschema.NestedAttributeObject{
+	Attributes: map[string]rschema.Attribute{
+		"public_key": rschema.StringAttribute{
+			Required:            true,
+			MarkdownDescription: common.HCLOUD_WIREGUARD_PEERS_PUBLIC_KEY_DESCRIPTION,
+		},
+		"allowed_ips": rschema.ListAttribute{
+			ElementType:         types.StringType,
+			Required:            true,
+			MarkdownDescription: common.HCLOUD_WIREGUARD_PEERS_ALLOWED_IPS_DESCRIPTION,
+		},
+		"endpoint": rschema.StringAttribute{
+			Required:            true,
+			MarkdownDescription: common.HCLOUD_WIREGUARD_PEERS_ENDPOINT_DESCRIPTION,
+		},
+	},
+}

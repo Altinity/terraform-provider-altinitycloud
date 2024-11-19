@@ -215,3 +215,20 @@ const AZURE_PRIVATE_LINK_SERVICE_DESCRIPTION = "Azure Private Link service confi
 const AZURE_PRIVATE_LINK_SERVICE_ALIAS_DESCRIPTION = "Private Link Service Alias / DNS Name in prefix.GUID.suffix format."
 const AZURE_PRIVATE_LINK_SERVICE_ALLOWED_SUBSCRIPTIONS_DESCRIPTION = "Lists subscription IDs permitted for Private Link access, securing service connections."
 const AZURE_TAGS_DESCRIPTION = "Tags to apply to Azure resources."
+
+// HCloud descriptions.
+const HCLOUD_TOKEN_ENC_DESCRIPTION = "HCloud token (stored encrypted)"
+const HCLOUD_NETWORK_ZONE_DESCRIPTION = `HCloud network ([docs](https://docs.hetzner.com/cloud/general/locations)). **[IMMUTABLE]**
+
+		Examples:
+		- "us-west".
+`
+const HCLOUD_LOCATIONS_DESCRIPTION = `Explicit list of HCloud locations. Currently supports single location only.
+
+		Examples:
+		- ["hil"]
+`
+const HCLOUD_WIREGUARD_PEERS_DESCRIPTION = "HCloud Wireguard peer configuration."
+const HCLOUD_WIREGUARD_PEERS_PUBLIC_KEY_DESCRIPTION = "Peer public key."
+const HCLOUD_WIREGUARD_PEERS_ALLOWED_IPS_DESCRIPTION = "A list of addresses (in CIDR notation) that should get routed to the peer."
+const HCLOUD_WIREGUARD_PEERS_ENDPOINT_DESCRIPTION = "Peer endpoint."
