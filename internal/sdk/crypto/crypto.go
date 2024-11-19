@@ -1,7 +1,6 @@
 package crypto
 
 import (
-	"bytes"
 	"context"
 	"crypto/md5"
 	"crypto/rand"
@@ -9,10 +8,11 @@ import (
 	"crypto/sha256"
 	"crypto/tls"
 	"crypto/x509"
+	"encoding/hex"
 	"encoding/pem"
-	"errors"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	sdkHttp "github.com/altinity/terraform-provider-altinitycloud/internal/sdk/http"
@@ -42,12 +42,11 @@ func (c *Crypto) Encrypt(pem string, value string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-
 	res, err := c.fetchPublicKey(context.Background(), tlsCert)
 	if err != nil {
 		return string(split[0]) + string(split[1]), err
 	}
-	key, err := parseRSAPublicKey(res)
+	key, err := ParseRSAPublicKey(res)
 	if err != nil {
 		return "", err
 	}
@@ -57,6 +56,30 @@ func (c *Crypto) Encrypt(pem string, value string) (string, error) {
 	}
 
 	return v, nil
+}
+
+func (c *Crypto) Decrypt(pkPem string, value string) (string, error) {
+	block, _ := pem.Decode([]byte(pkPem))
+	pk, err := x509.ParsePKCS1PrivateKey(block.Bytes)
+	if err != nil {
+		fmt.Print("ACA")
+		return "", err
+	}
+	parts := strings.SplitN(value, ".", 2)
+	if parts[0] != fingerprint(&pk.PublicKey) {
+		return "", fmt.Errorf("token encrypted with unknown key: %s", parts[0])
+	}
+	hash := sha256.New()
+	enc, err := hex.DecodeString(parts[1])
+	if err != nil {
+		fmt.Print("ACA2")
+		return "", err
+	}
+	cleartext, err := rsa.DecryptOAEP(hash, rand.Reader, pk, enc, nil)
+	if err != nil {
+		return "", err
+	}
+	return string(cleartext), nil
 }
 
 func (c *Crypto) fetchPublicKey(ctx context.Context, tlsCert tls.Certificate) (pem []byte, err error) {
@@ -76,7 +99,7 @@ func (c *Crypto) fetchPublicKey(ctx context.Context, tlsCert tls.Certificate) (p
 	if err != nil {
 		return nil, err
 	}
-	if _, err := decodeRSAPublicKey(body); err != nil {
+	if _, err := DecodeRSAPublicKey(body); err != nil {
 		return nil, fmt.Errorf("GET %s: parse body %q: %v", url, string(body), err)
 	}
 	return body, nil
@@ -115,18 +138,6 @@ func x509KeyPairWithLeaf(certPEMBlock, keyPEMBlock []byte) (tls.Certificate, err
 	return tlsCert, nil
 }
 
-func decodeRSAPublicKey(data []byte) (*pem.Block, error) {
-	return Decode(data, "RSA PUBLIC KEY")
-}
-
-func parseRSAPublicKey(data []byte) (*rsa.PublicKey, error) {
-	block, err := Decode(data, "RSA PUBLIC KEY")
-	if err != nil {
-		return nil, err
-	}
-	return x509.ParsePKCS1PublicKey(block.Bytes)
-}
-
 func encryptWithRSAPublicKey(token string, pub *rsa.PublicKey) (string, error) {
 	hash := sha256.New()
 	ciphertext, err := rsa.EncryptOAEP(hash, rand.Reader, pub, []byte(token), nil)
@@ -140,48 +151,4 @@ func fingerprint(pub *rsa.PublicKey) string {
 	h := md5.New()
 	h.Write(x509.MarshalPKCS1PublicKey(pub))
 	return fmt.Sprintf("%x", h.Sum(nil))
-}
-
-func DecodeCertificate(data []byte) (*pem.Block, error) {
-	return Decode(data, "CERTIFICATE")
-}
-
-func LoadCertPool(cert string) (*x509.CertPool, error) {
-	clientCAs := x509.NewCertPool()
-	ok := clientCAs.AppendCertsFromPEM([]byte(cert))
-	if !ok {
-		return nil, errors.New("pem: failed to append certificates")
-	}
-	return clientCAs, nil
-}
-
-func Decode(data []byte, blockType string) (*pem.Block, error) {
-	p, _ := pem.Decode(data)
-	if p == nil {
-		return nil, errors.New("pem: invalid")
-	}
-	if p.Type != blockType {
-		return nil, fmt.Errorf("pem: expected type %s, got %s", blockType, p.Type)
-	}
-	return p, nil
-}
-
-func EncodeCertificateRequestDER(der []byte) ([]byte, error) {
-	return Encode(der, "CERTIFICATE REQUEST")
-}
-
-func EncodeRSAPrivateKey(p *rsa.PrivateKey) ([]byte, error) {
-	key := x509.MarshalPKCS1PrivateKey(p)
-	return Encode(key, "RSA PRIVATE KEY")
-}
-
-func Encode(data []byte, blockType string) ([]byte, error) {
-	var out bytes.Buffer
-	if err := pem.Encode(&out, &pem.Block{
-		Type:  blockType,
-		Bytes: data,
-	}); err != nil {
-		return nil, err
-	}
-	return out.Bytes(), nil
 }

@@ -36,7 +36,7 @@ func (a *Auth) GenerateCertificate(ctx context.Context, envName string) (string,
 	if err != nil {
 		return "", "", err
 	}
-	csrPEM, err := a.createCertificateRequest(key, envName)
+	csrPEM, err := createCertificateRequest(key, envName)
 	if err != nil {
 		return "", "", err
 	}
@@ -50,20 +50,6 @@ func (a *Auth) GenerateCertificate(ctx context.Context, envName string) (string,
 	}
 
 	return string(certPEM), string(keyPEM), nil
-}
-
-func (a *Auth) createCertificateRequest(pk crypto.PrivateKey, envName string) (csrPEM []byte, err error) {
-	req := x509.CertificateRequest{
-		SignatureAlgorithm: x509.SHA256WithRSA,
-		Subject: pkix.Name{
-			CommonName: envName,
-		},
-	}
-	csrDER, err := x509.CreateCertificateRequest(rand.Reader, &req, pk)
-	if err != nil {
-		return nil, err
-	}
-	return sdkCrypto.EncodeCertificateRequestDER(csrDER)
 }
 
 func (a *Auth) signCertificateRequest(ctx context.Context, csrPEM []byte) ([]byte, error) {
@@ -94,4 +80,18 @@ func (a *Auth) signCertificateRequest(ctx context.Context, csrPEM []byte) ([]byt
 		return nil, fmt.Errorf("POST %s: parse body %q: %v", url, string(body), err)
 	}
 	return body, nil
+}
+
+func createCertificateRequest(pk crypto.PrivateKey, envName string) (csrPEM []byte, err error) {
+	req := x509.CertificateRequest{
+		SignatureAlgorithm: x509.SHA256WithRSA,
+		Subject: pkix.Name{
+			CommonName: envName,
+		},
+	}
+	csrDER, err := x509.CreateCertificateRequest(rand.Reader, &req, pk)
+	if err != nil {
+		return nil, err
+	}
+	return sdkCrypto.EncodeCertificateRequestDER(csrDER)
 }

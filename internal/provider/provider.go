@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
+	"errors"
 	"fmt"
 	"net"
 	"net/http"
@@ -122,7 +123,7 @@ func (p *altinityCloudProvider) Configure(ctx context.Context, req provider.Conf
 	var rootCAs *x509.CertPool
 	if caCrt != nil {
 		var err error
-		rootCAs, err = crypto.LoadCertPool(*caCrt)
+		rootCAs, err = loadCertPool(*caCrt)
 		if err != nil {
 			resp.Diagnostics.AddWarning("Failed to load CA certificate", err.Error())
 		}
@@ -195,4 +196,13 @@ func New(version string) func() provider.Provider {
 			version: version,
 		}
 	}
+}
+
+func loadCertPool(cert string) (*x509.CertPool, error) {
+	clientCAs := x509.NewCertPool()
+	ok := clientCAs.AppendCertsFromPEM([]byte(cert))
+	if !ok {
+		return nil, errors.New("pem: failed to append certificates")
+	}
+	return clientCAs, nil
 }
