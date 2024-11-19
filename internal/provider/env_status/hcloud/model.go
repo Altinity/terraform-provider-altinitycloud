@@ -13,7 +13,7 @@ type HCloudEnvStatusModel struct {
 	PendingDelete              types.Bool   `tfsdk:"pending_delete"`
 }
 
-func (model *HCloudEnvStatusModel) toModel(env sdk.GetHCloudEnvStatus_GcpEnv) {
+func (model *HCloudEnvStatusModel) toModel(env sdk.GetHCloudEnvStatus_HcloudEnv) {
 	model.Name = types.StringValue(env.Name)
 	model.AppliedSpecRevision = types.Int64Value(env.Status.AppliedSpecRevision)
 	model.PendingDelete = types.BoolValue(env.Status.PendingDelete)
