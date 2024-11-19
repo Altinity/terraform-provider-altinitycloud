@@ -170,7 +170,7 @@ var nodeGroupAttribute = rschema.NestedAttributeObject{
 			Required:            true,
 			MarkdownDescription: common.NODE_GROUP_DESCRIPTION,
 		},
-		"capacity_per_zone": rschema.Int64Attribute{
+		"capacity_per_location": rschema.Int64Attribute{
 			Required:            true,
 			MarkdownDescription: common.NODE_GROUP_CAPACITY_PER_ZONE_DESCRIPTION,
 			Validators: []validator.Int64{
