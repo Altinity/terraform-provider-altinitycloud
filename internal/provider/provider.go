@@ -9,6 +9,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"runtime"
 	"time"
 
 	env_aws "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env/aws"
@@ -34,7 +35,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-const DEFAULT_USER_AGENT = "terraform-provider"
 const DEFAULT_API_URL = "https://anywhere.altinity.cloud"
 const GRAPHQL_API_PATH = "/api/v1/graphql"
 
@@ -95,8 +95,6 @@ func (p *altinityCloudProvider) Configure(ctx context.Context, req provider.Conf
 	apiUrl := os.Getenv(ENV_VAR_API_URL)
 	caCrt := data.CACrt.ValueStringPointer()
 
-	userAgent := DEFAULT_USER_AGENT + "@" + p.version
-
 	// Overwrite env variables with TF config values
 	if !data.ApiToken.IsNull() {
 		apiToken = data.ApiToken.ValueString()
@@ -150,7 +148,7 @@ func (p *altinityCloudProvider) Configure(ctx context.Context, req provider.Conf
 		apiUrl+GRAPHQL_API_PATH,
 		nil,
 		client.WithBearerAuthorization(ctx, apiToken),
-		client.WithUserAgent(ctx, userAgent),
+		client.WithUserAgent(ctx, userAgent(p.version)),
 	)
 
 	auth := auth.NewAuth(rootCAs, apiUrl, apiToken)
@@ -205,4 +203,14 @@ func loadCertPool(cert string) (*x509.CertPool, error) {
 		return nil, errors.New("pem: failed to append certificates")
 	}
 	return clientCAs, nil
+}
+
+func userAgent(version string) string {
+	return fmt.Sprintf("%s/%s (%s; %s) go/%s",
+		"terraform",
+		version,
+		runtime.GOOS,
+		runtime.GOARCH,
+		runtime.Version(),
+	)
 }
