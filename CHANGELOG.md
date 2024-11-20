@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.3.1...v0.4.0)
+### Added
+- Support for HCloud environments [#117](https://github.com/Altinity/terraform-provider-altinitycloud/pull/117).
+- New encryption `altinitycloud_secret` resource and crypto SDK package [#115](https://github.com/Altinity/terraform-provider-altinitycloud/pull/115).
+- Documentation and examples for HCloud [ac9a6d2](https://github.com/Altinity/terraform-provider-altinitycloud/commit/ac9a6d2).
+
+### Changed
+- Bump github.com/hashicorp/terraform-plugin-testing to `0.11.1` [#118](https://github.com/Altinity/terraform-provider-altinitycloud/pull/118).
+- Re-arrange k8s environment examples [a372128](https://github.com/Altinity/terraform-provider-altinitycloud/commit/a372128).
+- New user-agent format [2e82254](https://github.com/Altinity/terraform-provider-altinitycloud/commit/2e82254).
+- Improve `skip_deprovision_on_destroy` property description [be4e7b7](https://github.com/Altinity/terraform-provider-altinitycloud/commit/be4e7b7).
+
+### Fixed
+- Improve "disconnected" error message while deleting envs [aa38c53](https://github.com/Altinity/terraform-provider-altinitycloud/commit/aa38c53).
+- Don't allow empty strings on node group names [c6c71a7](https://github.com/Altinity/terraform-provider-altinitycloud/commit/c6c71a7).
+
+
 ## [0.3.1](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.3.0...v0.3.1)
 ### Added
 - Add example of BYOK with AWS EKS cluster using Altinity's Terraform module for BYOK on EKS [45ed7a5](https://github.com/Altinity/terraform-provider-altinitycloud/commit/45ed7a5)\
