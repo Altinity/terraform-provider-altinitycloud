@@ -64,7 +64,7 @@ Bring Your Own Cloud (BYOC) Azure environment data source.
 		Examples:
 		- "eastus"
 		- "westus"
-- `skip_deprovision_on_destroy` (Boolean) Set to `true` will delete without waiting for environment deprovisioning. Use this with precaution (default `false`).
+- `skip_deprovision_on_destroy` (Boolean) Set to `true` will delete without waiting for environment deprovisioning. Use this with precaution, it may end up with dangling resources in your cloud provider (default `false`).
 - `spec_revision` (Number) Spec revision
 - `subscription_id` (String) ID linking the environment to a specific Azure subscription for resource management. **[IMMUTABLE]**
 - `tags` (Attributes List) Tags to apply to Azure resources. (see [below for nested schema](#nestedatt--tags))

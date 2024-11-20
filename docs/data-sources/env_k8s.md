@@ -62,7 +62,7 @@ Bring Your Own Kubernetes (BYOK) environment data source.
 - `maintenance_windows` (Attributes List) List of maintenance windows during which automatic maintenance is permitted. By default updates are applied as soon as they are available. (see [below for nested schema](#nestedatt--maintenance_windows))
 - `metrics` (Attributes) Metrics configuration (see [below for nested schema](#nestedatt--metrics))
 - `node_groups` (Attributes List) List of node groups. At least one required. (see [below for nested schema](#nestedatt--node_groups))
-- `skip_deprovision_on_destroy` (Boolean) Set to `true` will delete without waiting for environment deprovisioning. Use this with precaution (default `false`).
+- `skip_deprovision_on_destroy` (Boolean) Set to `true` will delete without waiting for environment deprovisioning. Use this with precaution, it may end up with dangling resources in your cloud provider (default `false`).
 - `spec_revision` (Number) Spec revision
 
 <a id="nestedatt--custom_node_types"></a>
