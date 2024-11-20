@@ -331,6 +331,9 @@ var NodeGroupAttribute = rschema.NestedAttributeObject{
 			Optional:            true,
 			Computed:            true,
 			MarkdownDescription: NODE_GROUP_NAME_DESCRIPTION,
+			Validators: []validator.String{
+				stringvalidator.LengthAtLeast(1),
+			},
 		},
 		"node_type": rschema.StringAttribute{
 			Required:            true,
