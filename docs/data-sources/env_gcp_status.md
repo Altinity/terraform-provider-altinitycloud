@@ -20,31 +20,31 @@ data "altinitycloud_env_gcp_status" "current" {
 
 ### Wait for GCP environment to be fully provisioned:
 ```terraform
-resource "altinitycloud_env_aws" "this" {
+resource "altinitycloud_env_gcp" "this" {
   name           = "acme-staging"
-  aws_account_id = "123456789012"
-  region         = "us-east-1"
-  zones          = ["us-east-1a", "us-east-1b"]
+  gcp_project_id = "gcp-project-id"
+  region         = "us-east1"
+  zones          = ["us-east1-b", "us-east1-d"]
   cidr           = "10.67.0.0/21"
 
   node_groups = [
     {
-      node_type         = "t4g.large"
+      node_type         = "e2-standard-2"
       capacity_per_zone = 10
       reservations      = ["SYSTEM", "ZOOKEEPER"]
     },
     {
-      node_type         = "m6i.large"
+      node_type         = "n2d-standard-2"
       capacity_per_zone = 10
       reservations      = ["CLICKHOUSE"]
     }
   ]
-  cloud_connect = true
 }
 
-data "altinitycloud_env_aws_status" "current" {
-  name                           = altinitycloud_env_aws.this.name
-  wait_for_applied_spec_revision = altinitycloud_env_aws.this.spec_revision
+
+data "altinitycloud_env_gcp_status" "current" {
+  name                           = altinitycloud_env_gcp.this.name
+  wait_for_applied_spec_revision = altinitycloud_env_gcp.this.spec_revision
 }
 ```
 

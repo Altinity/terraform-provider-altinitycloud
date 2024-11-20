@@ -21,6 +21,7 @@ import (
 	env_status_aws "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env_status/aws"
 	env_status_azure "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env_status/azure"
 	env_status_gcp "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env_status/gcp"
+	env_status_hcloud "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env_status/hcloud"
 	env_status_k8s "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env_status/k8s"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/provider/secret"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/auth"
@@ -187,6 +188,7 @@ func (p *altinityCloudProvider) DataSources(ctx context.Context) []func() dataso
 		env_status_azure.NewAzureEnvStatusDataSource,
 		env_status_aws.NewAWSEnvStatusDataSource,
 		env_status_gcp.NewGCPEnvStatusDataSource,
+		env_status_hcloud.NewHCloudEnvStatusDataSource,
 		env_status_k8s.NewK8SEnvStatusDataSource,
 	}
 }

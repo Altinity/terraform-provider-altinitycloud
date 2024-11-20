@@ -65,5 +65,7 @@ See
   on how to create Bring Your Own Cloud (BYOC) GCP environment.
 - [`altinitycloud_env_azure` resource examples](resources/env_azure#example-usage)
   on how to create Bring Your Own Cloud (BYOC) Azure environment.
+- [`altinitycloud_env_hcloud` resource examples](resources/env_hcloud#example-usage)
+  on how to create Bring Your Own Cloud (BYOC) HCloud environment.
 - [`altinitycloud_env_k8s` resource examples](resources/env_k8s#example-usage)
   on how to create Bring Your Own Kubernetes (BYOK) environment.
