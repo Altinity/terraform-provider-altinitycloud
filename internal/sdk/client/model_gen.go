@@ -2054,7 +2054,7 @@ type UpdateHCloudEnvSpecInput struct {
 	// Encrypted value of HCLOUD_TOKEN
 	HcloudTokenEnc *string `json:"hcloudTokenEnc,omitempty"`
 	// Wireguard peers configuration.
-	WireguardPeers []*HCloudEnvWireguardPeerSpecInput `json:"wireguardPeers"`
+	WireguardPeers []*HCloudEnvWireguardPeerSpecInput `json:"wireguardPeers,omitempty"`
 }
 
 // Kubernetes environment update request input.
