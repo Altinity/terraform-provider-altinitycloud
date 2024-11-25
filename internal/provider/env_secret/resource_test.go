@@ -9,7 +9,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-testing/terraform"
 )
 
-const RESOURCE_NAME = "altinitycloud_secret"
+const RESOURCE_NAME = "altinitycloud_env_secret"
 const FILE_NAME = RESOURCE_NAME + ".dummy"
 
 func TestAccAltinityCloudSecret_Basic(t *testing.T) {

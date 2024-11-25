@@ -21,7 +21,7 @@ variable "hcloud_token" {
   type = string
 }
 
-resource "altinitycloud_secret" "this" {
+resource "altinitycloud_env_secret" "this" {
   pem   = altinitycloud_env_certificate.this.pem
   value = var.hcloud_token
 }
@@ -31,7 +31,7 @@ resource "altinitycloud_env_hcloud" "this" {
   cidr             = "10.136.0.0/21"
   network_zone     = "us-west"
   locations        = ["hil"]
-  hcloud_token_enc = altinitycloud_secret.this.secret_value
+  hcloud_token_enc = altinitycloud_env_secret.this.secret_value
   force_destroy    = true
 
   load_balancers = {

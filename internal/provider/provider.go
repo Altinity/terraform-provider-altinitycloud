@@ -18,12 +18,12 @@ import (
 	env_hcloud "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env/hcloud"
 	env_k8s "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env/k8s"
 	env_certificate "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env_certificate"
+	env_secret "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env_secret"
 	env_status_aws "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env_status/aws"
 	env_status_azure "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env_status/azure"
 	env_status_gcp "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env_status/gcp"
 	env_status_hcloud "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env_status/hcloud"
 	env_status_k8s "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env_status/k8s"
-	"github.com/altinity/terraform-provider-altinitycloud/internal/provider/secret"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/auth"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/client"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/crypto"
@@ -173,7 +173,7 @@ func (p *altinityCloudProvider) Resources(ctx context.Context) []func() resource
 		env_hcloud.NewHCloudEnvResource,
 		env_k8s.NewK8SEnvResource,
 		env_certificate.NewCertificateResource,
-		secret.NewSecretResource,
+		env_secret.NewSecretResource,
 	}
 }
 

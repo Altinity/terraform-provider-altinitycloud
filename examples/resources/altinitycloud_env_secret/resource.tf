@@ -6,7 +6,7 @@ variable "value" {
   type = string
 }
 
-resource "altinitycloud_secret" "this" {
+resource "altinitycloud_env_secret" "this" {
   pem   = altinitycloud_env_certificate.this.pem
   value = var.value
 }

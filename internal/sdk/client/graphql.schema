@@ -1437,8 +1437,8 @@ type UpdateAzureEnvResult {
   specRevision: Int!
 }
 extend type Query {
-  codeGenAWSEnv(name: String!, fullExample: Boolean = false): CodeGenEnvOutput!
-  codeGenGCPEnv(name: String!, fullExample: Boolean = false): CodeGenEnvOutput!
+  codeGenAWSEnv(name: String!, boilerplate: Boolean = false): CodeGenEnvOutput!
+  codeGenGCPEnv(name: String!, boilerplate: Boolean = false): CodeGenEnvOutput!
 }
 
 type CodeGenEnvOutput {
