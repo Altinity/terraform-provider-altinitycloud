@@ -49,12 +49,14 @@ func (r *GCPEnvResource) Create(ctx context.Context, req resource.CreateRequest,
 		return
 	}
 
-	tflog.Trace(ctx, "created resource", map[string]interface{}{"name": name})
+	// Reorder node groups to respect order in the user's configuration
+	apiResp.CreateGCPEnv.Spec.NodeGroups = reorderNodeGroups(data.NodeGroups, apiResp.CreateGCPEnv.Spec.NodeGroups)
 	data.Id = data.Name
 	data.Zones = common.ListToModel(apiResp.CreateGCPEnv.Spec.Zones)
 	data.NodeGroups = nodeGroupsToModel(apiResp.CreateGCPEnv.Spec.NodeGroups)
 	data.SpecRevision = types.Int64Value(apiResp.CreateGCPEnv.SpecRevision)
 
+	tflog.Trace(ctx, "created resource", map[string]interface{}{"name": name})
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
 }
@@ -83,8 +85,11 @@ func (r *GCPEnvResource) Read(ctx context.Context, req resource.ReadRequest, res
 		return
 	}
 
+	// Reorder node groups to respect order in the user's configuration
+	apiResp.GcpEnv.Spec.NodeGroups = reorderNodeGroups(data.NodeGroups, apiResp.GcpEnv.Spec.NodeGroups)
 	data.toModel(*apiResp.GcpEnv)
 	data.Id = data.Name
+
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
 }
@@ -109,11 +114,13 @@ func (r *GCPEnvResource) Update(ctx context.Context, req resource.UpdateRequest,
 		return
 	}
 
-	tflog.Trace(ctx, "updated resource", map[string]interface{}{"name": name})
+	// Reorder node groups to respect order in the user's configuration
+	apiResp.UpdateGCPEnv.Spec.NodeGroups = reorderNodeGroups(data.NodeGroups, apiResp.UpdateGCPEnv.Spec.NodeGroups)
 	data.Zones = common.ListToModel(apiResp.UpdateGCPEnv.Spec.Zones)
 	data.NodeGroups = nodeGroupsToModel(apiResp.UpdateGCPEnv.Spec.NodeGroups)
 	data.SpecRevision = types.Int64Value(apiResp.UpdateGCPEnv.SpecRevision)
 
+	tflog.Trace(ctx, "updated resource", map[string]interface{}{"name": name})
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
 }

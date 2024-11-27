@@ -48,13 +48,14 @@ func (r *K8SEnvResource) Create(ctx context.Context, req resource.CreateRequest,
 		return
 	}
 
+	// Reorder node groups to respect order in the user's configuration
+	apiResp.CreateK8SEnv.Spec.NodeGroups = reorderNodeGroups(data.NodeGroups, apiResp.CreateK8SEnv.Spec.NodeGroups)
 	data.Id = data.Name
 	data.NodeGroups = nodeGroupsToModel(apiResp.CreateK8SEnv.Spec.NodeGroups)
 	data.SpecRevision = types.Int64Value(apiResp.CreateK8SEnv.SpecRevision)
-
 	data.toModel(data.Name.ValueString(), *apiResp.CreateK8SEnv.Spec)
-	tflog.Trace(ctx, "created resource", map[string]interface{}{"name": name})
 
+	tflog.Trace(ctx, "created resource", map[string]interface{}{"name": name})
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
 }
@@ -83,8 +84,11 @@ func (r *K8SEnvResource) Read(ctx context.Context, req resource.ReadRequest, res
 		return
 	}
 
+	// Reorder node groups to respect order in the user's configuration
+	apiResp.K8sEnv.Spec.NodeGroups = reorderNodeGroups(data.NodeGroups, apiResp.K8sEnv.Spec.NodeGroups)
 	data.toModel(apiResp.K8sEnv.Name, *apiResp.K8sEnv.Spec)
 	data.Id = data.Name
+
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
 }
@@ -109,10 +113,11 @@ func (r *K8SEnvResource) Update(ctx context.Context, req resource.UpdateRequest,
 		return
 	}
 
-	tflog.Trace(ctx, "updated resource", map[string]interface{}{"name": name})
+	apiResp.UpdateK8SEnv.Spec.NodeGroups = reorderNodeGroups(data.NodeGroups, apiResp.UpdateK8SEnv.Spec.NodeGroups)
 	data.NodeGroups = nodeGroupsToModel(apiResp.UpdateK8SEnv.Spec.NodeGroups)
 	data.SpecRevision = types.Int64Value(apiResp.UpdateK8SEnv.SpecRevision)
 
+	tflog.Trace(ctx, "updated resource", map[string]interface{}{"name": name})
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
 }

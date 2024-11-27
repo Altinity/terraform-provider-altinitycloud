@@ -48,13 +48,14 @@ func (r *AWSEnvResource) Create(ctx context.Context, req resource.CreateRequest,
 		return
 	}
 
+	// Reorder node groups to respect order in the user's configuration
+	apiResp.CreateAWSEnv.Spec.NodeGroups = reorderNodeGroups(data.NodeGroups, apiResp.CreateAWSEnv.Spec.NodeGroups)
 	data.Id = data.Name
 	data.Zones = common.ListToModel(apiResp.CreateAWSEnv.Spec.Zones)
 	data.NodeGroups = nodeGroupsToModel(apiResp.CreateAWSEnv.Spec.NodeGroups)
 	data.SpecRevision = types.Int64Value(apiResp.CreateAWSEnv.SpecRevision)
 
 	tflog.Trace(ctx, "created resource", map[string]interface{}{"name": envName})
-
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
 }
@@ -82,8 +83,11 @@ func (r *AWSEnvResource) Read(ctx context.Context, req resource.ReadRequest, res
 		return
 	}
 
+	// Reorder node groups to respect order in the user's configuration
+	apiResp.AwsEnv.Spec.NodeGroups = reorderNodeGroups(data.NodeGroups, apiResp.AwsEnv.Spec.NodeGroups)
 	data.toModel(*apiResp.AwsEnv)
 	data.Id = data.Name
+
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
 }
@@ -108,12 +112,13 @@ func (r *AWSEnvResource) Update(ctx context.Context, req resource.UpdateRequest,
 		return
 	}
 
-	tflog.Trace(ctx, "updated resource", map[string]interface{}{"name": envName})
-
+	// Reorder node groups to respect order in the user's configuration
+	apiResp.UpdateAWSEnv.Spec.NodeGroups = reorderNodeGroups(data.NodeGroups, apiResp.UpdateAWSEnv.Spec.NodeGroups)
 	data.Zones = common.ListToModel(apiResp.UpdateAWSEnv.Spec.Zones)
 	data.NodeGroups = nodeGroupsToModel(apiResp.UpdateAWSEnv.Spec.NodeGroups)
 	data.SpecRevision = types.Int64Value(apiResp.UpdateAWSEnv.SpecRevision)
 
+	tflog.Trace(ctx, "updated resource", map[string]interface{}{"name": envName})
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
 }

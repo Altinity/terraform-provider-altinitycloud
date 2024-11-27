@@ -49,12 +49,14 @@ func (r *AzureEnvResource) Create(ctx context.Context, req resource.CreateReques
 		return
 	}
 
-	tflog.Trace(ctx, "created resource", map[string]interface{}{"name": name})
+	// Reorder node groups to respect order in the user's configuration
+	apiResp.CreateAzureEnv.Spec.NodeGroups = reorderNodeGroups(data.NodeGroups, apiResp.CreateAzureEnv.Spec.NodeGroups)
 	data.Id = data.Name
 	data.Zones = common.ListToModel(apiResp.CreateAzureEnv.Spec.Zones)
 	data.NodeGroups = nodeGroupsToModel(apiResp.CreateAzureEnv.Spec.NodeGroups)
 	data.SpecRevision = types.Int64Value(apiResp.CreateAzureEnv.SpecRevision)
 
+	tflog.Trace(ctx, "created resource", map[string]interface{}{"name": name})
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
 }
@@ -83,8 +85,11 @@ func (r *AzureEnvResource) Read(ctx context.Context, req resource.ReadRequest, r
 		return
 	}
 
+	// Reorder node groups to respect order in the user's configuration
+	apiResp.AzureEnv.Spec.NodeGroups = reorderNodeGroups(data.NodeGroups, apiResp.AzureEnv.Spec.NodeGroups)
 	data.toModel(*apiResp.AzureEnv)
 	data.Id = data.Name
+
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
 }
@@ -109,11 +114,13 @@ func (r *AzureEnvResource) Update(ctx context.Context, req resource.UpdateReques
 		return
 	}
 
-	tflog.Trace(ctx, "updated resource", map[string]interface{}{"name": name})
+	// Reorder node groups to respect order in the user's configuration
+	apiResp.UpdateAzureEnv.Spec.NodeGroups = reorderNodeGroups(data.NodeGroups, apiResp.UpdateAzureEnv.Spec.NodeGroups)
 	data.Zones = common.ListToModel(apiResp.UpdateAzureEnv.Spec.Zones)
 	data.NodeGroups = nodeGroupsToModel(apiResp.UpdateAzureEnv.Spec.NodeGroups)
 	data.SpecRevision = types.Int64Value(apiResp.UpdateAzureEnv.SpecRevision)
 
+	tflog.Trace(ctx, "updated resource", map[string]interface{}{"name": name})
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
 }
