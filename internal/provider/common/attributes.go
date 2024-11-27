@@ -139,6 +139,7 @@ func GetNumberOfZonesAttribute(required, optional, computed bool) rschema.Int64A
 		Optional:            optional,
 		Computed:            computed,
 		MarkdownDescription: NUMBER_OF_ZONES_DESCRIPTION,
+		DeprecationMessage:  "The 'number_of_zones' attribute is deprecated and will be removed soon. Use 'zones' instead.",
 		Validators: []validator.Int64{
 			int64validator.AtLeast(2),
 		},

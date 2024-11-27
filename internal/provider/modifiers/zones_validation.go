@@ -23,6 +23,7 @@ func (d *zonesAttributePlanModifier) MarkdownDescription(ctx context.Context) st
 	return d.Description(ctx)
 }
 
+// TODO: remove this modifier after deprecating number_of_zones
 func (d *zonesAttributePlanModifier) PlanModifyInt64(ctx context.Context, req planmodifier.Int64Request, resp *planmodifier.Int64Response) {
 	var zones types.List
 	diags := req.Plan.GetAttribute(ctx, path.Root("zones"), &zones)
@@ -42,10 +43,6 @@ func (d *zonesAttributePlanModifier) PlanModifyInt64(ctx context.Context, req pl
 		resp.Diagnostics.AddAttributeError(path.Root("zones"), "zones or number_of_zones are required", "you must set one of them")
 		return
 	}
-
-	// if !zones.IsNull() && numberOfZones.ValueInt64() > 0 {
-	// 	resp.Diagnostics.AddAttributeWarning(path.Root("zones"), "zones and number_of_zones are mutually exclusive", "if you set both, only zones will be used")
-	// }
 
 	if !zones.IsNull() && len(zones.Elements()) > 0 {
 		resp.PlanValue = types.Int64Value(int64(len(zones.Elements())))
