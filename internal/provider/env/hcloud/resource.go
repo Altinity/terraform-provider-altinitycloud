@@ -49,12 +49,14 @@ func (r *HCloudEnvResource) Create(ctx context.Context, req resource.CreateReque
 		return
 	}
 
-	tflog.Trace(ctx, "created resource", map[string]interface{}{"name": name})
+	// Reorder node groups to respect order in the user's configuration
+	apiResp.CreateHCloudEnv.Spec.NodeGroups = reorderNodeGroups(data.NodeGroups, apiResp.CreateHCloudEnv.Spec.NodeGroups)
 	data.Id = data.Name
 	data.Locations = common.ListToModel(apiResp.CreateHCloudEnv.Spec.Locations)
 	data.NodeGroups = nodeGroupsToModel(apiResp.CreateHCloudEnv.Spec.NodeGroups)
 	data.SpecRevision = types.Int64Value(apiResp.CreateHCloudEnv.SpecRevision)
 
+	tflog.Trace(ctx, "created resource", map[string]interface{}{"name": name})
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
 }
@@ -83,8 +85,11 @@ func (r *HCloudEnvResource) Read(ctx context.Context, req resource.ReadRequest, 
 		return
 	}
 
+	// Reorder node groups to respect order in the user's configuration
+	apiResp.HcloudEnv.Spec.NodeGroups = reorderNodeGroups(data.NodeGroups, apiResp.HcloudEnv.Spec.NodeGroups)
 	data.toModel(*apiResp.HcloudEnv)
 	data.Id = data.Name
+
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
 }
@@ -109,11 +114,13 @@ func (r *HCloudEnvResource) Update(ctx context.Context, req resource.UpdateReque
 		return
 	}
 
-	tflog.Trace(ctx, "updated resource", map[string]interface{}{"name": name})
+	// Reorder node groups to respect order in the user's configuration
+	apiResp.UpdateHCloudEnv.Spec.NodeGroups = reorderNodeGroups(data.NodeGroups, apiResp.UpdateHCloudEnv.Spec.NodeGroups)
 	data.Locations = common.ListToModel(apiResp.UpdateHCloudEnv.Spec.Locations)
 	data.NodeGroups = nodeGroupsToModel(apiResp.UpdateHCloudEnv.Spec.NodeGroups)
 	data.SpecRevision = types.Int64Value(apiResp.UpdateHCloudEnv.SpecRevision)
 
+	tflog.Trace(ctx, "updated resource", map[string]interface{}{"name": name})
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
 }

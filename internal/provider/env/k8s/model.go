@@ -407,3 +407,18 @@ func maintenanceWindowsToModel(input []*client.K8SEnvSpecFragment_MaintenanceWin
 
 	return maintenanceWindow
 }
+
+func reorderNodeGroups(model []NodeGroupsModel, sdk []*client.K8SEnvSpecFragment_NodeGroups) []*client.K8SEnvSpecFragment_NodeGroups {
+	orderedNodeGroups := make([]*client.K8SEnvSpecFragment_NodeGroups, 0, len(sdk))
+
+	for _, ng := range model {
+		for _, apiGroup := range sdk {
+			if ng.NodeType.ValueString() == apiGroup.NodeType {
+				orderedNodeGroups = append(orderedNodeGroups, apiGroup)
+				break
+			}
+		}
+	}
+
+	return orderedNodeGroups
+}

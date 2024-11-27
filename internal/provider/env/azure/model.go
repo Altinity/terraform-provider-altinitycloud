@@ -256,3 +256,18 @@ func maintenanceWindowsToModel(input []*client.AzureEnvSpecFragment_MaintenanceW
 
 	return maintenanceWindow
 }
+
+func reorderNodeGroups(model []common.NodeGroupsModel, sdk []*client.AzureEnvSpecFragment_NodeGroups) []*client.AzureEnvSpecFragment_NodeGroups {
+	orderedNodeGroups := make([]*client.AzureEnvSpecFragment_NodeGroups, 0, len(sdk))
+
+	for _, ng := range model {
+		for _, apiGroup := range sdk {
+			if ng.NodeType.ValueString() == apiGroup.NodeType {
+				orderedNodeGroups = append(orderedNodeGroups, apiGroup)
+				break
+			}
+		}
+	}
+
+	return orderedNodeGroups
+}

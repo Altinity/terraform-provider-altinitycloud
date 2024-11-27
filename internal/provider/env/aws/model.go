@@ -310,3 +310,18 @@ func maintenanceWindowsToModel(input []*sdk.AWSEnvSpecFragment_MaintenanceWindow
 
 	return maintenanceWindow
 }
+
+func reorderNodeGroups(model []common.NodeGroupsModel, sdk []*client.AWSEnvSpecFragment_NodeGroups) []*client.AWSEnvSpecFragment_NodeGroups {
+	orderedNodeGroups := make([]*client.AWSEnvSpecFragment_NodeGroups, 0, len(sdk))
+
+	for _, ng := range model {
+		for _, apiGroup := range sdk {
+			if ng.NodeType.ValueString() == apiGroup.NodeType {
+				orderedNodeGroups = append(orderedNodeGroups, apiGroup)
+				break
+			}
+		}
+	}
+
+	return orderedNodeGroups
+}
