@@ -58,7 +58,7 @@ Bring Your Own Cloud (BYOC) GCP environment data source.
 		- "ZONE_BEST_EFFORT": keep traffic within same zone
 - `maintenance_windows` (Attributes List) List of maintenance windows during which automatic maintenance is permitted. By default updates are applied as soon as they are available. (see [below for nested schema](#nestedatt--maintenance_windows))
 - `node_groups` (Attributes Set) List of node groups. At least one required. (see [below for nested schema](#nestedatt--node_groups))
-- `number_of_zones` (Number) Number of zones where the environment will be available. When set, zones will be set automatically based on your cloud provider (Do not use it together with zones)
+- `number_of_zones` (Number, Deprecated) Number of zones where the environment will be available. When set, zones will be set automatically based on your cloud provider (Do not use it together with zones)
 - `region` (String) GCP region ([docs](https://cloud.google.com/about/locations)). **[IMMUTABLE]**
 
 		Examples:

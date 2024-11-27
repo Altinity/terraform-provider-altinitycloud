@@ -4,8 +4,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.2](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.4.1...v0.4.2)
+### Changed
+- Bump github.com/hashicorp/terraform-plugin-docs to `0.20.1` [#122](https://github.com/Altinity/terraform-provider-altinitycloud/pull/122).
+- Bump github.com/Yamashou/gqlgenc to `0.26.2` [#120](https://github.com/Altinity/terraform-provider-altinitycloud/pull/120).
+- Add deprecation notice to `number_of_zones` environments property (it will be removed in future versions) [#15243a4](https://github.com/Altinity/terraform-provider-altinitycloud/commit/15243a4).
+
+### Fixed
+- Sort environments `node_groups` after API responses to match script order [#318164a](https://github.com/Altinity/terraform-provider-altinitycloud/commit/318164a).
+
 ## [0.4.1](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.4.0...v0.4.1)
-- [BREAKING CHANGE] Rename `altinitycloud_secret` to `altinitycloud_env_secret` [#03c38db](https://github.com/Altinity/terraform-provider-altinitycloud/commit/03c38db)
+### Changed
+- 🚨 [BREAKING CHANGE] Rename `altinitycloud_secret` to `altinitycloud_env_secret` [#03c38db](https://github.com/Altinity/terraform-provider-altinitycloud/commit/03c38db).
 
 ## [0.4.0](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.3.1...v0.4.0)
 ### Added
@@ -22,7 +32,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Improve "disconnected" error message while deleting envs [aa38c53](https://github.com/Altinity/terraform-provider-altinitycloud/commit/aa38c53).
 - Don't allow empty strings on node group names [c6c71a7](https://github.com/Altinity/terraform-provider-altinitycloud/commit/c6c71a7).
-
 
 ## [0.3.1](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.3.0...v0.3.1)
 ### Added

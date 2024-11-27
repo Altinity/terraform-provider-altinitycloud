@@ -23,7 +23,7 @@ func (d *zonesAttributePlanModifier) MarkdownDescription(ctx context.Context) st
 	return d.Description(ctx)
 }
 
-// TODO: remove this modifier after deprecating number_of_zones
+// TODO: remove this modifier after deprecating number_of_zones.
 func (d *zonesAttributePlanModifier) PlanModifyInt64(ctx context.Context, req planmodifier.Int64Request, resp *planmodifier.Int64Response) {
 	var zones types.List
 	diags := req.Plan.GetAttribute(ctx, path.Root("zones"), &zones)
