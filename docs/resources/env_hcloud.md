@@ -32,7 +32,6 @@ resource "altinitycloud_env_hcloud" "this" {
   network_zone     = "us-west"
   locations        = ["hil"]
   hcloud_token_enc = altinitycloud_env_secret.this.secret_value
-  force_destroy    = true
 
   load_balancers = {
     public = {
