@@ -276,8 +276,7 @@ var nodeGroupAttribute = rschema.NestedAttributeObject{
 		},
 		"zones": rschema.ListAttribute{
 			ElementType:         types.StringType,
-			Optional:            true,
-			Computed:            true,
+			Required:            true,
 			MarkdownDescription: common.K8S_NODE_GROUP_ZONES_DESCRIPTION,
 			Validators: []validator.List{
 				listvalidator.SizeAtLeast(1),

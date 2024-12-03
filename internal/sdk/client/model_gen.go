@@ -565,6 +565,7 @@ type AzureEnvStatus struct {
 	Errors []*EnvStatusError `json:"errors"`
 }
 
+// Environment code output.
 type CodeGenEnvOutput struct {
 	Terraform string `json:"terraform"`
 }
@@ -1687,7 +1688,7 @@ type K8SEnvNodeGroupSpecInput struct {
 	// node.kubernetes.io/instance-type value.
 	NodeType string `json:"nodeType"`
 	// topology.kubernetes.io/zone values.
-	Zones []string `json:"zones,omitempty"`
+	Zones []string `json:"zones"`
 	// Maximum number of nodes per zone.
 	CapacityPerZone int64 `json:"capacityPerZone"`
 	// Types of workloads that are allowed to be scheduled onto the nodes that belong to this group.
