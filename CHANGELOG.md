@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.3](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.4.2...v0.4.3)
+### Changed
+- Remove `force_destroy` from hcloud examples [#ab6a199](https://github.com/Altinity/terraform-provider-altinitycloud/commit/ab6a199).
+- Bump github.com/Yamashou/gqlgenc to `0.27.3` [#126](https://github.com/Altinity/terraform-provider-altinitycloud/pull/126).
+
+### Fixed
+- Make node group zones property required for k8s environments [#a3e6149](https://github.com/Altinity/terraform-provider-altinitycloud/commit/a3e6149).
+
 ## [0.4.2](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.4.1...v0.4.2)
 ### Changed
 - Bump github.com/hashicorp/terraform-plugin-docs to `0.20.1` [#122](https://github.com/Altinity/terraform-provider-altinitycloud/pull/122).
