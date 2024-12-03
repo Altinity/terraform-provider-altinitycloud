@@ -8,6 +8,10 @@ extend type Query {
   This query returns null when the environment is not found.
   """
   awsEnv(name: String!): AWSEnv
+  """
+  Get generated code for AWS environment.
+  """
+  codeGenAWSEnv(name: String!, boilerplate: Boolean = false): CodeGenEnvOutput!
 }
 
 """
@@ -786,6 +790,10 @@ extend type Query {
   This query returns null when the environment is not found.
   """
   azureEnv(name: String!): AzureEnv
+  """
+  Get generated code for Azure environment.
+  """
+  codeGenAzureEnv(name: String!, boilerplate: Boolean = false): CodeGenEnvOutput!
 }
 
 """
@@ -1436,14 +1444,6 @@ type UpdateAzureEnvResult {
   """
   specRevision: Int!
 }
-extend type Query {
-  codeGenAWSEnv(name: String!, boilerplate: Boolean = false): CodeGenEnvOutput!
-  codeGenGCPEnv(name: String!, boilerplate: Boolean = false): CodeGenEnvOutput!
-}
-
-type CodeGenEnvOutput {
-  terraform: String!
-}
 scalar Sensitive
 
 """
@@ -1629,6 +1629,13 @@ enum EnvStatusErrorCode {
   CLOUD_PROVIDER_ACCESS_DENIED
   CLOUD_PROVIDER_QUOTA_EXCEEDED
 }
+
+"""
+Environment code output.
+"""
+type CodeGenEnvOutput {
+  terraform: String!
+}
 extend type Query {
   """
   List GCP environments.
@@ -1639,6 +1646,10 @@ extend type Query {
   This query returns null when the environment is not found.
   """
   gcpEnv(name: String!): GCPEnv
+  """
+  Get generated code for GCP environment.
+  """
+  codeGenGCPEnv(name: String!, boilerplate: Boolean = false): CodeGenEnvOutput!
 }
 
 """
@@ -2210,6 +2221,10 @@ extend type Query {
   This query returns null when the environment is not found.
   """
   hcloudEnv(name: String!): HCloudEnv
+  """
+  Get generated code for HCloud environment.
+  """
+  codeGenHCloudEnv(name: String!, boilerplate: Boolean = false): CodeGenEnvOutput!
 }
 
 """
@@ -2814,6 +2829,10 @@ extend type Query {
   This query returns null when the environment is not found.
   """
   k8sEnv(name: String!): K8SEnv
+  """
+  Get generated code for K8S environment.
+  """
+  codeGenK8SEnv(name: String!, boilerplate: Boolean = false): CodeGenEnvOutput!
 }
 
 """
@@ -3285,7 +3304,7 @@ input K8SEnvNodeGroupSpecInput {
   """
   topology.kubernetes.io/zone values.
   """
-  zones: [String!]
+  zones: [String!]!
   """
   Maximum number of nodes per zone.
   """

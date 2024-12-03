@@ -19,11 +19,13 @@ resource "altinitycloud_env_k8s" "this" {
   node_groups = [
     {
       node_type         = "Standard_B2pls_v2"
+      zones             = ["eastus-1", "eastus-2"]
       capacity_per_zone = 10
       reservations      = ["SYSTEM", "ZOOKEEPER"]
     },
     {
       node_type         = "Standard_B2s_v2"
+      zones             = ["eastus-1", "eastus-2"]
       capacity_per_zone = 10
       reservations      = ["CLICKHOUSE"]
       tolerations = [

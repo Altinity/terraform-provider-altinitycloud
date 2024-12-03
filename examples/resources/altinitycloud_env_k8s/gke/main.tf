@@ -21,11 +21,13 @@ resource "altinitycloud_env_k8s" "this" {
       node_type         = "e2-standard-2"
       capacity_per_zone = 10
       reservations      = ["SYSTEM", "ZOOKEEPER"]
+      zones             = ["us-east1-b", "us-east1-d"]
     },
     {
       node_type         = "n2d-standard-2"
       capacity_per_zone = 10
       reservations      = ["CLICKHOUSE"]
+      zones             = ["us-east1-b", "us-east1-d"]
       tolerations = [
         {
           key      = "dedicated"

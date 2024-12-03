@@ -38,11 +38,13 @@ resource "altinitycloud_env_k8s" "this" {
       node_type         = "t4g.large"
       capacity_per_zone = 10
       reservations      = ["SYSTEM", "ZOOKEEPER"]
+      zones             = ["us-east-1a", "us-east-1b"]
     },
     {
       node_type         = "m6i.large"
       capacity_per_zone = 10
       reservations      = ["CLICKHOUSE"]
+      zones             = ["us-east-1a", "us-east-1b"]
       tolerations = [
         {
           key      = "dedicated"
@@ -91,11 +93,13 @@ resource "altinitycloud_env_k8s" "this" {
       node_type         = "e2-standard-2"
       capacity_per_zone = 10
       reservations      = ["SYSTEM", "ZOOKEEPER"]
+      zones             = ["us-east1-b", "us-east1-d"]
     },
     {
       node_type         = "n2d-standard-2"
       capacity_per_zone = 10
       reservations      = ["CLICKHOUSE"]
+      zones             = ["us-east1-b", "us-east1-d"]
       tolerations = [
         {
           key      = "dedicated"
@@ -142,11 +146,13 @@ resource "altinitycloud_env_k8s" "this" {
   node_groups = [
     {
       node_type         = "Standard_B2pls_v2"
+      zones             = ["eastus-1", "eastus-2"]
       capacity_per_zone = 10
       reservations      = ["SYSTEM", "ZOOKEEPER"]
     },
     {
       node_type         = "Standard_B2s_v2"
+      zones             = ["eastus-1", "eastus-2"]
       capacity_per_zone = 10
       reservations      = ["CLICKHOUSE"]
       tolerations = [
@@ -372,6 +378,7 @@ Required:
 
 - `capacity_per_zone` (Number) Maximum number of instances per availability zone.
 - `node_type` (String) node.kubernetes.io/instance-type value.
+- `zones` (List of String) topology.kubernetes.io/zone values.
 
 Optional:
 
@@ -384,7 +391,6 @@ Optional:
 		- "ZOOKEEPER"
 - `selector` (Attributes List) `nodeSelector` to apply to the pods targeting this group (see [below for nested schema](#nestedatt--node_groups--selector))
 - `tolerations` (Attributes List) List of tolerations to apply to the pods targeting this group (see [below for nested schema](#nestedatt--node_groups--tolerations))
-- `zones` (List of String) topology.kubernetes.io/zone values.
 
 <a id="nestedatt--node_groups--selector"></a>
 ### Nested Schema for `node_groups.selector`

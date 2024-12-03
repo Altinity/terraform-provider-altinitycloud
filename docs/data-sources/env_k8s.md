@@ -202,6 +202,7 @@ Required:
 
 - `capacity_per_zone` (Number) Maximum number of instances per availability zone.
 - `node_type` (String) node.kubernetes.io/instance-type value.
+- `zones` (List of String) topology.kubernetes.io/zone values.
 
 Optional:
 
@@ -214,7 +215,6 @@ Optional:
 		- "ZOOKEEPER"
 - `selector` (Attributes List) `nodeSelector` to apply to the pods targeting this group (see [below for nested schema](#nestedatt--node_groups--selector))
 - `tolerations` (Attributes List) List of tolerations to apply to the pods targeting this group (see [below for nested schema](#nestedatt--node_groups--tolerations))
-- `zones` (List of String) topology.kubernetes.io/zone values.
 
 <a id="nestedatt--node_groups--selector"></a>
 ### Nested Schema for `node_groups.selector`
