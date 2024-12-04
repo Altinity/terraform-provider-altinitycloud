@@ -415,6 +415,7 @@ func reorderNodeGroups(model []NodeGroupsModel, sdk []*client.K8SEnvSpecFragment
 		for _, apiGroup := range sdk {
 			if ng.NodeType.ValueString() == apiGroup.NodeType {
 				apiGroup.Selector = reorderSelectors(ng.NodeSelector, apiGroup.Selector)
+				apiGroup.Tolerations = reorderTolerations(ng.Tolerations, apiGroup.Tolerations)
 				orderedNodeGroups = append(orderedNodeGroups, apiGroup)
 				break
 			}
@@ -437,4 +438,19 @@ func reorderSelectors(model []common.KeyValueModel, sdk []*client.K8SEnvSpecFrag
 	}
 
 	return orderedSelectors
+}
+
+func reorderTolerations(model []TolerationModel, sdk []*client.K8SEnvSpecFragment_NodeGroups_Tolerations) []*client.K8SEnvSpecFragment_NodeGroups_Tolerations {
+	orderedTolerations := make([]*client.K8SEnvSpecFragment_NodeGroups_Tolerations, 0, len(sdk))
+
+	for _, t := range model {
+		for _, apiToleration := range sdk {
+			if t.Key.ValueString() == apiToleration.Key {
+				orderedTolerations = append(orderedTolerations, apiToleration)
+				break
+			}
+		}
+	}
+
+	return orderedTolerations
 }
