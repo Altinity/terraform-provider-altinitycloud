@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.4](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.4.3...v0.4.4)
+### Fixed
+- Sort k8s environments `node_groups.selector` after API responses to match script order [#cb3be84](https://github.com/Altinity/terraform-provider-altinitycloud/commit/cb3be84).
+- Sort k8s environments `node_groups.tolerations` after API responses to match script order [#c7b409f](https://github.com/Altinity/terraform-provider-altinitycloud/commit/c7b409f).
+
 ## [0.4.3](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.4.2...v0.4.3)
 ### Changed
 - Remove `force_destroy` from hcloud examples [#ab6a199](https://github.com/Altinity/terraform-provider-altinitycloud/commit/ab6a199).
