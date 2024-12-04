@@ -414,6 +414,7 @@ func reorderNodeGroups(model []NodeGroupsModel, sdk []*client.K8SEnvSpecFragment
 	for _, ng := range model {
 		for _, apiGroup := range sdk {
 			if ng.NodeType.ValueString() == apiGroup.NodeType {
+				apiGroup.Selector = reorderSelectors(ng.NodeSelector, apiGroup.Selector)
 				orderedNodeGroups = append(orderedNodeGroups, apiGroup)
 				break
 			}
@@ -421,4 +422,19 @@ func reorderNodeGroups(model []NodeGroupsModel, sdk []*client.K8SEnvSpecFragment
 	}
 
 	return orderedNodeGroups
+}
+
+func reorderSelectors(model []common.KeyValueModel, sdk []*client.K8SEnvSpecFragment_NodeGroups_Selector) []*client.K8SEnvSpecFragment_NodeGroups_Selector {
+	orderedSelectors := make([]*client.K8SEnvSpecFragment_NodeGroups_Selector, 0, len(sdk))
+
+	for _, s := range model {
+		for _, apiSelector := range sdk {
+			if s.Key.ValueString() == apiSelector.Key {
+				orderedSelectors = append(orderedSelectors, apiSelector)
+				break
+			}
+		}
+	}
+
+	return orderedSelectors
 }
