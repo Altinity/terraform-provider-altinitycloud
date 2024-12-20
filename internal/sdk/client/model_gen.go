@@ -260,6 +260,10 @@ type AWSEnvSpec struct {
 	//
 	// Example: ["us-east-1a", "us-east-1b"]
 	Zones []string `json:"zones"`
+	// Enable AWS NAT Gateway.
+	//
+	// Immutable.
+	Nat bool `json:"NAT"`
 	// Load balancers configuration.
 	LoadBalancers *AWSEnvLoadBalancersSpec `json:"loadBalancers"`
 	// Load balancing strategy.
@@ -624,6 +628,10 @@ type CreateAWSEnvSpecInput struct {
 	//
 	// This field is optional if "numberOfZones" is specified.
 	Zones []string `json:"zones,omitempty"`
+	// Enable AWS NAT Gateway.
+	//
+	// Immutable.
+	Nat *bool `json:"NAT,omitempty"`
 	// Load balancers configuration.
 	LoadBalancers *AWSEnvLoadBalancersSpecInput `json:"loadBalancers,omitempty"`
 	// Load balancing strategy.

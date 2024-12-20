@@ -74,6 +74,12 @@ type AWSEnvSpec {
   """
   zones: [String!]!
   """
+  Enable AWS NAT Gateway.
+
+  Immutable.
+  """
+  NAT: Boolean!
+  """
   Load balancers configuration.
   """
   loadBalancers: AWSEnvLoadBalancersSpec!
@@ -408,6 +414,12 @@ input CreateAWSEnvSpecInput {
   This field is optional if "numberOfZones" is specified.
   """
   zones: [String!]
+  """
+  Enable AWS NAT Gateway.
+
+  Immutable.
+  """
+  NAT: Boolean
   """
   Load balancers configuration.
   """

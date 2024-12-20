@@ -25,6 +25,10 @@ Bring Your Own Cloud (BYOC) AWS environment data source.
 		Examples:
 		- "acme-staging" (where "acme" is your account name)
 
+### Optional
+
+- `nat` (Boolean) Enable AWS NAT Gateway. **[IMMUTABLE]**
+
 ### Read-Only
 
 - `aws_account_id` (String) ID of the AWS account ([docs](https://docs.aws.amazon.com/IAM/latest/UserGuide/console_account-alias.html#ViewYourAWSId)) in which to provision AWS resources. **[IMMUTABLE]**

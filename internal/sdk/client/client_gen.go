@@ -23,6 +23,7 @@ type AWSEnvSpecFragment struct {
 	NodeGroups            []*AWSEnvSpecFragment_NodeGroups         "json:\"nodeGroups\" graphql:\"nodeGroups\""
 	MaintenanceWindows    []*AWSEnvSpecFragment_MaintenanceWindows "json:\"maintenanceWindows\" graphql:\"maintenanceWindows\""
 	Region                string                                   "json:\"region\" graphql:\"region\""
+	Nat                   bool                                     "json:\"NAT\" graphql:\"NAT\""
 	Zones                 []string                                 "json:\"zones\" graphql:\"zones\""
 	Cidr                  string                                   "json:\"cidr\" graphql:\"cidr\""
 	AwsAccountID          string                                   "json:\"awsAccountID\" graphql:\"awsAccountID\""
@@ -67,6 +68,12 @@ func (t *AWSEnvSpecFragment) GetRegion() string {
 		t = &AWSEnvSpecFragment{}
 	}
 	return t.Region
+}
+func (t *AWSEnvSpecFragment) GetNat() bool {
+	if t == nil {
+		t = &AWSEnvSpecFragment{}
+	}
+	return t.Nat
 }
 func (t *AWSEnvSpecFragment) GetZones() []string {
 	if t == nil {
@@ -5668,6 +5675,7 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 		days
 	}
 	region
+	NAT
 	zones
 	cidr
 	awsAccountID
@@ -5788,6 +5796,7 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 		days
 	}
 	region
+	NAT
 	zones
 	cidr
 	awsAccountID
@@ -5866,6 +5875,7 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 		days
 	}
 	region
+	NAT
 	zones
 	cidr
 	awsAccountID

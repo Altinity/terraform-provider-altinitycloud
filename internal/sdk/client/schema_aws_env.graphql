@@ -90,6 +90,7 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
     days
   }
   region
+  NAT
   zones
   cidr
   awsAccountID

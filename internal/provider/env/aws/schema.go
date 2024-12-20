@@ -37,6 +37,7 @@ func (r *AWSEnvResource) Schema(ctx context.Context, req resource.SchemaRequest,
 			"node_groups":                 common.GetNodeGroupsAttribute(true, false, false),
 			"aws_account_id":              getAWSAccountIDAttribute(true, false, false),
 			"region":                      common.GetRegionAttribute(true, false, false, common.AWS_REGION_DESCRIPTION),
+			"nat":                         getNATAttribute(false, true, true),
 			"peering_connections":         getPeeringConnectionsAttribute(false, true, false),
 			"endpoints":                   getEndpointsAttribute(false, true, false),
 			"tags":                        getTagsAttribute(false, true, false),
@@ -65,6 +66,7 @@ func (d *AWSEnvDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 			"node_groups":             common.GetNodeGroupsAttribute(false, false, true),
 			"aws_account_id":          getAWSAccountIDAttribute(false, false, true),
 			"region":                  common.GetRegionAttribute(false, false, true, common.AWS_REGION_DESCRIPTION),
+			"nat":                     getNATAttribute(false, true, true),
 			"peering_connections":     getPeeringConnectionsAttribute(false, false, true),
 			"endpoints":               getEndpointsAttribute(false, false, true),
 			"tags":                    getTagsAttribute(false, false, true),
@@ -190,6 +192,16 @@ func getZonesAttribute(required, optional, computed bool, description string) rs
 	}
 
 	return zonesAttribute
+}
+
+func getNATAttribute(required, optional, computed bool) rschema.BoolAttribute {
+	return rschema.BoolAttribute{
+		Required:            required,
+		Optional:            optional,
+		Computed:            computed,
+		MarkdownDescription: common.NAT_DESCRIPTION,
+		Default:             booldefault.StaticBool(false),
+	}
 }
 
 var endpointAttribute = rschema.NestedAttributeObject{

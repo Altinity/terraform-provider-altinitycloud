@@ -15,6 +15,7 @@ type AWSEnvResourceModel struct {
 	CustomDomain          types.String                    `tfsdk:"custom_domain"`
 	LoadBalancingStrategy types.String                    `tfsdk:"load_balancing_strategy"`
 	Region                types.String                    `tfsdk:"region"`
+	NAT                   types.Bool                      `tfsdk:"nat"`
 	NumberOfZones         types.Int64                     `tfsdk:"number_of_zones"`
 	CIDR                  types.String                    `tfsdk:"cidr"`
 	AWSAccountID          types.String                    `tfsdk:"aws_account_id"`
@@ -106,6 +107,7 @@ func (e AWSEnvResourceModel) toSDK() (sdk.CreateAWSEnvInput, sdk.UpdateAWSEnvInp
 			LoadBalancers:         LoadBalancers,
 			NodeGroups:            nodeGroups,
 			Region:                e.Region.ValueString(),
+			Nat:                   e.NAT.ValueBoolPointer(),
 			NumberOfZones:         e.NumberOfZones.ValueInt64Pointer(),
 			AwsAccountID:          e.AWSAccountID.ValueString(),
 			Cidr:                  e.CIDR.ValueString(),
@@ -143,6 +145,7 @@ func (model *AWSEnvResourceModel) toModel(env sdk.GetAWSEnv_AwsEnv) {
 	model.Name = types.StringValue(env.Name)
 	model.CIDR = types.StringValue(env.Spec.Cidr)
 	model.Region = types.StringValue(env.Spec.Region)
+	model.NAT = types.BoolValue(env.Spec.Nat)
 	model.AWSAccountID = types.StringValue(env.Spec.AwsAccountID)
 	model.CustomDomain = types.StringPointerValue(env.Spec.CustomDomain)
 	model.LoadBalancingStrategy = types.StringValue(string(env.Spec.LoadBalancingStrategy))
