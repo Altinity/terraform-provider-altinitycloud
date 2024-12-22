@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.5](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.4.4...v0.4.5)
+### Added
+- Add `nat` property to enable AWS NAT Gateway on AWS envs [#e2ade63](https://github.com/Altinity/terraform-provider-altinitycloud/commit/e2ade63).
+
+### Changed
+- 🚨 [BREAKING CHANGE] Deprecate `number_of_zones` from all env resources [#0f07c7a](https://github.com/Altinity/terraform-provider-altinitycloud/commit/0f07c7a).
+- Bump github.com/hashicorp/terraform-plugin-framework-validators to `0.16.0` [#128](https://github.com/Altinity/terraform-provider-altinitycloud/pull/128).
+- Bump github.com/Yamashou/gqlgenc to `0.28.2` [#132](https://github.com/Altinity/terraform-provider-altinitycloud/pull/132).
+
 ## [0.4.4](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.4.3...v0.4.4)
 ### Fixed
 - Sort k8s environments `node_groups.selector` after API responses to match script order [#cb3be84](https://github.com/Altinity/terraform-provider-altinitycloud/commit/cb3be84).
