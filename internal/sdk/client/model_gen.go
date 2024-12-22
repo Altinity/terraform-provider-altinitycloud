@@ -209,7 +209,7 @@ type AWSEnvPeeringConnectionSpec struct {
 	// Target VPC AWS account ID.
 	//
 	// Defaults to environment AWS account ID.
-	AwsAccountID *string `json:"awsAccountID,omitempty"`
+	AWSAccountID *string `json:"awsAccountID,omitempty"`
 }
 
 // AWS environment VPC peering configuration input.
@@ -223,7 +223,7 @@ type AWSEnvPeeringConnectionSpecInput struct {
 	// Target VPC AWS account ID.
 	//
 	// Defaults to environment AWS account ID.
-	AwsAccountID *string `json:"awsAccountID,omitempty"`
+	AWSAccountID *string `json:"awsAccountID,omitempty"`
 }
 
 type AWSEnvPeeringConnectionStatus struct {
@@ -239,7 +239,7 @@ type AWSEnvSpec struct {
 	// in which to provision AWS resources.
 	//
 	// Immutable.
-	AwsAccountID string `json:"awsAccountID"`
+	AWSAccountID string `json:"awsAccountID"`
 	// VPC CIDR block from the private IPv4 address ranges as specified in RFC 1918
 	// (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16).
 	//
@@ -600,7 +600,7 @@ type CreateAWSEnvSpecInput struct {
 	// in which to provision AWS resources.
 	//
 	// Immutable.
-	AwsAccountID string `json:"awsAccountID"`
+	AWSAccountID string `json:"awsAccountID"`
 	// VPC CIDR block from the private IPv4 address ranges as specified in RFC 1918
 	// (10/8, 172.16/12, 192.168/16).
 	//
@@ -788,7 +788,7 @@ type CreateGCPEnvSpecInput struct {
 	// in which to provision GCP resources.
 	//
 	// Immutable.
-	GcpProjectID string `json:"gcpProjectId"`
+	GCPProjectID string `json:"gcpProjectId"`
 	// Network CIDR block from the private IPv4 address ranges as specified in RFC 1918
 	// (10/8, 172.16/12, 192.168/16).
 	//
@@ -1229,7 +1229,7 @@ type GCPEnvSpec struct {
 	// in which to provision GCP resources.
 	//
 	// Immutable.
-	GcpProjectID string `json:"gcpProjectId"`
+	GCPProjectID string `json:"gcpProjectId"`
 	// Network CIDR block from the private IPv4 address ranges as specified in RFC 1918
 	// (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16).
 	//
@@ -2156,7 +2156,7 @@ func (e Day) String() string {
 	return string(e)
 }
 
-func (e *Day) UnmarshalGQL(v interface{}) error {
+func (e *Day) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2202,7 +2202,7 @@ func (e EnvStatusErrorCode) String() string {
 	return string(e)
 }
 
-func (e *EnvStatusErrorCode) UnmarshalGQL(v interface{}) error {
+func (e *EnvStatusErrorCode) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2252,7 +2252,7 @@ func (e K8SDistribution) String() string {
 	return string(e)
 }
 
-func (e *K8SDistribution) UnmarshalGQL(v interface{}) error {
+func (e *K8SDistribution) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2296,7 +2296,7 @@ func (e LoadBalancingStrategy) String() string {
 	return string(e)
 }
 
-func (e *LoadBalancingStrategy) UnmarshalGQL(v interface{}) error {
+func (e *LoadBalancingStrategy) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2343,7 +2343,7 @@ func (e NodeReservation) String() string {
 	return string(e)
 }
 
-func (e *NodeReservation) UnmarshalGQL(v interface{}) error {
+func (e *NodeReservation) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2387,7 +2387,7 @@ func (e NodeTolerationEffect) String() string {
 	return string(e)
 }
 
-func (e *NodeTolerationEffect) UnmarshalGQL(v interface{}) error {
+func (e *NodeTolerationEffect) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2429,7 +2429,7 @@ func (e NodeTolerationOperator) String() string {
 	return string(e)
 }
 
-func (e *NodeTolerationOperator) UnmarshalGQL(v interface{}) error {
+func (e *NodeTolerationOperator) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")
@@ -2473,7 +2473,7 @@ func (e UpdateStrategy) String() string {
 	return string(e)
 }
 
-func (e *UpdateStrategy) UnmarshalGQL(v interface{}) error {
+func (e *UpdateStrategy) UnmarshalGQL(v any) error {
 	str, ok := v.(string)
 	if !ok {
 		return fmt.Errorf("enums must be strings")

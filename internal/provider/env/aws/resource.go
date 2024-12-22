@@ -84,8 +84,8 @@ func (r *AWSEnvResource) Read(ctx context.Context, req resource.ReadRequest, res
 	}
 
 	// Reorder node groups to respect order in the user's configuration
-	apiResp.AwsEnv.Spec.NodeGroups = reorderNodeGroups(data.NodeGroups, apiResp.AwsEnv.Spec.NodeGroups)
-	data.toModel(*apiResp.AwsEnv)
+	apiResp.AWSEnv.Spec.NodeGroups = reorderNodeGroups(data.NodeGroups, apiResp.AWSEnv.Spec.NodeGroups)
+	data.toModel(*apiResp.AWSEnv)
 	data.Id = data.Name
 
 	diags = resp.State.Set(ctx, &data)
@@ -149,8 +149,8 @@ func (r *AWSEnvResource) Delete(ctx context.Context, req resource.DeleteRequest,
 		return
 	}
 
-	if len(envStatus.AwsEnv.Status.Errors) > 0 {
-		for _, err := range envStatus.AwsEnv.Status.Errors {
+	if len(envStatus.AWSEnv.Status.Errors) > 0 {
+		for _, err := range envStatus.AWSEnv.Status.Errors {
 			if err.Code == "DISCONNECTED" && !data.SkipDeprovisionOnDestroy.ValueBool() {
 				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete env %s, environment is DISCONNECTED.\nCheck environment's `cloudconnect` or use `skip_deprovision_on_destroy` to delete environment without deprovisioning cloud resources.", envName))
 				return
@@ -198,7 +198,7 @@ func (r *AWSEnvResource) Delete(ctx context.Context, req resource.DeleteRequest,
 		case <-ticker.C:
 			tflog.Trace(ctx, "checking if env was deleted", map[string]interface{}{"name": envName})
 			envStatus, err := r.Client.GetAWSEnvStatus(ctx, envName)
-			pendingMfa = !envStatus.AwsEnv.Status.PendingDelete
+			pendingMfa = !envStatus.AWSEnv.Status.PendingDelete
 
 			if err != nil {
 				notFound, err := client.IsNotFoundError(err)

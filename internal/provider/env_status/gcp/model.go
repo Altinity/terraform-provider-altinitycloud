@@ -13,7 +13,7 @@ type GCPEnvStatusModel struct {
 	PendingDelete              types.Bool   `tfsdk:"pending_delete"`
 }
 
-func (model *GCPEnvStatusModel) toModel(env sdk.GetGCPEnvStatus_GcpEnv) {
+func (model *GCPEnvStatusModel) toModel(env sdk.GetGCPEnvStatus_GCPEnv) {
 	model.Name = types.StringValue(env.Name)
 	model.AppliedSpecRevision = types.Int64Value(env.Status.AppliedSpecRevision)
 	model.PendingDelete = types.BoolValue(env.Status.PendingDelete)
