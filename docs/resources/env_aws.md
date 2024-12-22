@@ -256,7 +256,6 @@ resource "aws_vpc_peering_connection_accepter" "peer" {
 		- "ZONE_BEST_EFFORT": keep traffic within same zone
 - `maintenance_windows` (Attributes List) List of maintenance windows during which automatic maintenance is permitted. By default updates are applied as soon as they are available. (see [below for nested schema](#nestedatt--maintenance_windows))
 - `nat` (Boolean) Enable AWS NAT Gateway. **[IMMUTABLE]**
-- `number_of_zones` (Number, Deprecated) Number of zones where the environment will be available. When set, zones will be set automatically based on your cloud provider (Do not use it together with zones)
 - `peering_connections` (Attributes List) AWS environment VPC peering configuration. (see [below for nested schema](#nestedatt--peering_connections))
 - `skip_deprovision_on_destroy` (Boolean) Set to `true` will delete without waiting for environment deprovisioning. Use this with precaution, it may end up with dangling resources in your cloud provider (default `false`).
 - `tags` (Attributes List) Tags to apply to AWS resources. (see [below for nested schema](#nestedatt--tags))

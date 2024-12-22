@@ -31,7 +31,6 @@ const CUSTOM_DOMAIN_DESCRIPTION = `Custom domain.
 		- (optional, vpce)
 			CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
 `
-const NUMBER_OF_ZONES_DESCRIPTION = "Number of zones where the environment will be available. When set, zones will be set automatically based on your cloud provider (Do not use it together with zones)"
 const SOURCE_IP_RANGES_DESCRIPTION = " IP addresses/blocks to allow traffic from (default `\"0.0.0.0/0\"`)."
 const MAINTENANCE_WINDOW_DAYS_DESCRIPTION = `Days on which maintenance can take place.
 

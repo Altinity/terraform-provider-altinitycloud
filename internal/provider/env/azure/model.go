@@ -13,7 +13,6 @@ type AzureEnvResourceModel struct {
 	Name                  types.String                    `tfsdk:"name"`
 	CustomDomain          types.String                    `tfsdk:"custom_domain"`
 	NodeGroups            []common.NodeGroupsModel        `tfsdk:"node_groups"`
-	NumberOfZones         types.Int64                     `tfsdk:"number_of_zones"`
 	Region                types.String                    `tfsdk:"region"`
 	CIDR                  types.String                    `tfsdk:"cidr"`
 	TenantID              types.String                    `tfsdk:"tenant_id"`
@@ -87,7 +86,6 @@ func (e AzureEnvResourceModel) toSDK() (client.CreateAzureEnvInput, client.Updat
 			Zones:                 zones,
 			LoadBalancingStrategy: loadBalancingStrategy,
 			LoadBalancers:         LoadBalancers,
-			NumberOfZones:         e.NumberOfZones.ValueInt64Pointer(),
 			MaintenanceWindows:    maintenanceWindows,
 			CloudConnect:          &cloudConnect,
 			Tags:                  tags,
@@ -107,7 +105,6 @@ func (e AzureEnvResourceModel) toSDK() (client.CreateAzureEnvInput, client.Updat
 			Zones:                 zones,
 			LoadBalancingStrategy: loadBalancingStrategy,
 			LoadBalancers:         LoadBalancers,
-			NumberOfZones:         e.NumberOfZones.ValueInt64Pointer(),
 			MaintenanceWindows:    maintenanceWindows,
 			Tags:                  tags,
 			PrivateLinkService: &client.PrivateLinkServiceSpecInput{
