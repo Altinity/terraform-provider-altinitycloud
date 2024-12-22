@@ -70,7 +70,7 @@ func (e AWSEnvResourceModel) toSDK() (sdk.CreateAWSEnvInput, sdk.UpdateAWSEnvInp
 	var peeringConnections []*sdk.AWSEnvPeeringConnectionSpecInput
 	for _, p := range e.PeeringConnections {
 		peeringConnections = append(peeringConnections, &sdk.AWSEnvPeeringConnectionSpecInput{
-			AwsAccountID: p.AWSAccountID.ValueStringPointer(),
+			AWSAccountID: p.AWSAccountID.ValueStringPointer(),
 			VpcID:        p.VpcID.ValueString(),
 			VpcRegion:    p.VpcRegion.ValueStringPointer(),
 		})
@@ -107,7 +107,7 @@ func (e AWSEnvResourceModel) toSDK() (sdk.CreateAWSEnvInput, sdk.UpdateAWSEnvInp
 			NodeGroups:            nodeGroups,
 			Region:                e.Region.ValueString(),
 			Nat:                   e.NAT.ValueBoolPointer(),
-			AwsAccountID:          e.AWSAccountID.ValueString(),
+			AWSAccountID:          e.AWSAccountID.ValueString(),
 			Cidr:                  e.CIDR.ValueString(),
 			Zones:                 zones,
 			PeeringConnections:    peeringConnections,
@@ -138,12 +138,12 @@ func (e AWSEnvResourceModel) toSDK() (sdk.CreateAWSEnvInput, sdk.UpdateAWSEnvInp
 	return create, update
 }
 
-func (model *AWSEnvResourceModel) toModel(env sdk.GetAWSEnv_AwsEnv) {
+func (model *AWSEnvResourceModel) toModel(env sdk.GetAWSEnv_AWSEnv) {
 	model.Name = types.StringValue(env.Name)
 	model.CIDR = types.StringValue(env.Spec.Cidr)
 	model.Region = types.StringValue(env.Spec.Region)
 	model.NAT = types.BoolValue(env.Spec.Nat)
-	model.AWSAccountID = types.StringValue(env.Spec.AwsAccountID)
+	model.AWSAccountID = types.StringValue(env.Spec.AWSAccountID)
 	model.CustomDomain = types.StringPointerValue(env.Spec.CustomDomain)
 	model.LoadBalancingStrategy = types.StringValue(string(env.Spec.LoadBalancingStrategy))
 	model.LoadBalancers = loadBalancersToModel(env.Spec.LoadBalancers)
@@ -154,7 +154,7 @@ func (model *AWSEnvResourceModel) toModel(env sdk.GetAWSEnv_AwsEnv) {
 	var peeringConnections []AWSEnvPeeringConnectionModel
 	for _, p := range env.Spec.PeeringConnections {
 		peeringConnections = append(peeringConnections, AWSEnvPeeringConnectionModel{
-			AWSAccountID: types.StringPointerValue(p.AwsAccountID),
+			AWSAccountID: types.StringPointerValue(p.AWSAccountID),
 			VpcID:        types.StringValue(p.VpcID),
 			VpcRegion:    types.StringPointerValue(p.VpcRegion),
 		})

@@ -64,15 +64,15 @@ func (d *AWSEnvStatusDataSource) Read(ctx context.Context, req datasource.ReadRe
 		return
 	}
 
-	if apiResp.AwsEnv == nil {
+	if apiResp.AWSEnv == nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Environment %s was not found", envName))
 		return
 	}
 
 	waitForAppliedSpecRevision := data.WaitForAppliedSpecRevision.ValueInt64()
-	if waitForAppliedSpecRevision == 0 || apiResp.AwsEnv.Status.AppliedSpecRevision >= waitForAppliedSpecRevision {
+	if waitForAppliedSpecRevision == 0 || apiResp.AWSEnv.Status.AppliedSpecRevision >= waitForAppliedSpecRevision {
 		tflog.Trace(ctx, "env status matchs spec", map[string]interface{}{"name": envName})
-		data.toModel(*apiResp.AwsEnv)
+		data.toModel(*apiResp.AWSEnv)
 		data.Id = data.Name
 
 		diags = resp.State.Set(ctx, &data)
@@ -103,23 +103,23 @@ func (d *AWSEnvStatusDataSource) Read(ctx context.Context, req datasource.ReadRe
 				return
 			}
 
-			if apiResp.AwsEnv == nil {
+			if apiResp.AWSEnv == nil {
 				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Environment %s was not found", envName))
 				return
 			}
 
-			if len(apiResp.AwsEnv.Status.Errors) > 0 {
+			if len(apiResp.AWSEnv.Status.Errors) > 0 {
 				var errorDetails string
-				for _, err := range apiResp.AwsEnv.Status.Errors {
+				for _, err := range apiResp.AWSEnv.Status.Errors {
 					errorDetails += fmt.Sprintf("%s: %s\n", err.Code, err.Message)
 				}
 				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Environment %s has provisioning errors:\n%s", envName, errorDetails))
 				return
 			}
 
-			if apiResp.AwsEnv.Status.AppliedSpecRevision >= waitForAppliedSpecRevision {
+			if apiResp.AWSEnv.Status.AppliedSpecRevision >= waitForAppliedSpecRevision {
 				tflog.Trace(ctx, "env status matchs spec", map[string]interface{}{"name": envName})
-				data.toModel(*apiResp.AwsEnv)
+				data.toModel(*apiResp.AWSEnv)
 				data.Id = data.Name
 				diags = resp.State.Set(ctx, &data)
 				resp.Diagnostics.Append(diags...)

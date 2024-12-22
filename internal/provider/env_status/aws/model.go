@@ -28,7 +28,7 @@ type AWSEnvPeeringConnectionStatus struct {
 	VpcId types.String `tfsdk:"vpc_id"`
 }
 
-func (model *AWSEnvStatusModel) toModel(env sdk.GetAWSEnvStatus_AwsEnv) {
+func (model *AWSEnvStatusModel) toModel(env sdk.GetAWSEnvStatus_AWSEnv) {
 	model.Name = types.StringValue(env.Name)
 	model.AppliedSpecRevision = types.Int64Value(env.Status.AppliedSpecRevision)
 	model.LoadBalancers = &AWSEnvLoadBalancersStatus{

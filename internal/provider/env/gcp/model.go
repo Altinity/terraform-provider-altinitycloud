@@ -58,7 +58,7 @@ func (e GCPEnvResourceModel) toSDK() (client.CreateGCPEnvInput, client.UpdateGCP
 		Spec: &client.CreateGCPEnvSpecInput{
 			CustomDomain:          e.CustomDomain.ValueStringPointer(),
 			NodeGroups:            nodeGroups,
-			GcpProjectID:          e.GCPProjectID.ValueString(),
+			GCPProjectID:          e.GCPProjectID.ValueString(),
 			Region:                e.Region.ValueString(),
 			Cidr:                  e.CIDR.ValueString(),
 			Zones:                 zones,
@@ -86,12 +86,12 @@ func (e GCPEnvResourceModel) toSDK() (client.CreateGCPEnvInput, client.UpdateGCP
 	return create, update
 }
 
-func (model *GCPEnvResourceModel) toModel(env client.GetGCPEnv_GcpEnv) {
+func (model *GCPEnvResourceModel) toModel(env client.GetGCPEnv_GCPEnv) {
 	model.Name = types.StringValue(env.Name)
 	model.Region = types.StringValue(env.Spec.Region)
 	model.CustomDomain = types.StringPointerValue(env.Spec.CustomDomain)
 	model.CIDR = types.StringValue(env.Spec.Cidr)
-	model.GCPProjectID = types.StringValue(env.Spec.GcpProjectID)
+	model.GCPProjectID = types.StringValue(env.Spec.GCPProjectID)
 	model.LoadBalancingStrategy = types.StringValue(string(env.Spec.LoadBalancingStrategy))
 	model.LoadBalancers = loadBalancersToModel(env.Spec.LoadBalancers)
 	model.NodeGroups = nodeGroupsToModel(env.Spec.NodeGroups)

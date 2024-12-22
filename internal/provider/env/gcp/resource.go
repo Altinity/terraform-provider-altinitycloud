@@ -86,8 +86,8 @@ func (r *GCPEnvResource) Read(ctx context.Context, req resource.ReadRequest, res
 	}
 
 	// Reorder node groups to respect order in the user's configuration
-	apiResp.GcpEnv.Spec.NodeGroups = reorderNodeGroups(data.NodeGroups, apiResp.GcpEnv.Spec.NodeGroups)
-	data.toModel(*apiResp.GcpEnv)
+	apiResp.GCPEnv.Spec.NodeGroups = reorderNodeGroups(data.NodeGroups, apiResp.GCPEnv.Spec.NodeGroups)
+	data.toModel(*apiResp.GCPEnv)
 	data.Id = data.Name
 
 	diags = resp.State.Set(ctx, &data)
@@ -151,8 +151,8 @@ func (r *GCPEnvResource) Delete(ctx context.Context, req resource.DeleteRequest,
 		return
 	}
 
-	if len(envStatus.GcpEnv.Status.Errors) > 0 {
-		for _, err := range envStatus.GcpEnv.Status.Errors {
+	if len(envStatus.GCPEnv.Status.Errors) > 0 {
+		for _, err := range envStatus.GCPEnv.Status.Errors {
 			if err.Code == "DISCONNECTED" && !data.SkipDeprovisionOnDestroy.ValueBool() {
 				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to delete env %s, environment is DISCONNECTED.\nCheck environment's `cloudconnect` or use `skip_deprovision_on_destroy` to delete environment without deprovisioning cloud resources.", envName))
 				return
@@ -200,7 +200,7 @@ func (r *GCPEnvResource) Delete(ctx context.Context, req resource.DeleteRequest,
 		case <-ticker.C:
 			tflog.Trace(ctx, "checking if env was deleted", map[string]interface{}{"name": envName})
 			envStatus, err := r.Client.GetGCPEnvStatus(ctx, envName)
-			pendingMfa = !envStatus.GcpEnv.Status.PendingDelete
+			pendingMfa = !envStatus.GCPEnv.Status.PendingDelete
 
 			if err != nil {
 				notFound, err := client.IsNotFoundError(err)

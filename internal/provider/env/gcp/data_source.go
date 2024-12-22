@@ -63,12 +63,12 @@ func (d *GCPEnvDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 		return
 	}
 
-	if apiResp.GcpEnv == nil {
+	if apiResp.GCPEnv == nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Environment %s was not found", envName))
 		return
 	}
 
-	data.toModel(*apiResp.GcpEnv)
+	data.toModel(*apiResp.GCPEnv)
 	data.Id = data.Name
 
 	diags = resp.State.Set(ctx, &data)

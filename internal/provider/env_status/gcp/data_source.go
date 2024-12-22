@@ -64,15 +64,15 @@ func (d *GCPEnvStatusDataSource) Read(ctx context.Context, req datasource.ReadRe
 		return
 	}
 
-	if apiResp.GcpEnv == nil {
+	if apiResp.GCPEnv == nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Environment %s was not found", envName))
 		return
 	}
 
 	waitForAppliedSpecRevision := data.WaitForAppliedSpecRevision.ValueInt64()
-	if waitForAppliedSpecRevision == 0 || apiResp.GcpEnv.Status.AppliedSpecRevision >= waitForAppliedSpecRevision {
+	if waitForAppliedSpecRevision == 0 || apiResp.GCPEnv.Status.AppliedSpecRevision >= waitForAppliedSpecRevision {
 		tflog.Trace(ctx, "env status matchs spec", map[string]interface{}{"name": envName})
-		data.toModel(*apiResp.GcpEnv)
+		data.toModel(*apiResp.GCPEnv)
 		data.Id = data.Name
 
 		diags = resp.State.Set(ctx, &data)
@@ -103,14 +103,14 @@ func (d *GCPEnvStatusDataSource) Read(ctx context.Context, req datasource.ReadRe
 				return
 			}
 
-			if apiResp.GcpEnv == nil {
+			if apiResp.GCPEnv == nil {
 				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Environment %s was not found", envName))
 				return
 			}
 
-			if apiResp.GcpEnv.Status.AppliedSpecRevision >= waitForAppliedSpecRevision {
+			if apiResp.GCPEnv.Status.AppliedSpecRevision >= waitForAppliedSpecRevision {
 				tflog.Trace(ctx, "env status matchs spec", map[string]interface{}{"name": envName})
-				data.toModel(*apiResp.GcpEnv)
+				data.toModel(*apiResp.GCPEnv)
 				data.Id = data.Name
 
 				diags = resp.State.Set(ctx, &data)
