@@ -133,22 +133,6 @@ func GetZonesAttribute(required, optional, computed bool, description string) rs
 	}
 }
 
-func GetNumberOfZonesAttribute(required, optional, computed bool) rschema.Int64Attribute {
-	return rschema.Int64Attribute{
-		Required:            required,
-		Optional:            optional,
-		Computed:            computed,
-		MarkdownDescription: NUMBER_OF_ZONES_DESCRIPTION,
-		DeprecationMessage:  "The 'number_of_zones' attribute is deprecated and will be removed soon. Use 'zones' instead.",
-		Validators: []validator.Int64{
-			int64validator.AtLeast(2),
-		},
-		PlanModifiers: []planmodifier.Int64{
-			modifiers.ZonesAttributePlanModifier(),
-		},
-	}
-}
-
 func GetLoadBalancingStrategyAttribute(required, optional, computed bool) rschema.StringAttribute {
 	return rschema.StringAttribute{
 		Optional:            optional,

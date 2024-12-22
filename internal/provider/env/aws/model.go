@@ -16,7 +16,6 @@ type AWSEnvResourceModel struct {
 	LoadBalancingStrategy types.String                    `tfsdk:"load_balancing_strategy"`
 	Region                types.String                    `tfsdk:"region"`
 	NAT                   types.Bool                      `tfsdk:"nat"`
-	NumberOfZones         types.Int64                     `tfsdk:"number_of_zones"`
 	CIDR                  types.String                    `tfsdk:"cidr"`
 	AWSAccountID          types.String                    `tfsdk:"aws_account_id"`
 	Zones                 types.List                      `tfsdk:"zones"`
@@ -108,7 +107,6 @@ func (e AWSEnvResourceModel) toSDK() (sdk.CreateAWSEnvInput, sdk.UpdateAWSEnvInp
 			NodeGroups:            nodeGroups,
 			Region:                e.Region.ValueString(),
 			Nat:                   e.NAT.ValueBoolPointer(),
-			NumberOfZones:         e.NumberOfZones.ValueInt64Pointer(),
 			AwsAccountID:          e.AWSAccountID.ValueString(),
 			Cidr:                  e.CIDR.ValueString(),
 			Zones:                 zones,
@@ -129,7 +127,6 @@ func (e AWSEnvResourceModel) toSDK() (sdk.CreateAWSEnvInput, sdk.UpdateAWSEnvInp
 			LoadBalancingStrategy: loadBalancingStrategy,
 			LoadBalancers:         LoadBalancers,
 			NodeGroups:            nodeGroups,
-			NumberOfZones:         e.NumberOfZones.ValueInt64Pointer(),
 			Zones:                 zones,
 			PeeringConnections:    peeringConnections,
 			Endpoints:             endpoints,

@@ -9,11 +9,11 @@ import (
 )
 
 type GCPEnvResourceModel struct {
-	Id                    types.String                    `tfsdk:"id"`
-	Name                  types.String                    `tfsdk:"name"`
-	CustomDomain          types.String                    `tfsdk:"custom_domain"`
-	NodeGroups            []common.NodeGroupsModel        `tfsdk:"node_groups"`
-	NumberOfZones         types.Int64                     `tfsdk:"number_of_zones"`
+	Id           types.String             `tfsdk:"id"`
+	Name         types.String             `tfsdk:"name"`
+	CustomDomain types.String             `tfsdk:"custom_domain"`
+	NodeGroups   []common.NodeGroupsModel `tfsdk:"node_groups"`
+
 	Region                types.String                    `tfsdk:"region"`
 	CIDR                  types.String                    `tfsdk:"cidr"`
 	GCPProjectID          types.String                    `tfsdk:"gcp_project_id"`
@@ -64,7 +64,6 @@ func (e GCPEnvResourceModel) toSDK() (client.CreateGCPEnvInput, client.UpdateGCP
 			Zones:                 zones,
 			LoadBalancingStrategy: loadBalancingStrategy,
 			LoadBalancers:         LoadBalancers,
-			NumberOfZones:         e.NumberOfZones.ValueInt64Pointer(),
 			MaintenanceWindows:    maintenanceWindows,
 			CloudConnect:          &cloudConnect,
 		},
@@ -80,7 +79,6 @@ func (e GCPEnvResourceModel) toSDK() (client.CreateGCPEnvInput, client.UpdateGCP
 			Zones:                 zones,
 			LoadBalancingStrategy: loadBalancingStrategy,
 			LoadBalancers:         LoadBalancers,
-			NumberOfZones:         e.NumberOfZones.ValueInt64Pointer(),
 			MaintenanceWindows:    maintenanceWindows,
 		},
 	}
