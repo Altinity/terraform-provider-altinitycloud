@@ -429,11 +429,17 @@ func (t *K8SEnvSpecFragment) GetLogs() *K8SEnvSpecFragment_Logs {
 }
 
 type AWSEnvSpecFragment_LoadBalancers_Public struct {
+	CrossZone      bool     "json:\"crossZone\" graphql:\"crossZone\""
 	Enabled        bool     "json:\"enabled\" graphql:\"enabled\""
 	SourceIPRanges []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
-	CrossZone      bool     "json:\"crossZone\" graphql:\"crossZone\""
 }
 
+func (t *AWSEnvSpecFragment_LoadBalancers_Public) GetCrossZone() bool {
+	if t == nil {
+		t = &AWSEnvSpecFragment_LoadBalancers_Public{}
+	}
+	return t.CrossZone
+}
 func (t *AWSEnvSpecFragment_LoadBalancers_Public) GetEnabled() bool {
 	if t == nil {
 		t = &AWSEnvSpecFragment_LoadBalancers_Public{}
@@ -446,37 +452,25 @@ func (t *AWSEnvSpecFragment_LoadBalancers_Public) GetSourceIPRanges() []string {
 	}
 	return t.SourceIPRanges
 }
-func (t *AWSEnvSpecFragment_LoadBalancers_Public) GetCrossZone() bool {
-	if t == nil {
-		t = &AWSEnvSpecFragment_LoadBalancers_Public{}
-	}
-	return t.CrossZone
-}
 
 type AWSEnvSpecFragment_LoadBalancers_Internal struct {
-	Enabled                          bool     "json:\"enabled\" graphql:\"enabled\""
-	SourceIPRanges                   []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
 	CrossZone                        bool     "json:\"crossZone\" graphql:\"crossZone\""
+	Enabled                          bool     "json:\"enabled\" graphql:\"enabled\""
 	EndpointServiceAllowedPrincipals []string "json:\"endpointServiceAllowedPrincipals\" graphql:\"endpointServiceAllowedPrincipals\""
+	SourceIPRanges                   []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
 }
 
-func (t *AWSEnvSpecFragment_LoadBalancers_Internal) GetEnabled() bool {
-	if t == nil {
-		t = &AWSEnvSpecFragment_LoadBalancers_Internal{}
-	}
-	return t.Enabled
-}
-func (t *AWSEnvSpecFragment_LoadBalancers_Internal) GetSourceIPRanges() []string {
-	if t == nil {
-		t = &AWSEnvSpecFragment_LoadBalancers_Internal{}
-	}
-	return t.SourceIPRanges
-}
 func (t *AWSEnvSpecFragment_LoadBalancers_Internal) GetCrossZone() bool {
 	if t == nil {
 		t = &AWSEnvSpecFragment_LoadBalancers_Internal{}
 	}
 	return t.CrossZone
+}
+func (t *AWSEnvSpecFragment_LoadBalancers_Internal) GetEnabled() bool {
+	if t == nil {
+		t = &AWSEnvSpecFragment_LoadBalancers_Internal{}
+	}
+	return t.Enabled
 }
 func (t *AWSEnvSpecFragment_LoadBalancers_Internal) GetEndpointServiceAllowedPrincipals() []string {
 	if t == nil {
@@ -484,33 +478,45 @@ func (t *AWSEnvSpecFragment_LoadBalancers_Internal) GetEndpointServiceAllowedPri
 	}
 	return t.EndpointServiceAllowedPrincipals
 }
+func (t *AWSEnvSpecFragment_LoadBalancers_Internal) GetSourceIPRanges() []string {
+	if t == nil {
+		t = &AWSEnvSpecFragment_LoadBalancers_Internal{}
+	}
+	return t.SourceIPRanges
+}
 
 type AWSEnvSpecFragment_LoadBalancers struct {
-	Public   AWSEnvSpecFragment_LoadBalancers_Public   "json:\"public\" graphql:\"public\""
 	Internal AWSEnvSpecFragment_LoadBalancers_Internal "json:\"internal\" graphql:\"internal\""
+	Public   AWSEnvSpecFragment_LoadBalancers_Public   "json:\"public\" graphql:\"public\""
 }
 
-func (t *AWSEnvSpecFragment_LoadBalancers) GetPublic() *AWSEnvSpecFragment_LoadBalancers_Public {
-	if t == nil {
-		t = &AWSEnvSpecFragment_LoadBalancers{}
-	}
-	return &t.Public
-}
 func (t *AWSEnvSpecFragment_LoadBalancers) GetInternal() *AWSEnvSpecFragment_LoadBalancers_Internal {
 	if t == nil {
 		t = &AWSEnvSpecFragment_LoadBalancers{}
 	}
 	return &t.Internal
 }
-
-type AWSEnvSpecFragment_NodeGroups struct {
-	Name            string            "json:\"name\" graphql:\"name\""
-	NodeType        string            "json:\"nodeType\" graphql:\"nodeType\""
-	Zones           []string          "json:\"zones\" graphql:\"zones\""
-	CapacityPerZone int64             "json:\"capacityPerZone\" graphql:\"capacityPerZone\""
-	Reservations    []NodeReservation "json:\"reservations\" graphql:\"reservations\""
+func (t *AWSEnvSpecFragment_LoadBalancers) GetPublic() *AWSEnvSpecFragment_LoadBalancers_Public {
+	if t == nil {
+		t = &AWSEnvSpecFragment_LoadBalancers{}
+	}
+	return &t.Public
 }
 
+type AWSEnvSpecFragment_NodeGroups struct {
+	CapacityPerZone int64             "json:\"capacityPerZone\" graphql:\"capacityPerZone\""
+	Name            string            "json:\"name\" graphql:\"name\""
+	NodeType        string            "json:\"nodeType\" graphql:\"nodeType\""
+	Reservations    []NodeReservation "json:\"reservations\" graphql:\"reservations\""
+	Zones           []string          "json:\"zones\" graphql:\"zones\""
+}
+
+func (t *AWSEnvSpecFragment_NodeGroups) GetCapacityPerZone() int64 {
+	if t == nil {
+		t = &AWSEnvSpecFragment_NodeGroups{}
+	}
+	return t.CapacityPerZone
+}
 func (t *AWSEnvSpecFragment_NodeGroups) GetName() string {
 	if t == nil {
 		t = &AWSEnvSpecFragment_NodeGroups{}
@@ -523,38 +529,32 @@ func (t *AWSEnvSpecFragment_NodeGroups) GetNodeType() string {
 	}
 	return t.NodeType
 }
-func (t *AWSEnvSpecFragment_NodeGroups) GetZones() []string {
-	if t == nil {
-		t = &AWSEnvSpecFragment_NodeGroups{}
-	}
-	return t.Zones
-}
-func (t *AWSEnvSpecFragment_NodeGroups) GetCapacityPerZone() int64 {
-	if t == nil {
-		t = &AWSEnvSpecFragment_NodeGroups{}
-	}
-	return t.CapacityPerZone
-}
 func (t *AWSEnvSpecFragment_NodeGroups) GetReservations() []NodeReservation {
 	if t == nil {
 		t = &AWSEnvSpecFragment_NodeGroups{}
 	}
 	return t.Reservations
 }
+func (t *AWSEnvSpecFragment_NodeGroups) GetZones() []string {
+	if t == nil {
+		t = &AWSEnvSpecFragment_NodeGroups{}
+	}
+	return t.Zones
+}
 
 type AWSEnvSpecFragment_MaintenanceWindows struct {
-	Name          string "json:\"name\" graphql:\"name\""
+	Days          []Day  "json:\"days\" graphql:\"days\""
 	Enabled       bool   "json:\"enabled\" graphql:\"enabled\""
 	Hour          int64  "json:\"hour\" graphql:\"hour\""
 	LengthInHours int64  "json:\"lengthInHours\" graphql:\"lengthInHours\""
-	Days          []Day  "json:\"days\" graphql:\"days\""
+	Name          string "json:\"name\" graphql:\"name\""
 }
 
-func (t *AWSEnvSpecFragment_MaintenanceWindows) GetName() string {
+func (t *AWSEnvSpecFragment_MaintenanceWindows) GetDays() []Day {
 	if t == nil {
 		t = &AWSEnvSpecFragment_MaintenanceWindows{}
 	}
-	return t.Name
+	return t.Days
 }
 func (t *AWSEnvSpecFragment_MaintenanceWindows) GetEnabled() bool {
 	if t == nil {
@@ -574,11 +574,11 @@ func (t *AWSEnvSpecFragment_MaintenanceWindows) GetLengthInHours() int64 {
 	}
 	return t.LengthInHours
 }
-func (t *AWSEnvSpecFragment_MaintenanceWindows) GetDays() []Day {
+func (t *AWSEnvSpecFragment_MaintenanceWindows) GetName() string {
 	if t == nil {
 		t = &AWSEnvSpecFragment_MaintenanceWindows{}
 	}
-	return t.Days
+	return t.Name
 }
 
 type AWSEnvSpecFragment_PeeringConnections struct {
@@ -607,17 +607,11 @@ func (t *AWSEnvSpecFragment_PeeringConnections) GetVpcRegion() *string {
 }
 
 type AWSEnvSpecFragment_Endpoints struct {
-	ServiceName string  "json:\"serviceName\" graphql:\"serviceName\""
 	Alias       *string "json:\"alias,omitempty\" graphql:\"alias\""
 	PrivateDNS  bool    "json:\"privateDNS\" graphql:\"privateDNS\""
+	ServiceName string  "json:\"serviceName\" graphql:\"serviceName\""
 }
 
-func (t *AWSEnvSpecFragment_Endpoints) GetServiceName() string {
-	if t == nil {
-		t = &AWSEnvSpecFragment_Endpoints{}
-	}
-	return t.ServiceName
-}
 func (t *AWSEnvSpecFragment_Endpoints) GetAlias() *string {
 	if t == nil {
 		t = &AWSEnvSpecFragment_Endpoints{}
@@ -629,6 +623,12 @@ func (t *AWSEnvSpecFragment_Endpoints) GetPrivateDNS() bool {
 		t = &AWSEnvSpecFragment_Endpoints{}
 	}
 	return t.PrivateDNS
+}
+func (t *AWSEnvSpecFragment_Endpoints) GetServiceName() string {
+	if t == nil {
+		t = &AWSEnvSpecFragment_Endpoints{}
+	}
+	return t.ServiceName
 }
 
 type AWSEnvSpecFragment_Tags struct {
@@ -686,31 +686,37 @@ func (t *AzureEnvSpecFragment_LoadBalancers_Internal) GetSourceIPRanges() []stri
 }
 
 type AzureEnvSpecFragment_LoadBalancers struct {
-	Public   AzureEnvSpecFragment_LoadBalancers_Public   "json:\"public\" graphql:\"public\""
 	Internal AzureEnvSpecFragment_LoadBalancers_Internal "json:\"internal\" graphql:\"internal\""
+	Public   AzureEnvSpecFragment_LoadBalancers_Public   "json:\"public\" graphql:\"public\""
 }
 
-func (t *AzureEnvSpecFragment_LoadBalancers) GetPublic() *AzureEnvSpecFragment_LoadBalancers_Public {
-	if t == nil {
-		t = &AzureEnvSpecFragment_LoadBalancers{}
-	}
-	return &t.Public
-}
 func (t *AzureEnvSpecFragment_LoadBalancers) GetInternal() *AzureEnvSpecFragment_LoadBalancers_Internal {
 	if t == nil {
 		t = &AzureEnvSpecFragment_LoadBalancers{}
 	}
 	return &t.Internal
 }
+func (t *AzureEnvSpecFragment_LoadBalancers) GetPublic() *AzureEnvSpecFragment_LoadBalancers_Public {
+	if t == nil {
+		t = &AzureEnvSpecFragment_LoadBalancers{}
+	}
+	return &t.Public
+}
 
 type AzureEnvSpecFragment_NodeGroups struct {
+	CapacityPerZone int64             "json:\"capacityPerZone\" graphql:\"capacityPerZone\""
 	Name            string            "json:\"name\" graphql:\"name\""
 	NodeType        string            "json:\"nodeType\" graphql:\"nodeType\""
-	CapacityPerZone int64             "json:\"capacityPerZone\" graphql:\"capacityPerZone\""
 	Reservations    []NodeReservation "json:\"reservations\" graphql:\"reservations\""
 	Zones           []string          "json:\"zones\" graphql:\"zones\""
 }
 
+func (t *AzureEnvSpecFragment_NodeGroups) GetCapacityPerZone() int64 {
+	if t == nil {
+		t = &AzureEnvSpecFragment_NodeGroups{}
+	}
+	return t.CapacityPerZone
+}
 func (t *AzureEnvSpecFragment_NodeGroups) GetName() string {
 	if t == nil {
 		t = &AzureEnvSpecFragment_NodeGroups{}
@@ -722,12 +728,6 @@ func (t *AzureEnvSpecFragment_NodeGroups) GetNodeType() string {
 		t = &AzureEnvSpecFragment_NodeGroups{}
 	}
 	return t.NodeType
-}
-func (t *AzureEnvSpecFragment_NodeGroups) GetCapacityPerZone() int64 {
-	if t == nil {
-		t = &AzureEnvSpecFragment_NodeGroups{}
-	}
-	return t.CapacityPerZone
 }
 func (t *AzureEnvSpecFragment_NodeGroups) GetReservations() []NodeReservation {
 	if t == nil {
@@ -743,18 +743,18 @@ func (t *AzureEnvSpecFragment_NodeGroups) GetZones() []string {
 }
 
 type AzureEnvSpecFragment_MaintenanceWindows struct {
-	Name          string "json:\"name\" graphql:\"name\""
+	Days          []Day  "json:\"days\" graphql:\"days\""
 	Enabled       bool   "json:\"enabled\" graphql:\"enabled\""
 	Hour          int64  "json:\"hour\" graphql:\"hour\""
 	LengthInHours int64  "json:\"lengthInHours\" graphql:\"lengthInHours\""
-	Days          []Day  "json:\"days\" graphql:\"days\""
+	Name          string "json:\"name\" graphql:\"name\""
 }
 
-func (t *AzureEnvSpecFragment_MaintenanceWindows) GetName() string {
+func (t *AzureEnvSpecFragment_MaintenanceWindows) GetDays() []Day {
 	if t == nil {
 		t = &AzureEnvSpecFragment_MaintenanceWindows{}
 	}
-	return t.Name
+	return t.Days
 }
 func (t *AzureEnvSpecFragment_MaintenanceWindows) GetEnabled() bool {
 	if t == nil {
@@ -774,11 +774,11 @@ func (t *AzureEnvSpecFragment_MaintenanceWindows) GetLengthInHours() int64 {
 	}
 	return t.LengthInHours
 }
-func (t *AzureEnvSpecFragment_MaintenanceWindows) GetDays() []Day {
+func (t *AzureEnvSpecFragment_MaintenanceWindows) GetName() string {
 	if t == nil {
 		t = &AzureEnvSpecFragment_MaintenanceWindows{}
 	}
-	return t.Days
+	return t.Name
 }
 
 type AzureEnvSpecFragment_Tags struct {
@@ -847,31 +847,37 @@ func (t *GCPEnvSpecFragment_LoadBalancers_Internal) GetSourceIPRanges() []string
 }
 
 type GCPEnvSpecFragment_LoadBalancers struct {
-	Public   GCPEnvSpecFragment_LoadBalancers_Public   "json:\"public\" graphql:\"public\""
 	Internal GCPEnvSpecFragment_LoadBalancers_Internal "json:\"internal\" graphql:\"internal\""
+	Public   GCPEnvSpecFragment_LoadBalancers_Public   "json:\"public\" graphql:\"public\""
 }
 
-func (t *GCPEnvSpecFragment_LoadBalancers) GetPublic() *GCPEnvSpecFragment_LoadBalancers_Public {
-	if t == nil {
-		t = &GCPEnvSpecFragment_LoadBalancers{}
-	}
-	return &t.Public
-}
 func (t *GCPEnvSpecFragment_LoadBalancers) GetInternal() *GCPEnvSpecFragment_LoadBalancers_Internal {
 	if t == nil {
 		t = &GCPEnvSpecFragment_LoadBalancers{}
 	}
 	return &t.Internal
 }
-
-type GCPEnvSpecFragment_NodeGroups struct {
-	Name            string            "json:\"name\" graphql:\"name\""
-	NodeType        string            "json:\"nodeType\" graphql:\"nodeType\""
-	CapacityPerZone int64             "json:\"capacityPerZone\" graphql:\"capacityPerZone\""
-	Zones           []string          "json:\"zones\" graphql:\"zones\""
-	Reservations    []NodeReservation "json:\"reservations\" graphql:\"reservations\""
+func (t *GCPEnvSpecFragment_LoadBalancers) GetPublic() *GCPEnvSpecFragment_LoadBalancers_Public {
+	if t == nil {
+		t = &GCPEnvSpecFragment_LoadBalancers{}
+	}
+	return &t.Public
 }
 
+type GCPEnvSpecFragment_NodeGroups struct {
+	CapacityPerZone int64             "json:\"capacityPerZone\" graphql:\"capacityPerZone\""
+	Name            string            "json:\"name\" graphql:\"name\""
+	NodeType        string            "json:\"nodeType\" graphql:\"nodeType\""
+	Reservations    []NodeReservation "json:\"reservations\" graphql:\"reservations\""
+	Zones           []string          "json:\"zones\" graphql:\"zones\""
+}
+
+func (t *GCPEnvSpecFragment_NodeGroups) GetCapacityPerZone() int64 {
+	if t == nil {
+		t = &GCPEnvSpecFragment_NodeGroups{}
+	}
+	return t.CapacityPerZone
+}
 func (t *GCPEnvSpecFragment_NodeGroups) GetName() string {
 	if t == nil {
 		t = &GCPEnvSpecFragment_NodeGroups{}
@@ -884,11 +890,11 @@ func (t *GCPEnvSpecFragment_NodeGroups) GetNodeType() string {
 	}
 	return t.NodeType
 }
-func (t *GCPEnvSpecFragment_NodeGroups) GetCapacityPerZone() int64 {
+func (t *GCPEnvSpecFragment_NodeGroups) GetReservations() []NodeReservation {
 	if t == nil {
 		t = &GCPEnvSpecFragment_NodeGroups{}
 	}
-	return t.CapacityPerZone
+	return t.Reservations
 }
 func (t *GCPEnvSpecFragment_NodeGroups) GetZones() []string {
 	if t == nil {
@@ -896,26 +902,20 @@ func (t *GCPEnvSpecFragment_NodeGroups) GetZones() []string {
 	}
 	return t.Zones
 }
-func (t *GCPEnvSpecFragment_NodeGroups) GetReservations() []NodeReservation {
-	if t == nil {
-		t = &GCPEnvSpecFragment_NodeGroups{}
-	}
-	return t.Reservations
-}
 
 type GCPEnvSpecFragment_MaintenanceWindows struct {
-	Name          string "json:\"name\" graphql:\"name\""
+	Days          []Day  "json:\"days\" graphql:\"days\""
 	Enabled       bool   "json:\"enabled\" graphql:\"enabled\""
 	Hour          int64  "json:\"hour\" graphql:\"hour\""
 	LengthInHours int64  "json:\"lengthInHours\" graphql:\"lengthInHours\""
-	Days          []Day  "json:\"days\" graphql:\"days\""
+	Name          string "json:\"name\" graphql:\"name\""
 }
 
-func (t *GCPEnvSpecFragment_MaintenanceWindows) GetName() string {
+func (t *GCPEnvSpecFragment_MaintenanceWindows) GetDays() []Day {
 	if t == nil {
 		t = &GCPEnvSpecFragment_MaintenanceWindows{}
 	}
-	return t.Name
+	return t.Days
 }
 func (t *GCPEnvSpecFragment_MaintenanceWindows) GetEnabled() bool {
 	if t == nil {
@@ -935,11 +935,11 @@ func (t *GCPEnvSpecFragment_MaintenanceWindows) GetLengthInHours() int64 {
 	}
 	return t.LengthInHours
 }
-func (t *GCPEnvSpecFragment_MaintenanceWindows) GetDays() []Day {
+func (t *GCPEnvSpecFragment_MaintenanceWindows) GetName() string {
 	if t == nil {
 		t = &GCPEnvSpecFragment_MaintenanceWindows{}
 	}
-	return t.Days
+	return t.Name
 }
 
 type HCloudEnvSpecFragment_LoadBalancers_Public struct {
@@ -979,43 +979,31 @@ func (t *HCloudEnvSpecFragment_LoadBalancers_Internal) GetSourceIPRanges() []str
 }
 
 type HCloudEnvSpecFragment_LoadBalancers struct {
-	Public   HCloudEnvSpecFragment_LoadBalancers_Public   "json:\"public\" graphql:\"public\""
 	Internal HCloudEnvSpecFragment_LoadBalancers_Internal "json:\"internal\" graphql:\"internal\""
+	Public   HCloudEnvSpecFragment_LoadBalancers_Public   "json:\"public\" graphql:\"public\""
 }
 
-func (t *HCloudEnvSpecFragment_LoadBalancers) GetPublic() *HCloudEnvSpecFragment_LoadBalancers_Public {
-	if t == nil {
-		t = &HCloudEnvSpecFragment_LoadBalancers{}
-	}
-	return &t.Public
-}
 func (t *HCloudEnvSpecFragment_LoadBalancers) GetInternal() *HCloudEnvSpecFragment_LoadBalancers_Internal {
 	if t == nil {
 		t = &HCloudEnvSpecFragment_LoadBalancers{}
 	}
 	return &t.Internal
 }
+func (t *HCloudEnvSpecFragment_LoadBalancers) GetPublic() *HCloudEnvSpecFragment_LoadBalancers_Public {
+	if t == nil {
+		t = &HCloudEnvSpecFragment_LoadBalancers{}
+	}
+	return &t.Public
+}
 
 type HCloudEnvSpecFragment_NodeGroups struct {
-	Name                string            "json:\"name\" graphql:\"name\""
-	NodeType            string            "json:\"nodeType\" graphql:\"nodeType\""
 	CapacityPerLocation int64             "json:\"capacityPerLocation\" graphql:\"capacityPerLocation\""
 	Locations           []string          "json:\"locations\" graphql:\"locations\""
+	Name                string            "json:\"name\" graphql:\"name\""
+	NodeType            string            "json:\"nodeType\" graphql:\"nodeType\""
 	Reservations        []NodeReservation "json:\"reservations\" graphql:\"reservations\""
 }
 
-func (t *HCloudEnvSpecFragment_NodeGroups) GetName() string {
-	if t == nil {
-		t = &HCloudEnvSpecFragment_NodeGroups{}
-	}
-	return t.Name
-}
-func (t *HCloudEnvSpecFragment_NodeGroups) GetNodeType() string {
-	if t == nil {
-		t = &HCloudEnvSpecFragment_NodeGroups{}
-	}
-	return t.NodeType
-}
 func (t *HCloudEnvSpecFragment_NodeGroups) GetCapacityPerLocation() int64 {
 	if t == nil {
 		t = &HCloudEnvSpecFragment_NodeGroups{}
@@ -1028,6 +1016,18 @@ func (t *HCloudEnvSpecFragment_NodeGroups) GetLocations() []string {
 	}
 	return t.Locations
 }
+func (t *HCloudEnvSpecFragment_NodeGroups) GetName() string {
+	if t == nil {
+		t = &HCloudEnvSpecFragment_NodeGroups{}
+	}
+	return t.Name
+}
+func (t *HCloudEnvSpecFragment_NodeGroups) GetNodeType() string {
+	if t == nil {
+		t = &HCloudEnvSpecFragment_NodeGroups{}
+	}
+	return t.NodeType
+}
 func (t *HCloudEnvSpecFragment_NodeGroups) GetReservations() []NodeReservation {
 	if t == nil {
 		t = &HCloudEnvSpecFragment_NodeGroups{}
@@ -1036,18 +1036,18 @@ func (t *HCloudEnvSpecFragment_NodeGroups) GetReservations() []NodeReservation {
 }
 
 type HCloudEnvSpecFragment_MaintenanceWindows struct {
-	Name          string "json:\"name\" graphql:\"name\""
+	Days          []Day  "json:\"days\" graphql:\"days\""
 	Enabled       bool   "json:\"enabled\" graphql:\"enabled\""
 	Hour          int64  "json:\"hour\" graphql:\"hour\""
 	LengthInHours int64  "json:\"lengthInHours\" graphql:\"lengthInHours\""
-	Days          []Day  "json:\"days\" graphql:\"days\""
+	Name          string "json:\"name\" graphql:\"name\""
 }
 
-func (t *HCloudEnvSpecFragment_MaintenanceWindows) GetName() string {
+func (t *HCloudEnvSpecFragment_MaintenanceWindows) GetDays() []Day {
 	if t == nil {
 		t = &HCloudEnvSpecFragment_MaintenanceWindows{}
 	}
-	return t.Name
+	return t.Days
 }
 func (t *HCloudEnvSpecFragment_MaintenanceWindows) GetEnabled() bool {
 	if t == nil {
@@ -1067,25 +1067,19 @@ func (t *HCloudEnvSpecFragment_MaintenanceWindows) GetLengthInHours() int64 {
 	}
 	return t.LengthInHours
 }
-func (t *HCloudEnvSpecFragment_MaintenanceWindows) GetDays() []Day {
+func (t *HCloudEnvSpecFragment_MaintenanceWindows) GetName() string {
 	if t == nil {
 		t = &HCloudEnvSpecFragment_MaintenanceWindows{}
 	}
-	return t.Days
+	return t.Name
 }
 
 type HCloudEnvSpecFragment_WireguardPeers struct {
-	PublicKey  string   "json:\"publicKey\" graphql:\"publicKey\""
 	AllowedIPs []string "json:\"allowedIPs\" graphql:\"allowedIPs\""
 	Endpoint   string   "json:\"endpoint\" graphql:\"endpoint\""
+	PublicKey  string   "json:\"publicKey\" graphql:\"publicKey\""
 }
 
-func (t *HCloudEnvSpecFragment_WireguardPeers) GetPublicKey() string {
-	if t == nil {
-		t = &HCloudEnvSpecFragment_WireguardPeers{}
-	}
-	return t.PublicKey
-}
 func (t *HCloudEnvSpecFragment_WireguardPeers) GetAllowedIPs() []string {
 	if t == nil {
 		t = &HCloudEnvSpecFragment_WireguardPeers{}
@@ -1097,6 +1091,12 @@ func (t *HCloudEnvSpecFragment_WireguardPeers) GetEndpoint() string {
 		t = &HCloudEnvSpecFragment_WireguardPeers{}
 	}
 	return t.Endpoint
+}
+func (t *HCloudEnvSpecFragment_WireguardPeers) GetPublicKey() string {
+	if t == nil {
+		t = &HCloudEnvSpecFragment_WireguardPeers{}
+	}
+	return t.PublicKey
 }
 
 type K8SEnvSpecFragment_LoadBalancers_Public_Annotations struct {
@@ -1118,11 +1118,17 @@ func (t *K8SEnvSpecFragment_LoadBalancers_Public_Annotations) GetValue() string 
 }
 
 type K8SEnvSpecFragment_LoadBalancers_Public struct {
+	Annotations    []*K8SEnvSpecFragment_LoadBalancers_Public_Annotations "json:\"annotations\" graphql:\"annotations\""
 	Enabled        bool                                                   "json:\"enabled\" graphql:\"enabled\""
 	SourceIPRanges []string                                               "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
-	Annotations    []*K8SEnvSpecFragment_LoadBalancers_Public_Annotations "json:\"annotations\" graphql:\"annotations\""
 }
 
+func (t *K8SEnvSpecFragment_LoadBalancers_Public) GetAnnotations() []*K8SEnvSpecFragment_LoadBalancers_Public_Annotations {
+	if t == nil {
+		t = &K8SEnvSpecFragment_LoadBalancers_Public{}
+	}
+	return t.Annotations
+}
 func (t *K8SEnvSpecFragment_LoadBalancers_Public) GetEnabled() bool {
 	if t == nil {
 		t = &K8SEnvSpecFragment_LoadBalancers_Public{}
@@ -1134,12 +1140,6 @@ func (t *K8SEnvSpecFragment_LoadBalancers_Public) GetSourceIPRanges() []string {
 		t = &K8SEnvSpecFragment_LoadBalancers_Public{}
 	}
 	return t.SourceIPRanges
-}
-func (t *K8SEnvSpecFragment_LoadBalancers_Public) GetAnnotations() []*K8SEnvSpecFragment_LoadBalancers_Public_Annotations {
-	if t == nil {
-		t = &K8SEnvSpecFragment_LoadBalancers_Public{}
-	}
-	return t.Annotations
 }
 
 type K8SEnvSpecFragment_LoadBalancers_Internal_Annotations struct {
@@ -1161,11 +1161,17 @@ func (t *K8SEnvSpecFragment_LoadBalancers_Internal_Annotations) GetValue() strin
 }
 
 type K8SEnvSpecFragment_LoadBalancers_Internal struct {
+	Annotations    []*K8SEnvSpecFragment_LoadBalancers_Internal_Annotations "json:\"annotations\" graphql:\"annotations\""
 	Enabled        bool                                                     "json:\"enabled\" graphql:\"enabled\""
 	SourceIPRanges []string                                                 "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
-	Annotations    []*K8SEnvSpecFragment_LoadBalancers_Internal_Annotations "json:\"annotations\" graphql:\"annotations\""
 }
 
+func (t *K8SEnvSpecFragment_LoadBalancers_Internal) GetAnnotations() []*K8SEnvSpecFragment_LoadBalancers_Internal_Annotations {
+	if t == nil {
+		t = &K8SEnvSpecFragment_LoadBalancers_Internal{}
+	}
+	return t.Annotations
+}
 func (t *K8SEnvSpecFragment_LoadBalancers_Internal) GetEnabled() bool {
 	if t == nil {
 		t = &K8SEnvSpecFragment_LoadBalancers_Internal{}
@@ -1178,29 +1184,23 @@ func (t *K8SEnvSpecFragment_LoadBalancers_Internal) GetSourceIPRanges() []string
 	}
 	return t.SourceIPRanges
 }
-func (t *K8SEnvSpecFragment_LoadBalancers_Internal) GetAnnotations() []*K8SEnvSpecFragment_LoadBalancers_Internal_Annotations {
-	if t == nil {
-		t = &K8SEnvSpecFragment_LoadBalancers_Internal{}
-	}
-	return t.Annotations
-}
 
 type K8SEnvSpecFragment_LoadBalancers struct {
-	Public   K8SEnvSpecFragment_LoadBalancers_Public   "json:\"public\" graphql:\"public\""
 	Internal K8SEnvSpecFragment_LoadBalancers_Internal "json:\"internal\" graphql:\"internal\""
+	Public   K8SEnvSpecFragment_LoadBalancers_Public   "json:\"public\" graphql:\"public\""
 }
 
-func (t *K8SEnvSpecFragment_LoadBalancers) GetPublic() *K8SEnvSpecFragment_LoadBalancers_Public {
-	if t == nil {
-		t = &K8SEnvSpecFragment_LoadBalancers{}
-	}
-	return &t.Public
-}
 func (t *K8SEnvSpecFragment_LoadBalancers) GetInternal() *K8SEnvSpecFragment_LoadBalancers_Internal {
 	if t == nil {
 		t = &K8SEnvSpecFragment_LoadBalancers{}
 	}
 	return &t.Internal
+}
+func (t *K8SEnvSpecFragment_LoadBalancers) GetPublic() *K8SEnvSpecFragment_LoadBalancers_Public {
+	if t == nil {
+		t = &K8SEnvSpecFragment_LoadBalancers{}
+	}
+	return &t.Public
 }
 
 type K8SEnvSpecFragment_NodeGroups_Selector struct {
@@ -1223,8 +1223,8 @@ func (t *K8SEnvSpecFragment_NodeGroups_Selector) GetValue() string {
 
 type K8SEnvSpecFragment_NodeGroups_Tolerations struct {
 	Effect   NodeTolerationEffect   "json:\"effect\" graphql:\"effect\""
-	Operator NodeTolerationOperator "json:\"operator\" graphql:\"operator\""
 	Key      string                 "json:\"key\" graphql:\"key\""
+	Operator NodeTolerationOperator "json:\"operator\" graphql:\"operator\""
 	Value    string                 "json:\"value\" graphql:\"value\""
 }
 
@@ -1234,17 +1234,17 @@ func (t *K8SEnvSpecFragment_NodeGroups_Tolerations) GetEffect() *NodeTolerationE
 	}
 	return &t.Effect
 }
-func (t *K8SEnvSpecFragment_NodeGroups_Tolerations) GetOperator() *NodeTolerationOperator {
-	if t == nil {
-		t = &K8SEnvSpecFragment_NodeGroups_Tolerations{}
-	}
-	return &t.Operator
-}
 func (t *K8SEnvSpecFragment_NodeGroups_Tolerations) GetKey() string {
 	if t == nil {
 		t = &K8SEnvSpecFragment_NodeGroups_Tolerations{}
 	}
 	return t.Key
+}
+func (t *K8SEnvSpecFragment_NodeGroups_Tolerations) GetOperator() *NodeTolerationOperator {
+	if t == nil {
+		t = &K8SEnvSpecFragment_NodeGroups_Tolerations{}
+	}
+	return &t.Operator
 }
 func (t *K8SEnvSpecFragment_NodeGroups_Tolerations) GetValue() string {
 	if t == nil {
@@ -1254,15 +1254,21 @@ func (t *K8SEnvSpecFragment_NodeGroups_Tolerations) GetValue() string {
 }
 
 type K8SEnvSpecFragment_NodeGroups struct {
+	CapacityPerZone int64                                        "json:\"capacityPerZone\" graphql:\"capacityPerZone\""
 	Name            string                                       "json:\"name\" graphql:\"name\""
 	NodeType        string                                       "json:\"nodeType\" graphql:\"nodeType\""
-	CapacityPerZone int64                                        "json:\"capacityPerZone\" graphql:\"capacityPerZone\""
+	Reservations    []NodeReservation                            "json:\"reservations\" graphql:\"reservations\""
 	Selector        []*K8SEnvSpecFragment_NodeGroups_Selector    "json:\"selector\" graphql:\"selector\""
 	Tolerations     []*K8SEnvSpecFragment_NodeGroups_Tolerations "json:\"tolerations\" graphql:\"tolerations\""
-	Reservations    []NodeReservation                            "json:\"reservations\" graphql:\"reservations\""
 	Zones           []string                                     "json:\"zones\" graphql:\"zones\""
 }
 
+func (t *K8SEnvSpecFragment_NodeGroups) GetCapacityPerZone() int64 {
+	if t == nil {
+		t = &K8SEnvSpecFragment_NodeGroups{}
+	}
+	return t.CapacityPerZone
+}
 func (t *K8SEnvSpecFragment_NodeGroups) GetName() string {
 	if t == nil {
 		t = &K8SEnvSpecFragment_NodeGroups{}
@@ -1275,11 +1281,11 @@ func (t *K8SEnvSpecFragment_NodeGroups) GetNodeType() string {
 	}
 	return t.NodeType
 }
-func (t *K8SEnvSpecFragment_NodeGroups) GetCapacityPerZone() int64 {
+func (t *K8SEnvSpecFragment_NodeGroups) GetReservations() []NodeReservation {
 	if t == nil {
 		t = &K8SEnvSpecFragment_NodeGroups{}
 	}
-	return t.CapacityPerZone
+	return t.Reservations
 }
 func (t *K8SEnvSpecFragment_NodeGroups) GetSelector() []*K8SEnvSpecFragment_NodeGroups_Selector {
 	if t == nil {
@@ -1293,12 +1299,6 @@ func (t *K8SEnvSpecFragment_NodeGroups) GetTolerations() []*K8SEnvSpecFragment_N
 	}
 	return t.Tolerations
 }
-func (t *K8SEnvSpecFragment_NodeGroups) GetReservations() []NodeReservation {
-	if t == nil {
-		t = &K8SEnvSpecFragment_NodeGroups{}
-	}
-	return t.Reservations
-}
 func (t *K8SEnvSpecFragment_NodeGroups) GetZones() []string {
 	if t == nil {
 		t = &K8SEnvSpecFragment_NodeGroups{}
@@ -1307,17 +1307,11 @@ func (t *K8SEnvSpecFragment_NodeGroups) GetZones() []string {
 }
 
 type K8SEnvSpecFragment_CustomNodeTypes struct {
-	Name                  string  "json:\"name\" graphql:\"name\""
 	CPUAllocatable        float64 "json:\"cpuAllocatable\" graphql:\"cpuAllocatable\""
 	MemAllocatableInBytes int64   "json:\"memAllocatableInBytes\" graphql:\"memAllocatableInBytes\""
+	Name                  string  "json:\"name\" graphql:\"name\""
 }
 
-func (t *K8SEnvSpecFragment_CustomNodeTypes) GetName() string {
-	if t == nil {
-		t = &K8SEnvSpecFragment_CustomNodeTypes{}
-	}
-	return t.Name
-}
 func (t *K8SEnvSpecFragment_CustomNodeTypes) GetCPUAllocatable() float64 {
 	if t == nil {
 		t = &K8SEnvSpecFragment_CustomNodeTypes{}
@@ -1330,20 +1324,26 @@ func (t *K8SEnvSpecFragment_CustomNodeTypes) GetMemAllocatableInBytes() int64 {
 	}
 	return t.MemAllocatableInBytes
 }
+func (t *K8SEnvSpecFragment_CustomNodeTypes) GetName() string {
+	if t == nil {
+		t = &K8SEnvSpecFragment_CustomNodeTypes{}
+	}
+	return t.Name
+}
 
 type K8SEnvSpecFragment_MaintenanceWindows struct {
-	Name          string "json:\"name\" graphql:\"name\""
+	Days          []Day  "json:\"days\" graphql:\"days\""
 	Enabled       bool   "json:\"enabled\" graphql:\"enabled\""
 	Hour          int64  "json:\"hour\" graphql:\"hour\""
 	LengthInHours int64  "json:\"lengthInHours\" graphql:\"lengthInHours\""
-	Days          []Day  "json:\"days\" graphql:\"days\""
+	Name          string "json:\"name\" graphql:\"name\""
 }
 
-func (t *K8SEnvSpecFragment_MaintenanceWindows) GetName() string {
+func (t *K8SEnvSpecFragment_MaintenanceWindows) GetDays() []Day {
 	if t == nil {
 		t = &K8SEnvSpecFragment_MaintenanceWindows{}
 	}
-	return t.Name
+	return t.Days
 }
 func (t *K8SEnvSpecFragment_MaintenanceWindows) GetEnabled() bool {
 	if t == nil {
@@ -1363,11 +1363,11 @@ func (t *K8SEnvSpecFragment_MaintenanceWindows) GetLengthInHours() int64 {
 	}
 	return t.LengthInHours
 }
-func (t *K8SEnvSpecFragment_MaintenanceWindows) GetDays() []Day {
+func (t *K8SEnvSpecFragment_MaintenanceWindows) GetName() string {
 	if t == nil {
 		t = &K8SEnvSpecFragment_MaintenanceWindows{}
 	}
-	return t.Days
+	return t.Name
 }
 
 type K8SEnvSpecFragment_Metrics struct {
@@ -1411,21 +1411,21 @@ func (t *K8SEnvSpecFragment_Logs_Storage_Gcs) GetBucketName() *string {
 }
 
 type K8SEnvSpecFragment_Logs_Storage struct {
-	S3  *K8SEnvSpecFragment_Logs_Storage_S3  "json:\"s3,omitempty\" graphql:\"s3\""
 	Gcs *K8SEnvSpecFragment_Logs_Storage_Gcs "json:\"gcs,omitempty\" graphql:\"gcs\""
+	S3  *K8SEnvSpecFragment_Logs_Storage_S3  "json:\"s3,omitempty\" graphql:\"s3\""
 }
 
-func (t *K8SEnvSpecFragment_Logs_Storage) GetS3() *K8SEnvSpecFragment_Logs_Storage_S3 {
-	if t == nil {
-		t = &K8SEnvSpecFragment_Logs_Storage{}
-	}
-	return t.S3
-}
 func (t *K8SEnvSpecFragment_Logs_Storage) GetGcs() *K8SEnvSpecFragment_Logs_Storage_Gcs {
 	if t == nil {
 		t = &K8SEnvSpecFragment_Logs_Storage{}
 	}
 	return t.Gcs
+}
+func (t *K8SEnvSpecFragment_Logs_Storage) GetS3() *K8SEnvSpecFragment_Logs_Storage_S3 {
+	if t == nil {
+		t = &K8SEnvSpecFragment_Logs_Storage{}
+	}
+	return t.S3
 }
 
 type K8SEnvSpecFragment_Logs struct {
@@ -1440,11 +1440,17 @@ func (t *K8SEnvSpecFragment_Logs) GetStorage() *K8SEnvSpecFragment_Logs_Storage 
 }
 
 type GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Public struct {
+	CrossZone      bool     "json:\"crossZone\" graphql:\"crossZone\""
 	Enabled        bool     "json:\"enabled\" graphql:\"enabled\""
 	SourceIPRanges []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
-	CrossZone      bool     "json:\"crossZone\" graphql:\"crossZone\""
 }
 
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Public) GetCrossZone() bool {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Public{}
+	}
+	return t.CrossZone
+}
 func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Public) GetEnabled() bool {
 	if t == nil {
 		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Public{}
@@ -1457,37 +1463,25 @@ func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Public) GetSourc
 	}
 	return t.SourceIPRanges
 }
-func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Public) GetCrossZone() bool {
-	if t == nil {
-		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Public{}
-	}
-	return t.CrossZone
-}
 
 type GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal struct {
-	Enabled                          bool     "json:\"enabled\" graphql:\"enabled\""
-	SourceIPRanges                   []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
 	CrossZone                        bool     "json:\"crossZone\" graphql:\"crossZone\""
+	Enabled                          bool     "json:\"enabled\" graphql:\"enabled\""
 	EndpointServiceAllowedPrincipals []string "json:\"endpointServiceAllowedPrincipals\" graphql:\"endpointServiceAllowedPrincipals\""
+	SourceIPRanges                   []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
 }
 
-func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal) GetEnabled() bool {
-	if t == nil {
-		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal{}
-	}
-	return t.Enabled
-}
-func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal) GetSourceIPRanges() []string {
-	if t == nil {
-		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal{}
-	}
-	return t.SourceIPRanges
-}
 func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal) GetCrossZone() bool {
 	if t == nil {
 		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal{}
 	}
 	return t.CrossZone
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal) GetEnabled() bool {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal{}
+	}
+	return t.Enabled
 }
 func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal) GetEndpointServiceAllowedPrincipals() []string {
 	if t == nil {
@@ -1495,33 +1489,45 @@ func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal) GetEnd
 	}
 	return t.EndpointServiceAllowedPrincipals
 }
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal) GetSourceIPRanges() []string {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal{}
+	}
+	return t.SourceIPRanges
+}
 
 type GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers struct {
-	Public   GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Public   "json:\"public\" graphql:\"public\""
 	Internal GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal "json:\"internal\" graphql:\"internal\""
+	Public   GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Public   "json:\"public\" graphql:\"public\""
 }
 
-func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers) GetPublic() *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Public {
-	if t == nil {
-		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers{}
-	}
-	return &t.Public
-}
 func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers) GetInternal() *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal {
 	if t == nil {
 		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers{}
 	}
 	return &t.Internal
 }
-
-type GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_NodeGroups struct {
-	Name            string            "json:\"name\" graphql:\"name\""
-	NodeType        string            "json:\"nodeType\" graphql:\"nodeType\""
-	Zones           []string          "json:\"zones\" graphql:\"zones\""
-	CapacityPerZone int64             "json:\"capacityPerZone\" graphql:\"capacityPerZone\""
-	Reservations    []NodeReservation "json:\"reservations\" graphql:\"reservations\""
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers) GetPublic() *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Public {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers{}
+	}
+	return &t.Public
 }
 
+type GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_NodeGroups struct {
+	CapacityPerZone int64             "json:\"capacityPerZone\" graphql:\"capacityPerZone\""
+	Name            string            "json:\"name\" graphql:\"name\""
+	NodeType        string            "json:\"nodeType\" graphql:\"nodeType\""
+	Reservations    []NodeReservation "json:\"reservations\" graphql:\"reservations\""
+	Zones           []string          "json:\"zones\" graphql:\"zones\""
+}
+
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_NodeGroups) GetCapacityPerZone() int64 {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_NodeGroups{}
+	}
+	return t.CapacityPerZone
+}
 func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_NodeGroups) GetName() string {
 	if t == nil {
 		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_NodeGroups{}
@@ -1534,38 +1540,32 @@ func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_NodeGroups) GetNodeType() stri
 	}
 	return t.NodeType
 }
-func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_NodeGroups) GetZones() []string {
-	if t == nil {
-		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_NodeGroups{}
-	}
-	return t.Zones
-}
-func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_NodeGroups) GetCapacityPerZone() int64 {
-	if t == nil {
-		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_NodeGroups{}
-	}
-	return t.CapacityPerZone
-}
 func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_NodeGroups) GetReservations() []NodeReservation {
 	if t == nil {
 		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_NodeGroups{}
 	}
 	return t.Reservations
 }
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_NodeGroups) GetZones() []string {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_NodeGroups{}
+	}
+	return t.Zones
+}
 
 type GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_MaintenanceWindows struct {
-	Name          string "json:\"name\" graphql:\"name\""
+	Days          []Day  "json:\"days\" graphql:\"days\""
 	Enabled       bool   "json:\"enabled\" graphql:\"enabled\""
 	Hour          int64  "json:\"hour\" graphql:\"hour\""
 	LengthInHours int64  "json:\"lengthInHours\" graphql:\"lengthInHours\""
-	Days          []Day  "json:\"days\" graphql:\"days\""
+	Name          string "json:\"name\" graphql:\"name\""
 }
 
-func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_MaintenanceWindows) GetName() string {
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_MaintenanceWindows) GetDays() []Day {
 	if t == nil {
 		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_MaintenanceWindows{}
 	}
-	return t.Name
+	return t.Days
 }
 func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_MaintenanceWindows) GetEnabled() bool {
 	if t == nil {
@@ -1585,11 +1585,11 @@ func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_MaintenanceWindows) GetLengthI
 	}
 	return t.LengthInHours
 }
-func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_MaintenanceWindows) GetDays() []Day {
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_MaintenanceWindows) GetName() string {
 	if t == nil {
 		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_MaintenanceWindows{}
 	}
-	return t.Days
+	return t.Name
 }
 
 type GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_PeeringConnections struct {
@@ -1618,17 +1618,11 @@ func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_PeeringConnections) GetVpcRegi
 }
 
 type GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Endpoints struct {
-	ServiceName string  "json:\"serviceName\" graphql:\"serviceName\""
 	Alias       *string "json:\"alias,omitempty\" graphql:\"alias\""
 	PrivateDNS  bool    "json:\"privateDNS\" graphql:\"privateDNS\""
+	ServiceName string  "json:\"serviceName\" graphql:\"serviceName\""
 }
 
-func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Endpoints) GetServiceName() string {
-	if t == nil {
-		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Endpoints{}
-	}
-	return t.ServiceName
-}
 func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Endpoints) GetAlias() *string {
 	if t == nil {
 		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Endpoints{}
@@ -1640,6 +1634,12 @@ func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Endpoints) GetPrivateDNS() boo
 		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Endpoints{}
 	}
 	return t.PrivateDNS
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Endpoints) GetServiceName() string {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Endpoints{}
+	}
+	return t.ServiceName
 }
 
 type GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Tags struct {
@@ -1745,10 +1745,10 @@ func (t *GetAWSEnvStatus_AWSEnv_Status_Errors) GetMessage() string {
 
 type GetAWSEnvStatus_AWSEnv_Status struct {
 	AppliedSpecRevision int64                                               "json:\"appliedSpecRevision\" graphql:\"appliedSpecRevision\""
-	PendingDelete       bool                                                "json:\"pendingDelete\" graphql:\"pendingDelete\""
+	Errors              []*GetAWSEnvStatus_AWSEnv_Status_Errors             "json:\"errors\" graphql:\"errors\""
 	LoadBalancers       GetAWSEnvStatus_AWSEnv_Status_LoadBalancers         "json:\"loadBalancers\" graphql:\"loadBalancers\""
 	PeeringConnections  []*GetAWSEnvStatus_AWSEnv_Status_PeeringConnections "json:\"peeringConnections\" graphql:\"peeringConnections\""
-	Errors              []*GetAWSEnvStatus_AWSEnv_Status_Errors             "json:\"errors\" graphql:\"errors\""
+	PendingDelete       bool                                                "json:\"pendingDelete\" graphql:\"pendingDelete\""
 }
 
 func (t *GetAWSEnvStatus_AWSEnv_Status) GetAppliedSpecRevision() int64 {
@@ -1757,11 +1757,11 @@ func (t *GetAWSEnvStatus_AWSEnv_Status) GetAppliedSpecRevision() int64 {
 	}
 	return t.AppliedSpecRevision
 }
-func (t *GetAWSEnvStatus_AWSEnv_Status) GetPendingDelete() bool {
+func (t *GetAWSEnvStatus_AWSEnv_Status) GetErrors() []*GetAWSEnvStatus_AWSEnv_Status_Errors {
 	if t == nil {
 		t = &GetAWSEnvStatus_AWSEnv_Status{}
 	}
-	return t.PendingDelete
+	return t.Errors
 }
 func (t *GetAWSEnvStatus_AWSEnv_Status) GetLoadBalancers() *GetAWSEnvStatus_AWSEnv_Status_LoadBalancers {
 	if t == nil {
@@ -1775,11 +1775,11 @@ func (t *GetAWSEnvStatus_AWSEnv_Status) GetPeeringConnections() []*GetAWSEnvStat
 	}
 	return t.PeeringConnections
 }
-func (t *GetAWSEnvStatus_AWSEnv_Status) GetErrors() []*GetAWSEnvStatus_AWSEnv_Status_Errors {
+func (t *GetAWSEnvStatus_AWSEnv_Status) GetPendingDelete() bool {
 	if t == nil {
 		t = &GetAWSEnvStatus_AWSEnv_Status{}
 	}
-	return t.Errors
+	return t.PendingDelete
 }
 
 type GetAWSEnvStatus_AWSEnv struct {
@@ -1808,11 +1808,17 @@ func (t *GetAWSEnvStatus_AWSEnv) GetStatus() *GetAWSEnvStatus_AWSEnv_Status {
 }
 
 type CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Public struct {
+	CrossZone      bool     "json:\"crossZone\" graphql:\"crossZone\""
 	Enabled        bool     "json:\"enabled\" graphql:\"enabled\""
 	SourceIPRanges []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
-	CrossZone      bool     "json:\"crossZone\" graphql:\"crossZone\""
 }
 
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Public) GetCrossZone() bool {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Public{}
+	}
+	return t.CrossZone
+}
 func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Public) GetEnabled() bool {
 	if t == nil {
 		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Public{}
@@ -1825,37 +1831,25 @@ func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Public)
 	}
 	return t.SourceIPRanges
 }
-func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Public) GetCrossZone() bool {
-	if t == nil {
-		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Public{}
-	}
-	return t.CrossZone
-}
 
 type CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal struct {
-	Enabled                          bool     "json:\"enabled\" graphql:\"enabled\""
-	SourceIPRanges                   []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
 	CrossZone                        bool     "json:\"crossZone\" graphql:\"crossZone\""
+	Enabled                          bool     "json:\"enabled\" graphql:\"enabled\""
 	EndpointServiceAllowedPrincipals []string "json:\"endpointServiceAllowedPrincipals\" graphql:\"endpointServiceAllowedPrincipals\""
+	SourceIPRanges                   []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
 }
 
-func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal) GetEnabled() bool {
-	if t == nil {
-		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal{}
-	}
-	return t.Enabled
-}
-func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal) GetSourceIPRanges() []string {
-	if t == nil {
-		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal{}
-	}
-	return t.SourceIPRanges
-}
 func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal) GetCrossZone() bool {
 	if t == nil {
 		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal{}
 	}
 	return t.CrossZone
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal) GetEnabled() bool {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal{}
+	}
+	return t.Enabled
 }
 func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal) GetEndpointServiceAllowedPrincipals() []string {
 	if t == nil {
@@ -1863,33 +1857,45 @@ func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Interna
 	}
 	return t.EndpointServiceAllowedPrincipals
 }
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal) GetSourceIPRanges() []string {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal{}
+	}
+	return t.SourceIPRanges
+}
 
 type CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers struct {
-	Public   CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Public   "json:\"public\" graphql:\"public\""
 	Internal CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal "json:\"internal\" graphql:\"internal\""
+	Public   CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Public   "json:\"public\" graphql:\"public\""
 }
 
-func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers) GetPublic() *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Public {
-	if t == nil {
-		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers{}
-	}
-	return &t.Public
-}
 func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers) GetInternal() *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal {
 	if t == nil {
 		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers{}
 	}
 	return &t.Internal
 }
-
-type CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_NodeGroups struct {
-	Name            string            "json:\"name\" graphql:\"name\""
-	NodeType        string            "json:\"nodeType\" graphql:\"nodeType\""
-	Zones           []string          "json:\"zones\" graphql:\"zones\""
-	CapacityPerZone int64             "json:\"capacityPerZone\" graphql:\"capacityPerZone\""
-	Reservations    []NodeReservation "json:\"reservations\" graphql:\"reservations\""
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers) GetPublic() *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Public {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers{}
+	}
+	return &t.Public
 }
 
+type CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_NodeGroups struct {
+	CapacityPerZone int64             "json:\"capacityPerZone\" graphql:\"capacityPerZone\""
+	Name            string            "json:\"name\" graphql:\"name\""
+	NodeType        string            "json:\"nodeType\" graphql:\"nodeType\""
+	Reservations    []NodeReservation "json:\"reservations\" graphql:\"reservations\""
+	Zones           []string          "json:\"zones\" graphql:\"zones\""
+}
+
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_NodeGroups) GetCapacityPerZone() int64 {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_NodeGroups{}
+	}
+	return t.CapacityPerZone
+}
 func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_NodeGroups) GetName() string {
 	if t == nil {
 		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_NodeGroups{}
@@ -1902,38 +1908,32 @@ func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_NodeGroups) GetNodeTy
 	}
 	return t.NodeType
 }
-func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_NodeGroups) GetZones() []string {
-	if t == nil {
-		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_NodeGroups{}
-	}
-	return t.Zones
-}
-func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_NodeGroups) GetCapacityPerZone() int64 {
-	if t == nil {
-		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_NodeGroups{}
-	}
-	return t.CapacityPerZone
-}
 func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_NodeGroups) GetReservations() []NodeReservation {
 	if t == nil {
 		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_NodeGroups{}
 	}
 	return t.Reservations
 }
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_NodeGroups) GetZones() []string {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_NodeGroups{}
+	}
+	return t.Zones
+}
 
 type CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_MaintenanceWindows struct {
-	Name          string "json:\"name\" graphql:\"name\""
+	Days          []Day  "json:\"days\" graphql:\"days\""
 	Enabled       bool   "json:\"enabled\" graphql:\"enabled\""
 	Hour          int64  "json:\"hour\" graphql:\"hour\""
 	LengthInHours int64  "json:\"lengthInHours\" graphql:\"lengthInHours\""
-	Days          []Day  "json:\"days\" graphql:\"days\""
+	Name          string "json:\"name\" graphql:\"name\""
 }
 
-func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_MaintenanceWindows) GetName() string {
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_MaintenanceWindows) GetDays() []Day {
 	if t == nil {
 		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_MaintenanceWindows{}
 	}
-	return t.Name
+	return t.Days
 }
 func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_MaintenanceWindows) GetEnabled() bool {
 	if t == nil {
@@ -1953,11 +1953,11 @@ func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_MaintenanceWindows) G
 	}
 	return t.LengthInHours
 }
-func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_MaintenanceWindows) GetDays() []Day {
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_MaintenanceWindows) GetName() string {
 	if t == nil {
 		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_MaintenanceWindows{}
 	}
-	return t.Days
+	return t.Name
 }
 
 type CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_PeeringConnections struct {
@@ -1986,17 +1986,11 @@ func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_PeeringConnections) G
 }
 
 type CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Endpoints struct {
-	ServiceName string  "json:\"serviceName\" graphql:\"serviceName\""
 	Alias       *string "json:\"alias,omitempty\" graphql:\"alias\""
 	PrivateDNS  bool    "json:\"privateDNS\" graphql:\"privateDNS\""
+	ServiceName string  "json:\"serviceName\" graphql:\"serviceName\""
 }
 
-func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Endpoints) GetServiceName() string {
-	if t == nil {
-		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Endpoints{}
-	}
-	return t.ServiceName
-}
 func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Endpoints) GetAlias() *string {
 	if t == nil {
 		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Endpoints{}
@@ -2008,6 +2002,12 @@ func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Endpoints) GetPrivate
 		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Endpoints{}
 	}
 	return t.PrivateDNS
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Endpoints) GetServiceName() string {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Endpoints{}
+	}
+	return t.ServiceName
 }
 
 type CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Tags struct {
@@ -2054,11 +2054,17 @@ func (t *CreateAWSEnv_CreateAWSEnv) GetSpecRevision() int64 {
 }
 
 type UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Public struct {
+	CrossZone      bool     "json:\"crossZone\" graphql:\"crossZone\""
 	Enabled        bool     "json:\"enabled\" graphql:\"enabled\""
 	SourceIPRanges []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
-	CrossZone      bool     "json:\"crossZone\" graphql:\"crossZone\""
 }
 
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Public) GetCrossZone() bool {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Public{}
+	}
+	return t.CrossZone
+}
 func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Public) GetEnabled() bool {
 	if t == nil {
 		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Public{}
@@ -2071,37 +2077,25 @@ func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Public)
 	}
 	return t.SourceIPRanges
 }
-func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Public) GetCrossZone() bool {
-	if t == nil {
-		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Public{}
-	}
-	return t.CrossZone
-}
 
 type UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal struct {
-	Enabled                          bool     "json:\"enabled\" graphql:\"enabled\""
-	SourceIPRanges                   []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
 	CrossZone                        bool     "json:\"crossZone\" graphql:\"crossZone\""
+	Enabled                          bool     "json:\"enabled\" graphql:\"enabled\""
 	EndpointServiceAllowedPrincipals []string "json:\"endpointServiceAllowedPrincipals\" graphql:\"endpointServiceAllowedPrincipals\""
+	SourceIPRanges                   []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
 }
 
-func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal) GetEnabled() bool {
-	if t == nil {
-		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal{}
-	}
-	return t.Enabled
-}
-func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal) GetSourceIPRanges() []string {
-	if t == nil {
-		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal{}
-	}
-	return t.SourceIPRanges
-}
 func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal) GetCrossZone() bool {
 	if t == nil {
 		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal{}
 	}
 	return t.CrossZone
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal) GetEnabled() bool {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal{}
+	}
+	return t.Enabled
 }
 func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal) GetEndpointServiceAllowedPrincipals() []string {
 	if t == nil {
@@ -2109,33 +2103,45 @@ func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Interna
 	}
 	return t.EndpointServiceAllowedPrincipals
 }
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal) GetSourceIPRanges() []string {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal{}
+	}
+	return t.SourceIPRanges
+}
 
 type UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers struct {
-	Public   UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Public   "json:\"public\" graphql:\"public\""
 	Internal UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal "json:\"internal\" graphql:\"internal\""
+	Public   UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Public   "json:\"public\" graphql:\"public\""
 }
 
-func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers) GetPublic() *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Public {
-	if t == nil {
-		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers{}
-	}
-	return &t.Public
-}
 func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers) GetInternal() *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal {
 	if t == nil {
 		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers{}
 	}
 	return &t.Internal
 }
-
-type UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_NodeGroups struct {
-	Name            string            "json:\"name\" graphql:\"name\""
-	NodeType        string            "json:\"nodeType\" graphql:\"nodeType\""
-	Zones           []string          "json:\"zones\" graphql:\"zones\""
-	CapacityPerZone int64             "json:\"capacityPerZone\" graphql:\"capacityPerZone\""
-	Reservations    []NodeReservation "json:\"reservations\" graphql:\"reservations\""
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers) GetPublic() *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Public {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers{}
+	}
+	return &t.Public
 }
 
+type UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_NodeGroups struct {
+	CapacityPerZone int64             "json:\"capacityPerZone\" graphql:\"capacityPerZone\""
+	Name            string            "json:\"name\" graphql:\"name\""
+	NodeType        string            "json:\"nodeType\" graphql:\"nodeType\""
+	Reservations    []NodeReservation "json:\"reservations\" graphql:\"reservations\""
+	Zones           []string          "json:\"zones\" graphql:\"zones\""
+}
+
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_NodeGroups) GetCapacityPerZone() int64 {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_NodeGroups{}
+	}
+	return t.CapacityPerZone
+}
 func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_NodeGroups) GetName() string {
 	if t == nil {
 		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_NodeGroups{}
@@ -2148,38 +2154,32 @@ func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_NodeGroups) GetNodeTy
 	}
 	return t.NodeType
 }
-func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_NodeGroups) GetZones() []string {
-	if t == nil {
-		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_NodeGroups{}
-	}
-	return t.Zones
-}
-func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_NodeGroups) GetCapacityPerZone() int64 {
-	if t == nil {
-		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_NodeGroups{}
-	}
-	return t.CapacityPerZone
-}
 func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_NodeGroups) GetReservations() []NodeReservation {
 	if t == nil {
 		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_NodeGroups{}
 	}
 	return t.Reservations
 }
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_NodeGroups) GetZones() []string {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_NodeGroups{}
+	}
+	return t.Zones
+}
 
 type UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_MaintenanceWindows struct {
-	Name          string "json:\"name\" graphql:\"name\""
+	Days          []Day  "json:\"days\" graphql:\"days\""
 	Enabled       bool   "json:\"enabled\" graphql:\"enabled\""
 	Hour          int64  "json:\"hour\" graphql:\"hour\""
 	LengthInHours int64  "json:\"lengthInHours\" graphql:\"lengthInHours\""
-	Days          []Day  "json:\"days\" graphql:\"days\""
+	Name          string "json:\"name\" graphql:\"name\""
 }
 
-func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_MaintenanceWindows) GetName() string {
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_MaintenanceWindows) GetDays() []Day {
 	if t == nil {
 		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_MaintenanceWindows{}
 	}
-	return t.Name
+	return t.Days
 }
 func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_MaintenanceWindows) GetEnabled() bool {
 	if t == nil {
@@ -2199,11 +2199,11 @@ func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_MaintenanceWindows) G
 	}
 	return t.LengthInHours
 }
-func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_MaintenanceWindows) GetDays() []Day {
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_MaintenanceWindows) GetName() string {
 	if t == nil {
 		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_MaintenanceWindows{}
 	}
-	return t.Days
+	return t.Name
 }
 
 type UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_PeeringConnections struct {
@@ -2232,17 +2232,11 @@ func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_PeeringConnections) G
 }
 
 type UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Endpoints struct {
-	ServiceName string  "json:\"serviceName\" graphql:\"serviceName\""
 	Alias       *string "json:\"alias,omitempty\" graphql:\"alias\""
 	PrivateDNS  bool    "json:\"privateDNS\" graphql:\"privateDNS\""
+	ServiceName string  "json:\"serviceName\" graphql:\"serviceName\""
 }
 
-func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Endpoints) GetServiceName() string {
-	if t == nil {
-		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Endpoints{}
-	}
-	return t.ServiceName
-}
 func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Endpoints) GetAlias() *string {
 	if t == nil {
 		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Endpoints{}
@@ -2254,6 +2248,12 @@ func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Endpoints) GetPrivate
 		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Endpoints{}
 	}
 	return t.PrivateDNS
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Endpoints) GetServiceName() string {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Endpoints{}
+	}
+	return t.ServiceName
 }
 
 type UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Tags struct {
@@ -2354,31 +2354,37 @@ func (t *GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Internal) 
 }
 
 type GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers struct {
-	Public   GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Public   "json:\"public\" graphql:\"public\""
 	Internal GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Internal "json:\"internal\" graphql:\"internal\""
+	Public   GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Public   "json:\"public\" graphql:\"public\""
 }
 
-func (t *GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers) GetPublic() *GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Public {
-	if t == nil {
-		t = &GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers{}
-	}
-	return &t.Public
-}
 func (t *GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers) GetInternal() *GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Internal {
 	if t == nil {
 		t = &GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers{}
 	}
 	return &t.Internal
 }
+func (t *GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers) GetPublic() *GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Public {
+	if t == nil {
+		t = &GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers{}
+	}
+	return &t.Public
+}
 
 type GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_NodeGroups struct {
+	CapacityPerZone int64             "json:\"capacityPerZone\" graphql:\"capacityPerZone\""
 	Name            string            "json:\"name\" graphql:\"name\""
 	NodeType        string            "json:\"nodeType\" graphql:\"nodeType\""
-	CapacityPerZone int64             "json:\"capacityPerZone\" graphql:\"capacityPerZone\""
 	Reservations    []NodeReservation "json:\"reservations\" graphql:\"reservations\""
 	Zones           []string          "json:\"zones\" graphql:\"zones\""
 }
 
+func (t *GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_NodeGroups) GetCapacityPerZone() int64 {
+	if t == nil {
+		t = &GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_NodeGroups{}
+	}
+	return t.CapacityPerZone
+}
 func (t *GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_NodeGroups) GetName() string {
 	if t == nil {
 		t = &GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_NodeGroups{}
@@ -2390,12 +2396,6 @@ func (t *GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_NodeGroups) GetNodeType(
 		t = &GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_NodeGroups{}
 	}
 	return t.NodeType
-}
-func (t *GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_NodeGroups) GetCapacityPerZone() int64 {
-	if t == nil {
-		t = &GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_NodeGroups{}
-	}
-	return t.CapacityPerZone
 }
 func (t *GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_NodeGroups) GetReservations() []NodeReservation {
 	if t == nil {
@@ -2411,18 +2411,18 @@ func (t *GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_NodeGroups) GetZones() [
 }
 
 type GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows struct {
-	Name          string "json:\"name\" graphql:\"name\""
+	Days          []Day  "json:\"days\" graphql:\"days\""
 	Enabled       bool   "json:\"enabled\" graphql:\"enabled\""
 	Hour          int64  "json:\"hour\" graphql:\"hour\""
 	LengthInHours int64  "json:\"lengthInHours\" graphql:\"lengthInHours\""
-	Days          []Day  "json:\"days\" graphql:\"days\""
+	Name          string "json:\"name\" graphql:\"name\""
 }
 
-func (t *GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows) GetName() string {
+func (t *GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows) GetDays() []Day {
 	if t == nil {
 		t = &GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows{}
 	}
-	return t.Name
+	return t.Days
 }
 func (t *GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows) GetEnabled() bool {
 	if t == nil {
@@ -2442,11 +2442,11 @@ func (t *GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows) GetL
 	}
 	return t.LengthInHours
 }
-func (t *GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows) GetDays() []Day {
+func (t *GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows) GetName() string {
 	if t == nil {
 		t = &GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows{}
 	}
-	return t.Days
+	return t.Name
 }
 
 type GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_Tags struct {
@@ -2545,9 +2545,9 @@ func (t *GetAzureEnvStatus_AzureEnv_Status_Errors) GetMessage() string {
 
 type GetAzureEnvStatus_AzureEnv_Status struct {
 	AppliedSpecRevision int64                                           "json:\"appliedSpecRevision\" graphql:\"appliedSpecRevision\""
-	PendingDelete       bool                                            "json:\"pendingDelete\" graphql:\"pendingDelete\""
-	LoadBalancers       GetAzureEnvStatus_AzureEnv_Status_LoadBalancers "json:\"loadBalancers\" graphql:\"loadBalancers\""
 	Errors              []*GetAzureEnvStatus_AzureEnv_Status_Errors     "json:\"errors\" graphql:\"errors\""
+	LoadBalancers       GetAzureEnvStatus_AzureEnv_Status_LoadBalancers "json:\"loadBalancers\" graphql:\"loadBalancers\""
+	PendingDelete       bool                                            "json:\"pendingDelete\" graphql:\"pendingDelete\""
 }
 
 func (t *GetAzureEnvStatus_AzureEnv_Status) GetAppliedSpecRevision() int64 {
@@ -2556,11 +2556,11 @@ func (t *GetAzureEnvStatus_AzureEnv_Status) GetAppliedSpecRevision() int64 {
 	}
 	return t.AppliedSpecRevision
 }
-func (t *GetAzureEnvStatus_AzureEnv_Status) GetPendingDelete() bool {
+func (t *GetAzureEnvStatus_AzureEnv_Status) GetErrors() []*GetAzureEnvStatus_AzureEnv_Status_Errors {
 	if t == nil {
 		t = &GetAzureEnvStatus_AzureEnv_Status{}
 	}
-	return t.PendingDelete
+	return t.Errors
 }
 func (t *GetAzureEnvStatus_AzureEnv_Status) GetLoadBalancers() *GetAzureEnvStatus_AzureEnv_Status_LoadBalancers {
 	if t == nil {
@@ -2568,11 +2568,11 @@ func (t *GetAzureEnvStatus_AzureEnv_Status) GetLoadBalancers() *GetAzureEnvStatu
 	}
 	return &t.LoadBalancers
 }
-func (t *GetAzureEnvStatus_AzureEnv_Status) GetErrors() []*GetAzureEnvStatus_AzureEnv_Status_Errors {
+func (t *GetAzureEnvStatus_AzureEnv_Status) GetPendingDelete() bool {
 	if t == nil {
 		t = &GetAzureEnvStatus_AzureEnv_Status{}
 	}
-	return t.Errors
+	return t.PendingDelete
 }
 
 type GetAzureEnvStatus_AzureEnv struct {
@@ -2637,31 +2637,37 @@ func (t *CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_I
 }
 
 type CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers struct {
-	Public   CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Public   "json:\"public\" graphql:\"public\""
 	Internal CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Internal "json:\"internal\" graphql:\"internal\""
+	Public   CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Public   "json:\"public\" graphql:\"public\""
 }
 
-func (t *CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers) GetPublic() *CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Public {
-	if t == nil {
-		t = &CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers{}
-	}
-	return &t.Public
-}
 func (t *CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers) GetInternal() *CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Internal {
 	if t == nil {
 		t = &CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers{}
 	}
 	return &t.Internal
 }
+func (t *CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers) GetPublic() *CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Public {
+	if t == nil {
+		t = &CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers{}
+	}
+	return &t.Public
+}
 
 type CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_NodeGroups struct {
+	CapacityPerZone int64             "json:\"capacityPerZone\" graphql:\"capacityPerZone\""
 	Name            string            "json:\"name\" graphql:\"name\""
 	NodeType        string            "json:\"nodeType\" graphql:\"nodeType\""
-	CapacityPerZone int64             "json:\"capacityPerZone\" graphql:\"capacityPerZone\""
 	Reservations    []NodeReservation "json:\"reservations\" graphql:\"reservations\""
 	Zones           []string          "json:\"zones\" graphql:\"zones\""
 }
 
+func (t *CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_NodeGroups) GetCapacityPerZone() int64 {
+	if t == nil {
+		t = &CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_NodeGroups{}
+	}
+	return t.CapacityPerZone
+}
 func (t *CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_NodeGroups) GetName() string {
 	if t == nil {
 		t = &CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_NodeGroups{}
@@ -2673,12 +2679,6 @@ func (t *CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_NodeGroups) Get
 		t = &CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_NodeGroups{}
 	}
 	return t.NodeType
-}
-func (t *CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_NodeGroups) GetCapacityPerZone() int64 {
-	if t == nil {
-		t = &CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_NodeGroups{}
-	}
-	return t.CapacityPerZone
 }
 func (t *CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_NodeGroups) GetReservations() []NodeReservation {
 	if t == nil {
@@ -2694,18 +2694,18 @@ func (t *CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_NodeGroups) Get
 }
 
 type CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows struct {
-	Name          string "json:\"name\" graphql:\"name\""
+	Days          []Day  "json:\"days\" graphql:\"days\""
 	Enabled       bool   "json:\"enabled\" graphql:\"enabled\""
 	Hour          int64  "json:\"hour\" graphql:\"hour\""
 	LengthInHours int64  "json:\"lengthInHours\" graphql:\"lengthInHours\""
-	Days          []Day  "json:\"days\" graphql:\"days\""
+	Name          string "json:\"name\" graphql:\"name\""
 }
 
-func (t *CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows) GetName() string {
+func (t *CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows) GetDays() []Day {
 	if t == nil {
 		t = &CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows{}
 	}
-	return t.Name
+	return t.Days
 }
 func (t *CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows) GetEnabled() bool {
 	if t == nil {
@@ -2725,11 +2725,11 @@ func (t *CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWind
 	}
 	return t.LengthInHours
 }
-func (t *CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows) GetDays() []Day {
+func (t *CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows) GetName() string {
 	if t == nil {
 		t = &CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows{}
 	}
-	return t.Days
+	return t.Name
 }
 
 type CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_Tags struct {
@@ -2823,31 +2823,37 @@ func (t *UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_I
 }
 
 type UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers struct {
-	Public   UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Public   "json:\"public\" graphql:\"public\""
 	Internal UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Internal "json:\"internal\" graphql:\"internal\""
+	Public   UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Public   "json:\"public\" graphql:\"public\""
 }
 
-func (t *UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers) GetPublic() *UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Public {
-	if t == nil {
-		t = &UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers{}
-	}
-	return &t.Public
-}
 func (t *UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers) GetInternal() *UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Internal {
 	if t == nil {
 		t = &UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers{}
 	}
 	return &t.Internal
 }
+func (t *UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers) GetPublic() *UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers_Public {
+	if t == nil {
+		t = &UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_LoadBalancers{}
+	}
+	return &t.Public
+}
 
 type UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_NodeGroups struct {
+	CapacityPerZone int64             "json:\"capacityPerZone\" graphql:\"capacityPerZone\""
 	Name            string            "json:\"name\" graphql:\"name\""
 	NodeType        string            "json:\"nodeType\" graphql:\"nodeType\""
-	CapacityPerZone int64             "json:\"capacityPerZone\" graphql:\"capacityPerZone\""
 	Reservations    []NodeReservation "json:\"reservations\" graphql:\"reservations\""
 	Zones           []string          "json:\"zones\" graphql:\"zones\""
 }
 
+func (t *UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_NodeGroups) GetCapacityPerZone() int64 {
+	if t == nil {
+		t = &UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_NodeGroups{}
+	}
+	return t.CapacityPerZone
+}
 func (t *UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_NodeGroups) GetName() string {
 	if t == nil {
 		t = &UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_NodeGroups{}
@@ -2859,12 +2865,6 @@ func (t *UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_NodeGroups) Get
 		t = &UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_NodeGroups{}
 	}
 	return t.NodeType
-}
-func (t *UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_NodeGroups) GetCapacityPerZone() int64 {
-	if t == nil {
-		t = &UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_NodeGroups{}
-	}
-	return t.CapacityPerZone
 }
 func (t *UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_NodeGroups) GetReservations() []NodeReservation {
 	if t == nil {
@@ -2880,18 +2880,18 @@ func (t *UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_NodeGroups) Get
 }
 
 type UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows struct {
-	Name          string "json:\"name\" graphql:\"name\""
+	Days          []Day  "json:\"days\" graphql:\"days\""
 	Enabled       bool   "json:\"enabled\" graphql:\"enabled\""
 	Hour          int64  "json:\"hour\" graphql:\"hour\""
 	LengthInHours int64  "json:\"lengthInHours\" graphql:\"lengthInHours\""
-	Days          []Day  "json:\"days\" graphql:\"days\""
+	Name          string "json:\"name\" graphql:\"name\""
 }
 
-func (t *UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows) GetName() string {
+func (t *UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows) GetDays() []Day {
 	if t == nil {
 		t = &UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows{}
 	}
-	return t.Name
+	return t.Days
 }
 func (t *UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows) GetEnabled() bool {
 	if t == nil {
@@ -2911,11 +2911,11 @@ func (t *UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWind
 	}
 	return t.LengthInHours
 }
-func (t *UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows) GetDays() []Day {
+func (t *UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows) GetName() string {
 	if t == nil {
 		t = &UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_MaintenanceWindows{}
 	}
-	return t.Days
+	return t.Name
 }
 
 type UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_Tags struct {
@@ -3027,31 +3027,37 @@ func (t *GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_LoadBalancers_Internal) GetSou
 }
 
 type GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_LoadBalancers struct {
-	Public   GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_LoadBalancers_Public   "json:\"public\" graphql:\"public\""
 	Internal GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_LoadBalancers_Internal "json:\"internal\" graphql:\"internal\""
+	Public   GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_LoadBalancers_Public   "json:\"public\" graphql:\"public\""
 }
 
-func (t *GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_LoadBalancers) GetPublic() *GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_LoadBalancers_Public {
-	if t == nil {
-		t = &GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_LoadBalancers{}
-	}
-	return &t.Public
-}
 func (t *GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_LoadBalancers) GetInternal() *GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_LoadBalancers_Internal {
 	if t == nil {
 		t = &GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_LoadBalancers{}
 	}
 	return &t.Internal
 }
-
-type GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_NodeGroups struct {
-	Name            string            "json:\"name\" graphql:\"name\""
-	NodeType        string            "json:\"nodeType\" graphql:\"nodeType\""
-	CapacityPerZone int64             "json:\"capacityPerZone\" graphql:\"capacityPerZone\""
-	Zones           []string          "json:\"zones\" graphql:\"zones\""
-	Reservations    []NodeReservation "json:\"reservations\" graphql:\"reservations\""
+func (t *GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_LoadBalancers) GetPublic() *GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_LoadBalancers_Public {
+	if t == nil {
+		t = &GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_LoadBalancers{}
+	}
+	return &t.Public
 }
 
+type GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_NodeGroups struct {
+	CapacityPerZone int64             "json:\"capacityPerZone\" graphql:\"capacityPerZone\""
+	Name            string            "json:\"name\" graphql:\"name\""
+	NodeType        string            "json:\"nodeType\" graphql:\"nodeType\""
+	Reservations    []NodeReservation "json:\"reservations\" graphql:\"reservations\""
+	Zones           []string          "json:\"zones\" graphql:\"zones\""
+}
+
+func (t *GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_NodeGroups) GetCapacityPerZone() int64 {
+	if t == nil {
+		t = &GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_NodeGroups{}
+	}
+	return t.CapacityPerZone
+}
 func (t *GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_NodeGroups) GetName() string {
 	if t == nil {
 		t = &GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_NodeGroups{}
@@ -3064,11 +3070,11 @@ func (t *GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_NodeGroups) GetNodeType() stri
 	}
 	return t.NodeType
 }
-func (t *GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_NodeGroups) GetCapacityPerZone() int64 {
+func (t *GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_NodeGroups) GetReservations() []NodeReservation {
 	if t == nil {
 		t = &GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_NodeGroups{}
 	}
-	return t.CapacityPerZone
+	return t.Reservations
 }
 func (t *GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_NodeGroups) GetZones() []string {
 	if t == nil {
@@ -3076,26 +3082,20 @@ func (t *GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_NodeGroups) GetZones() []strin
 	}
 	return t.Zones
 }
-func (t *GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_NodeGroups) GetReservations() []NodeReservation {
-	if t == nil {
-		t = &GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_NodeGroups{}
-	}
-	return t.Reservations
-}
 
 type GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_MaintenanceWindows struct {
-	Name          string "json:\"name\" graphql:\"name\""
+	Days          []Day  "json:\"days\" graphql:\"days\""
 	Enabled       bool   "json:\"enabled\" graphql:\"enabled\""
 	Hour          int64  "json:\"hour\" graphql:\"hour\""
 	LengthInHours int64  "json:\"lengthInHours\" graphql:\"lengthInHours\""
-	Days          []Day  "json:\"days\" graphql:\"days\""
+	Name          string "json:\"name\" graphql:\"name\""
 }
 
-func (t *GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_MaintenanceWindows) GetName() string {
+func (t *GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_MaintenanceWindows) GetDays() []Day {
 	if t == nil {
 		t = &GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_MaintenanceWindows{}
 	}
-	return t.Name
+	return t.Days
 }
 func (t *GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_MaintenanceWindows) GetEnabled() bool {
 	if t == nil {
@@ -3115,11 +3115,11 @@ func (t *GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_MaintenanceWindows) GetLengthI
 	}
 	return t.LengthInHours
 }
-func (t *GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_MaintenanceWindows) GetDays() []Day {
+func (t *GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_MaintenanceWindows) GetName() string {
 	if t == nil {
 		t = &GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_MaintenanceWindows{}
 	}
-	return t.Days
+	return t.Name
 }
 
 type GetGCPEnv_GCPEnv struct {
@@ -3167,8 +3167,8 @@ func (t *GetGCPEnvStatus_GCPEnv_Status_Errors) GetMessage() string {
 
 type GetGCPEnvStatus_GCPEnv_Status struct {
 	AppliedSpecRevision int64                                   "json:\"appliedSpecRevision\" graphql:\"appliedSpecRevision\""
-	PendingDelete       bool                                    "json:\"pendingDelete\" graphql:\"pendingDelete\""
 	Errors              []*GetGCPEnvStatus_GCPEnv_Status_Errors "json:\"errors\" graphql:\"errors\""
+	PendingDelete       bool                                    "json:\"pendingDelete\" graphql:\"pendingDelete\""
 }
 
 func (t *GetGCPEnvStatus_GCPEnv_Status) GetAppliedSpecRevision() int64 {
@@ -3177,17 +3177,17 @@ func (t *GetGCPEnvStatus_GCPEnv_Status) GetAppliedSpecRevision() int64 {
 	}
 	return t.AppliedSpecRevision
 }
-func (t *GetGCPEnvStatus_GCPEnv_Status) GetPendingDelete() bool {
-	if t == nil {
-		t = &GetGCPEnvStatus_GCPEnv_Status{}
-	}
-	return t.PendingDelete
-}
 func (t *GetGCPEnvStatus_GCPEnv_Status) GetErrors() []*GetGCPEnvStatus_GCPEnv_Status_Errors {
 	if t == nil {
 		t = &GetGCPEnvStatus_GCPEnv_Status{}
 	}
 	return t.Errors
+}
+func (t *GetGCPEnvStatus_GCPEnv_Status) GetPendingDelete() bool {
+	if t == nil {
+		t = &GetGCPEnvStatus_GCPEnv_Status{}
+	}
+	return t.PendingDelete
 }
 
 type GetGCPEnvStatus_GCPEnv struct {
@@ -3252,31 +3252,37 @@ func (t *CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_LoadBalancers_Interna
 }
 
 type CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_LoadBalancers struct {
-	Public   CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_LoadBalancers_Public   "json:\"public\" graphql:\"public\""
 	Internal CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_LoadBalancers_Internal "json:\"internal\" graphql:\"internal\""
+	Public   CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_LoadBalancers_Public   "json:\"public\" graphql:\"public\""
 }
 
-func (t *CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_LoadBalancers) GetPublic() *CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_LoadBalancers_Public {
-	if t == nil {
-		t = &CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_LoadBalancers{}
-	}
-	return &t.Public
-}
 func (t *CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_LoadBalancers) GetInternal() *CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_LoadBalancers_Internal {
 	if t == nil {
 		t = &CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_LoadBalancers{}
 	}
 	return &t.Internal
 }
-
-type CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_NodeGroups struct {
-	Name            string            "json:\"name\" graphql:\"name\""
-	NodeType        string            "json:\"nodeType\" graphql:\"nodeType\""
-	CapacityPerZone int64             "json:\"capacityPerZone\" graphql:\"capacityPerZone\""
-	Zones           []string          "json:\"zones\" graphql:\"zones\""
-	Reservations    []NodeReservation "json:\"reservations\" graphql:\"reservations\""
+func (t *CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_LoadBalancers) GetPublic() *CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_LoadBalancers_Public {
+	if t == nil {
+		t = &CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_LoadBalancers{}
+	}
+	return &t.Public
 }
 
+type CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_NodeGroups struct {
+	CapacityPerZone int64             "json:\"capacityPerZone\" graphql:\"capacityPerZone\""
+	Name            string            "json:\"name\" graphql:\"name\""
+	NodeType        string            "json:\"nodeType\" graphql:\"nodeType\""
+	Reservations    []NodeReservation "json:\"reservations\" graphql:\"reservations\""
+	Zones           []string          "json:\"zones\" graphql:\"zones\""
+}
+
+func (t *CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_NodeGroups) GetCapacityPerZone() int64 {
+	if t == nil {
+		t = &CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_NodeGroups{}
+	}
+	return t.CapacityPerZone
+}
 func (t *CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_NodeGroups) GetName() string {
 	if t == nil {
 		t = &CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_NodeGroups{}
@@ -3289,11 +3295,11 @@ func (t *CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_NodeGroups) GetNodeTy
 	}
 	return t.NodeType
 }
-func (t *CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_NodeGroups) GetCapacityPerZone() int64 {
+func (t *CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_NodeGroups) GetReservations() []NodeReservation {
 	if t == nil {
 		t = &CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_NodeGroups{}
 	}
-	return t.CapacityPerZone
+	return t.Reservations
 }
 func (t *CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_NodeGroups) GetZones() []string {
 	if t == nil {
@@ -3301,26 +3307,20 @@ func (t *CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_NodeGroups) GetZones(
 	}
 	return t.Zones
 }
-func (t *CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_NodeGroups) GetReservations() []NodeReservation {
-	if t == nil {
-		t = &CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_NodeGroups{}
-	}
-	return t.Reservations
-}
 
 type CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_MaintenanceWindows struct {
-	Name          string "json:\"name\" graphql:\"name\""
+	Days          []Day  "json:\"days\" graphql:\"days\""
 	Enabled       bool   "json:\"enabled\" graphql:\"enabled\""
 	Hour          int64  "json:\"hour\" graphql:\"hour\""
 	LengthInHours int64  "json:\"lengthInHours\" graphql:\"lengthInHours\""
-	Days          []Day  "json:\"days\" graphql:\"days\""
+	Name          string "json:\"name\" graphql:\"name\""
 }
 
-func (t *CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_MaintenanceWindows) GetName() string {
+func (t *CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_MaintenanceWindows) GetDays() []Day {
 	if t == nil {
 		t = &CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_MaintenanceWindows{}
 	}
-	return t.Name
+	return t.Days
 }
 func (t *CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_MaintenanceWindows) GetEnabled() bool {
 	if t == nil {
@@ -3340,11 +3340,11 @@ func (t *CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_MaintenanceWindows) G
 	}
 	return t.LengthInHours
 }
-func (t *CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_MaintenanceWindows) GetDays() []Day {
+func (t *CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_MaintenanceWindows) GetName() string {
 	if t == nil {
 		t = &CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_MaintenanceWindows{}
 	}
-	return t.Days
+	return t.Name
 }
 
 type CreateGCPEnv_CreateGCPEnv struct {
@@ -3409,31 +3409,37 @@ func (t *UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_LoadBalancers_Interna
 }
 
 type UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_LoadBalancers struct {
-	Public   UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_LoadBalancers_Public   "json:\"public\" graphql:\"public\""
 	Internal UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_LoadBalancers_Internal "json:\"internal\" graphql:\"internal\""
+	Public   UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_LoadBalancers_Public   "json:\"public\" graphql:\"public\""
 }
 
-func (t *UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_LoadBalancers) GetPublic() *UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_LoadBalancers_Public {
-	if t == nil {
-		t = &UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_LoadBalancers{}
-	}
-	return &t.Public
-}
 func (t *UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_LoadBalancers) GetInternal() *UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_LoadBalancers_Internal {
 	if t == nil {
 		t = &UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_LoadBalancers{}
 	}
 	return &t.Internal
 }
-
-type UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_NodeGroups struct {
-	Name            string            "json:\"name\" graphql:\"name\""
-	NodeType        string            "json:\"nodeType\" graphql:\"nodeType\""
-	CapacityPerZone int64             "json:\"capacityPerZone\" graphql:\"capacityPerZone\""
-	Zones           []string          "json:\"zones\" graphql:\"zones\""
-	Reservations    []NodeReservation "json:\"reservations\" graphql:\"reservations\""
+func (t *UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_LoadBalancers) GetPublic() *UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_LoadBalancers_Public {
+	if t == nil {
+		t = &UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_LoadBalancers{}
+	}
+	return &t.Public
 }
 
+type UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_NodeGroups struct {
+	CapacityPerZone int64             "json:\"capacityPerZone\" graphql:\"capacityPerZone\""
+	Name            string            "json:\"name\" graphql:\"name\""
+	NodeType        string            "json:\"nodeType\" graphql:\"nodeType\""
+	Reservations    []NodeReservation "json:\"reservations\" graphql:\"reservations\""
+	Zones           []string          "json:\"zones\" graphql:\"zones\""
+}
+
+func (t *UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_NodeGroups) GetCapacityPerZone() int64 {
+	if t == nil {
+		t = &UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_NodeGroups{}
+	}
+	return t.CapacityPerZone
+}
 func (t *UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_NodeGroups) GetName() string {
 	if t == nil {
 		t = &UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_NodeGroups{}
@@ -3446,11 +3452,11 @@ func (t *UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_NodeGroups) GetNodeTy
 	}
 	return t.NodeType
 }
-func (t *UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_NodeGroups) GetCapacityPerZone() int64 {
+func (t *UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_NodeGroups) GetReservations() []NodeReservation {
 	if t == nil {
 		t = &UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_NodeGroups{}
 	}
-	return t.CapacityPerZone
+	return t.Reservations
 }
 func (t *UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_NodeGroups) GetZones() []string {
 	if t == nil {
@@ -3458,26 +3464,20 @@ func (t *UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_NodeGroups) GetZones(
 	}
 	return t.Zones
 }
-func (t *UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_NodeGroups) GetReservations() []NodeReservation {
-	if t == nil {
-		t = &UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_NodeGroups{}
-	}
-	return t.Reservations
-}
 
 type UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_MaintenanceWindows struct {
-	Name          string "json:\"name\" graphql:\"name\""
+	Days          []Day  "json:\"days\" graphql:\"days\""
 	Enabled       bool   "json:\"enabled\" graphql:\"enabled\""
 	Hour          int64  "json:\"hour\" graphql:\"hour\""
 	LengthInHours int64  "json:\"lengthInHours\" graphql:\"lengthInHours\""
-	Days          []Day  "json:\"days\" graphql:\"days\""
+	Name          string "json:\"name\" graphql:\"name\""
 }
 
-func (t *UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_MaintenanceWindows) GetName() string {
+func (t *UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_MaintenanceWindows) GetDays() []Day {
 	if t == nil {
 		t = &UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_MaintenanceWindows{}
 	}
-	return t.Name
+	return t.Days
 }
 func (t *UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_MaintenanceWindows) GetEnabled() bool {
 	if t == nil {
@@ -3497,11 +3497,11 @@ func (t *UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_MaintenanceWindows) G
 	}
 	return t.LengthInHours
 }
-func (t *UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_MaintenanceWindows) GetDays() []Day {
+func (t *UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_MaintenanceWindows) GetName() string {
 	if t == nil {
 		t = &UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_MaintenanceWindows{}
 	}
-	return t.Days
+	return t.Name
 }
 
 type UpdateGCPEnv_UpdateGCPEnv struct {
@@ -3584,43 +3584,31 @@ func (t *GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Interna
 }
 
 type GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers struct {
-	Public   GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Public   "json:\"public\" graphql:\"public\""
 	Internal GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Internal "json:\"internal\" graphql:\"internal\""
+	Public   GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Public   "json:\"public\" graphql:\"public\""
 }
 
-func (t *GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers) GetPublic() *GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Public {
-	if t == nil {
-		t = &GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers{}
-	}
-	return &t.Public
-}
 func (t *GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers) GetInternal() *GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Internal {
 	if t == nil {
 		t = &GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers{}
 	}
 	return &t.Internal
 }
+func (t *GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers) GetPublic() *GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Public {
+	if t == nil {
+		t = &GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers{}
+	}
+	return &t.Public
+}
 
 type GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups struct {
-	Name                string            "json:\"name\" graphql:\"name\""
-	NodeType            string            "json:\"nodeType\" graphql:\"nodeType\""
 	CapacityPerLocation int64             "json:\"capacityPerLocation\" graphql:\"capacityPerLocation\""
 	Locations           []string          "json:\"locations\" graphql:\"locations\""
+	Name                string            "json:\"name\" graphql:\"name\""
+	NodeType            string            "json:\"nodeType\" graphql:\"nodeType\""
 	Reservations        []NodeReservation "json:\"reservations\" graphql:\"reservations\""
 }
 
-func (t *GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups) GetName() string {
-	if t == nil {
-		t = &GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups{}
-	}
-	return t.Name
-}
-func (t *GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups) GetNodeType() string {
-	if t == nil {
-		t = &GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups{}
-	}
-	return t.NodeType
-}
 func (t *GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups) GetCapacityPerLocation() int64 {
 	if t == nil {
 		t = &GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups{}
@@ -3633,6 +3621,18 @@ func (t *GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups) GetLocati
 	}
 	return t.Locations
 }
+func (t *GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups) GetName() string {
+	if t == nil {
+		t = &GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups{}
+	}
+	return t.Name
+}
+func (t *GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups) GetNodeType() string {
+	if t == nil {
+		t = &GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups{}
+	}
+	return t.NodeType
+}
 func (t *GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups) GetReservations() []NodeReservation {
 	if t == nil {
 		t = &GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups{}
@@ -3641,18 +3641,18 @@ func (t *GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups) GetReserv
 }
 
 type GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows struct {
-	Name          string "json:\"name\" graphql:\"name\""
+	Days          []Day  "json:\"days\" graphql:\"days\""
 	Enabled       bool   "json:\"enabled\" graphql:\"enabled\""
 	Hour          int64  "json:\"hour\" graphql:\"hour\""
 	LengthInHours int64  "json:\"lengthInHours\" graphql:\"lengthInHours\""
-	Days          []Day  "json:\"days\" graphql:\"days\""
+	Name          string "json:\"name\" graphql:\"name\""
 }
 
-func (t *GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows) GetName() string {
+func (t *GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows) GetDays() []Day {
 	if t == nil {
 		t = &GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows{}
 	}
-	return t.Name
+	return t.Days
 }
 func (t *GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows) GetEnabled() bool {
 	if t == nil {
@@ -3672,25 +3672,19 @@ func (t *GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows) G
 	}
 	return t.LengthInHours
 }
-func (t *GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows) GetDays() []Day {
+func (t *GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows) GetName() string {
 	if t == nil {
 		t = &GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows{}
 	}
-	return t.Days
+	return t.Name
 }
 
 type GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_WireguardPeers struct {
-	PublicKey  string   "json:\"publicKey\" graphql:\"publicKey\""
 	AllowedIPs []string "json:\"allowedIPs\" graphql:\"allowedIPs\""
 	Endpoint   string   "json:\"endpoint\" graphql:\"endpoint\""
+	PublicKey  string   "json:\"publicKey\" graphql:\"publicKey\""
 }
 
-func (t *GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_WireguardPeers) GetPublicKey() string {
-	if t == nil {
-		t = &GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_WireguardPeers{}
-	}
-	return t.PublicKey
-}
 func (t *GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_WireguardPeers) GetAllowedIPs() []string {
 	if t == nil {
 		t = &GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_WireguardPeers{}
@@ -3702,6 +3696,12 @@ func (t *GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_WireguardPeers) GetEn
 		t = &GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_WireguardPeers{}
 	}
 	return t.Endpoint
+}
+func (t *GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_WireguardPeers) GetPublicKey() string {
+	if t == nil {
+		t = &GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_WireguardPeers{}
+	}
+	return t.PublicKey
 }
 
 type GetHCloudEnv_HcloudEnv struct {
@@ -3749,8 +3749,8 @@ func (t *GetHCloudEnvStatus_HcloudEnv_Status_Errors) GetMessage() string {
 
 type GetHCloudEnvStatus_HcloudEnv_Status struct {
 	AppliedSpecRevision int64                                         "json:\"appliedSpecRevision\" graphql:\"appliedSpecRevision\""
-	PendingDelete       bool                                          "json:\"pendingDelete\" graphql:\"pendingDelete\""
 	Errors              []*GetHCloudEnvStatus_HcloudEnv_Status_Errors "json:\"errors\" graphql:\"errors\""
+	PendingDelete       bool                                          "json:\"pendingDelete\" graphql:\"pendingDelete\""
 }
 
 func (t *GetHCloudEnvStatus_HcloudEnv_Status) GetAppliedSpecRevision() int64 {
@@ -3759,17 +3759,17 @@ func (t *GetHCloudEnvStatus_HcloudEnv_Status) GetAppliedSpecRevision() int64 {
 	}
 	return t.AppliedSpecRevision
 }
-func (t *GetHCloudEnvStatus_HcloudEnv_Status) GetPendingDelete() bool {
-	if t == nil {
-		t = &GetHCloudEnvStatus_HcloudEnv_Status{}
-	}
-	return t.PendingDelete
-}
 func (t *GetHCloudEnvStatus_HcloudEnv_Status) GetErrors() []*GetHCloudEnvStatus_HcloudEnv_Status_Errors {
 	if t == nil {
 		t = &GetHCloudEnvStatus_HcloudEnv_Status{}
 	}
 	return t.Errors
+}
+func (t *GetHCloudEnvStatus_HcloudEnv_Status) GetPendingDelete() bool {
+	if t == nil {
+		t = &GetHCloudEnvStatus_HcloudEnv_Status{}
+	}
+	return t.PendingDelete
 }
 
 type GetHCloudEnvStatus_HcloudEnv struct {
@@ -3834,43 +3834,31 @@ func (t *CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancer
 }
 
 type CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers struct {
-	Public   CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Public   "json:\"public\" graphql:\"public\""
 	Internal CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Internal "json:\"internal\" graphql:\"internal\""
+	Public   CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Public   "json:\"public\" graphql:\"public\""
 }
 
-func (t *CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers) GetPublic() *CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Public {
-	if t == nil {
-		t = &CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers{}
-	}
-	return &t.Public
-}
 func (t *CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers) GetInternal() *CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Internal {
 	if t == nil {
 		t = &CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers{}
 	}
 	return &t.Internal
 }
+func (t *CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers) GetPublic() *CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Public {
+	if t == nil {
+		t = &CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers{}
+	}
+	return &t.Public
+}
 
 type CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups struct {
-	Name                string            "json:\"name\" graphql:\"name\""
-	NodeType            string            "json:\"nodeType\" graphql:\"nodeType\""
 	CapacityPerLocation int64             "json:\"capacityPerLocation\" graphql:\"capacityPerLocation\""
 	Locations           []string          "json:\"locations\" graphql:\"locations\""
+	Name                string            "json:\"name\" graphql:\"name\""
+	NodeType            string            "json:\"nodeType\" graphql:\"nodeType\""
 	Reservations        []NodeReservation "json:\"reservations\" graphql:\"reservations\""
 }
 
-func (t *CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups) GetName() string {
-	if t == nil {
-		t = &CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups{}
-	}
-	return t.Name
-}
-func (t *CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups) GetNodeType() string {
-	if t == nil {
-		t = &CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups{}
-	}
-	return t.NodeType
-}
 func (t *CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups) GetCapacityPerLocation() int64 {
 	if t == nil {
 		t = &CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups{}
@@ -3883,6 +3871,18 @@ func (t *CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups) 
 	}
 	return t.Locations
 }
+func (t *CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups) GetName() string {
+	if t == nil {
+		t = &CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups{}
+	}
+	return t.Name
+}
+func (t *CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups) GetNodeType() string {
+	if t == nil {
+		t = &CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups{}
+	}
+	return t.NodeType
+}
 func (t *CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups) GetReservations() []NodeReservation {
 	if t == nil {
 		t = &CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups{}
@@ -3891,18 +3891,18 @@ func (t *CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups) 
 }
 
 type CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows struct {
-	Name          string "json:\"name\" graphql:\"name\""
+	Days          []Day  "json:\"days\" graphql:\"days\""
 	Enabled       bool   "json:\"enabled\" graphql:\"enabled\""
 	Hour          int64  "json:\"hour\" graphql:\"hour\""
 	LengthInHours int64  "json:\"lengthInHours\" graphql:\"lengthInHours\""
-	Days          []Day  "json:\"days\" graphql:\"days\""
+	Name          string "json:\"name\" graphql:\"name\""
 }
 
-func (t *CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows) GetName() string {
+func (t *CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows) GetDays() []Day {
 	if t == nil {
 		t = &CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows{}
 	}
-	return t.Name
+	return t.Days
 }
 func (t *CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows) GetEnabled() bool {
 	if t == nil {
@@ -3922,25 +3922,19 @@ func (t *CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceW
 	}
 	return t.LengthInHours
 }
-func (t *CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows) GetDays() []Day {
+func (t *CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows) GetName() string {
 	if t == nil {
 		t = &CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows{}
 	}
-	return t.Days
+	return t.Name
 }
 
 type CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_WireguardPeers struct {
-	PublicKey  string   "json:\"publicKey\" graphql:\"publicKey\""
 	AllowedIPs []string "json:\"allowedIPs\" graphql:\"allowedIPs\""
 	Endpoint   string   "json:\"endpoint\" graphql:\"endpoint\""
+	PublicKey  string   "json:\"publicKey\" graphql:\"publicKey\""
 }
 
-func (t *CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_WireguardPeers) GetPublicKey() string {
-	if t == nil {
-		t = &CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_WireguardPeers{}
-	}
-	return t.PublicKey
-}
 func (t *CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_WireguardPeers) GetAllowedIPs() []string {
 	if t == nil {
 		t = &CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_WireguardPeers{}
@@ -3952,6 +3946,12 @@ func (t *CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_WireguardPee
 		t = &CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_WireguardPeers{}
 	}
 	return t.Endpoint
+}
+func (t *CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_WireguardPeers) GetPublicKey() string {
+	if t == nil {
+		t = &CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_WireguardPeers{}
+	}
+	return t.PublicKey
 }
 
 type CreateHCloudEnv_CreateHCloudEnv struct {
@@ -4016,43 +4016,31 @@ func (t *UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancer
 }
 
 type UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers struct {
-	Public   UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Public   "json:\"public\" graphql:\"public\""
 	Internal UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Internal "json:\"internal\" graphql:\"internal\""
+	Public   UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Public   "json:\"public\" graphql:\"public\""
 }
 
-func (t *UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers) GetPublic() *UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Public {
-	if t == nil {
-		t = &UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers{}
-	}
-	return &t.Public
-}
 func (t *UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers) GetInternal() *UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Internal {
 	if t == nil {
 		t = &UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers{}
 	}
 	return &t.Internal
 }
+func (t *UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers) GetPublic() *UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers_Public {
+	if t == nil {
+		t = &UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_LoadBalancers{}
+	}
+	return &t.Public
+}
 
 type UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups struct {
-	Name                string            "json:\"name\" graphql:\"name\""
-	NodeType            string            "json:\"nodeType\" graphql:\"nodeType\""
 	CapacityPerLocation int64             "json:\"capacityPerLocation\" graphql:\"capacityPerLocation\""
 	Locations           []string          "json:\"locations\" graphql:\"locations\""
+	Name                string            "json:\"name\" graphql:\"name\""
+	NodeType            string            "json:\"nodeType\" graphql:\"nodeType\""
 	Reservations        []NodeReservation "json:\"reservations\" graphql:\"reservations\""
 }
 
-func (t *UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups) GetName() string {
-	if t == nil {
-		t = &UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups{}
-	}
-	return t.Name
-}
-func (t *UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups) GetNodeType() string {
-	if t == nil {
-		t = &UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups{}
-	}
-	return t.NodeType
-}
 func (t *UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups) GetCapacityPerLocation() int64 {
 	if t == nil {
 		t = &UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups{}
@@ -4065,6 +4053,18 @@ func (t *UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups) 
 	}
 	return t.Locations
 }
+func (t *UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups) GetName() string {
+	if t == nil {
+		t = &UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups{}
+	}
+	return t.Name
+}
+func (t *UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups) GetNodeType() string {
+	if t == nil {
+		t = &UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups{}
+	}
+	return t.NodeType
+}
 func (t *UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups) GetReservations() []NodeReservation {
 	if t == nil {
 		t = &UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups{}
@@ -4073,18 +4073,18 @@ func (t *UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_NodeGroups) 
 }
 
 type UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows struct {
-	Name          string "json:\"name\" graphql:\"name\""
+	Days          []Day  "json:\"days\" graphql:\"days\""
 	Enabled       bool   "json:\"enabled\" graphql:\"enabled\""
 	Hour          int64  "json:\"hour\" graphql:\"hour\""
 	LengthInHours int64  "json:\"lengthInHours\" graphql:\"lengthInHours\""
-	Days          []Day  "json:\"days\" graphql:\"days\""
+	Name          string "json:\"name\" graphql:\"name\""
 }
 
-func (t *UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows) GetName() string {
+func (t *UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows) GetDays() []Day {
 	if t == nil {
 		t = &UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows{}
 	}
-	return t.Name
+	return t.Days
 }
 func (t *UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows) GetEnabled() bool {
 	if t == nil {
@@ -4104,25 +4104,19 @@ func (t *UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceW
 	}
 	return t.LengthInHours
 }
-func (t *UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows) GetDays() []Day {
+func (t *UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows) GetName() string {
 	if t == nil {
 		t = &UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_MaintenanceWindows{}
 	}
-	return t.Days
+	return t.Name
 }
 
 type UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_WireguardPeers struct {
-	PublicKey  string   "json:\"publicKey\" graphql:\"publicKey\""
 	AllowedIPs []string "json:\"allowedIPs\" graphql:\"allowedIPs\""
 	Endpoint   string   "json:\"endpoint\" graphql:\"endpoint\""
+	PublicKey  string   "json:\"publicKey\" graphql:\"publicKey\""
 }
 
-func (t *UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_WireguardPeers) GetPublicKey() string {
-	if t == nil {
-		t = &UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_WireguardPeers{}
-	}
-	return t.PublicKey
-}
 func (t *UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_WireguardPeers) GetAllowedIPs() []string {
 	if t == nil {
 		t = &UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_WireguardPeers{}
@@ -4134,6 +4128,12 @@ func (t *UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_WireguardPee
 		t = &UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_WireguardPeers{}
 	}
 	return t.Endpoint
+}
+func (t *UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_WireguardPeers) GetPublicKey() string {
+	if t == nil {
+		t = &UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_WireguardPeers{}
+	}
+	return t.PublicKey
 }
 
 type UpdateHCloudEnv_UpdateHCloudEnv struct {
@@ -4198,11 +4198,17 @@ func (t *GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Public_Annotatio
 }
 
 type GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Public struct {
+	Annotations    []*GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Public_Annotations "json:\"annotations\" graphql:\"annotations\""
 	Enabled        bool                                                                         "json:\"enabled\" graphql:\"enabled\""
 	SourceIPRanges []string                                                                     "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
-	Annotations    []*GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Public_Annotations "json:\"annotations\" graphql:\"annotations\""
 }
 
+func (t *GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Public) GetAnnotations() []*GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Public_Annotations {
+	if t == nil {
+		t = &GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Public{}
+	}
+	return t.Annotations
+}
 func (t *GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Public) GetEnabled() bool {
 	if t == nil {
 		t = &GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Public{}
@@ -4214,12 +4220,6 @@ func (t *GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Public) GetSourc
 		t = &GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Public{}
 	}
 	return t.SourceIPRanges
-}
-func (t *GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Public) GetAnnotations() []*GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Public_Annotations {
-	if t == nil {
-		t = &GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Public{}
-	}
-	return t.Annotations
 }
 
 type GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Internal_Annotations struct {
@@ -4241,11 +4241,17 @@ func (t *GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Internal_Annotat
 }
 
 type GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Internal struct {
+	Annotations    []*GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Internal_Annotations "json:\"annotations\" graphql:\"annotations\""
 	Enabled        bool                                                                           "json:\"enabled\" graphql:\"enabled\""
 	SourceIPRanges []string                                                                       "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
-	Annotations    []*GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Internal_Annotations "json:\"annotations\" graphql:\"annotations\""
 }
 
+func (t *GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Internal) GetAnnotations() []*GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Internal_Annotations {
+	if t == nil {
+		t = &GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Internal{}
+	}
+	return t.Annotations
+}
 func (t *GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Internal) GetEnabled() bool {
 	if t == nil {
 		t = &GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Internal{}
@@ -4258,29 +4264,23 @@ func (t *GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Internal) GetSou
 	}
 	return t.SourceIPRanges
 }
-func (t *GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Internal) GetAnnotations() []*GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Internal_Annotations {
-	if t == nil {
-		t = &GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Internal{}
-	}
-	return t.Annotations
-}
 
 type GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_LoadBalancers struct {
-	Public   GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Public   "json:\"public\" graphql:\"public\""
 	Internal GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Internal "json:\"internal\" graphql:\"internal\""
+	Public   GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Public   "json:\"public\" graphql:\"public\""
 }
 
-func (t *GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_LoadBalancers) GetPublic() *GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Public {
-	if t == nil {
-		t = &GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_LoadBalancers{}
-	}
-	return &t.Public
-}
 func (t *GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_LoadBalancers) GetInternal() *GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Internal {
 	if t == nil {
 		t = &GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_LoadBalancers{}
 	}
 	return &t.Internal
+}
+func (t *GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_LoadBalancers) GetPublic() *GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Public {
+	if t == nil {
+		t = &GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_LoadBalancers{}
+	}
+	return &t.Public
 }
 
 type GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_NodeGroups_Selector struct {
@@ -4303,8 +4303,8 @@ func (t *GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_NodeGroups_Selector) GetValue(
 
 type GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_NodeGroups_Tolerations struct {
 	Effect   NodeTolerationEffect   "json:\"effect\" graphql:\"effect\""
-	Operator NodeTolerationOperator "json:\"operator\" graphql:\"operator\""
 	Key      string                 "json:\"key\" graphql:\"key\""
+	Operator NodeTolerationOperator "json:\"operator\" graphql:\"operator\""
 	Value    string                 "json:\"value\" graphql:\"value\""
 }
 
@@ -4314,17 +4314,17 @@ func (t *GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_NodeGroups_Tolerations) GetEff
 	}
 	return &t.Effect
 }
-func (t *GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_NodeGroups_Tolerations) GetOperator() *NodeTolerationOperator {
-	if t == nil {
-		t = &GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_NodeGroups_Tolerations{}
-	}
-	return &t.Operator
-}
 func (t *GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_NodeGroups_Tolerations) GetKey() string {
 	if t == nil {
 		t = &GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_NodeGroups_Tolerations{}
 	}
 	return t.Key
+}
+func (t *GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_NodeGroups_Tolerations) GetOperator() *NodeTolerationOperator {
+	if t == nil {
+		t = &GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_NodeGroups_Tolerations{}
+	}
+	return &t.Operator
 }
 func (t *GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_NodeGroups_Tolerations) GetValue() string {
 	if t == nil {
@@ -4334,15 +4334,21 @@ func (t *GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_NodeGroups_Tolerations) GetVal
 }
 
 type GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_NodeGroups struct {
+	CapacityPerZone int64                                                              "json:\"capacityPerZone\" graphql:\"capacityPerZone\""
 	Name            string                                                             "json:\"name\" graphql:\"name\""
 	NodeType        string                                                             "json:\"nodeType\" graphql:\"nodeType\""
-	CapacityPerZone int64                                                              "json:\"capacityPerZone\" graphql:\"capacityPerZone\""
+	Reservations    []NodeReservation                                                  "json:\"reservations\" graphql:\"reservations\""
 	Selector        []*GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_NodeGroups_Selector    "json:\"selector\" graphql:\"selector\""
 	Tolerations     []*GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_NodeGroups_Tolerations "json:\"tolerations\" graphql:\"tolerations\""
-	Reservations    []NodeReservation                                                  "json:\"reservations\" graphql:\"reservations\""
 	Zones           []string                                                           "json:\"zones\" graphql:\"zones\""
 }
 
+func (t *GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_NodeGroups) GetCapacityPerZone() int64 {
+	if t == nil {
+		t = &GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_NodeGroups{}
+	}
+	return t.CapacityPerZone
+}
 func (t *GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_NodeGroups) GetName() string {
 	if t == nil {
 		t = &GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_NodeGroups{}
@@ -4355,11 +4361,11 @@ func (t *GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_NodeGroups) GetNodeType() stri
 	}
 	return t.NodeType
 }
-func (t *GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_NodeGroups) GetCapacityPerZone() int64 {
+func (t *GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_NodeGroups) GetReservations() []NodeReservation {
 	if t == nil {
 		t = &GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_NodeGroups{}
 	}
-	return t.CapacityPerZone
+	return t.Reservations
 }
 func (t *GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_NodeGroups) GetSelector() []*GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_NodeGroups_Selector {
 	if t == nil {
@@ -4373,12 +4379,6 @@ func (t *GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_NodeGroups) GetTolerations() [
 	}
 	return t.Tolerations
 }
-func (t *GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_NodeGroups) GetReservations() []NodeReservation {
-	if t == nil {
-		t = &GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_NodeGroups{}
-	}
-	return t.Reservations
-}
 func (t *GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_NodeGroups) GetZones() []string {
 	if t == nil {
 		t = &GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_NodeGroups{}
@@ -4387,17 +4387,11 @@ func (t *GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_NodeGroups) GetZones() []strin
 }
 
 type GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_CustomNodeTypes struct {
-	Name                  string  "json:\"name\" graphql:\"name\""
 	CPUAllocatable        float64 "json:\"cpuAllocatable\" graphql:\"cpuAllocatable\""
 	MemAllocatableInBytes int64   "json:\"memAllocatableInBytes\" graphql:\"memAllocatableInBytes\""
+	Name                  string  "json:\"name\" graphql:\"name\""
 }
 
-func (t *GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_CustomNodeTypes) GetName() string {
-	if t == nil {
-		t = &GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_CustomNodeTypes{}
-	}
-	return t.Name
-}
 func (t *GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_CustomNodeTypes) GetCPUAllocatable() float64 {
 	if t == nil {
 		t = &GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_CustomNodeTypes{}
@@ -4410,20 +4404,26 @@ func (t *GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_CustomNodeTypes) GetMemAllocat
 	}
 	return t.MemAllocatableInBytes
 }
+func (t *GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_CustomNodeTypes) GetName() string {
+	if t == nil {
+		t = &GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_CustomNodeTypes{}
+	}
+	return t.Name
+}
 
 type GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_MaintenanceWindows struct {
-	Name          string "json:\"name\" graphql:\"name\""
+	Days          []Day  "json:\"days\" graphql:\"days\""
 	Enabled       bool   "json:\"enabled\" graphql:\"enabled\""
 	Hour          int64  "json:\"hour\" graphql:\"hour\""
 	LengthInHours int64  "json:\"lengthInHours\" graphql:\"lengthInHours\""
-	Days          []Day  "json:\"days\" graphql:\"days\""
+	Name          string "json:\"name\" graphql:\"name\""
 }
 
-func (t *GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_MaintenanceWindows) GetName() string {
+func (t *GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_MaintenanceWindows) GetDays() []Day {
 	if t == nil {
 		t = &GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_MaintenanceWindows{}
 	}
-	return t.Name
+	return t.Days
 }
 func (t *GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_MaintenanceWindows) GetEnabled() bool {
 	if t == nil {
@@ -4443,11 +4443,11 @@ func (t *GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_MaintenanceWindows) GetLengthI
 	}
 	return t.LengthInHours
 }
-func (t *GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_MaintenanceWindows) GetDays() []Day {
+func (t *GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_MaintenanceWindows) GetName() string {
 	if t == nil {
 		t = &GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_MaintenanceWindows{}
 	}
-	return t.Days
+	return t.Name
 }
 
 type GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_Metrics struct {
@@ -4491,21 +4491,21 @@ func (t *GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_Logs_Storage_Gcs) GetBucketNam
 }
 
 type GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_Logs_Storage struct {
-	S3  *GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_Logs_Storage_S3  "json:\"s3,omitempty\" graphql:\"s3\""
 	Gcs *GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_Logs_Storage_Gcs "json:\"gcs,omitempty\" graphql:\"gcs\""
+	S3  *GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_Logs_Storage_S3  "json:\"s3,omitempty\" graphql:\"s3\""
 }
 
-func (t *GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_Logs_Storage) GetS3() *GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_Logs_Storage_S3 {
-	if t == nil {
-		t = &GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_Logs_Storage{}
-	}
-	return t.S3
-}
 func (t *GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_Logs_Storage) GetGcs() *GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_Logs_Storage_Gcs {
 	if t == nil {
 		t = &GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_Logs_Storage{}
 	}
 	return t.Gcs
+}
+func (t *GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_Logs_Storage) GetS3() *GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_Logs_Storage_S3 {
+	if t == nil {
+		t = &GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_Logs_Storage{}
+	}
+	return t.S3
 }
 
 type GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_Logs struct {
@@ -4564,8 +4564,8 @@ func (t *GetK8SEnvStatus_K8sEnv_Status_Errors) GetMessage() string {
 
 type GetK8SEnvStatus_K8sEnv_Status struct {
 	AppliedSpecRevision int64                                   "json:\"appliedSpecRevision\" graphql:\"appliedSpecRevision\""
-	PendingDelete       bool                                    "json:\"pendingDelete\" graphql:\"pendingDelete\""
 	Errors              []*GetK8SEnvStatus_K8sEnv_Status_Errors "json:\"errors\" graphql:\"errors\""
+	PendingDelete       bool                                    "json:\"pendingDelete\" graphql:\"pendingDelete\""
 }
 
 func (t *GetK8SEnvStatus_K8sEnv_Status) GetAppliedSpecRevision() int64 {
@@ -4574,17 +4574,17 @@ func (t *GetK8SEnvStatus_K8sEnv_Status) GetAppliedSpecRevision() int64 {
 	}
 	return t.AppliedSpecRevision
 }
-func (t *GetK8SEnvStatus_K8sEnv_Status) GetPendingDelete() bool {
-	if t == nil {
-		t = &GetK8SEnvStatus_K8sEnv_Status{}
-	}
-	return t.PendingDelete
-}
 func (t *GetK8SEnvStatus_K8sEnv_Status) GetErrors() []*GetK8SEnvStatus_K8sEnv_Status_Errors {
 	if t == nil {
 		t = &GetK8SEnvStatus_K8sEnv_Status{}
 	}
 	return t.Errors
+}
+func (t *GetK8SEnvStatus_K8sEnv_Status) GetPendingDelete() bool {
+	if t == nil {
+		t = &GetK8SEnvStatus_K8sEnv_Status{}
+	}
+	return t.PendingDelete
 }
 
 type GetK8SEnvStatus_K8sEnv struct {
@@ -4631,11 +4631,17 @@ func (t *CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Public_
 }
 
 type CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Public struct {
+	Annotations    []*CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Public_Annotations "json:\"annotations\" graphql:\"annotations\""
 	Enabled        bool                                                                                  "json:\"enabled\" graphql:\"enabled\""
 	SourceIPRanges []string                                                                              "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
-	Annotations    []*CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Public_Annotations "json:\"annotations\" graphql:\"annotations\""
 }
 
+func (t *CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Public) GetAnnotations() []*CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Public_Annotations {
+	if t == nil {
+		t = &CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Public{}
+	}
+	return t.Annotations
+}
 func (t *CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Public) GetEnabled() bool {
 	if t == nil {
 		t = &CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Public{}
@@ -4647,12 +4653,6 @@ func (t *CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Public)
 		t = &CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Public{}
 	}
 	return t.SourceIPRanges
-}
-func (t *CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Public) GetAnnotations() []*CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Public_Annotations {
-	if t == nil {
-		t = &CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Public{}
-	}
-	return t.Annotations
 }
 
 type CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Internal_Annotations struct {
@@ -4674,11 +4674,17 @@ func (t *CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Interna
 }
 
 type CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Internal struct {
+	Annotations    []*CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Internal_Annotations "json:\"annotations\" graphql:\"annotations\""
 	Enabled        bool                                                                                    "json:\"enabled\" graphql:\"enabled\""
 	SourceIPRanges []string                                                                                "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
-	Annotations    []*CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Internal_Annotations "json:\"annotations\" graphql:\"annotations\""
 }
 
+func (t *CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Internal) GetAnnotations() []*CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Internal_Annotations {
+	if t == nil {
+		t = &CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Internal{}
+	}
+	return t.Annotations
+}
 func (t *CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Internal) GetEnabled() bool {
 	if t == nil {
 		t = &CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Internal{}
@@ -4691,29 +4697,23 @@ func (t *CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Interna
 	}
 	return t.SourceIPRanges
 }
-func (t *CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Internal) GetAnnotations() []*CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Internal_Annotations {
-	if t == nil {
-		t = &CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Internal{}
-	}
-	return t.Annotations
-}
 
 type CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers struct {
-	Public   CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Public   "json:\"public\" graphql:\"public\""
 	Internal CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Internal "json:\"internal\" graphql:\"internal\""
+	Public   CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Public   "json:\"public\" graphql:\"public\""
 }
 
-func (t *CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers) GetPublic() *CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Public {
-	if t == nil {
-		t = &CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers{}
-	}
-	return &t.Public
-}
 func (t *CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers) GetInternal() *CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Internal {
 	if t == nil {
 		t = &CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers{}
 	}
 	return &t.Internal
+}
+func (t *CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers) GetPublic() *CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Public {
+	if t == nil {
+		t = &CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers{}
+	}
+	return &t.Public
 }
 
 type CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups_Selector struct {
@@ -4736,8 +4736,8 @@ func (t *CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups_Selector) 
 
 type CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups_Tolerations struct {
 	Effect   NodeTolerationEffect   "json:\"effect\" graphql:\"effect\""
-	Operator NodeTolerationOperator "json:\"operator\" graphql:\"operator\""
 	Key      string                 "json:\"key\" graphql:\"key\""
+	Operator NodeTolerationOperator "json:\"operator\" graphql:\"operator\""
 	Value    string                 "json:\"value\" graphql:\"value\""
 }
 
@@ -4747,17 +4747,17 @@ func (t *CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups_Toleration
 	}
 	return &t.Effect
 }
-func (t *CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups_Tolerations) GetOperator() *NodeTolerationOperator {
-	if t == nil {
-		t = &CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups_Tolerations{}
-	}
-	return &t.Operator
-}
 func (t *CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups_Tolerations) GetKey() string {
 	if t == nil {
 		t = &CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups_Tolerations{}
 	}
 	return t.Key
+}
+func (t *CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups_Tolerations) GetOperator() *NodeTolerationOperator {
+	if t == nil {
+		t = &CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups_Tolerations{}
+	}
+	return &t.Operator
 }
 func (t *CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups_Tolerations) GetValue() string {
 	if t == nil {
@@ -4767,15 +4767,21 @@ func (t *CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups_Toleration
 }
 
 type CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups struct {
+	CapacityPerZone int64                                                                       "json:\"capacityPerZone\" graphql:\"capacityPerZone\""
 	Name            string                                                                      "json:\"name\" graphql:\"name\""
 	NodeType        string                                                                      "json:\"nodeType\" graphql:\"nodeType\""
-	CapacityPerZone int64                                                                       "json:\"capacityPerZone\" graphql:\"capacityPerZone\""
+	Reservations    []NodeReservation                                                           "json:\"reservations\" graphql:\"reservations\""
 	Selector        []*CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups_Selector    "json:\"selector\" graphql:\"selector\""
 	Tolerations     []*CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups_Tolerations "json:\"tolerations\" graphql:\"tolerations\""
-	Reservations    []NodeReservation                                                           "json:\"reservations\" graphql:\"reservations\""
 	Zones           []string                                                                    "json:\"zones\" graphql:\"zones\""
 }
 
+func (t *CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups) GetCapacityPerZone() int64 {
+	if t == nil {
+		t = &CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups{}
+	}
+	return t.CapacityPerZone
+}
 func (t *CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups) GetName() string {
 	if t == nil {
 		t = &CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups{}
@@ -4788,11 +4794,11 @@ func (t *CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups) GetNodeTy
 	}
 	return t.NodeType
 }
-func (t *CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups) GetCapacityPerZone() int64 {
+func (t *CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups) GetReservations() []NodeReservation {
 	if t == nil {
 		t = &CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups{}
 	}
-	return t.CapacityPerZone
+	return t.Reservations
 }
 func (t *CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups) GetSelector() []*CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups_Selector {
 	if t == nil {
@@ -4806,12 +4812,6 @@ func (t *CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups) GetTolera
 	}
 	return t.Tolerations
 }
-func (t *CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups) GetReservations() []NodeReservation {
-	if t == nil {
-		t = &CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups{}
-	}
-	return t.Reservations
-}
 func (t *CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups) GetZones() []string {
 	if t == nil {
 		t = &CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups{}
@@ -4820,17 +4820,11 @@ func (t *CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups) GetZones(
 }
 
 type CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_CustomNodeTypes struct {
-	Name                  string  "json:\"name\" graphql:\"name\""
 	CPUAllocatable        float64 "json:\"cpuAllocatable\" graphql:\"cpuAllocatable\""
 	MemAllocatableInBytes int64   "json:\"memAllocatableInBytes\" graphql:\"memAllocatableInBytes\""
+	Name                  string  "json:\"name\" graphql:\"name\""
 }
 
-func (t *CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_CustomNodeTypes) GetName() string {
-	if t == nil {
-		t = &CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_CustomNodeTypes{}
-	}
-	return t.Name
-}
 func (t *CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_CustomNodeTypes) GetCPUAllocatable() float64 {
 	if t == nil {
 		t = &CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_CustomNodeTypes{}
@@ -4843,20 +4837,26 @@ func (t *CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_CustomNodeTypes) GetM
 	}
 	return t.MemAllocatableInBytes
 }
+func (t *CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_CustomNodeTypes) GetName() string {
+	if t == nil {
+		t = &CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_CustomNodeTypes{}
+	}
+	return t.Name
+}
 
 type CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_MaintenanceWindows struct {
-	Name          string "json:\"name\" graphql:\"name\""
+	Days          []Day  "json:\"days\" graphql:\"days\""
 	Enabled       bool   "json:\"enabled\" graphql:\"enabled\""
 	Hour          int64  "json:\"hour\" graphql:\"hour\""
 	LengthInHours int64  "json:\"lengthInHours\" graphql:\"lengthInHours\""
-	Days          []Day  "json:\"days\" graphql:\"days\""
+	Name          string "json:\"name\" graphql:\"name\""
 }
 
-func (t *CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_MaintenanceWindows) GetName() string {
+func (t *CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_MaintenanceWindows) GetDays() []Day {
 	if t == nil {
 		t = &CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_MaintenanceWindows{}
 	}
-	return t.Name
+	return t.Days
 }
 func (t *CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_MaintenanceWindows) GetEnabled() bool {
 	if t == nil {
@@ -4876,11 +4876,11 @@ func (t *CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_MaintenanceWindows) G
 	}
 	return t.LengthInHours
 }
-func (t *CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_MaintenanceWindows) GetDays() []Day {
+func (t *CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_MaintenanceWindows) GetName() string {
 	if t == nil {
 		t = &CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_MaintenanceWindows{}
 	}
-	return t.Days
+	return t.Name
 }
 
 type CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_Metrics struct {
@@ -4924,21 +4924,21 @@ func (t *CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_Logs_Storage_Gcs) Get
 }
 
 type CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_Logs_Storage struct {
-	S3  *CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_Logs_Storage_S3  "json:\"s3,omitempty\" graphql:\"s3\""
 	Gcs *CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_Logs_Storage_Gcs "json:\"gcs,omitempty\" graphql:\"gcs\""
+	S3  *CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_Logs_Storage_S3  "json:\"s3,omitempty\" graphql:\"s3\""
 }
 
-func (t *CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_Logs_Storage) GetS3() *CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_Logs_Storage_S3 {
-	if t == nil {
-		t = &CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_Logs_Storage{}
-	}
-	return t.S3
-}
 func (t *CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_Logs_Storage) GetGcs() *CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_Logs_Storage_Gcs {
 	if t == nil {
 		t = &CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_Logs_Storage{}
 	}
 	return t.Gcs
+}
+func (t *CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_Logs_Storage) GetS3() *CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_Logs_Storage_S3 {
+	if t == nil {
+		t = &CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_Logs_Storage{}
+	}
+	return t.S3
 }
 
 type CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_Logs struct {
@@ -4996,11 +4996,17 @@ func (t *UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Public_
 }
 
 type UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Public struct {
+	Annotations    []*UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Public_Annotations "json:\"annotations\" graphql:\"annotations\""
 	Enabled        bool                                                                                  "json:\"enabled\" graphql:\"enabled\""
 	SourceIPRanges []string                                                                              "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
-	Annotations    []*UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Public_Annotations "json:\"annotations\" graphql:\"annotations\""
 }
 
+func (t *UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Public) GetAnnotations() []*UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Public_Annotations {
+	if t == nil {
+		t = &UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Public{}
+	}
+	return t.Annotations
+}
 func (t *UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Public) GetEnabled() bool {
 	if t == nil {
 		t = &UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Public{}
@@ -5012,12 +5018,6 @@ func (t *UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Public)
 		t = &UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Public{}
 	}
 	return t.SourceIPRanges
-}
-func (t *UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Public) GetAnnotations() []*UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Public_Annotations {
-	if t == nil {
-		t = &UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Public{}
-	}
-	return t.Annotations
 }
 
 type UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Internal_Annotations struct {
@@ -5039,11 +5039,17 @@ func (t *UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Interna
 }
 
 type UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Internal struct {
+	Annotations    []*UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Internal_Annotations "json:\"annotations\" graphql:\"annotations\""
 	Enabled        bool                                                                                    "json:\"enabled\" graphql:\"enabled\""
 	SourceIPRanges []string                                                                                "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
-	Annotations    []*UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Internal_Annotations "json:\"annotations\" graphql:\"annotations\""
 }
 
+func (t *UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Internal) GetAnnotations() []*UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Internal_Annotations {
+	if t == nil {
+		t = &UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Internal{}
+	}
+	return t.Annotations
+}
 func (t *UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Internal) GetEnabled() bool {
 	if t == nil {
 		t = &UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Internal{}
@@ -5056,29 +5062,23 @@ func (t *UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Interna
 	}
 	return t.SourceIPRanges
 }
-func (t *UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Internal) GetAnnotations() []*UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Internal_Annotations {
-	if t == nil {
-		t = &UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Internal{}
-	}
-	return t.Annotations
-}
 
 type UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers struct {
-	Public   UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Public   "json:\"public\" graphql:\"public\""
 	Internal UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Internal "json:\"internal\" graphql:\"internal\""
+	Public   UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Public   "json:\"public\" graphql:\"public\""
 }
 
-func (t *UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers) GetPublic() *UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Public {
-	if t == nil {
-		t = &UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers{}
-	}
-	return &t.Public
-}
 func (t *UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers) GetInternal() *UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Internal {
 	if t == nil {
 		t = &UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers{}
 	}
 	return &t.Internal
+}
+func (t *UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers) GetPublic() *UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers_Public {
+	if t == nil {
+		t = &UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_LoadBalancers{}
+	}
+	return &t.Public
 }
 
 type UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups_Selector struct {
@@ -5101,8 +5101,8 @@ func (t *UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups_Selector) 
 
 type UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups_Tolerations struct {
 	Effect   NodeTolerationEffect   "json:\"effect\" graphql:\"effect\""
-	Operator NodeTolerationOperator "json:\"operator\" graphql:\"operator\""
 	Key      string                 "json:\"key\" graphql:\"key\""
+	Operator NodeTolerationOperator "json:\"operator\" graphql:\"operator\""
 	Value    string                 "json:\"value\" graphql:\"value\""
 }
 
@@ -5112,17 +5112,17 @@ func (t *UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups_Toleration
 	}
 	return &t.Effect
 }
-func (t *UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups_Tolerations) GetOperator() *NodeTolerationOperator {
-	if t == nil {
-		t = &UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups_Tolerations{}
-	}
-	return &t.Operator
-}
 func (t *UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups_Tolerations) GetKey() string {
 	if t == nil {
 		t = &UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups_Tolerations{}
 	}
 	return t.Key
+}
+func (t *UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups_Tolerations) GetOperator() *NodeTolerationOperator {
+	if t == nil {
+		t = &UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups_Tolerations{}
+	}
+	return &t.Operator
 }
 func (t *UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups_Tolerations) GetValue() string {
 	if t == nil {
@@ -5132,15 +5132,21 @@ func (t *UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups_Toleration
 }
 
 type UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups struct {
+	CapacityPerZone int64                                                                       "json:\"capacityPerZone\" graphql:\"capacityPerZone\""
 	Name            string                                                                      "json:\"name\" graphql:\"name\""
 	NodeType        string                                                                      "json:\"nodeType\" graphql:\"nodeType\""
-	CapacityPerZone int64                                                                       "json:\"capacityPerZone\" graphql:\"capacityPerZone\""
+	Reservations    []NodeReservation                                                           "json:\"reservations\" graphql:\"reservations\""
 	Selector        []*UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups_Selector    "json:\"selector\" graphql:\"selector\""
 	Tolerations     []*UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups_Tolerations "json:\"tolerations\" graphql:\"tolerations\""
-	Reservations    []NodeReservation                                                           "json:\"reservations\" graphql:\"reservations\""
 	Zones           []string                                                                    "json:\"zones\" graphql:\"zones\""
 }
 
+func (t *UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups) GetCapacityPerZone() int64 {
+	if t == nil {
+		t = &UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups{}
+	}
+	return t.CapacityPerZone
+}
 func (t *UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups) GetName() string {
 	if t == nil {
 		t = &UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups{}
@@ -5153,11 +5159,11 @@ func (t *UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups) GetNodeTy
 	}
 	return t.NodeType
 }
-func (t *UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups) GetCapacityPerZone() int64 {
+func (t *UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups) GetReservations() []NodeReservation {
 	if t == nil {
 		t = &UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups{}
 	}
-	return t.CapacityPerZone
+	return t.Reservations
 }
 func (t *UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups) GetSelector() []*UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups_Selector {
 	if t == nil {
@@ -5171,12 +5177,6 @@ func (t *UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups) GetTolera
 	}
 	return t.Tolerations
 }
-func (t *UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups) GetReservations() []NodeReservation {
-	if t == nil {
-		t = &UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups{}
-	}
-	return t.Reservations
-}
 func (t *UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups) GetZones() []string {
 	if t == nil {
 		t = &UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups{}
@@ -5185,17 +5185,11 @@ func (t *UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_NodeGroups) GetZones(
 }
 
 type UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_CustomNodeTypes struct {
-	Name                  string  "json:\"name\" graphql:\"name\""
 	CPUAllocatable        float64 "json:\"cpuAllocatable\" graphql:\"cpuAllocatable\""
 	MemAllocatableInBytes int64   "json:\"memAllocatableInBytes\" graphql:\"memAllocatableInBytes\""
+	Name                  string  "json:\"name\" graphql:\"name\""
 }
 
-func (t *UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_CustomNodeTypes) GetName() string {
-	if t == nil {
-		t = &UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_CustomNodeTypes{}
-	}
-	return t.Name
-}
 func (t *UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_CustomNodeTypes) GetCPUAllocatable() float64 {
 	if t == nil {
 		t = &UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_CustomNodeTypes{}
@@ -5208,20 +5202,26 @@ func (t *UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_CustomNodeTypes) GetM
 	}
 	return t.MemAllocatableInBytes
 }
+func (t *UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_CustomNodeTypes) GetName() string {
+	if t == nil {
+		t = &UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_CustomNodeTypes{}
+	}
+	return t.Name
+}
 
 type UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_MaintenanceWindows struct {
-	Name          string "json:\"name\" graphql:\"name\""
+	Days          []Day  "json:\"days\" graphql:\"days\""
 	Enabled       bool   "json:\"enabled\" graphql:\"enabled\""
 	Hour          int64  "json:\"hour\" graphql:\"hour\""
 	LengthInHours int64  "json:\"lengthInHours\" graphql:\"lengthInHours\""
-	Days          []Day  "json:\"days\" graphql:\"days\""
+	Name          string "json:\"name\" graphql:\"name\""
 }
 
-func (t *UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_MaintenanceWindows) GetName() string {
+func (t *UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_MaintenanceWindows) GetDays() []Day {
 	if t == nil {
 		t = &UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_MaintenanceWindows{}
 	}
-	return t.Name
+	return t.Days
 }
 func (t *UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_MaintenanceWindows) GetEnabled() bool {
 	if t == nil {
@@ -5241,11 +5241,11 @@ func (t *UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_MaintenanceWindows) G
 	}
 	return t.LengthInHours
 }
-func (t *UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_MaintenanceWindows) GetDays() []Day {
+func (t *UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_MaintenanceWindows) GetName() string {
 	if t == nil {
 		t = &UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_MaintenanceWindows{}
 	}
-	return t.Days
+	return t.Name
 }
 
 type UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_Metrics struct {
@@ -5289,21 +5289,21 @@ func (t *UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_Logs_Storage_Gcs) Get
 }
 
 type UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_Logs_Storage struct {
-	S3  *UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_Logs_Storage_S3  "json:\"s3,omitempty\" graphql:\"s3\""
 	Gcs *UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_Logs_Storage_Gcs "json:\"gcs,omitempty\" graphql:\"gcs\""
+	S3  *UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_Logs_Storage_S3  "json:\"s3,omitempty\" graphql:\"s3\""
 }
 
-func (t *UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_Logs_Storage) GetS3() *UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_Logs_Storage_S3 {
-	if t == nil {
-		t = &UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_Logs_Storage{}
-	}
-	return t.S3
-}
 func (t *UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_Logs_Storage) GetGcs() *UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_Logs_Storage_Gcs {
 	if t == nil {
 		t = &UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_Logs_Storage{}
 	}
 	return t.Gcs
+}
+func (t *UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_Logs_Storage) GetS3() *UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_Logs_Storage_S3 {
+	if t == nil {
+		t = &UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_Logs_Storage{}
+	}
+	return t.S3
 }
 
 type UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_Logs struct {
