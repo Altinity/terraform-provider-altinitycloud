@@ -21,10 +21,11 @@ type K8SEnvResourceModel struct {
 	Metrics               *MetricsModel                   `tfsdk:"metrics"`
 	MaintenanceWindows    []common.MaintenanceWindowModel `tfsdk:"maintenance_windows"`
 
-	SpecRevision             types.Int64 `tfsdk:"spec_revision"`
-	ForceDestroy             types.Bool  `tfsdk:"force_destroy"`
-	ForceDestroyClusters     types.Bool  `tfsdk:"force_destroy_clusters"`
-	SkipDeprovisionOnDestroy types.Bool  `tfsdk:"skip_deprovision_on_destroy"`
+	SpecRevision                 types.Int64 `tfsdk:"spec_revision"`
+	ForceDestroy                 types.Bool  `tfsdk:"force_destroy"`
+	ForceDestroyClusters         types.Bool  `tfsdk:"force_destroy_clusters"`
+	SkipDeprovisionOnDestroy     types.Bool  `tfsdk:"skip_deprovision_on_destroy"`
+	AllowDeleteWhileDisconnected types.Bool  `tfsdk:"allow_delete_while_disconnected"`
 }
 
 type LogsModel struct {

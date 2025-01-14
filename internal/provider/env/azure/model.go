@@ -24,10 +24,11 @@ type AzureEnvResourceModel struct {
 	Tags                  []common.KeyValueModel          `tfsdk:"tags"`
 	PrivateLinkService    *PrivateLinkServiceModel        `tfsdk:"private_link_service"`
 
-	SpecRevision             types.Int64 `tfsdk:"spec_revision"`
-	ForceDestroy             types.Bool  `tfsdk:"force_destroy"`
-	ForceDestroyClusters     types.Bool  `tfsdk:"force_destroy_clusters"`
-	SkipDeprovisionOnDestroy types.Bool  `tfsdk:"skip_deprovision_on_destroy"`
+	SpecRevision                 types.Int64 `tfsdk:"spec_revision"`
+	ForceDestroy                 types.Bool  `tfsdk:"force_destroy"`
+	ForceDestroyClusters         types.Bool  `tfsdk:"force_destroy_clusters"`
+	SkipDeprovisionOnDestroy     types.Bool  `tfsdk:"skip_deprovision_on_destroy"`
+	AllowDeleteWhileDisconnected types.Bool  `tfsdk:"allow_delete_while_disconnected"`
 }
 
 type PrivateLinkServiceModel struct {

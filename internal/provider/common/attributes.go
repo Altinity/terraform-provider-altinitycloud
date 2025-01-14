@@ -207,6 +207,16 @@ func GetSkipProvisioningOnDestroyAttribute(required, optional, computed bool) rs
 	}
 }
 
+func GetAllowDeleteWhileDisconnectedAttribute(required, optional, computed bool) rschema.BoolAttribute {
+	return rschema.BoolAttribute{
+		Required:            required,
+		Optional:            optional,
+		Computed:            computed,
+		MarkdownDescription: ALLOW_DELETE_WHILE_DISCONNECTED_DESCRIPTION,
+		Default:             booldefault.StaticBool(false),
+	}
+}
+
 func GetReservationsAttribute(required, optional, computed bool) rschema.SetAttribute {
 	return rschema.SetAttribute{
 		ElementType:         types.StringType,

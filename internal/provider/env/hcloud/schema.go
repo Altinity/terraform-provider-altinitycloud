@@ -25,22 +25,23 @@ func (r *HCloudEnvResource) Schema(ctx context.Context, req resource.SchemaReque
 	resp.Schema = rschema.Schema{
 		MarkdownDescription: heredoc.Doc(`Bring Your Own Cloud (BYOC) HCloud environment resource.`),
 		Attributes: map[string]rschema.Attribute{
-			"id":                          common.IDAttribute,
-			"name":                        common.NameAttribute,
-			"hcloud_token_enc":            getHCloudTokenEncAttribute(true, false, false),
-			"custom_domain":               common.GetCommonCustomDomainAttribute(false, true, false),
-			"load_balancers":              getLoadBalancersAttribute(false, true, true),
-			"load_balancing_strategy":     common.GetLoadBalancingStrategyAttribute(false, true, true),
-			"maintenance_windows":         common.GetMaintenanceWindowAttribute(false, true, false),
-			"cidr":                        common.GetCIDRAttribute(true, false, false),
-			"locations":                   common.GetZonesAttribute(false, true, true, common.HCLOUD_LOCATIONS_DESCRIPTION),
-			"node_groups":                 getNodeGroupsAttribute(true, false, false),
-			"network_zone":                common.GetRegionAttribute(true, false, false, common.HCLOUD_NETWORK_ZONE_DESCRIPTION),
-			"wireguard_peers":             getWireguardPeersAttribute(false, true, false),
-			"spec_revision":               common.SpecRevisionAttribute,
-			"force_destroy":               common.GetForceDestroyAttribute(false, true, true),
-			"force_destroy_clusters":      common.GetForceDestroyClustersAttribute(false, true, true),
-			"skip_deprovision_on_destroy": common.GetSkipProvisioningOnDestroyAttribute(false, true, true),
+			"id":                              common.IDAttribute,
+			"name":                            common.NameAttribute,
+			"hcloud_token_enc":                getHCloudTokenEncAttribute(true, false, false),
+			"custom_domain":                   common.GetCommonCustomDomainAttribute(false, true, false),
+			"load_balancers":                  getLoadBalancersAttribute(false, true, true),
+			"load_balancing_strategy":         common.GetLoadBalancingStrategyAttribute(false, true, true),
+			"maintenance_windows":             common.GetMaintenanceWindowAttribute(false, true, false),
+			"cidr":                            common.GetCIDRAttribute(true, false, false),
+			"locations":                       common.GetZonesAttribute(false, true, true, common.HCLOUD_LOCATIONS_DESCRIPTION),
+			"node_groups":                     getNodeGroupsAttribute(true, false, false),
+			"network_zone":                    common.GetRegionAttribute(true, false, false, common.HCLOUD_NETWORK_ZONE_DESCRIPTION),
+			"wireguard_peers":                 getWireguardPeersAttribute(false, true, false),
+			"spec_revision":                   common.SpecRevisionAttribute,
+			"force_destroy":                   common.GetForceDestroyAttribute(false, true, true),
+			"force_destroy_clusters":          common.GetForceDestroyClustersAttribute(false, true, true),
+			"skip_deprovision_on_destroy":     common.GetSkipProvisioningOnDestroyAttribute(false, true, true),
+			"allow_delete_while_disconnected": common.GetAllowDeleteWhileDisconnectedAttribute(false, true, true),
 		},
 	}
 }
@@ -65,9 +66,10 @@ func (d *HCloudEnvDataSource) Schema(ctx context.Context, req datasource.SchemaR
 
 			// these options are not used in data sources,
 			// but we need to include them in the schema to avoid conversion errors.
-			"force_destroy":               common.GetForceDestroyAttribute(false, false, true),
-			"force_destroy_clusters":      common.GetForceDestroyClustersAttribute(false, false, true),
-			"skip_deprovision_on_destroy": common.GetSkipProvisioningOnDestroyAttribute(false, false, true),
+			"force_destroy":                   common.GetForceDestroyAttribute(false, false, true),
+			"force_destroy_clusters":          common.GetForceDestroyClustersAttribute(false, false, true),
+			"skip_deprovision_on_destroy":     common.GetSkipProvisioningOnDestroyAttribute(false, false, true),
+			"allow_delete_while_disconnected": common.GetAllowDeleteWhileDisconnectedAttribute(false, false, true),
 		},
 	}
 }
