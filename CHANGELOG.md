@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.7](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.4.6...v0.4.7)
+### Changed
+- Update docs to use `ccx21` as hcloud default for clickhouse nodes [#e67a77f](https://github.com/Altinity/terraform-provider-altinitycloud/commit/e67a77f).
+
 ## [0.4.6](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.4.5...v0.4.6)
 ### Added
 - Allow delete disconnected environments using `allow_delete_while_disconnected` [#01e5bcc](https://github.com/Altinity/terraform-provider-altinitycloud/commit/01e5bcc).
