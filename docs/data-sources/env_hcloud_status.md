@@ -34,15 +34,23 @@ resource "altinitycloud_env_hcloud" "this" {
     }
   }
 
-  node_groups = [{
-    capacity_per_location = 10
-    name                  = "cpx11"
-    node_type             = "cpx11"
-    reservations          = ["CLICKHOUSE", "SYSTEM", "ZOOKEEPER"]
-    locations             = ["hil"]
-  }]
+  node_groups = [
+    {
+      capacity_per_location = 10
+      name                  = "cpx11"
+      node_type             = "cpx11"
+      reservations          = ["SYSTEM", "ZOOKEEPER"]
+      locations             = ["hil"]
+    },
+    {
+      capacity_per_location = 10
+      name                  = "ccx21"
+      node_type             = "ccx21"
+      reservations          = ["CLICKHOUSE"]
+      locations             = ["hil"]
+    }
+  ]
 }
-
 
 data "altinitycloud_env_hcloud_status" "current" {
   name                           = altinitycloud_env_gcp.this.name
