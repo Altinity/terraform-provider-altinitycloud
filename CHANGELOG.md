@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.8](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.4.7...v0.4.8)
+### Changed
+- Update docs to use `ccx23` as hcloud default for clickhouse nodes [#d0e0ba5](https://github.com/Altinity/terraform-provider-altinitycloud/commit/d0e0ba5).
+
+### Fixed
+- Remove `computed` from node group `zones/location` properties on environments [#0655c4a](https://github.com/Altinity/terraform-provider-altinitycloud/commit/0655c4a)
+
 ## [0.4.7](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.4.6...v0.4.7)
 ### Changed
 - Update docs to use `ccx21` as hcloud default for clickhouse nodes [#e67a77f](https://github.com/Altinity/terraform-provider-altinitycloud/commit/e67a77f).
