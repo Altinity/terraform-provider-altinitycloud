@@ -22,8 +22,8 @@ resource "altinitycloud_env_hcloud" "this" {
     },
     {
       capacity_per_location = 10
-      name                  = "ccx21"
-      node_type             = "ccx21"
+      name                  = "ccx23"
+      node_type             = "ccx23"
       reservations          = ["CLICKHOUSE"]
       locations             = ["hil"]
     }
