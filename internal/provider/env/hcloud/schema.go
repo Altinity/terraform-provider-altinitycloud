@@ -186,6 +186,7 @@ var nodeGroupAttribute = rschema.NestedAttributeObject{
 		"locations": rschema.ListAttribute{
 			ElementType:         types.StringType,
 			Optional:            true,
+			Computed:            true,
 			MarkdownDescription: common.NODE_GROUP_ZONES_DESCRIPTION,
 			Validators: []validator.List{
 				listvalidator.SizeAtLeast(1),
