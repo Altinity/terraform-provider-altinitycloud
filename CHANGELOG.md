@@ -4,7 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.9](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.4.8...v0.4.9)
+### Fixed
+- Rollback [#0655c4a](https://github.com/Altinity/terraform-provider-altinitycloud/commit/0655c4a) which caused a inconsestency on envs creation [#fdb23d7](https://github.com/Altinity/terraform-provider-altinitycloud/commit/fdb23d7).
+
 ## [0.4.8](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.4.7...v0.4.8)
+> ⚠️ Skip this version since it introuced a bug with inconsistency results during envs creation. Use `v0.4.9` instead.
+
 ### Changed
 - Update docs to use `ccx23` as hcloud default for clickhouse nodes [#d0e0ba5](https://github.com/Altinity/terraform-provider-altinitycloud/commit/d0e0ba5).
 
