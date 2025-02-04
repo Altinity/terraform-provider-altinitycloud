@@ -59,6 +59,8 @@ Bring Your Own Cloud (BYOC) GCP environment data source.
 		- "ZONE_BEST_EFFORT": keep traffic within same zone
 - `maintenance_windows` (Attributes List) List of maintenance windows during which automatic maintenance is permitted. By default updates are applied as soon as they are available. (see [below for nested schema](#nestedatt--maintenance_windows))
 - `node_groups` (Attributes Set) List of node groups. At least one required. (see [below for nested schema](#nestedatt--node_groups))
+- `peering_connections` (Attributes List) Network peering configuration. (see [below for nested schema](#nestedatt--peering_connections))
+- `private_service_consumers` (List of String) List of project IDs representing the network's private service consumers.
 - `region` (String) GCP region ([docs](https://cloud.google.com/about/locations)). **[IMMUTABLE]**
 
 		Examples:
@@ -138,3 +140,15 @@ Optional:
 
 - `name` (String) Unique (among environment node groups) node group identifier.
 - `zones` (List of String) Availability zones. Check possible available zones in your cloud provider documentation
+
+
+<a id="nestedatt--peering_connections"></a>
+### Nested Schema for `peering_connections`
+
+Required:
+
+- `network_name` (String) Target network name.
+
+Optional:
+
+- `project_id` (String) Target network's project ID.
