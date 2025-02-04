@@ -81,6 +81,7 @@ fragment GCPEnvSpecFragment on GCPEnvSpec {
     projectID
     networkName
   }
+  privateServiceConsumers
   region
   zones
   cidr

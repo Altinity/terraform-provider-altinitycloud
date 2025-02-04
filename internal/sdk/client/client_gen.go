@@ -214,17 +214,18 @@ func (t *AzureEnvSpecFragment) GetCloudConnect() bool {
 }
 
 type GCPEnvSpecFragment struct {
-	LoadBalancers         GCPEnvSpecFragment_LoadBalancers         "json:\"loadBalancers\" graphql:\"loadBalancers\""
-	LoadBalancingStrategy LoadBalancingStrategy                    "json:\"loadBalancingStrategy\" graphql:\"loadBalancingStrategy\""
-	CustomDomain          *string                                  "json:\"customDomain,omitempty\" graphql:\"customDomain\""
-	NodeGroups            []*GCPEnvSpecFragment_NodeGroups         "json:\"nodeGroups\" graphql:\"nodeGroups\""
-	MaintenanceWindows    []*GCPEnvSpecFragment_MaintenanceWindows "json:\"maintenanceWindows\" graphql:\"maintenanceWindows\""
-	PeeringConnections    []*GCPEnvSpecFragment_PeeringConnections "json:\"peeringConnections\" graphql:\"peeringConnections\""
-	Region                string                                   "json:\"region\" graphql:\"region\""
-	Zones                 []string                                 "json:\"zones\" graphql:\"zones\""
-	Cidr                  string                                   "json:\"cidr\" graphql:\"cidr\""
-	GCPProjectID          string                                   "json:\"gcpProjectId\" graphql:\"gcpProjectId\""
-	CloudConnect          bool                                     "json:\"cloudConnect\" graphql:\"cloudConnect\""
+	LoadBalancers           GCPEnvSpecFragment_LoadBalancers         "json:\"loadBalancers\" graphql:\"loadBalancers\""
+	LoadBalancingStrategy   LoadBalancingStrategy                    "json:\"loadBalancingStrategy\" graphql:\"loadBalancingStrategy\""
+	CustomDomain            *string                                  "json:\"customDomain,omitempty\" graphql:\"customDomain\""
+	NodeGroups              []*GCPEnvSpecFragment_NodeGroups         "json:\"nodeGroups\" graphql:\"nodeGroups\""
+	MaintenanceWindows      []*GCPEnvSpecFragment_MaintenanceWindows "json:\"maintenanceWindows\" graphql:\"maintenanceWindows\""
+	PeeringConnections      []*GCPEnvSpecFragment_PeeringConnections "json:\"peeringConnections\" graphql:\"peeringConnections\""
+	PrivateServiceConsumers []string                                 "json:\"privateServiceConsumers\" graphql:\"privateServiceConsumers\""
+	Region                  string                                   "json:\"region\" graphql:\"region\""
+	Zones                   []string                                 "json:\"zones\" graphql:\"zones\""
+	Cidr                    string                                   "json:\"cidr\" graphql:\"cidr\""
+	GCPProjectID            string                                   "json:\"gcpProjectId\" graphql:\"gcpProjectId\""
+	CloudConnect            bool                                     "json:\"cloudConnect\" graphql:\"cloudConnect\""
 }
 
 func (t *GCPEnvSpecFragment) GetLoadBalancers() *GCPEnvSpecFragment_LoadBalancers {
@@ -262,6 +263,12 @@ func (t *GCPEnvSpecFragment) GetPeeringConnections() []*GCPEnvSpecFragment_Peeri
 		t = &GCPEnvSpecFragment{}
 	}
 	return t.PeeringConnections
+}
+func (t *GCPEnvSpecFragment) GetPrivateServiceConsumers() []string {
+	if t == nil {
+		t = &GCPEnvSpecFragment{}
+	}
+	return t.PrivateServiceConsumers
 }
 func (t *GCPEnvSpecFragment) GetRegion() string {
 	if t == nil {
@@ -6328,6 +6335,7 @@ fragment GCPEnvSpecFragment on GCPEnvSpec {
 		projectID
 		networkName
 	}
+	privateServiceConsumers
 	region
 	zones
 	cidr
@@ -6426,6 +6434,7 @@ fragment GCPEnvSpecFragment on GCPEnvSpec {
 		projectID
 		networkName
 	}
+	privateServiceConsumers
 	region
 	zones
 	cidr
@@ -6491,6 +6500,7 @@ fragment GCPEnvSpecFragment on GCPEnvSpec {
 		projectID
 		networkName
 	}
+	privateServiceConsumers
 	region
 	zones
 	cidr

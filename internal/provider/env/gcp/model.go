@@ -15,14 +15,15 @@ type GCPEnvResourceModel struct {
 	CustomDomain types.String             `tfsdk:"custom_domain"`
 	NodeGroups   []common.NodeGroupsModel `tfsdk:"node_groups"`
 
-	Region                types.String                    `tfsdk:"region"`
-	CIDR                  types.String                    `tfsdk:"cidr"`
-	GCPProjectID          types.String                    `tfsdk:"gcp_project_id"`
-	Zones                 types.List                      `tfsdk:"zones"`
-	LoadBalancers         *LoadBalancersModel             `tfsdk:"load_balancers"`
-	LoadBalancingStrategy types.String                    `tfsdk:"load_balancing_strategy"`
-	MaintenanceWindows    []common.MaintenanceWindowModel `tfsdk:"maintenance_windows"`
-	PeeringConnections    []GCPEnvPeeringConnectionModel  `tfsdk:"peering_connections"`
+	Region                  types.String                    `tfsdk:"region"`
+	CIDR                    types.String                    `tfsdk:"cidr"`
+	GCPProjectID            types.String                    `tfsdk:"gcp_project_id"`
+	Zones                   types.List                      `tfsdk:"zones"`
+	LoadBalancers           *LoadBalancersModel             `tfsdk:"load_balancers"`
+	LoadBalancingStrategy   types.String                    `tfsdk:"load_balancing_strategy"`
+	MaintenanceWindows      []common.MaintenanceWindowModel `tfsdk:"maintenance_windows"`
+	PeeringConnections      []GCPEnvPeeringConnectionModel  `tfsdk:"peering_connections"`
+	PrivateServiceConsumers types.List                      `tfsdk:"private_service_consumers"`
 
 	SpecRevision                 types.Int64 `tfsdk:"spec_revision"`
 	ForceDestroy                 types.Bool  `tfsdk:"force_destroy"`
@@ -61,7 +62,7 @@ func (e GCPEnvResourceModel) toSDK() (sdk.CreateGCPEnvInput, sdk.UpdateGCPEnvInp
 	loadBalancingStrategy := (*sdk.LoadBalancingStrategy)(e.LoadBalancingStrategy.ValueStringPointer())
 	cloudConnect := false
 
-	var peeringConnections []*sdk.GCPEnvPeeringConnectionSpecInput
+	peeringConnections := make([]*sdk.GCPEnvPeeringConnectionSpecInput, 0, len(e.PeeringConnections))
 	for _, p := range e.PeeringConnections {
 		peeringConnections = append(peeringConnections, &sdk.GCPEnvPeeringConnectionSpecInput{
 			ProjectID:   p.ProjectID.ValueStringPointer(),
@@ -69,20 +70,24 @@ func (e GCPEnvResourceModel) toSDK() (sdk.CreateGCPEnvInput, sdk.UpdateGCPEnvInp
 		})
 	}
 
+	var privateServiceConsumers []string
+	e.PrivateServiceConsumers.ElementsAs(context.TODO(), &privateServiceConsumers, false)
+
 	create := sdk.CreateGCPEnvInput{
 		Name: e.Name.ValueString(),
 		Spec: &sdk.CreateGCPEnvSpecInput{
-			CustomDomain:          e.CustomDomain.ValueStringPointer(),
-			NodeGroups:            nodeGroups,
-			GCPProjectID:          e.GCPProjectID.ValueString(),
-			Region:                e.Region.ValueString(),
-			Cidr:                  e.CIDR.ValueString(),
-			Zones:                 zones,
-			LoadBalancingStrategy: loadBalancingStrategy,
-			LoadBalancers:         LoadBalancers,
-			MaintenanceWindows:    maintenanceWindows,
-			CloudConnect:          &cloudConnect,
-			PeeringConnections:    peeringConnections,
+			CustomDomain:            e.CustomDomain.ValueStringPointer(),
+			NodeGroups:              nodeGroups,
+			GCPProjectID:            e.GCPProjectID.ValueString(),
+			Region:                  e.Region.ValueString(),
+			Cidr:                    e.CIDR.ValueString(),
+			Zones:                   zones,
+			LoadBalancingStrategy:   loadBalancingStrategy,
+			LoadBalancers:           LoadBalancers,
+			MaintenanceWindows:      maintenanceWindows,
+			CloudConnect:            &cloudConnect,
+			PeeringConnections:      peeringConnections,
+			PrivateServiceConsumers: privateServiceConsumers,
 		},
 	}
 
@@ -91,13 +96,14 @@ func (e GCPEnvResourceModel) toSDK() (sdk.CreateGCPEnvInput, sdk.UpdateGCPEnvInp
 		Name:           e.Name.ValueString(),
 		UpdateStrategy: &strategy,
 		Spec: &sdk.UpdateGCPEnvSpecInput{
-			CustomDomain:          e.CustomDomain.ValueStringPointer(),
-			NodeGroups:            nodeGroups,
-			Zones:                 zones,
-			LoadBalancingStrategy: loadBalancingStrategy,
-			LoadBalancers:         LoadBalancers,
-			MaintenanceWindows:    maintenanceWindows,
-			PeeringConnections:    peeringConnections,
+			CustomDomain:            e.CustomDomain.ValueStringPointer(),
+			NodeGroups:              nodeGroups,
+			Zones:                   zones,
+			LoadBalancingStrategy:   loadBalancingStrategy,
+			LoadBalancers:           LoadBalancers,
+			MaintenanceWindows:      maintenanceWindows,
+			PeeringConnections:      peeringConnections,
+			PrivateServiceConsumers: privateServiceConsumers,
 		},
 	}
 
@@ -115,6 +121,7 @@ func (model *GCPEnvResourceModel) toModel(env sdk.GetGCPEnv_GCPEnv) {
 	model.NodeGroups = nodeGroupsToModel(env.Spec.NodeGroups)
 	model.MaintenanceWindows = maintenanceWindowsToModel(env.Spec.MaintenanceWindows)
 	model.Zones = common.ListToModel(env.Spec.Zones)
+	model.PrivateServiceConsumers = common.ListToModel(env.Spec.PrivateServiceConsumers)
 
 	var peeringConnections []GCPEnvPeeringConnectionModel
 	for _, p := range env.Spec.PeeringConnections {

@@ -22,19 +22,20 @@ func (r *GCPEnvResource) Schema(ctx context.Context, req resource.SchemaRequest,
 	resp.Schema = rschema.Schema{
 		MarkdownDescription: heredoc.Doc(`Bring Your Own Cloud (BYOC) GCP environment resource.`),
 		Attributes: map[string]rschema.Attribute{
-			"id":                      common.IDAttribute,
-			"name":                    common.NameAttribute,
-			"custom_domain":           common.GetCommonCustomDomainAttribute(false, true, false),
-			"load_balancers":          getLoadBalancersAttribute(false, true, true),
-			"load_balancing_strategy": common.GetLoadBalancingStrategyAttribute(false, true, true),
-			"maintenance_windows":     common.GetMaintenanceWindowAttribute(false, true, false),
-			"cidr":                    common.GetCIDRAttribute(true, false, false),
-			"zones":                   common.GetZonesAttribute(false, true, true, common.GCP_ZONES_DESCRIPTION),
-			"node_groups":             common.GetNodeGroupsAttribute(true, false, false),
-			"region":                  common.GetRegionAttribute(true, false, false, common.GCP_REGION_DESCRIPTION),
-			"gcp_project_id":          getGCPProjectIDAttribute(true, false, false),
-			"peering_connections":     getPeeringConnectionsAttribute(false, true, false),
-			"spec_revision":           common.SpecRevisionAttribute,
+			"id":                        common.IDAttribute,
+			"name":                      common.NameAttribute,
+			"custom_domain":             common.GetCommonCustomDomainAttribute(false, true, false),
+			"load_balancers":            getLoadBalancersAttribute(false, true, true),
+			"load_balancing_strategy":   common.GetLoadBalancingStrategyAttribute(false, true, true),
+			"maintenance_windows":       common.GetMaintenanceWindowAttribute(false, true, false),
+			"cidr":                      common.GetCIDRAttribute(true, false, false),
+			"zones":                     common.GetZonesAttribute(false, true, true, common.GCP_ZONES_DESCRIPTION),
+			"node_groups":               common.GetNodeGroupsAttribute(true, false, false),
+			"region":                    common.GetRegionAttribute(true, false, false, common.GCP_REGION_DESCRIPTION),
+			"gcp_project_id":            getGCPProjectIDAttribute(true, false, false),
+			"peering_connections":       getPeeringConnectionsAttribute(false, true, false),
+			"private_service_consumers": getPrivateServiceConsumersAttribute(false, true, false),
+			"spec_revision":             common.SpecRevisionAttribute,
 
 			"force_destroy":                   common.GetForceDestroyAttribute(false, true, true),
 			"force_destroy_clusters":          common.GetForceDestroyClustersAttribute(false, true, true),
@@ -48,19 +49,20 @@ func (d *GCPEnvDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 	resp.Schema = dschema.Schema{
 		MarkdownDescription: heredoc.Doc(`Bring Your Own Cloud (BYOC) GCP environment data source.`),
 		Attributes: map[string]dschema.Attribute{
-			"id":                      common.IDAttribute,
-			"name":                    common.NameAttribute,
-			"custom_domain":           common.GetCommonCustomDomainAttribute(false, false, true),
-			"load_balancers":          getLoadBalancersAttribute(false, false, true),
-			"load_balancing_strategy": common.GetLoadBalancingStrategyAttribute(false, false, true),
-			"maintenance_windows":     common.GetMaintenanceWindowAttribute(false, false, true),
-			"cidr":                    common.GetCIDRAttribute(false, false, true),
-			"zones":                   common.GetZonesAttribute(false, false, true, common.GCP_ZONES_DESCRIPTION),
-			"node_groups":             common.GetNodeGroupsAttribute(false, false, true),
-			"gcp_project_id":          getGCPProjectIDAttribute(false, false, true),
-			"region":                  common.GetRegionAttribute(false, false, true, common.GCP_REGION_DESCRIPTION),
-			"peering_connections":     getPeeringConnectionsAttribute(false, false, true),
-			"spec_revision":           common.SpecRevisionAttribute,
+			"id":                        common.IDAttribute,
+			"name":                      common.NameAttribute,
+			"custom_domain":             common.GetCommonCustomDomainAttribute(false, false, true),
+			"load_balancers":            getLoadBalancersAttribute(false, false, true),
+			"load_balancing_strategy":   common.GetLoadBalancingStrategyAttribute(false, false, true),
+			"maintenance_windows":       common.GetMaintenanceWindowAttribute(false, false, true),
+			"cidr":                      common.GetCIDRAttribute(false, false, true),
+			"zones":                     common.GetZonesAttribute(false, false, true, common.GCP_ZONES_DESCRIPTION),
+			"node_groups":               common.GetNodeGroupsAttribute(false, false, true),
+			"gcp_project_id":            getGCPProjectIDAttribute(false, false, true),
+			"region":                    common.GetRegionAttribute(false, false, true, common.GCP_REGION_DESCRIPTION),
+			"peering_connections":       getPeeringConnectionsAttribute(false, false, true),
+			"private_service_consumers": getPrivateServiceConsumersAttribute(false, false, true),
+			"spec_revision":             common.SpecRevisionAttribute,
 
 			// these options are not used in data sources,
 			// but we need to include them in the schema to avoid conversion errors.
@@ -127,10 +129,20 @@ func getPeeringConnectionsAttribute(required, optional, computed bool) rschema.L
 		Optional:            optional,
 		Required:            required,
 		Computed:            computed,
-		MarkdownDescription: common.PEERING_CONNECTION_DESCRIPTION,
+		MarkdownDescription: common.GCP_PEERING_CONNECTION_DESCRIPTION,
 		Validators: []validator.List{
 			listvalidator.SizeAtLeast(1),
 		},
+	}
+}
+
+func getPrivateServiceConsumersAttribute(required, optional, computed bool) rschema.ListAttribute {
+	return rschema.ListAttribute{
+		ElementType:         types.StringType,
+		Required:            required,
+		Optional:            optional,
+		Computed:            computed,
+		MarkdownDescription: common.GCP_PRIVATE_SERVICE_CONSUMERS_DESCRIPTION,
 	}
 }
 
