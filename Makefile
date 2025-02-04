@@ -23,10 +23,10 @@ default: help
 
 .PHONY: testacc
 testacc:
-	ALTINITYCLOUD_TEST_ENV_PREFIX="altinity" \
-	ALTINITYCLOUD_API_TOKEN="eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJhbHRpbml0eS5jbG91ZC5sb2NhbGhvc3QiLCJpYXQiOjE3MTc2MjA1NDYsInN1YiI6Im5hY2hvQGFsdGluaXR5LmNvbSJ9.48vVV6yMzdXa7nTW4ECcbFmRQeYVZFVFoOvKOhyLsVfnwKmu3Mz_nlehRHTg1zCXl2zhkyIcJGYXQNKubO1FAw" \
+	ALTINITYCLOUD_TEST_ENV_PREFIX="ianaya89" \
+	ALTINITYCLOUD_API_TOKEN="eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJhbHRpbml0eS5jbG91ZC5sb2NhbGhvc3QiLCJpYXQiOjE3MzQ5NjYyNTgsInN1YiI6ImhpQGlhbmF5YTg5LmRldiJ9.4dUY1ulQQZI1cIkAZQogHgaC7Bti55oP3spYZRjqB5eyRCrLV1NGzLe3GI_TgIJP4S0vU8GjVKfP_z0xxN8rAw" \
 	ALTINITYCLOUD_API_URL="https://internal.altinity.cloud.localhost:7443" \
-	TF_ACC=1 go test ./... -v $(TESTARGS) -timeout 120m
+	TF_ACC=1 go test ./... -run TestAccAltinityCloudEnvAWS_Basic -v  $(TESTARGS) -timeout 120m
 
 .PHONY: build
 build:

@@ -50,20 +50,21 @@ func GetAWSEnvResource(envName string) string {
 	return fmt.Sprintf(`
 resource "%s" "dummy" {
   name           = "%s"
-	cidr           = "10.0.0.0/16"
-	region         = "us-east-1"
-	aws_account_id = "123456789012"
-	zones          = ["us-east-1a", "us-east-1b"]
+  cidr           = "10.0.0.0/16"
+  region         = "us-east-1"
+  aws_account_id = "123456789012"
+  zones          = ["us-east-1a", "us-east-1b"]
 
-	node_groups = [{
-		zones             = ["us-east-1a"]
-		node_type         = "t4g.large"
-		capacity_per_zone = 1
-		reservations      = ["SYSTEM","CLICKHOUSE","ZOOKEEPER"]
-	}]
+  node_groups = [{
+    zones             = ["us-east-1a"]
+    node_type         = "t4g.large"
+    capacity_per_zone = 1
+    reservations      = ["SYSTEM","CLICKHOUSE","ZOOKEEPER"]
+  }]
 
-	skip_deprovision_on_destroy = true
-	force_destroy               = true
+  force_destroy                   = true
+  skip_deprovision_on_destroy     = true
+  allow_delete_while_disconnected = true
 }
 `, RESOURCE_NAME, envName)
 }

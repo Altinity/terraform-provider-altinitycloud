@@ -49,7 +49,7 @@ func GetK8SEnvResource(envName string) string {
 	return fmt.Sprintf(`
 resource "%s" "dummy" {
   name         = "%s"
-	distribution = "CUSTOM"
+  distribution = "CUSTOM"
 
   load_balancers = {
     public = {
@@ -63,15 +63,16 @@ resource "%s" "dummy" {
     }
   }
 
-	node_groups = [{
-		zones             = ["us-east-1a"]
-		node_type         = "small"
-		capacity_per_zone = 1
-		reservations      = ["SYSTEM","CLICKHOUSE","ZOOKEEPER"]
-	}]
+  node_groups = [{
+    zones             = ["us-east-1a"]
+    node_type         = "small"
+    capacity_per_zone = 1
+    reservations      = ["SYSTEM","CLICKHOUSE","ZOOKEEPER"]
+  }]
 
-	skip_deprovision_on_destroy = true
-	force_destroy               = true
+  force_destroy                   = true
+  skip_deprovision_on_destroy     = true
+  allow_delete_while_disconnected = true
 }
 `, RESOURCE_NAME, envName)
 }

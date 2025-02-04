@@ -50,19 +50,20 @@ func GetHCloudEnvResource(envName string) string {
 	return fmt.Sprintf(`
 resource "%s" "dummy" {
   name           = "%s"
-	cidr           = "10.0.0.0/16"
-	network_zone         = "us-east"
-	locations          = ["hil"]
+  cidr           = "10.0.0.0/16"
+  network_zone         = "us-east"
+  locations          = ["hil"]
 
-	node_groups = [{
-		locations             = ["hil"]
-		node_type         = "c2-standard-16"
-		capacity_per_zone = 1
-		reservations      = ["SYSTEM","CLICKHOUSE","ZOOKEEPER"]
-	}]
+  node_groups = [{
+    locations             = ["hil"]
+    node_type         = "c2-standard-16"
+    capacity_per_zone = 1
+    reservations      = ["SYSTEM","CLICKHOUSE","ZOOKEEPER"]
+  }]
 
-	skip_deprovision_on_destroy = true
-	force_destroy               = true
+  force_destroy                   = true
+  skip_deprovision_on_destroy     = true
+  allow_delete_while_disconnected = true
 }
 `, RESOURCE_NAME, envName)
 }

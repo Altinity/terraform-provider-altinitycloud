@@ -50,20 +50,21 @@ func GetGCPEnvResource(envName string) string {
 	return fmt.Sprintf(`
 resource "%s" "dummy" {
   name           = "%s"
-	cidr           = "10.0.0.0/16"
-	region         = "us-east1"
-	gcp_project_id = "123456789012"
-	zones          = ["us-east1-c"]
+  cidr           = "10.0.0.0/16"
+  region         = "us-east1"
+  gcp_project_id = "123456789012"
+  zones          = ["us-east1-c"]
 
-	node_groups = [{
-		zones             = ["us-east1-c"]
-		node_type         = "c2-standard-16"
-		capacity_per_zone = 1
-		reservations      = ["SYSTEM","CLICKHOUSE","ZOOKEEPER"]
-	}]
+  node_groups = [{
+    zones             = ["us-east1-c"]
+    node_type         = "c2-standard-16"
+    capacity_per_zone = 1
+    reservations      = ["SYSTEM","CLICKHOUSE","ZOOKEEPER"]
+  }]
 
-	skip_deprovision_on_destroy = true
-	force_destroy               = true
+  force_destroy                   = true
+  skip_deprovision_on_destroy     = true
+  allow_delete_while_disconnected = true
 }
 `, RESOURCE_NAME, envName)
 }
