@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.10](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.4.9...v0.4.10)
+### Added
+- Support peering connection on GCP environments [#f234d07](https://github.com/Altinity/terraform-provider-altinitycloud/commit/f234d07).
+- Support private service consumers on GCP environments [#34e6d19](https://github.com/Altinity/terraform-provider-altinitycloud/commit/34e6d19).
+
+### Changed
+- Bump github.com/Yamashou/gqlgenc to `0.30.3` [#139](https://github.com/Altinity/terraform-provider-altinitycloud/pull/139).
+- Bump github.com/hashicorp/terraform-plugin-go to `0.26.0` [#138](https://github.com/Altinity/terraform-provider-altinitycloud/pull/138).
+
 ## [0.4.9](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.4.8...v0.4.9)
 ### Fixed
 - Rollback [#0655c4a](https://github.com/Altinity/terraform-provider-altinitycloud/commit/0655c4a) which caused a inconsestency on envs creation [#fdb23d7](https://github.com/Altinity/terraform-provider-altinitycloud/commit/fdb23d7).
@@ -26,7 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Allow delete disconnected environments using `allow_delete_while_disconnected` [#01e5bcc](https://github.com/Altinity/terraform-provider-altinitycloud/commit/01e5bcc).
 
 ### Changed
-- Bump github.com/Yamashou/gqlgenc to `0.30.2` [#132](https://github.com/Altinity/terraform-provider-altinitycloud/pull/135).
+- Bump github.com/Yamashou/gqlgenc to `0.30.2` [#135](https://github.com/Altinity/terraform-provider-altinitycloud/pull/135).
 
 ## [0.4.5](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.4.4...v0.4.5)
 ### Added
