@@ -219,6 +219,7 @@ type GCPEnvSpecFragment struct {
 	CustomDomain          *string                                  "json:\"customDomain,omitempty\" graphql:\"customDomain\""
 	NodeGroups            []*GCPEnvSpecFragment_NodeGroups         "json:\"nodeGroups\" graphql:\"nodeGroups\""
 	MaintenanceWindows    []*GCPEnvSpecFragment_MaintenanceWindows "json:\"maintenanceWindows\" graphql:\"maintenanceWindows\""
+	PeeringConnections    []*GCPEnvSpecFragment_PeeringConnections "json:\"peeringConnections\" graphql:\"peeringConnections\""
 	Region                string                                   "json:\"region\" graphql:\"region\""
 	Zones                 []string                                 "json:\"zones\" graphql:\"zones\""
 	Cidr                  string                                   "json:\"cidr\" graphql:\"cidr\""
@@ -255,6 +256,12 @@ func (t *GCPEnvSpecFragment) GetMaintenanceWindows() []*GCPEnvSpecFragment_Maint
 		t = &GCPEnvSpecFragment{}
 	}
 	return t.MaintenanceWindows
+}
+func (t *GCPEnvSpecFragment) GetPeeringConnections() []*GCPEnvSpecFragment_PeeringConnections {
+	if t == nil {
+		t = &GCPEnvSpecFragment{}
+	}
+	return t.PeeringConnections
 }
 func (t *GCPEnvSpecFragment) GetRegion() string {
 	if t == nil {
@@ -940,6 +947,24 @@ func (t *GCPEnvSpecFragment_MaintenanceWindows) GetName() string {
 		t = &GCPEnvSpecFragment_MaintenanceWindows{}
 	}
 	return t.Name
+}
+
+type GCPEnvSpecFragment_PeeringConnections struct {
+	NetworkName string  "json:\"networkName\" graphql:\"networkName\""
+	ProjectID   *string "json:\"projectID,omitempty\" graphql:\"projectID\""
+}
+
+func (t *GCPEnvSpecFragment_PeeringConnections) GetNetworkName() string {
+	if t == nil {
+		t = &GCPEnvSpecFragment_PeeringConnections{}
+	}
+	return t.NetworkName
+}
+func (t *GCPEnvSpecFragment_PeeringConnections) GetProjectID() *string {
+	if t == nil {
+		t = &GCPEnvSpecFragment_PeeringConnections{}
+	}
+	return t.ProjectID
 }
 
 type HCloudEnvSpecFragment_LoadBalancers_Public struct {
@@ -3122,6 +3147,24 @@ func (t *GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_MaintenanceWindows) GetName() 
 	return t.Name
 }
 
+type GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_PeeringConnections struct {
+	NetworkName string  "json:\"networkName\" graphql:\"networkName\""
+	ProjectID   *string "json:\"projectID,omitempty\" graphql:\"projectID\""
+}
+
+func (t *GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_PeeringConnections) GetNetworkName() string {
+	if t == nil {
+		t = &GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_PeeringConnections{}
+	}
+	return t.NetworkName
+}
+func (t *GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_PeeringConnections) GetProjectID() *string {
+	if t == nil {
+		t = &GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_PeeringConnections{}
+	}
+	return t.ProjectID
+}
+
 type GetGCPEnv_GCPEnv struct {
 	Name         string              "json:\"name\" graphql:\"name\""
 	Spec         *GCPEnvSpecFragment "json:\"spec\" graphql:\"spec\""
@@ -3347,6 +3390,24 @@ func (t *CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_MaintenanceWindows) G
 	return t.Name
 }
 
+type CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_PeeringConnections struct {
+	NetworkName string  "json:\"networkName\" graphql:\"networkName\""
+	ProjectID   *string "json:\"projectID,omitempty\" graphql:\"projectID\""
+}
+
+func (t *CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_PeeringConnections) GetNetworkName() string {
+	if t == nil {
+		t = &CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_PeeringConnections{}
+	}
+	return t.NetworkName
+}
+func (t *CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_PeeringConnections) GetProjectID() *string {
+	if t == nil {
+		t = &CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_PeeringConnections{}
+	}
+	return t.ProjectID
+}
+
 type CreateGCPEnv_CreateGCPEnv struct {
 	MutationID   string              "json:\"mutationId\" graphql:\"mutationId\""
 	Spec         *GCPEnvSpecFragment "json:\"spec\" graphql:\"spec\""
@@ -3502,6 +3563,24 @@ func (t *UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_MaintenanceWindows) G
 		t = &UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_MaintenanceWindows{}
 	}
 	return t.Name
+}
+
+type UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_PeeringConnections struct {
+	NetworkName string  "json:\"networkName\" graphql:\"networkName\""
+	ProjectID   *string "json:\"projectID,omitempty\" graphql:\"projectID\""
+}
+
+func (t *UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_PeeringConnections) GetNetworkName() string {
+	if t == nil {
+		t = &UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_PeeringConnections{}
+	}
+	return t.NetworkName
+}
+func (t *UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_PeeringConnections) GetProjectID() *string {
+	if t == nil {
+		t = &UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_PeeringConnections{}
+	}
+	return t.ProjectID
 }
 
 type UpdateGCPEnv_UpdateGCPEnv struct {
@@ -6245,6 +6324,10 @@ fragment GCPEnvSpecFragment on GCPEnvSpec {
 		lengthInHours
 		days
 	}
+	peeringConnections {
+		projectID
+		networkName
+	}
 	region
 	zones
 	cidr
@@ -6339,6 +6422,10 @@ fragment GCPEnvSpecFragment on GCPEnvSpec {
 		lengthInHours
 		days
 	}
+	peeringConnections {
+		projectID
+		networkName
+	}
 	region
 	zones
 	cidr
@@ -6399,6 +6486,10 @@ fragment GCPEnvSpecFragment on GCPEnvSpec {
 		hour
 		lengthInHours
 		days
+	}
+	peeringConnections {
+		projectID
+		networkName
 	}
 	region
 	zones

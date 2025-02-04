@@ -1763,6 +1763,14 @@ type GCPEnvSpec {
   False means direct management.
   """
   cloudConnect: Boolean!
+  """
+  Network peering configuration.
+  """
+  peeringConnections: [GCPEnvPeeringConnectionSpec!]!
+  """
+  List of project IDs representing the network's private service consumers.
+  """
+  privateServiceConsumers: [String!]!
 }
 
 """
@@ -1840,6 +1848,20 @@ type GCPEnvNodeGroupSpec {
   Types of workloads that are allowed to be scheduled onto the nodes that belong to this group.
   """
   reservations: [NodeReservation!]!
+}
+
+"""
+GCP environment network peering configuration.
+"""
+type GCPEnvPeeringConnectionSpec {
+  """
+  Target network's project ID.
+  """
+  projectID: String
+  """
+  Target network name.
+  """
+  networkName: String!
 }
 
 """
@@ -1983,6 +2005,14 @@ input CreateGCPEnvSpecInput {
   Immutable.
   """
   cloudConnect: Boolean
+  """
+  Network peering configuration.
+  """
+  peeringConnections: [GCPEnvPeeringConnectionSpecInput!]
+  """
+  List of project IDs representing the network's private service consumers.
+  """
+  privateServiceConsumers: [String!]
 }
 
 """
@@ -2065,6 +2095,20 @@ input GCPEnvNodeGroupSpecInput {
   Types of workloads that are allowed to be scheduled onto the nodes that belong to this group.
   """
   reservations: [NodeReservation!]
+}
+
+"""
+GCP environment network peering configuration input.
+"""
+input GCPEnvPeeringConnectionSpecInput {
+  """
+  Target network's project ID.
+  """
+  projectID: String
+  """
+  Target network name.
+  """
+  networkName: String!
 }
 
 """
@@ -2204,6 +2248,14 @@ input UpdateGCPEnvSpecInput {
   CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
   """
   customDomain: String
+  """
+  Network peering configuration.
+  """
+  peeringConnections: [GCPEnvPeeringConnectionSpecInput!]
+  """
+  List of project IDs representing the network's private service consumers.
+  """
+  privateServiceConsumers: [String!]
 }
 
 """

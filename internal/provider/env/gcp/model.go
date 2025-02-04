@@ -4,7 +4,8 @@ import (
 	"context"
 
 	common "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env/common"
-	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/client"
+
+	sdk "github.com/altinity/terraform-provider-altinitycloud/internal/sdk/client"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -21,6 +22,7 @@ type GCPEnvResourceModel struct {
 	LoadBalancers         *LoadBalancersModel             `tfsdk:"load_balancers"`
 	LoadBalancingStrategy types.String                    `tfsdk:"load_balancing_strategy"`
 	MaintenanceWindows    []common.MaintenanceWindowModel `tfsdk:"maintenance_windows"`
+	PeeringConnections    []GCPEnvPeeringConnectionModel  `tfsdk:"peering_connections"`
 
 	SpecRevision                 types.Int64 `tfsdk:"spec_revision"`
 	ForceDestroy                 types.Bool  `tfsdk:"force_destroy"`
@@ -44,19 +46,32 @@ type InternalLoadBalancerModel struct {
 	SourceIPRanges []types.String `tfsdk:"source_ip_ranges"`
 }
 
-func (e GCPEnvResourceModel) toSDK() (client.CreateGCPEnvInput, client.UpdateGCPEnvInput) {
+type GCPEnvPeeringConnectionModel struct {
+	ProjectID   types.String `tfsdk:"project_id"`
+	NetworkName types.String `tfsdk:"network_name"`
+}
+
+func (e GCPEnvResourceModel) toSDK() (sdk.CreateGCPEnvInput, sdk.UpdateGCPEnvInput) {
 	var zones []string
 	e.Zones.ElementsAs(context.TODO(), &zones, false)
 
 	maintenanceWindows := common.MaintenanceWindowsToSDK(e.MaintenanceWindows)
 	LoadBalancers := loadBalancersToSDK(e.LoadBalancers)
 	nodeGroups := nodeGroupsToSDK(e.NodeGroups)
-	loadBalancingStrategy := (*client.LoadBalancingStrategy)(e.LoadBalancingStrategy.ValueStringPointer())
+	loadBalancingStrategy := (*sdk.LoadBalancingStrategy)(e.LoadBalancingStrategy.ValueStringPointer())
 	cloudConnect := false
 
-	create := client.CreateGCPEnvInput{
+	var peeringConnections []*sdk.GCPEnvPeeringConnectionSpecInput
+	for _, p := range e.PeeringConnections {
+		peeringConnections = append(peeringConnections, &sdk.GCPEnvPeeringConnectionSpecInput{
+			ProjectID:   p.ProjectID.ValueStringPointer(),
+			NetworkName: p.NetworkName.ValueString(),
+		})
+	}
+
+	create := sdk.CreateGCPEnvInput{
 		Name: e.Name.ValueString(),
-		Spec: &client.CreateGCPEnvSpecInput{
+		Spec: &sdk.CreateGCPEnvSpecInput{
 			CustomDomain:          e.CustomDomain.ValueStringPointer(),
 			NodeGroups:            nodeGroups,
 			GCPProjectID:          e.GCPProjectID.ValueString(),
@@ -67,27 +82,29 @@ func (e GCPEnvResourceModel) toSDK() (client.CreateGCPEnvInput, client.UpdateGCP
 			LoadBalancers:         LoadBalancers,
 			MaintenanceWindows:    maintenanceWindows,
 			CloudConnect:          &cloudConnect,
+			PeeringConnections:    peeringConnections,
 		},
 	}
 
-	strategy := client.UpdateStrategyReplace
-	update := client.UpdateGCPEnvInput{
+	strategy := sdk.UpdateStrategyReplace
+	update := sdk.UpdateGCPEnvInput{
 		Name:           e.Name.ValueString(),
 		UpdateStrategy: &strategy,
-		Spec: &client.UpdateGCPEnvSpecInput{
+		Spec: &sdk.UpdateGCPEnvSpecInput{
 			CustomDomain:          e.CustomDomain.ValueStringPointer(),
 			NodeGroups:            nodeGroups,
 			Zones:                 zones,
 			LoadBalancingStrategy: loadBalancingStrategy,
 			LoadBalancers:         LoadBalancers,
 			MaintenanceWindows:    maintenanceWindows,
+			PeeringConnections:    peeringConnections,
 		},
 	}
 
 	return create, update
 }
 
-func (model *GCPEnvResourceModel) toModel(env client.GetGCPEnv_GCPEnv) {
+func (model *GCPEnvResourceModel) toModel(env sdk.GetGCPEnv_GCPEnv) {
 	model.Name = types.StringValue(env.Name)
 	model.Region = types.StringValue(env.Spec.Region)
 	model.CustomDomain = types.StringPointerValue(env.Spec.CustomDomain)
@@ -98,37 +115,46 @@ func (model *GCPEnvResourceModel) toModel(env client.GetGCPEnv_GCPEnv) {
 	model.NodeGroups = nodeGroupsToModel(env.Spec.NodeGroups)
 	model.MaintenanceWindows = maintenanceWindowsToModel(env.Spec.MaintenanceWindows)
 	model.Zones = common.ListToModel(env.Spec.Zones)
+
+	var peeringConnections []GCPEnvPeeringConnectionModel
+	for _, p := range env.Spec.PeeringConnections {
+		peeringConnections = append(peeringConnections, GCPEnvPeeringConnectionModel{
+			ProjectID:   types.StringPointerValue(p.ProjectID),
+			NetworkName: types.StringValue(p.NetworkName),
+		})
+	}
+	model.PeeringConnections = peeringConnections
 }
 
-func loadBalancersToSDK(loadBalancers *LoadBalancersModel) *client.GCPEnvLoadBalancersSpecInput {
+func loadBalancersToSDK(loadBalancers *LoadBalancersModel) *sdk.GCPEnvLoadBalancersSpecInput {
 	if loadBalancers == nil {
 		return nil
 	}
 
-	var public *client.GCPEnvLoadBalancerPublicSpecInput
-	var internal *client.GCPEnvLoadBalancerInternalSpecInput
+	var public *sdk.GCPEnvLoadBalancerPublicSpecInput
+	var internal *sdk.GCPEnvLoadBalancerInternalSpecInput
 
 	if loadBalancers.Public != nil {
-		public = &client.GCPEnvLoadBalancerPublicSpecInput{
+		public = &sdk.GCPEnvLoadBalancerPublicSpecInput{
 			Enabled:        loadBalancers.Public.Enabled.ValueBoolPointer(),
 			SourceIPRanges: common.ListStringToSDK(loadBalancers.Public.SourceIPRanges),
 		}
 	}
 
 	if loadBalancers.Internal != nil {
-		internal = &client.GCPEnvLoadBalancerInternalSpecInput{
+		internal = &sdk.GCPEnvLoadBalancerInternalSpecInput{
 			Enabled:        loadBalancers.Internal.Enabled.ValueBoolPointer(),
 			SourceIPRanges: common.ListStringToSDK(loadBalancers.Internal.SourceIPRanges),
 		}
 	}
 
-	return &client.GCPEnvLoadBalancersSpecInput{
+	return &sdk.GCPEnvLoadBalancersSpecInput{
 		Public:   public,
 		Internal: internal,
 	}
 }
 
-func loadBalancersToModel(loadBalancers client.GCPEnvSpecFragment_LoadBalancers) *LoadBalancersModel {
+func loadBalancersToModel(loadBalancers sdk.GCPEnvSpecFragment_LoadBalancers) *LoadBalancersModel {
 	model := &LoadBalancersModel{}
 
 	var publicSourceIpRanges []types.String
@@ -154,16 +180,16 @@ func loadBalancersToModel(loadBalancers client.GCPEnvSpecFragment_LoadBalancers)
 	return model
 }
 
-func nodeGroupsToSDK(nodeGroups []common.NodeGroupsModel) []*client.GCPEnvNodeGroupSpecInput {
-	var sdkNodeGroups []*client.GCPEnvNodeGroupSpecInput
+func nodeGroupsToSDK(nodeGroups []common.NodeGroupsModel) []*sdk.GCPEnvNodeGroupSpecInput {
+	var sdkNodeGroups []*sdk.GCPEnvNodeGroupSpecInput
 	for _, np := range nodeGroups {
-		var reservations []client.NodeReservation
+		var reservations []sdk.NodeReservation
 		np.Reservations.ElementsAs(context.TODO(), &reservations, false)
 
 		var zones []string
 		np.Zones.ElementsAs(context.TODO(), &zones, false)
 
-		sdkNodeGroups = append(sdkNodeGroups, &client.GCPEnvNodeGroupSpecInput{
+		sdkNodeGroups = append(sdkNodeGroups, &sdk.GCPEnvNodeGroupSpecInput{
 			Name:            np.Name.ValueStringPointer(),
 			NodeType:        np.NodeType.ValueString(),
 			Zones:           zones,
@@ -175,7 +201,7 @@ func nodeGroupsToSDK(nodeGroups []common.NodeGroupsModel) []*client.GCPEnvNodeGr
 	return sdkNodeGroups
 }
 
-func nodeGroupsToModel(nodeGroups []*client.GCPEnvSpecFragment_NodeGroups) []common.NodeGroupsModel {
+func nodeGroupsToModel(nodeGroups []*sdk.GCPEnvSpecFragment_NodeGroups) []common.NodeGroupsModel {
 	var modelNodeGroups []common.NodeGroupsModel
 	for _, np := range nodeGroups {
 		modelNodeGroups = append(modelNodeGroups, common.NodeGroupsModel{
@@ -190,7 +216,7 @@ func nodeGroupsToModel(nodeGroups []*client.GCPEnvSpecFragment_NodeGroups) []com
 	return modelNodeGroups
 }
 
-func maintenanceWindowsToModel(input []*client.GCPEnvSpecFragment_MaintenanceWindows) []common.MaintenanceWindowModel {
+func maintenanceWindowsToModel(input []*sdk.GCPEnvSpecFragment_MaintenanceWindows) []common.MaintenanceWindowModel {
 	var maintenanceWindow []common.MaintenanceWindowModel
 	for _, mw := range input {
 		var days []types.String
@@ -210,11 +236,11 @@ func maintenanceWindowsToModel(input []*client.GCPEnvSpecFragment_MaintenanceWin
 	return maintenanceWindow
 }
 
-func reorderNodeGroups(model []common.NodeGroupsModel, sdk []*client.GCPEnvSpecFragment_NodeGroups) []*client.GCPEnvSpecFragment_NodeGroups {
-	orderedNodeGroups := make([]*client.GCPEnvSpecFragment_NodeGroups, 0, len(sdk))
+func reorderNodeGroups(model []common.NodeGroupsModel, input []*sdk.GCPEnvSpecFragment_NodeGroups) []*sdk.GCPEnvSpecFragment_NodeGroups {
+	orderedNodeGroups := make([]*sdk.GCPEnvSpecFragment_NodeGroups, 0, len(input))
 
 	for _, ng := range model {
-		for _, apiGroup := range sdk {
+		for _, apiGroup := range input {
 			if ng.NodeType.ValueString() == apiGroup.NodeType {
 				orderedNodeGroups = append(orderedNodeGroups, apiGroup)
 				break

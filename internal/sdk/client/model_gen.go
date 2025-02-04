@@ -845,6 +845,10 @@ type CreateGCPEnvSpecInput struct {
 	//
 	// Immutable.
 	CloudConnect *bool `json:"cloudConnect,omitempty"`
+	// Network peering configuration.
+	PeeringConnections []*GCPEnvPeeringConnectionSpecInput `json:"peeringConnections,omitempty"`
+	// List of project IDs representing the network's private service consumers.
+	PrivateServiceConsumers []string `json:"privateServiceConsumers,omitempty"`
 }
 
 // HCloud environment create request input.
@@ -1223,6 +1227,22 @@ type GCPEnvNodeGroupSpecInput struct {
 	Reservations []NodeReservation `json:"reservations,omitempty"`
 }
 
+// GCP environment network peering configuration.
+type GCPEnvPeeringConnectionSpec struct {
+	// Target network's project ID.
+	ProjectID *string `json:"projectID,omitempty"`
+	// Target network name.
+	NetworkName string `json:"networkName"`
+}
+
+// GCP environment network peering configuration input.
+type GCPEnvPeeringConnectionSpecInput struct {
+	// Target network's project ID.
+	ProjectID *string `json:"projectID,omitempty"`
+	// Target network name.
+	NetworkName string `json:"networkName"`
+}
+
 // GCP environment configuration.
 type GCPEnvSpec struct {
 	// ID of the GCP project (https://support.google.com/googleapi/answer/7014113?hl=en#:~:text=The%20project%20ID%20is%20a,ID%20or%20create%20your%20own.)
@@ -1278,6 +1298,10 @@ type GCPEnvSpec struct {
 	// True indicates that cloud resources are to be managed via altinity/cloud-connect.
 	// False means direct management.
 	CloudConnect bool `json:"cloudConnect"`
+	// Network peering configuration.
+	PeeringConnections []*GCPEnvPeeringConnectionSpec `json:"peeringConnections"`
+	// List of project IDs representing the network's private service consumers.
+	PrivateServiceConsumers []string `json:"privateServiceConsumers"`
 }
 
 // GCP environment status.
@@ -2007,6 +2031,10 @@ type UpdateGCPEnvSpecInput struct {
 	// - (optional, vpce)
 	// CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
 	CustomDomain *string `json:"customDomain,omitempty"`
+	// Network peering configuration.
+	PeeringConnections []*GCPEnvPeeringConnectionSpecInput `json:"peeringConnections,omitempty"`
+	// List of project IDs representing the network's private service consumers.
+	PrivateServiceConsumers []string `json:"privateServiceConsumers,omitempty"`
 }
 
 // HCloud environment update request input.

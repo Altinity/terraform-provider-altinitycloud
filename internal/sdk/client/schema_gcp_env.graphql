@@ -77,6 +77,10 @@ fragment GCPEnvSpecFragment on GCPEnvSpec {
     lengthInHours
     days
   }
+  peeringConnections {
+    projectID
+    networkName
+  }
   region
   zones
   cidr
