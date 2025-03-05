@@ -10,7 +10,7 @@ GRAPHQL_SCHEMA_FILE:=$(or $(GRAPHQL_SCHEMA_FILE),$(DEFAULT_GRAPHQL_SCHEMA_FILE))
 VERSION:=0.0.1
 OS:=darwin
 ARCH:=amd64
-LOCAL_DIRECTOY:=local
+LOCAL_DIRECTORY:=local
 
 ifeq ($(shell uname -s), Linux)
   OS := linux
@@ -37,10 +37,10 @@ local: build
 	chmod +x ${PROVIDER_BIN}
 	mkdir -p ${PROVIDER_DIRECTORY}/${VERSION}/${OS}_${ARCH}/
 	mv ${PROVIDER_BIN} ${PROVIDER_DIRECTORY}/${VERSION}/${OS}_${ARCH}/${PROVIDER_BIN}_v${VERSION}
-	mkdir -p $(LOCAL_DIRECTOY)
-	if [ ! -f $(LOCAL_DIRECTOY)/versions.tf ]; then echo 'terraform {\n  required_providers {\n    ${PROVIDER_NAME} = {\n      source  = "local/altinity/${PROVIDER_NAME}"\n      version = "${VERSION}"\n    }\n  }\n}' > $(LOCAL_DIRECTOY)/versions.tf; fi
-	cd ${LOCAL_DIRECTOY} && rm -f .terraform.lock.hcl .terrform
-	cd ${LOCAL_DIRECTOY} && TF_LOG=TRACE terraform init -upgrade
+	mkdir -p $(LOCAL_DIRECTORY)
+	if [ ! -f $(LOCAL_DIRECTORY)/versions.tf ]; then echo 'terraform {\n  required_providers {\n    ${PROVIDER_NAME} = {\n      source  = "local/altinity/${PROVIDER_NAME}"\n      version = "${VERSION}"\n    }\n  }\n}' > $(LOCAL_DIRECTORY)/versions.tf; fi
+	cd ${LOCAL_DIRECTORY} && rm -f .terraform.lock.hcl .terrform
+	cd ${LOCAL_DIRECTORY} && TF_LOG=TRACE terraform init -upgrade
 
 .PHONY: bump
 bump:
