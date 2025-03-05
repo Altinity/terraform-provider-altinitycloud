@@ -136,7 +136,7 @@ const PEERING_CONNECTION_AWS_ACCOUNT_ID_DESCRIPTION = "Target VPC AWS account ID
 const ENDPOINT_DESCRIPTION = "AWS environment VPC endpoint configuration"
 const ENDPOINT_SERVICE_NAME_DESCRIPTION = "VPC endpoint service name in $endpoint_service_id.$region.vpce.amazonaws.com format."
 const ENDPOINT_ALIAS_DESCRIPTION = "By default, VPC endpoints get assigned $endpoint_service_id.$env_name.altinity.cloud DNS record. Alias allows to override DNS record name to `$alias.$env_name.altinity.cloud`."
-const ENDPOINT_PRIVATE_DNS_DESCRIPTION = " Indicates whether to associate a private hosted zone with the specified VPC (default `false`)."
+const ENDPOINT_PRIVATE_DNS_DESCRIPTION = "`true` indicates whether to associate a private hosted zone with the specified VPC (default `false`)."
 const CLOUD_CONNECT_DESCRIPTION = "`true` indicates that cloud resources are to be managed via altinity/cloud-connect and `false` means direct management (default `true`). **[IMMUTABLE]**"
 const NAT_DESCRIPTION = "Enable AWS NAT Gateway. **[IMMUTABLE]**"
 

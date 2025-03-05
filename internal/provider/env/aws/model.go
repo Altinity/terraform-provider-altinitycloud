@@ -82,6 +82,7 @@ func (e AWSEnvResourceModel) toSDK() (sdk.CreateAWSEnvInput, sdk.UpdateAWSEnvInp
 		endpoints = append(endpoints, &sdk.AWSEnvEndpointSpecInput{
 			ServiceName: e.ServiceName.ValueString(),
 			Alias:       e.Alias.ValueStringPointer(),
+			PrivateDNS:  e.PrivateDNS.ValueBoolPointer(),
 		})
 	}
 

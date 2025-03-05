@@ -214,6 +214,12 @@ var endpointAttribute = rschema.NestedAttributeObject{
 			Required:            true,
 			MarkdownDescription: common.ENDPOINT_ALIAS_DESCRIPTION,
 		},
+		"private_dns": rschema.BoolAttribute{
+			Optional:            true,
+			Computed:            true,
+			MarkdownDescription: common.ENDPOINT_PRIVATE_DNS_DESCRIPTION,
+			Default:             booldefault.StaticBool(false),
+		},
 	},
 }
 
