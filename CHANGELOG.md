@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.11](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.4.10...v0.4.11)
+### Changed
+- Bump github.com/hashicorp/terraform-plugin-docs to `0.21.0` [#149](https://github.com/Altinity/terraform-provider-altinitycloud/pull/149).
+- Bump golangci/golangci-lint-action to `6.5.0` and update linter settings [#145](https://github.com/Altinity/terraform-provider-altinitycloud/pull/145).
+- Bump github.com/Yamashou/gqlgenc to `0.31.0` [#148](https://github.com/Altinity/terraform-provider-altinitycloud/pull/148).
+- Bump github.com/hashicorp/terraform-plugin-framework-validators to `0.17.0` [#146](https://github.com/Altinity/terraform-provider-altinitycloud/pull/146).
+- Bump github.com/hashicorp/terraform-plugin-framework to `0.14.1` [#147](https://github.com/Altinity/terraform-provider-altinitycloud/pull/147).
+
+### Fixed
+- Add missing `private_dns` property to `altinitycloud_env_aws` schema [#383e8f8](https://github.com/Altinity/terraform-provider-altinitycloud/commit/383e8f8).
+
 ## [0.4.10](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.4.9...v0.4.10)
 ### Added
 - Support peering connection on GCP environments [#f234d07](https://github.com/Altinity/terraform-provider-altinitycloud/commit/f234d07).
