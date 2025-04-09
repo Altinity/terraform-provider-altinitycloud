@@ -1,6 +1,8 @@
 package env
 
 import (
+	"context"
+
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -23,4 +25,22 @@ type MaintenanceWindowModel struct {
 	Hour          types.Int64    `tfsdk:"hour"`
 	LengthInHours types.Int64    `tfsdk:"length_in_hours"`
 	Days          []types.String `tfsdk:"days"`
+}
+
+func ReorderList(model types.List, input []string) []string {
+	orderedZones := make([]string, 0, len(input))
+
+	var modelZones []string
+	model.ElementsAs(context.TODO(), &modelZones, false)
+
+	for _, zone := range modelZones {
+		for _, apiZone := range input {
+			if zone == apiZone {
+				orderedZones = append(orderedZones, apiZone)
+				break
+			}
+		}
+	}
+
+	return orderedZones
 }
