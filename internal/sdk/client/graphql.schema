@@ -2627,7 +2627,7 @@ input CreateHCloudEnvSpecInput {
   """
   Wireguard peers configuration.
   """
-  wireguardPeers: [HCloudEnvWireguardPeerSpecInput!]!
+  wireguardPeers: [HCloudEnvWireguardPeerSpecInput!]
 }
 
 """
