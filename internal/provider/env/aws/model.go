@@ -15,6 +15,8 @@ type AWSEnvResourceModel struct {
 	CustomDomain          types.String                    `tfsdk:"custom_domain"`
 	LoadBalancingStrategy types.String                    `tfsdk:"load_balancing_strategy"`
 	Region                types.String                    `tfsdk:"region"`
+	PermissionBoundary    types.String                    `tfsdk:"permission_boundary"`
+	ResourcePrefix        types.String                    `tfsdk:"resource_prefix"`
 	NAT                   types.Bool                      `tfsdk:"nat"`
 	CIDR                  types.String                    `tfsdk:"cidr"`
 	AWSAccountID          types.String                    `tfsdk:"aws_account_id"`
@@ -117,6 +119,8 @@ func (e AWSEnvResourceModel) toSDK() (sdk.CreateAWSEnvInput, sdk.UpdateAWSEnvInp
 			Tags:                  tags,
 			CloudConnect:          &cloudConnect,
 			MaintenanceWindows:    maintenanceWindows,
+			PermissionBoundary:    e.PermissionBoundary.ValueStringPointer(),
+			ResourcePrefix:        e.ResourcePrefix.ValueStringPointer(),
 		},
 	}
 

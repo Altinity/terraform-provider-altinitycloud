@@ -131,6 +131,14 @@ type AWSEnvSpec {
   False means direct management.
   """
   cloudConnect: Boolean!
+  """
+  Permissions boundary policy ARN
+  """
+  permissionBoundary: String
+  """
+  Prefix for AWS resources created by this environment.
+  """
+  resourcePrefix: String!
 }
 
 """
@@ -475,6 +483,17 @@ input CreateAWSEnvSpecInput {
   Immutable.
   """
   cloudConnect: Boolean
+  """
+  Permissions boundary policy ARN
+  Immutable
+  """
+  permissionBoundary: String
+
+  """
+  Prefix used for created AWS resources
+  Immutable
+  """
+  resourcePrefix: String
 }
 
 """
@@ -2627,7 +2646,7 @@ input CreateHCloudEnvSpecInput {
   """
   Wireguard peers configuration.
   """
-  wireguardPeers: [HCloudEnvWireguardPeerSpecInput!]!
+  wireguardPeers: [HCloudEnvWireguardPeerSpecInput!]
 }
 
 """
