@@ -94,6 +94,8 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
   zones
   cidr
   awsAccountID
+  permissionBoundary
+  resourcePrefix
   peeringConnections {
     awsAccountID
     vpcID

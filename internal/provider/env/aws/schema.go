@@ -25,22 +25,25 @@ func (r *AWSEnvResource) Schema(ctx context.Context, req resource.SchemaRequest,
 	resp.Schema = rschema.Schema{
 		MarkdownDescription: heredoc.Doc(`Bring Your Own Cloud (BYOC) AWS environment resource.`),
 		Attributes: map[string]rschema.Attribute{
-			"id":                              common.IDAttribute,
-			"name":                            common.NameAttribute,
-			"custom_domain":                   common.GetCommonCustomDomainAttribute(false, true, false),
-			"load_balancers":                  getLoadBalancersAttribute(false, true, true),
-			"load_balancing_strategy":         common.GetLoadBalancingStrategyAttribute(false, true, true),
-			"maintenance_windows":             common.GetMaintenanceWindowAttribute(false, true, false),
-			"cidr":                            common.GetCIDRAttribute(true, false, false),
-			"zones":                           getZonesAttribute(false, true, true, common.AWS_ZONES_DESCRIPTION),
-			"node_groups":                     common.GetNodeGroupsAttribute(true, false, false),
-			"aws_account_id":                  getAWSAccountIDAttribute(true, false, false),
-			"region":                          common.GetRegionAttribute(true, false, false, common.AWS_REGION_DESCRIPTION),
-			"nat":                             getNATAttribute(false, true, true),
-			"peering_connections":             getPeeringConnectionsAttribute(false, true, false),
-			"endpoints":                       getEndpointsAttribute(false, true, false),
-			"tags":                            getTagsAttribute(false, true, false),
-			"cloud_connect":                   getCloudConnectAttribute(false, true, true),
+			"id":                      common.IDAttribute,
+			"name":                    common.NameAttribute,
+			"resource_prefix":         getResourcePrefixAttribute(),
+			"custom_domain":           common.GetCommonCustomDomainAttribute(false, true, false),
+			"load_balancers":          getLoadBalancersAttribute(false, true, true),
+			"load_balancing_strategy": common.GetLoadBalancingStrategyAttribute(false, true, true),
+			"maintenance_windows":     common.GetMaintenanceWindowAttribute(false, true, false),
+			"cidr":                    common.GetCIDRAttribute(true, false, false),
+			"zones":                   getZonesAttribute(false, true, true, common.AWS_ZONES_DESCRIPTION),
+			"node_groups":             common.GetNodeGroupsAttribute(true, false, false),
+			"aws_account_id":          getAWSAccountIDAttribute(true, false, false),
+			"region":                  common.GetRegionAttribute(true, false, false, common.AWS_REGION_DESCRIPTION),
+			"nat":                     getNATAttribute(false, true, true),
+			"peering_connections":     getPeeringConnectionsAttribute(false, true, false),
+			"endpoints":               getEndpointsAttribute(false, true, false),
+			"tags":                    getTagsAttribute(false, true, false),
+			"cloud_connect":           getCloudConnectAttribute(false, true, true),
+			"permission_boundary":     getPermissionBoundaryAttribute(),
+
 			"spec_revision":                   common.SpecRevisionAttribute,
 			"force_destroy":                   common.GetForceDestroyAttribute(false, true, true),
 			"force_destroy_clusters":          common.GetForceDestroyClustersAttribute(false, true, true),
@@ -70,6 +73,8 @@ func (d *AWSEnvDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 			"endpoints":               getEndpointsAttribute(false, false, true),
 			"tags":                    getTagsAttribute(false, false, true),
 			"cloud_connect":           getCloudConnectAttribute(false, false, true),
+			"permission_boundary":     getPermissionBoundaryAttribute(),
+			"resource_prefix":         getResourcePrefixAttribute(),
 			"spec_revision":           common.SpecRevisionAttribute,
 
 			// these options are not used in data sources,
@@ -201,6 +206,26 @@ func getNATAttribute(required, optional, computed bool) rschema.BoolAttribute {
 		Computed:            computed,
 		MarkdownDescription: common.NAT_DESCRIPTION,
 		Default:             booldefault.StaticBool(false),
+	}
+}
+
+func getPermissionBoundaryAttribute() rschema.StringAttribute {
+	return rschema.StringAttribute{
+		Optional: true,
+		PlanModifiers: []planmodifier.String{
+			modifiers.ImmutableString("permission_boundary"),
+		},
+		MarkdownDescription: common.PERMISSION_BOUNDARY_DESCRIPTION,
+	}
+}
+
+func getResourcePrefixAttribute() rschema.StringAttribute {
+	return rschema.StringAttribute{
+		Optional: true,
+		PlanModifiers: []planmodifier.String{
+			modifiers.ImmutableString("resource_prefix"),
+		},
+		MarkdownDescription: common.RESOURCE_PREFIX_DESCRIPTION,
 	}
 }
 

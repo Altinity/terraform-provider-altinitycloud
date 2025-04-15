@@ -298,6 +298,10 @@ type AWSEnvSpec struct {
 	// True indicates that cloud resources are to be managed via altinity/cloud-connect.
 	// False means direct management.
 	CloudConnect bool `json:"cloudConnect"`
+	// Permissions boundary policy ARN
+	PermissionBoundary *string `json:"permissionBoundary,omitempty"`
+	// Prefix for AWS resources created by this environment.
+	ResourcePrefix string `json:"resourcePrefix"`
 }
 
 // AWS environment status.
@@ -669,6 +673,12 @@ type CreateAWSEnvSpecInput struct {
 	//
 	// Immutable.
 	CloudConnect *bool `json:"cloudConnect,omitempty"`
+	// Permissions boundary policy ARN
+	// Immutable
+	PermissionBoundary *string `json:"permissionBoundary,omitempty"`
+	// Prefix used for created AWS resources
+	// Immutable
+	ResourcePrefix *string `json:"resourcePrefix,omitempty"`
 }
 
 // Azure environment create request input.

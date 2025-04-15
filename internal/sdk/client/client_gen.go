@@ -27,6 +27,8 @@ type AWSEnvSpecFragment struct {
 	Zones                 []string                                 "json:\"zones\" graphql:\"zones\""
 	Cidr                  string                                   "json:\"cidr\" graphql:\"cidr\""
 	AWSAccountID          string                                   "json:\"awsAccountID\" graphql:\"awsAccountID\""
+	PermissionBoundary    *string                                  "json:\"permissionBoundary,omitempty\" graphql:\"permissionBoundary\""
+	ResourcePrefix        string                                   "json:\"resourcePrefix\" graphql:\"resourcePrefix\""
 	PeeringConnections    []*AWSEnvSpecFragment_PeeringConnections "json:\"peeringConnections\" graphql:\"peeringConnections\""
 	Endpoints             []*AWSEnvSpecFragment_Endpoints          "json:\"endpoints\" graphql:\"endpoints\""
 	Tags                  []*AWSEnvSpecFragment_Tags               "json:\"tags\" graphql:\"tags\""
@@ -92,6 +94,18 @@ func (t *AWSEnvSpecFragment) GetAWSAccountID() string {
 		t = &AWSEnvSpecFragment{}
 	}
 	return t.AWSAccountID
+}
+func (t *AWSEnvSpecFragment) GetPermissionBoundary() *string {
+	if t == nil {
+		t = &AWSEnvSpecFragment{}
+	}
+	return t.PermissionBoundary
+}
+func (t *AWSEnvSpecFragment) GetResourcePrefix() string {
+	if t == nil {
+		t = &AWSEnvSpecFragment{}
+	}
+	return t.ResourcePrefix
 }
 func (t *AWSEnvSpecFragment) GetPeeringConnections() []*AWSEnvSpecFragment_PeeringConnections {
 	if t == nil {
@@ -5765,6 +5779,8 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 	zones
 	cidr
 	awsAccountID
+	permissionBoundary
+	resourcePrefix
 	peeringConnections {
 		awsAccountID
 		vpcID
@@ -5886,6 +5902,8 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 	zones
 	cidr
 	awsAccountID
+	permissionBoundary
+	resourcePrefix
 	peeringConnections {
 		awsAccountID
 		vpcID
@@ -5965,6 +5983,8 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 	zones
 	cidr
 	awsAccountID
+	permissionBoundary
+	resourcePrefix
 	peeringConnections {
 		awsAccountID
 		vpcID
