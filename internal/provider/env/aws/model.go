@@ -14,6 +14,8 @@ type AWSEnvResourceModel struct {
 	CustomDomain          types.String                    `tfsdk:"custom_domain"`
 	LoadBalancingStrategy types.String                    `tfsdk:"load_balancing_strategy"`
 	Region                types.String                    `tfsdk:"region"`
+	PermissionBoundary    types.String                    `tfsdk:"permission_boundary"`
+	ResourcePrefix        types.String                    `tfsdk:"resource_prefix"`
 	NAT                   types.Bool                      `tfsdk:"nat"`
 	CIDR                  types.String                    `tfsdk:"cidr"`
 	AWSAccountID          types.String                    `tfsdk:"aws_account_id"`
@@ -116,6 +118,8 @@ func (e AWSEnvResourceModel) toSDK() (sdk.CreateAWSEnvInput, sdk.UpdateAWSEnvInp
 			Tags:                  tags,
 			CloudConnect:          &cloudConnect,
 			MaintenanceWindows:    maintenanceWindows,
+			PermissionBoundary:    e.PermissionBoundary.ValueStringPointer(),
+			ResourcePrefix:        e.ResourcePrefix.ValueStringPointer(),
 		},
 	}
 
@@ -151,6 +155,8 @@ func (model *AWSEnvResourceModel) toModel(env sdk.GetAWSEnv_AWSEnv) {
 	model.NodeGroups = nodeGroupsToModel(env.Spec.NodeGroups)
 	model.MaintenanceWindows = maintenanceWindowsToModel(env.Spec.MaintenanceWindows)
 	model.Zones = common.ListToModel(env.Spec.Zones)
+	model.PermissionBoundary = types.StringPointerValue(env.Spec.PermissionBoundary)
+	model.ResourcePrefix = types.StringValue(env.Spec.ResourcePrefix)
 
 	var peeringConnections []AWSEnvPeeringConnectionModel
 	for _, p := range env.Spec.PeeringConnections {
