@@ -49,8 +49,9 @@ func (r *HCloudEnvResource) Create(ctx context.Context, req resource.CreateReque
 		return
 	}
 
-	// Reorder node groups to respect order in the user's configuration
+	// Reorder node groups  and locations to respect order in the user's configuration
 	apiResp.CreateHCloudEnv.Spec.NodeGroups = reorderNodeGroups(data.NodeGroups, apiResp.CreateHCloudEnv.Spec.NodeGroups)
+	apiResp.CreateHCloudEnv.Spec.Locations = common.ReorderList(data.Locations, apiResp.CreateHCloudEnv.Spec.Locations)
 	data.Id = data.Name
 	data.Locations = common.ListToModel(apiResp.CreateHCloudEnv.Spec.Locations)
 	data.NodeGroups = nodeGroupsToModel(apiResp.CreateHCloudEnv.Spec.NodeGroups)
@@ -85,8 +86,9 @@ func (r *HCloudEnvResource) Read(ctx context.Context, req resource.ReadRequest, 
 		return
 	}
 
-	// Reorder node groups to respect order in the user's configuration
+	// Reorder node groups  and locations to respect order in the user's configuration
 	apiResp.HcloudEnv.Spec.NodeGroups = reorderNodeGroups(data.NodeGroups, apiResp.HcloudEnv.Spec.NodeGroups)
+	apiResp.HcloudEnv.Spec.Locations = common.ReorderList(data.Locations, apiResp.HcloudEnv.Spec.Locations)
 	data.toModel(*apiResp.HcloudEnv)
 	data.Id = data.Name
 
@@ -114,8 +116,9 @@ func (r *HCloudEnvResource) Update(ctx context.Context, req resource.UpdateReque
 		return
 	}
 
-	// Reorder node groups to respect order in the user's configuration
+	// Reorder node groups  and locations to respect order in the user's configuration
 	apiResp.UpdateHCloudEnv.Spec.NodeGroups = reorderNodeGroups(data.NodeGroups, apiResp.UpdateHCloudEnv.Spec.NodeGroups)
+	apiResp.UpdateHCloudEnv.Spec.Locations = common.ReorderList(data.Locations, apiResp.UpdateHCloudEnv.Spec.Locations)
 	data.Locations = common.ListToModel(apiResp.UpdateHCloudEnv.Spec.Locations)
 	data.NodeGroups = nodeGroupsToModel(apiResp.UpdateHCloudEnv.Spec.NodeGroups)
 	data.SpecRevision = types.Int64Value(apiResp.UpdateHCloudEnv.SpecRevision)

@@ -48,7 +48,7 @@ func (r *K8SEnvResource) Create(ctx context.Context, req resource.CreateRequest,
 		return
 	}
 
-	// Reorder node groups to respect order in the user's configuration
+	// Reorder node groups  and zones to respect order in the user's configuration
 	apiResp.CreateK8SEnv.Spec.NodeGroups = reorderNodeGroups(data.NodeGroups, apiResp.CreateK8SEnv.Spec.NodeGroups)
 	data.Id = data.Name
 	data.NodeGroups = nodeGroupsToModel(apiResp.CreateK8SEnv.Spec.NodeGroups)
@@ -84,7 +84,7 @@ func (r *K8SEnvResource) Read(ctx context.Context, req resource.ReadRequest, res
 		return
 	}
 
-	// Reorder node groups to respect order in the user's configuration
+	// Reorder node groups  and zones to respect order in the user's configuration
 	apiResp.K8sEnv.Spec.NodeGroups = reorderNodeGroups(data.NodeGroups, apiResp.K8sEnv.Spec.NodeGroups)
 	data.toModel(apiResp.K8sEnv.Name, *apiResp.K8sEnv.Spec)
 	data.Id = data.Name

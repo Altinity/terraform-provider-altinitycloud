@@ -27,7 +27,6 @@ func (r *AWSEnvResource) Schema(ctx context.Context, req resource.SchemaRequest,
 		Attributes: map[string]rschema.Attribute{
 			"id":                      common.IDAttribute,
 			"name":                    common.NameAttribute,
-			"resource_prefix":         getResourcePrefixAttribute(),
 			"custom_domain":           common.GetCommonCustomDomainAttribute(false, true, false),
 			"load_balancers":          getLoadBalancersAttribute(false, true, true),
 			"load_balancing_strategy": common.GetLoadBalancingStrategyAttribute(false, true, true),
@@ -42,7 +41,8 @@ func (r *AWSEnvResource) Schema(ctx context.Context, req resource.SchemaRequest,
 			"endpoints":               getEndpointsAttribute(false, true, false),
 			"tags":                    getTagsAttribute(false, true, false),
 			"cloud_connect":           getCloudConnectAttribute(false, true, true),
-			"permission_boundary":     getPermissionBoundaryAttribute(),
+			"resource_prefix":         getResourcePrefixAttribute(false, true, false),
+			"permission_boundary":     getPermissionBoundaryAttribute(false, true, false),
 
 			"spec_revision":                   common.SpecRevisionAttribute,
 			"force_destroy":                   common.GetForceDestroyAttribute(false, true, true),
@@ -73,8 +73,8 @@ func (d *AWSEnvDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 			"endpoints":               getEndpointsAttribute(false, false, true),
 			"tags":                    getTagsAttribute(false, false, true),
 			"cloud_connect":           getCloudConnectAttribute(false, false, true),
-			"permission_boundary":     getPermissionBoundaryAttribute(),
-			"resource_prefix":         getResourcePrefixAttribute(),
+			"permission_boundary":     getPermissionBoundaryAttribute(false, false, true),
+			"resource_prefix":         getResourcePrefixAttribute(false, false, true),
 			"spec_revision":           common.SpecRevisionAttribute,
 
 			// these options are not used in data sources,
@@ -209,9 +209,11 @@ func getNATAttribute(required, optional, computed bool) rschema.BoolAttribute {
 	}
 }
 
-func getPermissionBoundaryAttribute() rschema.StringAttribute {
+func getPermissionBoundaryAttribute(required, optional, computed bool) rschema.StringAttribute {
 	return rschema.StringAttribute{
-		Optional: true,
+		Required: required,
+		Optional: optional,
+		Computed: computed,
 		PlanModifiers: []planmodifier.String{
 			modifiers.ImmutableString("permission_boundary"),
 		},
@@ -219,9 +221,11 @@ func getPermissionBoundaryAttribute() rschema.StringAttribute {
 	}
 }
 
-func getResourcePrefixAttribute() rschema.StringAttribute {
+func getResourcePrefixAttribute(required, optional, computed bool) rschema.StringAttribute {
 	return rschema.StringAttribute{
-		Optional: true,
+		Required: required,
+		Optional: optional,
+		Computed: computed,
 		PlanModifiers: []planmodifier.String{
 			modifiers.ImmutableString("resource_prefix"),
 		},
