@@ -156,6 +156,8 @@ func (model *AWSEnvResourceModel) toModel(env sdk.GetAWSEnv_AWSEnv) {
 	model.NodeGroups = nodeGroupsToModel(env.Spec.NodeGroups)
 	model.MaintenanceWindows = maintenanceWindowsToModel(env.Spec.MaintenanceWindows)
 	model.Zones = common.ListToModel(env.Spec.Zones)
+	model.PermissionBoundary = types.StringPointerValue(env.Spec.PermissionBoundary)
+	model.ResourcePrefix = types.StringValue(env.Spec.ResourcePrefix)
 
 	var peeringConnections []AWSEnvPeeringConnectionModel
 	for _, p := range env.Spec.PeeringConnections {
