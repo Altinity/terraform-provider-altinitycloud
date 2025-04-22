@@ -134,7 +134,7 @@ type AWSEnvSpec {
   """
   Permissions boundary policy ARN
   """
-  permissionBoundary: String
+  permissionsBoundaryPolicyArn: String
   """
   Prefix for AWS resources created by this environment.
   """
@@ -487,7 +487,7 @@ input CreateAWSEnvSpecInput {
   Permissions boundary policy ARN
   Immutable
   """
-  permissionBoundary: String
+  permissionsBoundaryPolicyArn: String
 
   """
   Prefix used for created AWS resources

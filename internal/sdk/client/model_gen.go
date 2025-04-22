@@ -299,7 +299,7 @@ type AWSEnvSpec struct {
 	// False means direct management.
 	CloudConnect bool `json:"cloudConnect"`
 	// Permissions boundary policy ARN
-	PermissionBoundary *string `json:"permissionBoundary,omitempty"`
+	PermissionsBoundaryPolicyArn *string `json:"permissionsBoundaryPolicyArn,omitempty"`
 	// Prefix for AWS resources created by this environment.
 	ResourcePrefix string `json:"resourcePrefix"`
 }
@@ -675,7 +675,7 @@ type CreateAWSEnvSpecInput struct {
 	CloudConnect *bool `json:"cloudConnect,omitempty"`
 	// Permissions boundary policy ARN
 	// Immutable
-	PermissionBoundary *string `json:"permissionBoundary,omitempty"`
+	PermissionsBoundaryPolicyArn *string `json:"permissionsBoundaryPolicyArn,omitempty"`
 	// Prefix used for created AWS resources
 	// Immutable
 	ResourcePrefix *string `json:"resourcePrefix,omitempty"`
