@@ -32,7 +32,7 @@ Bring Your Own Cloud (BYOC) AWS environment data source.
 ### Read-Only
 
 - `allow_delete_while_disconnected` (Boolean) Set to `true` to allow deletion of the environment while it is disconnected from the cloud connect. If the the environment is not connected during the deletion process you will end up in a delete timeout (default `false`).
-- `aws_account_id` (String) ID of the AWS account ([docs](https://docs.aws.amazon.com/IAM/latest/UserGuide/console_account-alias.html#ViewYourAWSId)) in which to provision AWS resources. **[IMMUTABLE]**
+- `aws_account_id` (String) ID of the AWS account ([docs](https://docs.aws.amazon.com/IAM/latest/UserGuide/console-account-id.html#w5aac11c17b5)) in which to provision AWS resources. **[IMMUTABLE]**
 - `cidr` (String) VPC CIDR block from the private IPv4 address ranges as specified in RFC 1918 (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16). At least /21 required. **[IMMUTABLE]**
 
 		Examples:
@@ -179,7 +179,7 @@ Required:
 
 Optional:
 
-- `aws_account_id` (String) ID of the AWS account ([docs](https://docs.aws.amazon.com/IAM/latest/UserGuide/console_account-alias.html#ViewYourAWSId)) in which to provision AWS resources. **[IMMUTABLE]**
+- `aws_account_id` (String) ID of the AWS account ([docs](https://docs.aws.amazon.com/IAM/latest/UserGuide/console-account-id.html#w5aac11c17b5)) in which to provision AWS resources. **[IMMUTABLE]**
 - `vpc_region` (String) Target VPC region (defaults to environment region).
 
 
