@@ -41,6 +41,9 @@ func (r *AWSEnvResource) Schema(ctx context.Context, req resource.SchemaRequest,
 			"endpoints":                       getEndpointsAttribute(false, true, false),
 			"tags":                            getTagsAttribute(false, true, false),
 			"cloud_connect":                   getCloudConnectAttribute(false, true, true),
+			"resource_prefix":                 getResourcePrefixAttribute(false, true, false),
+			"permissions_boundary_policy_arn": getPermissionsBoundaryPolicyArnAttribute(false, true, false),
+
 			"spec_revision":                   common.SpecRevisionAttribute,
 			"force_destroy":                   common.GetForceDestroyAttribute(false, true, true),
 			"force_destroy_clusters":          common.GetForceDestroyClustersAttribute(false, true, true),
@@ -54,23 +57,25 @@ func (d *AWSEnvDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 	resp.Schema = dschema.Schema{
 		MarkdownDescription: heredoc.Doc(`Bring Your Own Cloud (BYOC) AWS environment data source.`),
 		Attributes: map[string]dschema.Attribute{
-			"id":                      common.IDAttribute,
-			"name":                    common.NameAttribute,
-			"custom_domain":           common.GetCommonCustomDomainAttribute(false, false, true),
-			"load_balancers":          getLoadBalancersAttribute(false, false, true),
-			"load_balancing_strategy": common.GetLoadBalancingStrategyAttribute(false, false, true),
-			"maintenance_windows":     common.GetMaintenanceWindowAttribute(false, false, true),
-			"cidr":                    common.GetCIDRAttribute(false, false, true),
-			"zones":                   getZonesAttribute(false, false, true, common.AWS_ZONES_DESCRIPTION),
-			"node_groups":             common.GetNodeGroupsAttribute(false, false, true),
-			"aws_account_id":          getAWSAccountIDAttribute(false, false, true),
-			"region":                  common.GetRegionAttribute(false, false, true, common.AWS_REGION_DESCRIPTION),
-			"nat":                     getNATAttribute(false, true, true),
-			"peering_connections":     getPeeringConnectionsAttribute(false, false, true),
-			"endpoints":               getEndpointsAttribute(false, false, true),
-			"tags":                    getTagsAttribute(false, false, true),
-			"cloud_connect":           getCloudConnectAttribute(false, false, true),
-			"spec_revision":           common.SpecRevisionAttribute,
+			"id":                              common.IDAttribute,
+			"name":                            common.NameAttribute,
+			"custom_domain":                   common.GetCommonCustomDomainAttribute(false, false, true),
+			"load_balancers":                  getLoadBalancersAttribute(false, false, true),
+			"load_balancing_strategy":         common.GetLoadBalancingStrategyAttribute(false, false, true),
+			"maintenance_windows":             common.GetMaintenanceWindowAttribute(false, false, true),
+			"cidr":                            common.GetCIDRAttribute(false, false, true),
+			"zones":                           getZonesAttribute(false, false, true, common.AWS_ZONES_DESCRIPTION),
+			"node_groups":                     common.GetNodeGroupsAttribute(false, false, true),
+			"aws_account_id":                  getAWSAccountIDAttribute(false, false, true),
+			"region":                          common.GetRegionAttribute(false, false, true, common.AWS_REGION_DESCRIPTION),
+			"nat":                             getNATAttribute(false, true, true),
+			"peering_connections":             getPeeringConnectionsAttribute(false, false, true),
+			"endpoints":                       getEndpointsAttribute(false, false, true),
+			"tags":                            getTagsAttribute(false, false, true),
+			"cloud_connect":                   getCloudConnectAttribute(false, false, true),
+			"permissions_boundary_policy_arn": getPermissionsBoundaryPolicyArnAttribute(false, false, true),
+			"resource_prefix":                 getResourcePrefixAttribute(false, false, true),
+			"spec_revision":                   common.SpecRevisionAttribute,
 
 			// these options are not used in data sources,
 			// but we need to include them in the schema to avoid conversion errors.
@@ -201,6 +206,30 @@ func getNATAttribute(required, optional, computed bool) rschema.BoolAttribute {
 		Computed:            computed,
 		MarkdownDescription: common.NAT_DESCRIPTION,
 		Default:             booldefault.StaticBool(false),
+	}
+}
+
+func getPermissionsBoundaryPolicyArnAttribute(required, optional, computed bool) rschema.StringAttribute {
+	return rschema.StringAttribute{
+		Required: required,
+		Optional: optional,
+		Computed: computed,
+		PlanModifiers: []planmodifier.String{
+			modifiers.ImmutableString("permissions_boundary_policy_arn"),
+		},
+		MarkdownDescription: common.PERMISSIONS_BOUNDARY_POLICY_ARN_DESCRIPTION,
+	}
+}
+
+func getResourcePrefixAttribute(required, optional, computed bool) rschema.StringAttribute {
+	return rschema.StringAttribute{
+		Required: required,
+		Optional: optional,
+		Computed: computed,
+		PlanModifiers: []planmodifier.String{
+			modifiers.ImmutableString("resource_prefix"),
+		},
+		MarkdownDescription: common.RESOURCE_PREFIX_DESCRIPTION,
 	}
 }
 
