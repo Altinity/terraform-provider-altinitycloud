@@ -132,11 +132,7 @@ type AWSEnvSpec {
   """
   cloudConnect: Boolean!
   """
-<<<<<<< HEAD
-  Permissions boundary policy ARN
-=======
   Permissions boundary policy ARN.
->>>>>>> master
   """
   permissionsBoundaryPolicyArn: String
   """
@@ -488,26 +484,16 @@ input CreateAWSEnvSpecInput {
   """
   cloudConnect: Boolean
   """
-<<<<<<< HEAD
-  Permissions boundary policy ARN
-  Immutable
-=======
   Permissions boundary policy ARN.
 
   Immutable.
->>>>>>> master
   """
   permissionsBoundaryPolicyArn: String
 
   """
-<<<<<<< HEAD
-  Prefix used for created AWS resources
-  Immutable
-=======
   Prefix to apply to the names of AWS resources during creation.
 
   Immutable.
->>>>>>> master
   """
   resourcePrefix: String
 }
