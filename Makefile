@@ -103,6 +103,10 @@ fmt:
 	go fmt ./...
 	terraform fmt -recursive
 
+.PHONY: lint
+lint:
+	golangci-lint run
+
 .PHONY: help
 help:
 	@echo "Available commands:"
@@ -117,3 +121,4 @@ help:
 	@echo "testacc           - Run acceptance tests. These are integration tests that use the Terraform binary to test real infrastructure."
 	@echo "sync              - Fetch and update the current version in the 'example' directory. This syncs the version used in examples with the latest git tag."
 	@echo "tool              - Run Go tools. This is a placeholder for any Go-based tools you might want to run as part of the build."
+

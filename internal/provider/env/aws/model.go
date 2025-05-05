@@ -4,7 +4,6 @@ import (
 	"context"
 
 	common "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env/common"
-	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/client"
 	sdk "github.com/altinity/terraform-provider-altinitycloud/internal/sdk/client"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
@@ -124,7 +123,7 @@ func (e AWSEnvResourceModel) toSDK() (sdk.CreateAWSEnvInput, sdk.UpdateAWSEnvInp
 		},
 	}
 
-	strategy := client.UpdateStrategyReplace
+	strategy := sdk.UpdateStrategyReplace
 	update := sdk.UpdateAWSEnvInput{
 		Name:           e.Name.ValueString(),
 		UpdateStrategy: &strategy,
@@ -266,7 +265,7 @@ func loadBalancersToModel(loadBalancers sdk.AWSEnvSpecFragment_LoadBalancers) *L
 func nodeGroupsToSDK(nodeGroups []common.NodeGroupsModel) []*sdk.AWSEnvNodeGroupSpecInput {
 	var sdkNodeGroups []*sdk.AWSEnvNodeGroupSpecInput
 	for _, np := range nodeGroups {
-		var reservations []client.NodeReservation
+		var reservations []sdk.NodeReservation
 		np.Reservations.ElementsAs(context.TODO(), &reservations, false)
 
 		var zones []string
@@ -319,11 +318,11 @@ func maintenanceWindowsToModel(input []*sdk.AWSEnvSpecFragment_MaintenanceWindow
 	return maintenanceWindow
 }
 
-func reorderNodeGroups(model []common.NodeGroupsModel, sdk []*client.AWSEnvSpecFragment_NodeGroups) []*client.AWSEnvSpecFragment_NodeGroups {
-	orderedNodeGroups := make([]*client.AWSEnvSpecFragment_NodeGroups, 0, len(sdk))
+func reorderNodeGroups(model []common.NodeGroupsModel, nodeGroups []*sdk.AWSEnvSpecFragment_NodeGroups) []*sdk.AWSEnvSpecFragment_NodeGroups {
+	orderedNodeGroups := make([]*sdk.AWSEnvSpecFragment_NodeGroups, 0, len(nodeGroups))
 
 	for _, ng := range model {
-		for _, apiGroup := range sdk {
+		for _, apiGroup := range nodeGroups {
 			if ng.NodeType.ValueString() == apiGroup.NodeType {
 				orderedNodeGroups = append(orderedNodeGroups, apiGroup)
 				break
