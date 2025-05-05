@@ -17,20 +17,22 @@ func NewClient(cli clientv2.HttpClient, baseURL string, options *clientv2.Option
 }
 
 type AWSEnvSpecFragment struct {
-	LoadBalancers         AWSEnvSpecFragment_LoadBalancers         "json:\"loadBalancers\" graphql:\"loadBalancers\""
-	LoadBalancingStrategy LoadBalancingStrategy                    "json:\"loadBalancingStrategy\" graphql:\"loadBalancingStrategy\""
-	CustomDomain          *string                                  "json:\"customDomain,omitempty\" graphql:\"customDomain\""
-	NodeGroups            []*AWSEnvSpecFragment_NodeGroups         "json:\"nodeGroups\" graphql:\"nodeGroups\""
-	MaintenanceWindows    []*AWSEnvSpecFragment_MaintenanceWindows "json:\"maintenanceWindows\" graphql:\"maintenanceWindows\""
-	Region                string                                   "json:\"region\" graphql:\"region\""
-	Nat                   bool                                     "json:\"NAT\" graphql:\"NAT\""
-	Zones                 []string                                 "json:\"zones\" graphql:\"zones\""
-	Cidr                  string                                   "json:\"cidr\" graphql:\"cidr\""
-	AWSAccountID          string                                   "json:\"awsAccountID\" graphql:\"awsAccountID\""
-	PeeringConnections    []*AWSEnvSpecFragment_PeeringConnections "json:\"peeringConnections\" graphql:\"peeringConnections\""
-	Endpoints             []*AWSEnvSpecFragment_Endpoints          "json:\"endpoints\" graphql:\"endpoints\""
-	Tags                  []*AWSEnvSpecFragment_Tags               "json:\"tags\" graphql:\"tags\""
-	CloudConnect          bool                                     "json:\"cloudConnect\" graphql:\"cloudConnect\""
+	LoadBalancers                AWSEnvSpecFragment_LoadBalancers         "json:\"loadBalancers\" graphql:\"loadBalancers\""
+	LoadBalancingStrategy        LoadBalancingStrategy                    "json:\"loadBalancingStrategy\" graphql:\"loadBalancingStrategy\""
+	CustomDomain                 *string                                  "json:\"customDomain,omitempty\" graphql:\"customDomain\""
+	NodeGroups                   []*AWSEnvSpecFragment_NodeGroups         "json:\"nodeGroups\" graphql:\"nodeGroups\""
+	MaintenanceWindows           []*AWSEnvSpecFragment_MaintenanceWindows "json:\"maintenanceWindows\" graphql:\"maintenanceWindows\""
+	Region                       string                                   "json:\"region\" graphql:\"region\""
+	Nat                          bool                                     "json:\"NAT\" graphql:\"NAT\""
+	Zones                        []string                                 "json:\"zones\" graphql:\"zones\""
+	Cidr                         string                                   "json:\"cidr\" graphql:\"cidr\""
+	AWSAccountID                 string                                   "json:\"awsAccountID\" graphql:\"awsAccountID\""
+	PermissionsBoundaryPolicyArn *string                                  "json:\"permissionsBoundaryPolicyArn,omitempty\" graphql:\"permissionsBoundaryPolicyArn\""
+	ResourcePrefix               string                                   "json:\"resourcePrefix\" graphql:\"resourcePrefix\""
+	PeeringConnections           []*AWSEnvSpecFragment_PeeringConnections "json:\"peeringConnections\" graphql:\"peeringConnections\""
+	Endpoints                    []*AWSEnvSpecFragment_Endpoints          "json:\"endpoints\" graphql:\"endpoints\""
+	Tags                         []*AWSEnvSpecFragment_Tags               "json:\"tags\" graphql:\"tags\""
+	CloudConnect                 bool                                     "json:\"cloudConnect\" graphql:\"cloudConnect\""
 }
 
 func (t *AWSEnvSpecFragment) GetLoadBalancers() *AWSEnvSpecFragment_LoadBalancers {
@@ -92,6 +94,18 @@ func (t *AWSEnvSpecFragment) GetAWSAccountID() string {
 		t = &AWSEnvSpecFragment{}
 	}
 	return t.AWSAccountID
+}
+func (t *AWSEnvSpecFragment) GetPermissionsBoundaryPolicyArn() *string {
+	if t == nil {
+		t = &AWSEnvSpecFragment{}
+	}
+	return t.PermissionsBoundaryPolicyArn
+}
+func (t *AWSEnvSpecFragment) GetResourcePrefix() string {
+	if t == nil {
+		t = &AWSEnvSpecFragment{}
+	}
+	return t.ResourcePrefix
 }
 func (t *AWSEnvSpecFragment) GetPeeringConnections() []*AWSEnvSpecFragment_PeeringConnections {
 	if t == nil {
@@ -5765,6 +5779,8 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 	zones
 	cidr
 	awsAccountID
+	permissionsBoundaryPolicyArn
+	resourcePrefix
 	peeringConnections {
 		awsAccountID
 		vpcID
@@ -5886,6 +5902,8 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 	zones
 	cidr
 	awsAccountID
+	permissionsBoundaryPolicyArn
+	resourcePrefix
 	peeringConnections {
 		awsAccountID
 		vpcID
@@ -5965,6 +5983,8 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 	zones
 	cidr
 	awsAccountID
+	permissionsBoundaryPolicyArn
+	resourcePrefix
 	peeringConnections {
 		awsAccountID
 		vpcID
