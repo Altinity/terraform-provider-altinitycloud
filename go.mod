@@ -3,7 +3,7 @@ module github.com/altinity/terraform-provider-altinitycloud
 go 1.24.2
 
 require (
-	github.com/Yamashou/gqlgenc v0.32.0
+	github.com/Yamashou/gqlgenc v0.32.1
 	github.com/hashicorp/terraform-plugin-docs v0.21.0
 	github.com/hashicorp/terraform-plugin-framework v1.14.1
 	github.com/hashicorp/terraform-plugin-go v0.26.0
@@ -18,7 +18,7 @@ require (
 )
 
 require (
-	github.com/99designs/gqlgen v0.17.70 // indirect
+	github.com/99designs/gqlgen v0.17.71 // indirect
 	github.com/BurntSushi/toml v1.4.0 // indirect
 	github.com/Kunde21/markdownfmt/v3 v3.1.0 // indirect
 	github.com/Masterminds/goutils v1.1.1 // indirect
@@ -34,6 +34,7 @@ require (
 	github.com/cloudflare/circl v1.3.7 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.6 // indirect
 	github.com/fatih/color v1.16.0 // indirect
+	github.com/goccy/go-yaml v1.17.1 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/google/uuid v1.6.0 // indirect
@@ -74,7 +75,7 @@ require (
 	github.com/sosodev/duration v1.3.1 // indirect
 	github.com/spf13/cast v1.5.1 // indirect
 	github.com/urfave/cli/v2 v2.27.6 // indirect
-	github.com/vektah/gqlparser/v2 v2.5.24 // indirect
+	github.com/vektah/gqlparser/v2 v2.5.25 // indirect
 	github.com/vmihailenco/msgpack v4.0.4+incompatible // indirect
 	github.com/vmihailenco/msgpack/v5 v5.4.1 // indirect
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
@@ -93,7 +94,7 @@ require (
 	google.golang.org/appengine v1.6.8 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20241015192408-796eee8c2d53 // indirect
 	google.golang.org/grpc v1.69.4 // indirect
-	google.golang.org/protobuf v1.36.5 // indirect
+	google.golang.org/protobuf v1.36.6 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

@@ -3,6 +3,7 @@
 package client
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"strconv"
@@ -298,6 +299,10 @@ type AWSEnvSpec struct {
 	// True indicates that cloud resources are to be managed via altinity/cloud-connect.
 	// False means direct management.
 	CloudConnect bool `json:"cloudConnect"`
+	// Permissions boundary policy ARN.
+	PermissionsBoundaryPolicyArn *string `json:"permissionsBoundaryPolicyArn,omitempty"`
+	// Prefix for AWS resources created by this environment.
+	ResourcePrefix string `json:"resourcePrefix"`
 }
 
 // AWS environment status.
@@ -669,6 +674,14 @@ type CreateAWSEnvSpecInput struct {
 	//
 	// Immutable.
 	CloudConnect *bool `json:"cloudConnect,omitempty"`
+	// Permissions boundary policy ARN.
+	//
+	// Immutable.
+	PermissionsBoundaryPolicyArn *string `json:"permissionsBoundaryPolicyArn,omitempty"`
+	// Prefix to apply to the names of AWS resources during creation.
+	//
+	// Immutable.
+	ResourcePrefix *string `json:"resourcePrefix,omitempty"`
 }
 
 // Azure environment create request input.
@@ -2201,6 +2214,20 @@ func (e Day) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+func (e *Day) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e Day) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
 // Status error codes.
 type EnvStatusErrorCode string
 
@@ -2245,6 +2272,20 @@ func (e *EnvStatusErrorCode) UnmarshalGQL(v any) error {
 
 func (e EnvStatusErrorCode) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *EnvStatusErrorCode) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e EnvStatusErrorCode) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Kubernetes distribution.
@@ -2297,6 +2338,20 @@ func (e K8SDistribution) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+func (e *K8SDistribution) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e K8SDistribution) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
 // Load balancing strategy.
 type LoadBalancingStrategy string
 
@@ -2339,6 +2394,20 @@ func (e *LoadBalancingStrategy) UnmarshalGQL(v any) error {
 
 func (e LoadBalancingStrategy) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *LoadBalancingStrategy) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e LoadBalancingStrategy) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Node reservation.
@@ -2388,6 +2457,20 @@ func (e NodeReservation) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+func (e *NodeReservation) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e NodeReservation) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
 // Node taint effect.
 type NodeTolerationEffect string
 
@@ -2432,6 +2515,20 @@ func (e NodeTolerationEffect) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
 }
 
+func (e *NodeTolerationEffect) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e NodeTolerationEffect) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
 // Node toleration operator used to match taints.
 type NodeTolerationOperator string
 
@@ -2472,6 +2569,20 @@ func (e *NodeTolerationOperator) UnmarshalGQL(v any) error {
 
 func (e NodeTolerationOperator) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *NodeTolerationOperator) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e NodeTolerationOperator) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Update strategy.
@@ -2516,4 +2627,18 @@ func (e *UpdateStrategy) UnmarshalGQL(v any) error {
 
 func (e UpdateStrategy) MarshalGQL(w io.Writer) {
 	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *UpdateStrategy) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e UpdateStrategy) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
