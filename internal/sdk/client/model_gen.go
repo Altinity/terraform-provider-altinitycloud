@@ -236,7 +236,7 @@ type AWSEnvPeeringConnectionStatus struct {
 
 // AWS environment configuration.
 type AWSEnvSpec struct {
-	// ID of the AWS account (https://docs.aws.amazon.com/IAM/latest/UserGuide/console_account-alias.html#ViewYourAWSId)
+	// ID of the AWS account (https://docs.aws.amazon.com/IAM/latest/UserGuide/console-account-id.html#w5aac11c17b5)
 	// in which to provision AWS resources.
 	//
 	// Immutable.
@@ -601,7 +601,7 @@ type CreateAWSEnvResult struct {
 
 // AWS environment configuration create request input.
 type CreateAWSEnvSpecInput struct {
-	// ID of the AWS account (https://docs.aws.amazon.com/IAM/latest/UserGuide/console_account-alias.html#ViewYourAWSId)
+	// ID of the AWS account (https://docs.aws.amazon.com/IAM/latest/UserGuide/console-account-id.html#w5aac11c17b5)
 	// in which to provision AWS resources.
 	//
 	// Immutable.

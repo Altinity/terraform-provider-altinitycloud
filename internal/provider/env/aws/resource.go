@@ -55,6 +55,7 @@ func (r *AWSEnvResource) Create(ctx context.Context, req resource.CreateRequest,
 	data.Zones = common.ListToModel(apiResp.CreateAWSEnv.Spec.Zones)
 	data.NodeGroups = nodeGroupsToModel(apiResp.CreateAWSEnv.Spec.NodeGroups)
 	data.SpecRevision = types.Int64Value(apiResp.CreateAWSEnv.SpecRevision)
+	data.ResourcePrefix = types.StringValue(apiResp.CreateAWSEnv.Spec.ResourcePrefix)
 
 	tflog.Trace(ctx, "created resource", map[string]interface{}{"name": envName})
 	diags = resp.State.Set(ctx, &data)
@@ -120,6 +121,7 @@ func (r *AWSEnvResource) Update(ctx context.Context, req resource.UpdateRequest,
 	data.Zones = common.ListToModel(apiResp.UpdateAWSEnv.Spec.Zones)
 	data.NodeGroups = nodeGroupsToModel(apiResp.UpdateAWSEnv.Spec.NodeGroups)
 	data.SpecRevision = types.Int64Value(apiResp.UpdateAWSEnv.SpecRevision)
+	data.ResourcePrefix = types.StringValue(apiResp.UpdateAWSEnv.Spec.ResourcePrefix)
 
 	tflog.Trace(ctx, "updated resource", map[string]interface{}{"name": envName})
 	diags = resp.State.Set(ctx, &data)

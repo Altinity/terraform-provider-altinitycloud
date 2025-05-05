@@ -9,22 +9,24 @@ import (
 )
 
 type AWSEnvResourceModel struct {
-	Id                    types.String                    `tfsdk:"id"`
-	Name                  types.String                    `tfsdk:"name"`
-	CustomDomain          types.String                    `tfsdk:"custom_domain"`
-	LoadBalancingStrategy types.String                    `tfsdk:"load_balancing_strategy"`
-	Region                types.String                    `tfsdk:"region"`
-	NAT                   types.Bool                      `tfsdk:"nat"`
-	CIDR                  types.String                    `tfsdk:"cidr"`
-	AWSAccountID          types.String                    `tfsdk:"aws_account_id"`
-	Zones                 types.List                      `tfsdk:"zones"`
-	LoadBalancers         *LoadBalancersModel             `tfsdk:"load_balancers"`
-	NodeGroups            []common.NodeGroupsModel        `tfsdk:"node_groups"`
-	PeeringConnections    []AWSEnvPeeringConnectionModel  `tfsdk:"peering_connections"`
-	Endpoints             []AWSEnvEndpointModel           `tfsdk:"endpoints"`
-	Tags                  []common.KeyValueModel          `tfsdk:"tags"`
-	CloudConnect          types.Bool                      `tfsdk:"cloud_connect"`
-	MaintenanceWindows    []common.MaintenanceWindowModel `tfsdk:"maintenance_windows"`
+	Id                           types.String                    `tfsdk:"id"`
+	Name                         types.String                    `tfsdk:"name"`
+	CustomDomain                 types.String                    `tfsdk:"custom_domain"`
+	LoadBalancingStrategy        types.String                    `tfsdk:"load_balancing_strategy"`
+	Region                       types.String                    `tfsdk:"region"`
+	PermissionsBoundaryPolicyArn types.String                    `tfsdk:"permissions_boundary_policy_arn"`
+	ResourcePrefix               types.String                    `tfsdk:"resource_prefix"`
+	NAT                          types.Bool                      `tfsdk:"nat"`
+	CIDR                         types.String                    `tfsdk:"cidr"`
+	AWSAccountID                 types.String                    `tfsdk:"aws_account_id"`
+	Zones                        types.List                      `tfsdk:"zones"`
+	LoadBalancers                *LoadBalancersModel             `tfsdk:"load_balancers"`
+	NodeGroups                   []common.NodeGroupsModel        `tfsdk:"node_groups"`
+	PeeringConnections           []AWSEnvPeeringConnectionModel  `tfsdk:"peering_connections"`
+	Endpoints                    []AWSEnvEndpointModel           `tfsdk:"endpoints"`
+	Tags                         []common.KeyValueModel          `tfsdk:"tags"`
+	CloudConnect                 types.Bool                      `tfsdk:"cloud_connect"`
+	MaintenanceWindows           []common.MaintenanceWindowModel `tfsdk:"maintenance_windows"`
 
 	SpecRevision                 types.Int64 `tfsdk:"spec_revision"`
 	ForceDestroy                 types.Bool  `tfsdk:"force_destroy"`
@@ -102,20 +104,22 @@ func (e AWSEnvResourceModel) toSDK() (sdk.CreateAWSEnvInput, sdk.UpdateAWSEnvInp
 	create := sdk.CreateAWSEnvInput{
 		Name: e.Name.ValueString(),
 		Spec: &sdk.CreateAWSEnvSpecInput{
-			CustomDomain:          e.CustomDomain.ValueStringPointer(),
-			LoadBalancingStrategy: loadBalancingStrategy,
-			LoadBalancers:         LoadBalancers,
-			NodeGroups:            nodeGroups,
-			Region:                e.Region.ValueString(),
-			Nat:                   e.NAT.ValueBoolPointer(),
-			AWSAccountID:          e.AWSAccountID.ValueString(),
-			Cidr:                  e.CIDR.ValueString(),
-			Zones:                 zones,
-			PeeringConnections:    peeringConnections,
-			Endpoints:             endpoints,
-			Tags:                  tags,
-			CloudConnect:          &cloudConnect,
-			MaintenanceWindows:    maintenanceWindows,
+			CustomDomain:                 e.CustomDomain.ValueStringPointer(),
+			LoadBalancingStrategy:        loadBalancingStrategy,
+			LoadBalancers:                LoadBalancers,
+			NodeGroups:                   nodeGroups,
+			Region:                       e.Region.ValueString(),
+			Nat:                          e.NAT.ValueBoolPointer(),
+			AWSAccountID:                 e.AWSAccountID.ValueString(),
+			Cidr:                         e.CIDR.ValueString(),
+			Zones:                        zones,
+			PeeringConnections:           peeringConnections,
+			Endpoints:                    endpoints,
+			Tags:                         tags,
+			CloudConnect:                 &cloudConnect,
+			MaintenanceWindows:           maintenanceWindows,
+			PermissionsBoundaryPolicyArn: e.PermissionsBoundaryPolicyArn.ValueStringPointer(),
+			ResourcePrefix:               e.ResourcePrefix.ValueStringPointer(),
 		},
 	}
 
@@ -151,6 +155,8 @@ func (model *AWSEnvResourceModel) toModel(env sdk.GetAWSEnv_AWSEnv) {
 	model.NodeGroups = nodeGroupsToModel(env.Spec.NodeGroups)
 	model.MaintenanceWindows = maintenanceWindowsToModel(env.Spec.MaintenanceWindows)
 	model.Zones = common.ListToModel(env.Spec.Zones)
+	model.PermissionsBoundaryPolicyArn = types.StringPointerValue(env.Spec.PermissionsBoundaryPolicyArn)
+	model.ResourcePrefix = types.StringValue(env.Spec.ResourcePrefix)
 
 	var peeringConnections []AWSEnvPeeringConnectionModel
 	for _, p := range env.Spec.PeeringConnections {

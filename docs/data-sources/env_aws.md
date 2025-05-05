@@ -66,11 +66,13 @@ Bring Your Own Cloud (BYOC) AWS environment data source.
 - `maintenance_windows` (Attributes List) List of maintenance windows during which automatic maintenance is permitted. By default updates are applied as soon as they are available. (see [below for nested schema](#nestedatt--maintenance_windows))
 - `node_groups` (Attributes Set) List of node groups. At least one required. (see [below for nested schema](#nestedatt--node_groups))
 - `peering_connections` (Attributes List) AWS environment VPC peering configuration. (see [below for nested schema](#nestedatt--peering_connections))
+- `permissions_boundary_policy_arn` (String) Policy ARN that sets the maximum permissions for the IAM roles created by the environment. **[IMMUTABLE]**
 - `region` (String) AWS region ([docs](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.RegionsAndAvailabilityZones.html#Concepts.RegionsAndAvailabilityZones.Regions)). **[IMMUTABLE]**
 
 		Examples:
 		- "us-east-1"
 		- "sa-east-1"
+- `resource_prefix` (String) Resource prefix used for provisioned resources **[IMMUTABLE]**
 - `skip_deprovision_on_destroy` (Boolean) Set to `true` will delete without waiting for environment deprovisioning. Use this with precaution, it may end up with dangling resources in your cloud provider (default `false`).
 - `spec_revision` (Number) Spec revision
 - `tags` (Attributes List) Tags to apply to AWS resources. (see [below for nested schema](#nestedatt--tags))

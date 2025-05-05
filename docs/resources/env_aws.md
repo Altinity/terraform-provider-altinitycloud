@@ -258,6 +258,8 @@ resource "aws_vpc_peering_connection_accepter" "peer" {
 - `maintenance_windows` (Attributes List) List of maintenance windows during which automatic maintenance is permitted. By default updates are applied as soon as they are available. (see [below for nested schema](#nestedatt--maintenance_windows))
 - `nat` (Boolean) Enable AWS NAT Gateway. **[IMMUTABLE]**
 - `peering_connections` (Attributes List) AWS environment VPC peering configuration. (see [below for nested schema](#nestedatt--peering_connections))
+- `permissions_boundary_policy_arn` (String) Policy ARN that sets the maximum permissions for the IAM roles created by the environment. **[IMMUTABLE]**
+- `resource_prefix` (String) Resource prefix used for provisioned resources **[IMMUTABLE]**
 - `skip_deprovision_on_destroy` (Boolean) Set to `true` will delete without waiting for environment deprovisioning. Use this with precaution, it may end up with dangling resources in your cloud provider (default `false`).
 - `tags` (Attributes List) Tags to apply to AWS resources. (see [below for nested schema](#nestedatt--tags))
 - `zones` (List of String) Explicit list of AWS availability zones. At least 2 required.
