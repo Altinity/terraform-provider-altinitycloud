@@ -131,6 +131,14 @@ type AWSEnvSpec {
   False means direct management.
   """
   cloudConnect: Boolean!
+  """
+  Permissions boundary policy ARN.
+  """
+  permissionsBoundaryPolicyArn: String
+  """
+  Prefix for AWS resources created by this environment.
+  """
+  resourcePrefix: String!
 }
 
 """
@@ -475,6 +483,19 @@ input CreateAWSEnvSpecInput {
   Immutable.
   """
   cloudConnect: Boolean
+  """
+  Permissions boundary policy ARN.
+
+  Immutable.
+  """
+  permissionsBoundaryPolicyArn: String
+
+  """
+  Prefix to apply to the names of AWS resources during creation.
+
+  Immutable.
+  """
+  resourcePrefix: String
 }
 
 """
