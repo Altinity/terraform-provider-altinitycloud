@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.14](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.4.13...v0.4.14)
+### Changed
+- Support AWS Permissions Boundary [d153753f](https://github.com/Altinity/terraform-provider-altinitycloud/commit/d153753f).
+
+
 ## [0.4.13](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.4.12...v0.4.13)
 ### Changed
 - Sync GraphQL schema with the latest version [e35def2](https://github.com/Altinity/terraform-provider-altinitycloud/commit/e35def2).
