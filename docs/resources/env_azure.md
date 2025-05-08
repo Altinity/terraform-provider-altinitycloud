@@ -7,7 +7,7 @@ description: |-
 
 # altinitycloud_env_azure (Resource)
 
-> For a detailed guide on provisioning an Azure environment using Terraform, check our official [documentation](https://docs.altinity.com/altinitycloudanywhere/bring-your-own-cloud-byoc/aks-remote-provisioning/#using-terraform).
+> For a detailed guide on provisioning an Azure environment using Terraform, check our official [documentation](https://docs.altinity.com/altinitycloud/quickstartguide/running-in-your-cloud-byoc/aks-remote-provisioning/#using-the-terraform-script-to-provision-the-environment).
 
 Bring Your Own Cloud (BYOC) Azure environment resource.
 
