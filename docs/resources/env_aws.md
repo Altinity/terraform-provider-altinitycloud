@@ -7,7 +7,7 @@ description: |-
 
 # altinitycloud_env_aws (Resource)
 
-> For a detailed guide on provisioning an AWS environment using Terraform, check our official [documentation](https://docs.altinity.com/altinitycloud/quickstartguide/running-in-your-cloud-byoc/aws-remote-provisioning/#method-1-using-our-terraform-provider).
+> For a detailed guide on provisioning an AWS environment using Terraform, check our official [documentation](https://docs.altinity.com/altinitycloudanywhere/bring-your-own-cloud-byoc/aws-remote-provisioning/#method-1-using-our-terraform-module).
 
 Bring Your Own Cloud (BYOC) AWS environment resource.
 
@@ -208,7 +208,7 @@ resource "aws_vpc_peering_connection_accepter" "peer" {
 
 ### Required
 
-- `aws_account_id` (String) ID of the AWS account ([docs](https://docs.aws.amazon.com/IAM/latest/UserGuide/console-account-id.html#w5aac11c17b5)) in which to provision AWS resources. **[IMMUTABLE]**
+- `aws_account_id` (String) ID of the AWS account ([docs](https://docs.aws.amazon.com/IAM/latest/UserGuide/console_account-alias.html#ViewYourAWSId)) in which to provision AWS resources. **[IMMUTABLE]**
 - `cidr` (String) VPC CIDR block from the private IPv4 address ranges as specified in RFC 1918 (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16). At least /21 required. **[IMMUTABLE]**
 
 		Examples:
@@ -372,7 +372,7 @@ Required:
 
 Optional:
 
-- `aws_account_id` (String) ID of the AWS account ([docs](https://docs.aws.amazon.com/IAM/latest/UserGuide/console-account-id.html#w5aac11c17b5)) in which to provision AWS resources. **[IMMUTABLE]**
+- `aws_account_id` (String) ID of the AWS account ([docs](https://docs.aws.amazon.com/IAM/latest/UserGuide/console_account-alias.html#ViewYourAWSId)) in which to provision AWS resources. **[IMMUTABLE]**
 - `vpc_region` (String) Target VPC region (defaults to environment region).
 
 
