@@ -149,15 +149,15 @@ func GetLoadBalancingStrategyAttribute(required, optional, computed bool) rschem
 	}
 }
 
-func GetNodeGroupsAttribute(required, optional, computed bool) rschema.SetNestedAttribute {
-	return rschema.SetNestedAttribute{
+func GetNodeGroupsAttribute(required, optional, computed bool) rschema.ListNestedAttribute {
+	return rschema.ListNestedAttribute{
 		NestedObject:        NodeGroupAttribute,
 		Optional:            optional,
 		Required:            required,
 		Computed:            computed,
 		MarkdownDescription: NODE_GROUP_DESCRIPTION,
-		Validators: []validator.Set{
-			setvalidator.SizeAtLeast(1),
+		Validators: []validator.List{
+			listvalidator.SizeAtLeast(1),
 		},
 	}
 }
