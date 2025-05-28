@@ -4,9 +4,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.4.14](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.4.13...v0.4.14)
+## [0.4.15](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.4.14...v0.4.15)
 ### Changed
-- Support AWS Permissions Boundary [d153753f](https://github.com/Altinity/terraform-provider-altinitycloud/commit/d153753f).
+- Bump github.com/hashicorp/terraform-plugin-framework-validators to `0.21.0` [#163](https://github.com/Altinity/terraform-provider-altinitycloud/pull/163).
+- Bump github.com/hashicorp/terraform-plugin-go to `0.28.0` [#167](https://github.com/Altinity/terraform-provider-altinitycloud/pull/167).
+- Bump github.com/hashicorp/terraform-plugin-testing to `1.13.1` [#168](https://github.com/Altinity/terraform-provider-altinitycloud/pull/168).
+- Bump github.com/hashicorp/terraform-plugin-framework to `1.15.0` [#164](https://github.com/Altinity/terraform-provider-altinitycloud/pull/164).
+- Update Altinity and AWS links in docs [#159](https://github.com/Altinity/terraform-provider-altinitycloud/pull/159).
+
+### Fixed
+- Fix `node_groups` schema to use `list` instead of `set` [61c9bde](https://github.com/Altinity/terraform-provider-altinitycloud/commit/61c9bde).
+
+## [0.4.14](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.4.13...v0.4.14)
+### Added
+- Support for AWS Permissions Boundary [d153753f](https://github.com/Altinity/terraform-provider-altinitycloud/commit/d153753f).
 
 
 ## [0.4.13](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.4.12...v0.4.13)

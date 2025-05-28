@@ -221,7 +221,7 @@ resource "aws_vpc_peering_connection_accepter" "peer" {
 
 		Examples:
 		- "acme-staging" (where "acme" is your account name)
-- `node_groups` (Attributes Set) List of node groups. At least one required. (see [below for nested schema](#nestedatt--node_groups))
+- `node_groups` (Attributes List) List of node groups. At least one required. (see [below for nested schema](#nestedatt--node_groups))
 - `region` (String) AWS region ([docs](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.RegionsAndAvailabilityZones.html#Concepts.RegionsAndAvailabilityZones.Regions)). **[IMMUTABLE]**
 
 		Examples:

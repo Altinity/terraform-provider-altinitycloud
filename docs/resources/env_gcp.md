@@ -97,7 +97,7 @@ data "altinitycloud_env_gcp_status" "this" {
 
 		Examples:
 		- "acme-staging" (where "acme" is your account name)
-- `node_groups` (Attributes Set) List of node groups. At least one required. (see [below for nested schema](#nestedatt--node_groups))
+- `node_groups` (Attributes List) List of node groups. At least one required. (see [below for nested schema](#nestedatt--node_groups))
 - `region` (String) GCP region ([docs](https://cloud.google.com/about/locations)). **[IMMUTABLE]**
 
 		Examples:

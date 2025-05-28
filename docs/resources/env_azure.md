@@ -88,7 +88,7 @@ data "altinitycloud_env_azure_status" "this" {
 
 		Examples:
 		- "acme-staging" (where "acme" is your account name)
-- `node_groups` (Attributes Set) List of node groups. At least one required. (see [below for nested schema](#nestedatt--node_groups))
+- `node_groups` (Attributes List) List of node groups. At least one required. (see [below for nested schema](#nestedatt--node_groups))
 - `region` (String) Azure region ([docs](https://azure.microsoft.com/en-us/explore/global-infrastructure/geographies/#overview)). **[IMMUTABLE]**
 
 		Examples:
