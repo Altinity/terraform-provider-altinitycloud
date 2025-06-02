@@ -57,8 +57,3 @@ data "altinitycloud_env_aws_status" "this" {
   name                           = altinitycloud_env_aws.this.name
   wait_for_applied_spec_revision = altinitycloud_env_aws.this.spec_revision
 }
-
-resource "aws_vpc_peering_connection_accepter" "peer" {
-  vpc_peering_connection_id = data.altinitycloud_env_aws_status.this.peering_connections[0].id
-  auto_accept               = true
-}

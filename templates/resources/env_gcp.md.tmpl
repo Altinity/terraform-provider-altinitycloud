@@ -16,6 +16,11 @@ description: |-
 
 {{ .SchemaMarkdown | trimspace }}
 
+### GCP environment with Network peering:
+{{tffile "examples/resources/altinitycloud_env_gcp/peering/main.tf"}}
+
+{{ .SchemaMarkdown | trimspace }}
+
 {{- if .HasImport }}
 ## Import
 
