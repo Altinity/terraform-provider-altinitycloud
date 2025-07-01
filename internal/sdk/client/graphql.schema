@@ -139,6 +139,10 @@ type AWSEnvSpec {
   Prefix for AWS resources created by this environment.
   """
   resourcePrefix: String!
+  """
+  List of external S3 buckets to allow access to
+  """
+  externalBuckets: [AWSEnvExternalBucket!]!
 }
 
 """
@@ -329,6 +333,9 @@ type AWSEnvLoadBalancerInternalStatus {
   endpointServiceName: String
 }
 
+"""
+AWS environment peering connection status.
+"""
 type AWSEnvPeeringConnectionStatus {
   """
   Connection ID.
@@ -338,6 +345,16 @@ type AWSEnvPeeringConnectionStatus {
   Target VPC ID.
   """
   vpcID: String!
+}
+
+"""
+External S3 bucket to allow access to
+"""
+type AWSEnvExternalBucket {
+  """
+  External bucket name.
+  """
+  name: String!
 }
 
 """
@@ -496,6 +513,10 @@ input CreateAWSEnvSpecInput {
   Immutable.
   """
   resourcePrefix: String
+  """
+  List of external S3 buckets to allow access to
+  """
+  externalBuckets: [AWSEnvExternalBucketInput!]
 }
 
 """
@@ -664,7 +685,13 @@ type CreateAWSEnvResult {
   """
   specRevision: Int!
 }
-extend type Mutation {
+
+"""
+External S3 bucket to allow access to
+"""
+input AWSEnvExternalBucketInput {
+  name: String!
+}extend type Mutation {
   """
   Marks AWS environment for removal (if exists; noop otherwise).
 
@@ -794,6 +821,10 @@ input AWSEnvUpdateSpecInput {
   Tags to apply to AWS resources.
   """
   tags: [KeyValueInput!]
+  """
+  List of external S3 buckets to allow access to
+  """
+  externalBuckets: [AWSEnvExternalBucketInput!]
 }
 
 """
