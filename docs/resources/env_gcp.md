@@ -134,7 +134,7 @@ data "altinitycloud_env_gcp_status" "this" {
 - `skip_deprovision_on_destroy` (Boolean) Set to `true` will delete without waiting for environment deprovisioning. Use this with precaution, it may end up with dangling resources in your cloud provider (default `false`).
 - `zones` (List of String) Explicit list of GCP zones. At least 2 required.
 		Examples:
-		- ["us-west1a", "us-west1b"]
+		- ["us-west1-a", "us-west1-b"]
 
 ### Read-Only
 
@@ -362,7 +362,7 @@ data "altinitycloud_env_gcp_status" "this" {
 - `skip_deprovision_on_destroy` (Boolean) Set to `true` will delete without waiting for environment deprovisioning. Use this with precaution, it may end up with dangling resources in your cloud provider (default `false`).
 - `zones` (List of String) Explicit list of GCP zones. At least 2 required.
 		Examples:
-		- ["us-west1a", "us-west1b"]
+		- ["us-west1-a", "us-west1-b"]
 
 ### Read-Only
 

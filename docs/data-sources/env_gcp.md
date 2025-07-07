@@ -69,7 +69,7 @@ Bring Your Own Cloud (BYOC) GCP environment data source.
 - `spec_revision` (Number) Spec revision
 - `zones` (List of String) Explicit list of GCP zones. At least 2 required.
 		Examples:
-		- ["us-west1a", "us-west1b"]
+		- ["us-west1-a", "us-west1-b"]
 
 <a id="nestedatt--load_balancers"></a>
 ### Nested Schema for `load_balancers`

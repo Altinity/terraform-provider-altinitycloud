@@ -150,7 +150,7 @@ const GCP_REGION_DESCRIPTION = `GCP region ([docs](https://cloud.google.com/abou
 `
 const GCP_ZONES_DESCRIPTION = `Explicit list of GCP zones. At least 2 required.
 		Examples:
-		- ["us-west1a", "us-west1b"]
+		- ["us-west1-a", "us-west1-b"]
 `
 const GCP_NODE_GROUP_NODE_TYPE_DESCRIPTION = `Machine type ([docs](https://cloud.google.com/compute/docs/machine-resource)).
 
