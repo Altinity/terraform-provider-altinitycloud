@@ -68,8 +68,8 @@ resource "altinitycloud_env_gcp" "this" {
   ]
 
   peering_connections = {
-    project_id   = "peering-project-id"  # Replace with actual peering project ID
-    network_name = "peering-network-name"  # Replace with actual peering network name
+    project_id   = "peering-project-id"   # Replace with actual peering project ID
+    network_name = "peering-network-name" # Replace with actual peering network name
   }
 }
 

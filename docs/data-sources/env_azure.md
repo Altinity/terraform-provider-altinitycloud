@@ -57,7 +57,7 @@ Bring Your Own Cloud (BYOC) Azure environment data source.
 		- "ROUND_ROBIN": load balance traffic across all zones in round-robin fashion (default)
 		- "ZONE_BEST_EFFORT": keep traffic within same zone
 - `maintenance_windows` (Attributes List) List of maintenance windows during which automatic maintenance is permitted. By default updates are applied as soon as they are available. (see [below for nested schema](#nestedatt--maintenance_windows))
-- `node_groups` (Attributes List) List of node groups. At least one required. (see [below for nested schema](#nestedatt--node_groups))
+- `node_groups` (Attributes Set) List of node groups. At least one required. (see [below for nested schema](#nestedatt--node_groups))
 - `private_link_service` (Attributes) Azure Private Link service configuration. (see [below for nested schema](#nestedatt--private_link_service))
 - `region` (String) Azure region ([docs](https://azure.microsoft.com/en-us/explore/global-infrastructure/geographies/#overview)). **[IMMUTABLE]**
 
@@ -69,7 +69,7 @@ Bring Your Own Cloud (BYOC) Azure environment data source.
 - `subscription_id` (String) ID linking the environment to a specific Azure subscription for resource management. **[IMMUTABLE]**
 - `tags` (Attributes List) Tags to apply to Azure resources. (see [below for nested schema](#nestedatt--tags))
 - `tenant_id` (String) ID of the Azure Active Directory tenant for user identity and access management. **[IMMUTABLE]**
-- `zones` (List of String) Explicit list of Azure availability zones. At least 2 required.
+- `zones` (Set of String) Explicit list of Azure availability zones. At least 2 required.
 
 		Examples:
 		- ["eastus-1", "eastus-2"]

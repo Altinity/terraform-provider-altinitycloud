@@ -114,7 +114,7 @@ data "altinitycloud_env_hcloud_status" "this" {
 		Possible Values:
 		- "ROUND_ROBIN": load balance traffic across all zones in round-robin fashion (default)
 		- "ZONE_BEST_EFFORT": keep traffic within same zone
-- `locations` (List of String) Explicit list of HCloud locations. Currently supports single location only.
+- `locations` (Set of String) Explicit list of HCloud locations. Currently supports single location only.
 
 		Examples:
 		- ["hil"]

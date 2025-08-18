@@ -16,7 +16,7 @@ type HCloudEnvResourceModel struct {
 	NodeGroups            []NodeGroupsModel               `tfsdk:"node_groups"`
 	NetworkZone           types.String                    `tfsdk:"network_zone"`
 	CIDR                  types.String                    `tfsdk:"cidr"`
-	Locations             types.List                      `tfsdk:"locations"`
+	Locations             types.Set                       `tfsdk:"locations"`
 	LoadBalancers         *LoadBalancersModel             `tfsdk:"load_balancers"`
 	LoadBalancingStrategy types.String                    `tfsdk:"load_balancing_strategy"`
 	MaintenanceWindows    []common.MaintenanceWindowModel `tfsdk:"maintenance_windows"`
@@ -48,7 +48,7 @@ type NodeGroupsModel struct {
 	Name                types.String `tfsdk:"name"`
 	NodeType            types.String `tfsdk:"node_type"`
 	CapacityPerLocation types.Int64  `tfsdk:"capacity_per_location"`
-	Locations           types.List   `tfsdk:"locations"`
+	Locations           types.Set    `tfsdk:"locations"`
 	Reservations        types.Set    `tfsdk:"reservations"`
 }
 
@@ -112,7 +112,7 @@ func (model *HCloudEnvResourceModel) toModel(env client.GetHCloudEnv_HcloudEnv) 
 	model.LoadBalancers = loadBalancersToModel(env.Spec.LoadBalancers)
 	model.NodeGroups = nodeGroupsToModel(env.Spec.NodeGroups)
 	model.MaintenanceWindows = maintenanceWindowsToModel(env.Spec.MaintenanceWindows)
-	model.Locations = common.ListToModel(env.Spec.Locations)
+	model.Locations = common.SetToModel(env.Spec.Locations)
 	model.WireguardPeers = wireguardPeersToModel(env.Spec.WireguardPeers)
 }
 
@@ -213,7 +213,7 @@ func nodeGroupsToModel(nodeGroups []*client.HCloudEnvSpecFragment_NodeGroups) []
 		modelNodeGroups = append(modelNodeGroups, NodeGroupsModel{
 			Name:                types.StringValue(np.Name),
 			NodeType:            types.StringValue(np.NodeType),
-			Locations:           common.ListToModel(np.Locations),
+			Locations:           common.SetToModel(np.Locations),
 			Reservations:        common.ReservationsToModel(np.Reservations),
 			CapacityPerLocation: types.Int64Value(np.CapacityPerLocation),
 		})
@@ -253,19 +253,4 @@ func wireguardPeersToModel(input []*client.HCloudEnvSpecFragment_WireguardPeers)
 	}
 
 	return peers
-}
-
-func reorderNodeGroups(model []NodeGroupsModel, sdk []*client.HCloudEnvSpecFragment_NodeGroups) []*client.HCloudEnvSpecFragment_NodeGroups {
-	orderedNodeGroups := make([]*client.HCloudEnvSpecFragment_NodeGroups, 0, len(sdk))
-
-	for _, ng := range model {
-		for _, apiGroup := range sdk {
-			if ng.NodeType.ValueString() == apiGroup.NodeType {
-				orderedNodeGroups = append(orderedNodeGroups, apiGroup)
-				break
-			}
-		}
-	}
-
-	return orderedNodeGroups
 }

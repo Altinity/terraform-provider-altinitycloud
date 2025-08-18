@@ -216,7 +216,7 @@ data "altinitycloud_env_aws_status" "this" {
 
 		Examples:
 		- "acme-staging" (where "acme" is your account name)
-- `node_groups` (Attributes List) List of node groups. At least one required. (see [below for nested schema](#nestedatt--node_groups))
+- `node_groups` (Attributes Set) List of node groups. At least one required. (see [below for nested schema](#nestedatt--node_groups))
 - `region` (String) AWS region ([docs](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.RegionsAndAvailabilityZones.html#Concepts.RegionsAndAvailabilityZones.Regions)). **[IMMUTABLE]**
 
 		Examples:
@@ -257,7 +257,7 @@ data "altinitycloud_env_aws_status" "this" {
 - `resource_prefix` (String) Resource prefix used for provisioned resources **[IMMUTABLE]**
 - `skip_deprovision_on_destroy` (Boolean) Set to `true` will delete without waiting for environment deprovisioning. Use this with precaution, it may end up with dangling resources in your cloud provider (default `false`).
 - `tags` (Attributes List) Tags to apply to AWS resources. (see [below for nested schema](#nestedatt--tags))
-- `zones` (List of String) Explicit list of AWS availability zones. At least 2 required.
+- `zones` (Set of String) Explicit list of AWS availability zones. At least 2 required.
 
 		Examples:
 		- ["us-east-1a", "us-east-1b"]

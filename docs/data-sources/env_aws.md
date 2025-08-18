@@ -64,7 +64,7 @@ Bring Your Own Cloud (BYOC) AWS environment data source.
 		- "ROUND_ROBIN": load balance traffic across all zones in round-robin fashion (default)
 		- "ZONE_BEST_EFFORT": keep traffic within same zone
 - `maintenance_windows` (Attributes List) List of maintenance windows during which automatic maintenance is permitted. By default updates are applied as soon as they are available. (see [below for nested schema](#nestedatt--maintenance_windows))
-- `node_groups` (Attributes List) List of node groups. At least one required. (see [below for nested schema](#nestedatt--node_groups))
+- `node_groups` (Attributes Set) List of node groups. At least one required. (see [below for nested schema](#nestedatt--node_groups))
 - `peering_connections` (Attributes List) AWS environment VPC peering configuration. (see [below for nested schema](#nestedatt--peering_connections))
 - `permissions_boundary_policy_arn` (String) Policy ARN that sets the maximum permissions for the IAM roles created by the environment. **[IMMUTABLE]**
 - `region` (String) AWS region ([docs](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.RegionsAndAvailabilityZones.html#Concepts.RegionsAndAvailabilityZones.Regions)). **[IMMUTABLE]**
@@ -76,7 +76,7 @@ Bring Your Own Cloud (BYOC) AWS environment data source.
 - `skip_deprovision_on_destroy` (Boolean) Set to `true` will delete without waiting for environment deprovisioning. Use this with precaution, it may end up with dangling resources in your cloud provider (default `false`).
 - `spec_revision` (Number) Spec revision
 - `tags` (Attributes List) Tags to apply to AWS resources. (see [below for nested schema](#nestedatt--tags))
-- `zones` (List of String) Explicit list of AWS availability zones. At least 2 required.
+- `zones` (Set of String) Explicit list of AWS availability zones. At least 2 required.
 
 		Examples:
 		- ["us-east-1a", "us-east-1b"]

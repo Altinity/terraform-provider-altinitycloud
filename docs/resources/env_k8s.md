@@ -334,7 +334,7 @@ resource "altinitycloud_env_k8s" "this" {
 
 		Examples:
 		- "acme-staging" (where "acme" is your account name)
-- `node_groups` (Attributes List) List of node groups. At least one required. (see [below for nested schema](#nestedatt--node_groups))
+- `node_groups` (Attributes Set) List of node groups. At least one required. (see [below for nested schema](#nestedatt--node_groups))
 
 ### Optional
 
@@ -379,7 +379,7 @@ Required:
 
 - `capacity_per_zone` (Number) Maximum number of instances per availability zone.
 - `node_type` (String) node.kubernetes.io/instance-type value.
-- `zones` (List of String) topology.kubernetes.io/zone values.
+- `zones` (Set of String) topology.kubernetes.io/zone values.
 
 Optional:
 
@@ -390,8 +390,8 @@ Optional:
 		- "SYSTEM" (at least one node group must include a SYSTEM reservation)
 		- "CLICKHOUSE"
 		- "ZOOKEEPER"
-- `selector` (Attributes List) `nodeSelector` to apply to the pods targeting this group (see [below for nested schema](#nestedatt--node_groups--selector))
-- `tolerations` (Attributes List) List of tolerations to apply to the pods targeting this group (see [below for nested schema](#nestedatt--node_groups--tolerations))
+- `selector` (Attributes Set) `nodeSelector` to apply to the pods targeting this group (see [below for nested schema](#nestedatt--node_groups--selector))
+- `tolerations` (Attributes Set) List of tolerations to apply to the pods targeting this group (see [below for nested schema](#nestedatt--node_groups--tolerations))
 
 <a id="nestedatt--node_groups--selector"></a>
 ### Nested Schema for `node_groups.selector`

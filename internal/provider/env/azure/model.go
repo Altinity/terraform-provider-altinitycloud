@@ -17,7 +17,7 @@ type AzureEnvResourceModel struct {
 	CIDR                  types.String                    `tfsdk:"cidr"`
 	TenantID              types.String                    `tfsdk:"tenant_id"`
 	SubscriptionID        types.String                    `tfsdk:"subscription_id"`
-	Zones                 types.List                      `tfsdk:"zones"`
+	Zones                 types.Set                       `tfsdk:"zones"`
 	LoadBalancers         *LoadBalancersModel             `tfsdk:"load_balancers"`
 	LoadBalancingStrategy types.String                    `tfsdk:"load_balancing_strategy"`
 	MaintenanceWindows    []common.MaintenanceWindowModel `tfsdk:"maintenance_windows"`
@@ -128,7 +128,7 @@ func (model *AzureEnvResourceModel) toModel(env client.GetAzureEnv_AzureEnv) {
 	model.LoadBalancers = loadBalancersToModel(env.Spec.LoadBalancers)
 	model.NodeGroups = nodeGroupsToModel(env.Spec.NodeGroups)
 	model.MaintenanceWindows = maintenanceWindowsToModel(env.Spec.MaintenanceWindows)
-	model.Zones = common.ListToModel(env.Spec.Zones)
+	model.Zones = common.SetToModel(env.Spec.Zones)
 
 	var tags []common.KeyValueModel
 	for _, t := range env.Spec.Tags {
@@ -226,7 +226,7 @@ func nodeGroupsToModel(nodeGroups []*client.AzureEnvSpecFragment_NodeGroups) []c
 		modelNodeGroups = append(modelNodeGroups, common.NodeGroupsModel{
 			Name:            types.StringValue(np.Name),
 			NodeType:        types.StringValue(np.NodeType),
-			Zones:           common.ListToModel(np.Zones),
+			Zones:           common.SetToModel(np.Zones),
 			Reservations:    common.ReservationsToModel(np.Reservations),
 			CapacityPerZone: types.Int64Value(np.CapacityPerZone),
 		})
@@ -253,19 +253,4 @@ func maintenanceWindowsToModel(input []*client.AzureEnvSpecFragment_MaintenanceW
 	}
 
 	return maintenanceWindow
-}
-
-func reorderNodeGroups(model []common.NodeGroupsModel, sdk []*client.AzureEnvSpecFragment_NodeGroups) []*client.AzureEnvSpecFragment_NodeGroups {
-	orderedNodeGroups := make([]*client.AzureEnvSpecFragment_NodeGroups, 0, len(sdk))
-
-	for _, ng := range model {
-		for _, apiGroup := range sdk {
-			if ng.NodeType.ValueString() == apiGroup.NodeType {
-				orderedNodeGroups = append(orderedNodeGroups, apiGroup)
-				break
-			}
-		}
-	}
-
-	return orderedNodeGroups
 }

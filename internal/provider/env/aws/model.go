@@ -19,7 +19,7 @@ type AWSEnvResourceModel struct {
 	NAT                          types.Bool                      `tfsdk:"nat"`
 	CIDR                         types.String                    `tfsdk:"cidr"`
 	AWSAccountID                 types.String                    `tfsdk:"aws_account_id"`
-	Zones                        types.List                      `tfsdk:"zones"`
+	Zones                        types.Set                       `tfsdk:"zones"`
 	LoadBalancers                *LoadBalancersModel             `tfsdk:"load_balancers"`
 	NodeGroups                   []common.NodeGroupsModel        `tfsdk:"node_groups"`
 	PeeringConnections           []AWSEnvPeeringConnectionModel  `tfsdk:"peering_connections"`
@@ -154,7 +154,7 @@ func (model *AWSEnvResourceModel) toModel(env sdk.GetAWSEnv_AWSEnv) {
 	model.LoadBalancers = loadBalancersToModel(env.Spec.LoadBalancers)
 	model.NodeGroups = nodeGroupsToModel(env.Spec.NodeGroups)
 	model.MaintenanceWindows = maintenanceWindowsToModel(env.Spec.MaintenanceWindows)
-	model.Zones = common.ListToModel(env.Spec.Zones)
+	model.Zones = common.SetToModel(env.Spec.Zones)
 	model.PermissionsBoundaryPolicyArn = types.StringPointerValue(env.Spec.PermissionsBoundaryPolicyArn)
 	model.ResourcePrefix = types.StringValue(env.Spec.ResourcePrefix)
 
@@ -289,7 +289,7 @@ func nodeGroupsToModel(nodeGroups []*sdk.AWSEnvSpecFragment_NodeGroups) []common
 		modelNodeGroups = append(modelNodeGroups, common.NodeGroupsModel{
 			Name:            types.StringValue(np.Name),
 			NodeType:        types.StringValue(np.NodeType),
-			Zones:           common.ListToModel(np.Zones),
+			Zones:           common.SetToModel(np.Zones),
 			Reservations:    common.ReservationsToModel(np.Reservations),
 			CapacityPerZone: types.Int64Value(np.CapacityPerZone),
 		})
@@ -316,19 +316,4 @@ func maintenanceWindowsToModel(input []*sdk.AWSEnvSpecFragment_MaintenanceWindow
 	}
 
 	return maintenanceWindow
-}
-
-func reorderNodeGroups(model []common.NodeGroupsModel, nodeGroups []*sdk.AWSEnvSpecFragment_NodeGroups) []*sdk.AWSEnvSpecFragment_NodeGroups {
-	orderedNodeGroups := make([]*sdk.AWSEnvSpecFragment_NodeGroups, 0, len(nodeGroups))
-
-	for _, ng := range model {
-		for _, apiGroup := range nodeGroups {
-			if ng.NodeType.ValueString() == apiGroup.NodeType {
-				orderedNodeGroups = append(orderedNodeGroups, apiGroup)
-				break
-			}
-		}
-	}
-
-	return orderedNodeGroups
 }

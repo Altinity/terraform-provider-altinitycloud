@@ -49,11 +49,8 @@ func (r *AzureEnvResource) Create(ctx context.Context, req resource.CreateReques
 		return
 	}
 
-	// Reorder node groups  and zones to respect order in the user's configuration
-	apiResp.CreateAzureEnv.Spec.NodeGroups = reorderNodeGroups(data.NodeGroups, apiResp.CreateAzureEnv.Spec.NodeGroups)
-	apiResp.CreateAzureEnv.Spec.Zones = common.ReorderList(data.Zones, apiResp.CreateAzureEnv.Spec.Zones)
 	data.Id = data.Name
-	data.Zones = common.ListToModel(apiResp.CreateAzureEnv.Spec.Zones)
+	data.Zones = common.SetToModel(apiResp.CreateAzureEnv.Spec.Zones)
 	data.NodeGroups = nodeGroupsToModel(apiResp.CreateAzureEnv.Spec.NodeGroups)
 	data.SpecRevision = types.Int64Value(apiResp.CreateAzureEnv.SpecRevision)
 
@@ -86,9 +83,6 @@ func (r *AzureEnvResource) Read(ctx context.Context, req resource.ReadRequest, r
 		return
 	}
 
-	// Reorder node groups  and zones to respect order in the user's configuration
-	apiResp.AzureEnv.Spec.NodeGroups = reorderNodeGroups(data.NodeGroups, apiResp.AzureEnv.Spec.NodeGroups)
-	apiResp.AzureEnv.Spec.Zones = common.ReorderList(data.Zones, apiResp.AzureEnv.Spec.Zones)
 	data.toModel(*apiResp.AzureEnv)
 	data.Id = data.Name
 
@@ -116,10 +110,7 @@ func (r *AzureEnvResource) Update(ctx context.Context, req resource.UpdateReques
 		return
 	}
 
-	// Reorder node groups  and zones to respect order in the user's configuration
-	apiResp.UpdateAzureEnv.Spec.NodeGroups = reorderNodeGroups(data.NodeGroups, apiResp.UpdateAzureEnv.Spec.NodeGroups)
-	apiResp.UpdateAzureEnv.Spec.Zones = common.ReorderList(data.Zones, apiResp.UpdateAzureEnv.Spec.Zones)
-	data.Zones = common.ListToModel(apiResp.UpdateAzureEnv.Spec.Zones)
+	data.Zones = common.SetToModel(apiResp.UpdateAzureEnv.Spec.Zones)
 	data.NodeGroups = nodeGroupsToModel(apiResp.UpdateAzureEnv.Spec.NodeGroups)
 	data.SpecRevision = types.Int64Value(apiResp.UpdateAzureEnv.SpecRevision)
 

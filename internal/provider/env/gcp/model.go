@@ -18,7 +18,7 @@ type GCPEnvResourceModel struct {
 	Region                  types.String                    `tfsdk:"region"`
 	CIDR                    types.String                    `tfsdk:"cidr"`
 	GCPProjectID            types.String                    `tfsdk:"gcp_project_id"`
-	Zones                   types.List                      `tfsdk:"zones"`
+	Zones                   types.Set                       `tfsdk:"zones"`
 	LoadBalancers           *LoadBalancersModel             `tfsdk:"load_balancers"`
 	LoadBalancingStrategy   types.String                    `tfsdk:"load_balancing_strategy"`
 	MaintenanceWindows      []common.MaintenanceWindowModel `tfsdk:"maintenance_windows"`
@@ -120,7 +120,7 @@ func (model *GCPEnvResourceModel) toModel(env sdk.GetGCPEnv_GCPEnv) {
 	model.LoadBalancers = loadBalancersToModel(env.Spec.LoadBalancers)
 	model.NodeGroups = nodeGroupsToModel(env.Spec.NodeGroups)
 	model.MaintenanceWindows = maintenanceWindowsToModel(env.Spec.MaintenanceWindows)
-	model.Zones = common.ListToModel(env.Spec.Zones)
+	model.Zones = common.SetToModel(env.Spec.Zones)
 	model.PrivateServiceConsumers = common.ListToModel(env.Spec.PrivateServiceConsumers)
 
 	var peeringConnections []GCPEnvPeeringConnectionModel
@@ -214,7 +214,7 @@ func nodeGroupsToModel(nodeGroups []*sdk.GCPEnvSpecFragment_NodeGroups) []common
 		modelNodeGroups = append(modelNodeGroups, common.NodeGroupsModel{
 			Name:            types.StringValue(np.Name),
 			NodeType:        types.StringValue(np.NodeType),
-			Zones:           common.ListToModel(np.Zones),
+			Zones:           common.SetToModel(np.Zones),
 			Reservations:    common.ReservationsToModel(np.Reservations),
 			CapacityPerZone: types.Int64Value(np.CapacityPerZone),
 		})
@@ -241,19 +241,4 @@ func maintenanceWindowsToModel(input []*sdk.GCPEnvSpecFragment_MaintenanceWindow
 	}
 
 	return maintenanceWindow
-}
-
-func reorderNodeGroups(model []common.NodeGroupsModel, input []*sdk.GCPEnvSpecFragment_NodeGroups) []*sdk.GCPEnvSpecFragment_NodeGroups {
-	orderedNodeGroups := make([]*sdk.GCPEnvSpecFragment_NodeGroups, 0, len(input))
-
-	for _, ng := range model {
-		for _, apiGroup := range input {
-			if ng.NodeType.ValueString() == apiGroup.NodeType {
-				orderedNodeGroups = append(orderedNodeGroups, apiGroup)
-				break
-			}
-		}
-	}
-
-	return orderedNodeGroups
 }

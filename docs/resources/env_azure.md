@@ -88,7 +88,7 @@ data "altinitycloud_env_azure_status" "this" {
 
 		Examples:
 		- "acme-staging" (where "acme" is your account name)
-- `node_groups` (Attributes List) List of node groups. At least one required. (see [below for nested schema](#nestedatt--node_groups))
+- `node_groups` (Attributes Set) List of node groups. At least one required. (see [below for nested schema](#nestedatt--node_groups))
 - `region` (String) Azure region ([docs](https://azure.microsoft.com/en-us/explore/global-infrastructure/geographies/#overview)). **[IMMUTABLE]**
 
 		Examples:
@@ -126,7 +126,7 @@ data "altinitycloud_env_azure_status" "this" {
 - `private_link_service` (Attributes) Azure Private Link service configuration. (see [below for nested schema](#nestedatt--private_link_service))
 - `skip_deprovision_on_destroy` (Boolean) Set to `true` will delete without waiting for environment deprovisioning. Use this with precaution, it may end up with dangling resources in your cloud provider (default `false`).
 - `tags` (Attributes List) Tags to apply to Azure resources. (see [below for nested schema](#nestedatt--tags))
-- `zones` (List of String) Explicit list of Azure availability zones. At least 2 required.
+- `zones` (Set of String) Explicit list of Azure availability zones. At least 2 required.
 
 		Examples:
 		- ["eastus-1", "eastus-2"]

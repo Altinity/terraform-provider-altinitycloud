@@ -97,7 +97,7 @@ data "altinitycloud_env_gcp_status" "this" {
 
 		Examples:
 		- "acme-staging" (where "acme" is your account name)
-- `node_groups` (Attributes List) List of node groups. At least one required. (see [below for nested schema](#nestedatt--node_groups))
+- `node_groups` (Attributes Set) List of node groups. At least one required. (see [below for nested schema](#nestedatt--node_groups))
 - `region` (String) GCP region ([docs](https://cloud.google.com/about/locations)). **[IMMUTABLE]**
 
 		Examples:
@@ -132,7 +132,7 @@ data "altinitycloud_env_gcp_status" "this" {
 - `peering_connections` (Attributes List) Network peering configuration. (see [below for nested schema](#nestedatt--peering_connections))
 - `private_service_consumers` (List of String) List of project IDs representing the network's private service consumers.
 - `skip_deprovision_on_destroy` (Boolean) Set to `true` will delete without waiting for environment deprovisioning. Use this with precaution, it may end up with dangling resources in your cloud provider (default `false`).
-- `zones` (List of String) Explicit list of GCP zones. At least 2 required.
+- `zones` (Set of String) Explicit list of GCP zones. At least 2 required.
 		Examples:
 		- ["us-west1-a", "us-west1-b"]
 
@@ -295,8 +295,8 @@ resource "altinitycloud_env_gcp" "this" {
   ]
 
   peering_connections = {
-    project_id   = "peering-project-id"  # Replace with actual peering project ID
-    network_name = "peering-network-name"  # Replace with actual peering network name
+    project_id   = "peering-project-id"   # Replace with actual peering project ID
+    network_name = "peering-network-name" # Replace with actual peering network name
   }
 }
 
@@ -325,7 +325,7 @@ data "altinitycloud_env_gcp_status" "this" {
 
 		Examples:
 		- "acme-staging" (where "acme" is your account name)
-- `node_groups` (Attributes List) List of node groups. At least one required. (see [below for nested schema](#nestedatt--node_groups))
+- `node_groups` (Attributes Set) List of node groups. At least one required. (see [below for nested schema](#nestedatt--node_groups))
 - `region` (String) GCP region ([docs](https://cloud.google.com/about/locations)). **[IMMUTABLE]**
 
 		Examples:
@@ -360,7 +360,7 @@ data "altinitycloud_env_gcp_status" "this" {
 - `peering_connections` (Attributes List) Network peering configuration. (see [below for nested schema](#nestedatt--peering_connections))
 - `private_service_consumers` (List of String) List of project IDs representing the network's private service consumers.
 - `skip_deprovision_on_destroy` (Boolean) Set to `true` will delete without waiting for environment deprovisioning. Use this with precaution, it may end up with dangling resources in your cloud provider (default `false`).
-- `zones` (List of String) Explicit list of GCP zones. At least 2 required.
+- `zones` (Set of String) Explicit list of GCP zones. At least 2 required.
 		Examples:
 		- ["us-west1-a", "us-west1-b"]
 

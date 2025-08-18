@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/float64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -105,15 +106,15 @@ func getLogsAttributes(required, optional, computed bool) rschema.SingleNestedAt
 	}
 }
 
-func getNodeGroupsAttribute(required, optional, computed bool) rschema.ListNestedAttribute {
-	return rschema.ListNestedAttribute{
+func getNodeGroupsAttribute(required, optional, computed bool) rschema.SetNestedAttribute {
+	return rschema.SetNestedAttribute{
 		NestedObject:        nodeGroupAttribute,
 		Required:            required,
 		Optional:            optional,
 		Computed:            computed,
 		MarkdownDescription: common.NODE_GROUP_DESCRIPTION,
-		Validators: []validator.List{
-			listvalidator.SizeAtLeast(1),
+		Validators: []validator.Set{
+			setvalidator.SizeAtLeast(1),
 		},
 	}
 }
@@ -260,28 +261,28 @@ var nodeGroupAttribute = rschema.NestedAttributeObject{
 				int64validator.AtLeast(1),
 			},
 		},
-		"tolerations": rschema.ListNestedAttribute{
+		"tolerations": rschema.SetNestedAttribute{
 			NestedObject:        tolerationsAttribute,
 			Optional:            true,
 			MarkdownDescription: common.NODE_GROUP_TOLERATIONS,
-			Validators: []validator.List{
-				listvalidator.SizeAtLeast(1),
+			Validators: []validator.Set{
+				setvalidator.SizeAtLeast(1),
 			},
 		},
-		"selector": rschema.ListNestedAttribute{
+		"selector": rschema.SetNestedAttribute{
 			NestedObject:        common.KeyValueAttribute,
 			Optional:            true,
 			MarkdownDescription: common.NODE_GROUP_SELECTOR_DESCRIPTION,
-			Validators: []validator.List{
-				listvalidator.SizeAtLeast(1),
+			Validators: []validator.Set{
+				setvalidator.SizeAtLeast(1),
 			},
 		},
-		"zones": rschema.ListAttribute{
+		"zones": rschema.SetAttribute{
 			ElementType:         types.StringType,
 			Required:            true,
 			MarkdownDescription: common.K8S_NODE_GROUP_ZONES_DESCRIPTION,
-			Validators: []validator.List{
-				listvalidator.SizeAtLeast(1),
+			Validators: []validator.Set{
+				setvalidator.SizeAtLeast(1),
 			},
 		},
 		"reservations": common.GetReservationsAttribute(false, true, true),

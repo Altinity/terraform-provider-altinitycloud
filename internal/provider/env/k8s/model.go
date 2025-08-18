@@ -55,7 +55,7 @@ type NodeGroupsModel struct {
 	NodeType        types.String           `tfsdk:"node_type"`
 	CapacityPerZone types.Int64            `tfsdk:"capacity_per_zone"`
 	Reservations    types.Set              `tfsdk:"reservations"`
-	Zones           types.List             `tfsdk:"zones"`
+	Zones           types.Set              `tfsdk:"zones"`
 	Tolerations     []TolerationModel      `tfsdk:"tolerations"`
 	NodeSelector    []common.KeyValueModel `tfsdk:"selector"`
 }
@@ -295,7 +295,7 @@ func nodeGroupsToModel(nodeGroups []*client.K8SEnvSpecFragment_NodeGroups) []Nod
 			Name:            types.StringValue(np.Name),
 			NodeType:        types.StringValue(np.NodeType),
 			CapacityPerZone: types.Int64Value(np.CapacityPerZone),
-			Zones:           common.ListToModel(np.Zones),
+			Zones:           common.SetToModel(np.Zones),
 			Reservations:    common.ReservationsToModel(np.Reservations),
 			Tolerations:     tolerations,
 			NodeSelector:    nodeSelector,
@@ -407,51 +407,4 @@ func maintenanceWindowsToModel(input []*client.K8SEnvSpecFragment_MaintenanceWin
 	}
 
 	return maintenanceWindow
-}
-
-func reorderNodeGroups(model []NodeGroupsModel, sdk []*client.K8SEnvSpecFragment_NodeGroups) []*client.K8SEnvSpecFragment_NodeGroups {
-	orderedNodeGroups := make([]*client.K8SEnvSpecFragment_NodeGroups, 0, len(sdk))
-
-	for _, ng := range model {
-		for _, apiGroup := range sdk {
-			if ng.NodeType.ValueString() == apiGroup.NodeType {
-				apiGroup.Selector = reorderSelectors(ng.NodeSelector, apiGroup.Selector)
-				apiGroup.Tolerations = reorderTolerations(ng.Tolerations, apiGroup.Tolerations)
-				orderedNodeGroups = append(orderedNodeGroups, apiGroup)
-				break
-			}
-		}
-	}
-
-	return orderedNodeGroups
-}
-
-func reorderSelectors(model []common.KeyValueModel, sdk []*client.K8SEnvSpecFragment_NodeGroups_Selector) []*client.K8SEnvSpecFragment_NodeGroups_Selector {
-	orderedSelectors := make([]*client.K8SEnvSpecFragment_NodeGroups_Selector, 0, len(sdk))
-
-	for _, s := range model {
-		for _, apiSelector := range sdk {
-			if s.Key.ValueString() == apiSelector.Key {
-				orderedSelectors = append(orderedSelectors, apiSelector)
-				break
-			}
-		}
-	}
-
-	return orderedSelectors
-}
-
-func reorderTolerations(model []TolerationModel, sdk []*client.K8SEnvSpecFragment_NodeGroups_Tolerations) []*client.K8SEnvSpecFragment_NodeGroups_Tolerations {
-	orderedTolerations := make([]*client.K8SEnvSpecFragment_NodeGroups_Tolerations, 0, len(sdk))
-
-	for _, t := range model {
-		for _, apiToleration := range sdk {
-			if t.Key.ValueString() == apiToleration.Key {
-				orderedTolerations = append(orderedTolerations, apiToleration)
-				break
-			}
-		}
-	}
-
-	return orderedTolerations
 }

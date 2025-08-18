@@ -48,11 +48,8 @@ func (r *AWSEnvResource) Create(ctx context.Context, req resource.CreateRequest,
 		return
 	}
 
-	// Reorder node groups  and zones to respect order in the user's configuration
-	apiResp.CreateAWSEnv.Spec.NodeGroups = reorderNodeGroups(data.NodeGroups, apiResp.CreateAWSEnv.Spec.NodeGroups)
-	apiResp.CreateAWSEnv.Spec.Zones = common.ReorderList(data.Zones, apiResp.CreateAWSEnv.Spec.Zones)
 	data.Id = data.Name
-	data.Zones = common.ListToModel(apiResp.CreateAWSEnv.Spec.Zones)
+	data.Zones = common.SetToModel(apiResp.CreateAWSEnv.Spec.Zones)
 	data.NodeGroups = nodeGroupsToModel(apiResp.CreateAWSEnv.Spec.NodeGroups)
 	data.SpecRevision = types.Int64Value(apiResp.CreateAWSEnv.SpecRevision)
 	data.ResourcePrefix = types.StringValue(apiResp.CreateAWSEnv.Spec.ResourcePrefix)
@@ -85,9 +82,6 @@ func (r *AWSEnvResource) Read(ctx context.Context, req resource.ReadRequest, res
 		return
 	}
 
-	// Reorder node groups  and zones to respect order in the user's configuration
-	apiResp.AWSEnv.Spec.NodeGroups = reorderNodeGroups(data.NodeGroups, apiResp.AWSEnv.Spec.NodeGroups)
-	apiResp.AWSEnv.Spec.Zones = common.ReorderList(data.Zones, apiResp.AWSEnv.Spec.Zones)
 	data.toModel(*apiResp.AWSEnv)
 	data.Id = data.Name
 
@@ -115,10 +109,7 @@ func (r *AWSEnvResource) Update(ctx context.Context, req resource.UpdateRequest,
 		return
 	}
 
-	// Reorder node groups  and zones to respect order in the user's configuration
-	apiResp.UpdateAWSEnv.Spec.NodeGroups = reorderNodeGroups(data.NodeGroups, apiResp.UpdateAWSEnv.Spec.NodeGroups)
-	apiResp.UpdateAWSEnv.Spec.Zones = common.ReorderList(data.Zones, apiResp.UpdateAWSEnv.Spec.Zones)
-	data.Zones = common.ListToModel(apiResp.UpdateAWSEnv.Spec.Zones)
+	data.Zones = common.SetToModel(apiResp.UpdateAWSEnv.Spec.Zones)
 	data.NodeGroups = nodeGroupsToModel(apiResp.UpdateAWSEnv.Spec.NodeGroups)
 	data.SpecRevision = types.Int64Value(apiResp.UpdateAWSEnv.SpecRevision)
 	data.ResourcePrefix = types.StringValue(apiResp.UpdateAWSEnv.Spec.ResourcePrefix)

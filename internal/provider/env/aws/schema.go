@@ -8,6 +8,7 @@ import (
 	"github.com/altinity/terraform-provider-altinitycloud/internal/provider/common"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/provider/modifiers"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -190,10 +191,10 @@ func getCloudConnectAttribute(required, optional, computed bool) rschema.BoolAtt
 	}
 }
 
-func getZonesAttribute(required, optional, computed bool, description string) rschema.ListAttribute {
+func getZonesAttribute(required, optional, computed bool, description string) rschema.SetAttribute {
 	zonesAttribute := common.GetZonesAttribute(required, optional, computed, description)
-	zonesAttribute.Validators = []validator.List{
-		listvalidator.SizeAtLeast(2),
+	zonesAttribute.Validators = []validator.Set{
+		setvalidator.SizeAtLeast(2),
 	}
 
 	return zonesAttribute

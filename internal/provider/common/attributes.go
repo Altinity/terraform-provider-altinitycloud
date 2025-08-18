@@ -120,15 +120,15 @@ func GetCIDRAttribute(required, optional, computed bool) rschema.StringAttribute
 	}
 }
 
-func GetZonesAttribute(required, optional, computed bool, description string) rschema.ListAttribute {
-	return rschema.ListAttribute{
+func GetZonesAttribute(required, optional, computed bool, description string) rschema.SetAttribute {
+	return rschema.SetAttribute{
 		ElementType:         types.StringType,
 		Required:            required,
 		Optional:            optional,
 		Computed:            computed,
 		MarkdownDescription: description,
-		Validators: []validator.List{
-			listvalidator.SizeAtLeast(1),
+		Validators: []validator.Set{
+			setvalidator.SizeAtLeast(1),
 		},
 	}
 }
@@ -149,15 +149,15 @@ func GetLoadBalancingStrategyAttribute(required, optional, computed bool) rschem
 	}
 }
 
-func GetNodeGroupsAttribute(required, optional, computed bool) rschema.ListNestedAttribute {
-	return rschema.ListNestedAttribute{
+func GetNodeGroupsAttribute(required, optional, computed bool) rschema.SetNestedAttribute {
+	return rschema.SetNestedAttribute{
 		NestedObject:        NodeGroupAttribute,
 		Optional:            optional,
 		Required:            required,
 		Computed:            computed,
 		MarkdownDescription: NODE_GROUP_DESCRIPTION,
-		Validators: []validator.List{
-			listvalidator.SizeAtLeast(1),
+		Validators: []validator.Set{
+			setvalidator.SizeAtLeast(1),
 		},
 	}
 }
