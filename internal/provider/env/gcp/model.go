@@ -245,13 +245,23 @@ func maintenanceWindowsToModel(input []*sdk.GCPEnvSpecFragment_MaintenanceWindow
 
 func reorderNodeGroups(model []common.NodeGroupsModel, input []*sdk.GCPEnvSpecFragment_NodeGroups) []*sdk.GCPEnvSpecFragment_NodeGroups {
 	orderedNodeGroups := make([]*sdk.GCPEnvSpecFragment_NodeGroups, 0, len(input))
+	usedNodeGroups := make(map[string]bool)
 
+	// First, add node groups that exist in the model in the correct order
 	for _, ng := range model {
 		for _, apiGroup := range input {
 			if ng.NodeType.ValueString() == apiGroup.NodeType {
 				orderedNodeGroups = append(orderedNodeGroups, apiGroup)
+				usedNodeGroups[apiGroup.NodeType] = true
 				break
 			}
+		}
+	}
+
+	// Then, add any remaining node groups from the API that weren't in the model
+	for _, apiGroup := range input {
+		if !usedNodeGroups[apiGroup.NodeType] {
+			orderedNodeGroups = append(orderedNodeGroups, apiGroup)
 		}
 	}
 

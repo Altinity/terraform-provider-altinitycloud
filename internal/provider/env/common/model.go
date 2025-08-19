@@ -29,16 +29,26 @@ type MaintenanceWindowModel struct {
 
 func ReorderList(model types.List, input []string) []string {
 	orderedZones := make([]string, 0, len(input))
+	usedZones := make(map[string]bool)
 
 	var modelZones []string
 	model.ElementsAs(context.TODO(), &modelZones, false)
 
+	// First, add zones that exist in the model in the correct order
 	for _, zone := range modelZones {
 		for _, apiZone := range input {
 			if zone == apiZone {
 				orderedZones = append(orderedZones, apiZone)
+				usedZones[apiZone] = true
 				break
 			}
+		}
+	}
+
+	// Then, add any remaining zones from the API that weren't in the model
+	for _, apiZone := range input {
+		if !usedZones[apiZone] {
+			orderedZones = append(orderedZones, apiZone)
 		}
 	}
 
