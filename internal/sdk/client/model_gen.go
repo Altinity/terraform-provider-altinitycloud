@@ -80,6 +80,10 @@ type AWSEnvLoadBalancerInternalSpec struct {
 	// Examples:
 	// - arn:aws:iam::$account_id:root
 	EndpointServiceAllowedPrincipals []string `json:"endpointServiceAllowedPrincipals"`
+	// List of supported regions for VPC endpoints.
+	//
+	// Example: ["us-east-1", "us-west-2"]
+	EndpointServiceSupportedRegions []string `json:"endpointServiceSupportedRegions"`
 }
 
 // AWS environment internal load balancer configuration input.
@@ -103,6 +107,10 @@ type AWSEnvLoadBalancerInternalSpecInput struct {
 	// Examples:
 	// - arn:aws:iam::$account_id:root
 	EndpointServiceAllowedPrincipals []string `json:"endpointServiceAllowedPrincipals,omitempty"`
+	// List of supported regions for VPC endpoints.
+	//
+	// Example: ["us-east-1", "us-west-2"]
+	EndpointServiceSupportedRegions []string `json:"endpointServiceSupportedRegions,omitempty"`
 }
 
 // AWS environment internal load balancer status.

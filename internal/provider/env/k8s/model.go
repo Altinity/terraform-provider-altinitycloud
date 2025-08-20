@@ -411,15 +411,25 @@ func maintenanceWindowsToModel(input []*client.K8SEnvSpecFragment_MaintenanceWin
 
 func reorderNodeGroups(model []NodeGroupsModel, sdk []*client.K8SEnvSpecFragment_NodeGroups) []*client.K8SEnvSpecFragment_NodeGroups {
 	orderedNodeGroups := make([]*client.K8SEnvSpecFragment_NodeGroups, 0, len(sdk))
+	usedNodeGroups := make(map[string]bool)
 
+	// First, add node groups that exist in the model in the correct order
 	for _, ng := range model {
 		for _, apiGroup := range sdk {
 			if ng.NodeType.ValueString() == apiGroup.NodeType {
 				apiGroup.Selector = reorderSelectors(ng.NodeSelector, apiGroup.Selector)
 				apiGroup.Tolerations = reorderTolerations(ng.Tolerations, apiGroup.Tolerations)
 				orderedNodeGroups = append(orderedNodeGroups, apiGroup)
+				usedNodeGroups[apiGroup.NodeType] = true
 				break
 			}
+		}
+	}
+
+	// Then, add any remaining node groups from the API that weren't in the model
+	for _, apiGroup := range sdk {
+		if !usedNodeGroups[apiGroup.NodeType] {
+			orderedNodeGroups = append(orderedNodeGroups, apiGroup)
 		}
 	}
 
@@ -428,13 +438,23 @@ func reorderNodeGroups(model []NodeGroupsModel, sdk []*client.K8SEnvSpecFragment
 
 func reorderSelectors(model []common.KeyValueModel, sdk []*client.K8SEnvSpecFragment_NodeGroups_Selector) []*client.K8SEnvSpecFragment_NodeGroups_Selector {
 	orderedSelectors := make([]*client.K8SEnvSpecFragment_NodeGroups_Selector, 0, len(sdk))
+	usedSelectors := make(map[string]bool)
 
+	// First, add selectors that exist in the model in the correct order
 	for _, s := range model {
 		for _, apiSelector := range sdk {
 			if s.Key.ValueString() == apiSelector.Key {
 				orderedSelectors = append(orderedSelectors, apiSelector)
+				usedSelectors[apiSelector.Key] = true
 				break
 			}
+		}
+	}
+
+	// Then, add any remaining selectors from the API that weren't in the model
+	for _, apiSelector := range sdk {
+		if !usedSelectors[apiSelector.Key] {
+			orderedSelectors = append(orderedSelectors, apiSelector)
 		}
 	}
 
@@ -443,13 +463,23 @@ func reorderSelectors(model []common.KeyValueModel, sdk []*client.K8SEnvSpecFrag
 
 func reorderTolerations(model []TolerationModel, sdk []*client.K8SEnvSpecFragment_NodeGroups_Tolerations) []*client.K8SEnvSpecFragment_NodeGroups_Tolerations {
 	orderedTolerations := make([]*client.K8SEnvSpecFragment_NodeGroups_Tolerations, 0, len(sdk))
+	usedTolerations := make(map[string]bool)
 
+	// First, add tolerations that exist in the model in the correct order
 	for _, t := range model {
 		for _, apiToleration := range sdk {
 			if t.Key.ValueString() == apiToleration.Key {
 				orderedTolerations = append(orderedTolerations, apiToleration)
+				usedTolerations[apiToleration.Key] = true
 				break
 			}
+		}
+	}
+
+	// Then, add any remaining tolerations from the API that weren't in the model
+	for _, apiToleration := range sdk {
+		if !usedTolerations[apiToleration.Key] {
+			orderedTolerations = append(orderedTolerations, apiToleration)
 		}
 	}
 

@@ -257,13 +257,23 @@ func wireguardPeersToModel(input []*client.HCloudEnvSpecFragment_WireguardPeers)
 
 func reorderNodeGroups(model []NodeGroupsModel, sdk []*client.HCloudEnvSpecFragment_NodeGroups) []*client.HCloudEnvSpecFragment_NodeGroups {
 	orderedNodeGroups := make([]*client.HCloudEnvSpecFragment_NodeGroups, 0, len(sdk))
+	usedNodeGroups := make(map[string]bool)
 
+	// First, add node groups that exist in the model in the correct order
 	for _, ng := range model {
 		for _, apiGroup := range sdk {
 			if ng.NodeType.ValueString() == apiGroup.NodeType {
 				orderedNodeGroups = append(orderedNodeGroups, apiGroup)
+				usedNodeGroups[apiGroup.NodeType] = true
 				break
 			}
+		}
+	}
+
+	// Then, add any remaining node groups from the API that weren't in the model
+	for _, apiGroup := range sdk {
+		if !usedNodeGroups[apiGroup.NodeType] {
+			orderedNodeGroups = append(orderedNodeGroups, apiGroup)
 		}
 	}
 
