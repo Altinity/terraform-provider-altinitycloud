@@ -216,6 +216,13 @@ type AWSEnvLoadBalancerInternalSpec {
   - arn:aws:iam::$account_id:root
   """
   endpointServiceAllowedPrincipals: [String!]!
+
+  """
+  List of supported regions for VPC endpoints.
+
+  Example: ["us-east-1", "us-west-2"]
+  """
+  endpointServiceSupportedRegions: [String!]!
 }
 
 """
@@ -594,6 +601,13 @@ input AWSEnvLoadBalancerInternalSpecInput {
   - arn:aws:iam::$account_id:root
   """
   endpointServiceAllowedPrincipals: [String!]
+
+  """
+  List of supported regions for VPC endpoints.
+
+  Example: ["us-east-1", "us-west-2"]
+  """
+  endpointServiceSupportedRegions: [String!]
 }
 
 """
