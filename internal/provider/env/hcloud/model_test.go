@@ -716,9 +716,9 @@ func TestWireguardPeersToSDK(t *testing.T) {
 		name     string
 		input    []WireguardPeers
 		expected []struct {
-			publicKey     string
+			publicKey      string
 			allowedIPCount int
-			endpoint      string
+			endpoint       string
 		}
 	}{
 		{
@@ -736,19 +736,19 @@ func TestWireguardPeersToSDK(t *testing.T) {
 				},
 			},
 			expected: []struct {
-				publicKey     string
+				publicKey      string
 				allowedIPCount int
-				endpoint      string
+				endpoint       string
 			}{
 				{
-					publicKey:     "publickey1==",
+					publicKey:      "publickey1==",
 					allowedIPCount: 2,
-					endpoint:      "1.2.3.4:51820",
+					endpoint:       "1.2.3.4:51820",
 				},
 				{
-					publicKey:     "publickey2==",
+					publicKey:      "publickey2==",
 					allowedIPCount: 1,
-					endpoint:      "5.6.7.8:51820",
+					endpoint:       "5.6.7.8:51820",
 				},
 			},
 		},
@@ -756,9 +756,9 @@ func TestWireguardPeersToSDK(t *testing.T) {
 			name:  "Empty input",
 			input: []WireguardPeers{},
 			expected: []struct {
-				publicKey     string
+				publicKey      string
 				allowedIPCount int
-				endpoint      string
+				endpoint       string
 			}{},
 		},
 		{
@@ -771,14 +771,14 @@ func TestWireguardPeersToSDK(t *testing.T) {
 				},
 			},
 			expected: []struct {
-				publicKey     string
+				publicKey      string
 				allowedIPCount int
-				endpoint      string
+				endpoint       string
 			}{
 				{
-					publicKey:     "singlekey==",
+					publicKey:      "singlekey==",
 					allowedIPCount: 1,
-					endpoint:      "192.168.1.1:51820",
+					endpoint:       "192.168.1.1:51820",
 				},
 			},
 		},
@@ -813,9 +813,9 @@ func TestWireguardPeersToModel(t *testing.T) {
 		name     string
 		input    []*client.HCloudEnvSpecFragment_WireguardPeers
 		expected []struct {
-			publicKey     string
+			publicKey      string
 			allowedIPCount int
-			endpoint      string
+			endpoint       string
 		}
 	}{
 		{
@@ -833,19 +833,19 @@ func TestWireguardPeersToModel(t *testing.T) {
 				},
 			},
 			expected: []struct {
-				publicKey     string
+				publicKey      string
 				allowedIPCount int
-				endpoint      string
+				endpoint       string
 			}{
 				{
-					publicKey:     "publickey1==",
+					publicKey:      "publickey1==",
 					allowedIPCount: 2,
-					endpoint:      "1.2.3.4:51820",
+					endpoint:       "1.2.3.4:51820",
 				},
 				{
-					publicKey:     "publickey2==",
+					publicKey:      "publickey2==",
 					allowedIPCount: 1,
-					endpoint:      "5.6.7.8:51820",
+					endpoint:       "5.6.7.8:51820",
 				},
 			},
 		},
@@ -853,9 +853,9 @@ func TestWireguardPeersToModel(t *testing.T) {
 			name:  "Empty input",
 			input: []*client.HCloudEnvSpecFragment_WireguardPeers{},
 			expected: []struct {
-				publicKey     string
+				publicKey      string
 				allowedIPCount int
-				endpoint      string
+				endpoint       string
 			}{},
 		},
 		{
@@ -868,14 +868,14 @@ func TestWireguardPeersToModel(t *testing.T) {
 				},
 			},
 			expected: []struct {
-				publicKey     string
+				publicKey      string
 				allowedIPCount int
-				endpoint      string
+				endpoint       string
 			}{
 				{
-					publicKey:     "singlekey==",
+					publicKey:      "singlekey==",
 					allowedIPCount: 1,
-					endpoint:      "192.168.1.1:51820",
+					endpoint:       "192.168.1.1:51820",
 				},
 			},
 		},
