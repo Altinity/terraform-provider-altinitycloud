@@ -54,12 +54,9 @@ data "altinitycloud_env_aws_status" "this" {
   wait_for_applied_spec_revision = altinitycloud_env_aws.this.spec_revision
 }
 
+
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_endpoint.html
-resource "aws_vpc_endpoint" "this" {
-  service_name        = data.altinitycloud_env_aws_status.this.load_balancers.internal.endpoint_service_name
-  vpc_endpoint_type   = "Interface"
-  vpc_id              = var.vpc_id
-  subnet_ids          = var.subnet_ids
-  security_group_ids  = var.security_group_ids
-  private_dns_enabled = true
+# Use this value as `service_name` in the `aws_vpc_endpoint` resource to create the VPC Endpoint
+output "vpc_endpoint_service_name" {
+  value = data.altinitycloud_env_aws_status.this.load_balancers.internal.endpoint_service_name
 }
