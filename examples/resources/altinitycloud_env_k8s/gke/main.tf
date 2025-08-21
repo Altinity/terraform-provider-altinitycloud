@@ -14,7 +14,7 @@ module "altinitycloud_connect" {
 
 resource "altinitycloud_env_k8s" "this" {
   name         = altinitycloud_env_certificate.this.env_name
-  distribution = "GCP"
+  distribution = "GKE"
   // node_groups should match existing node pools configuration.
   node_groups = [
     {
