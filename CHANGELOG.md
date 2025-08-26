@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.19](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.4.18...v0.4.19)
+### Added
+- Add `external_buckets` property to `altinitycloud_env_aws` resource [1611f0f](https://github.com/Altinity/terraform-provider-altinitycloud/commit/1611f0f).
+
 ## [0.4.18](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.4.17...v0.4.18)
 
 ### Added
