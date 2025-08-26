@@ -8,6 +8,7 @@ import (
 	"github.com/altinity/terraform-provider-altinitycloud/internal/provider/common"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/provider/modifiers"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -43,6 +44,7 @@ func (r *AWSEnvResource) Schema(ctx context.Context, req resource.SchemaRequest,
 			"cloud_connect":                   getCloudConnectAttribute(false, true, true),
 			"resource_prefix":                 getResourcePrefixAttribute(false, true, true),
 			"permissions_boundary_policy_arn": getPermissionsBoundaryPolicyArnAttribute(false, true, false),
+			"external_buckets":                getExternalBucketsAttribute(false, true, false),
 
 			"spec_revision":                   common.SpecRevisionAttribute,
 			"force_destroy":                   common.GetForceDestroyAttribute(false, true, true),
@@ -75,6 +77,7 @@ func (d *AWSEnvDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 			"cloud_connect":                   getCloudConnectAttribute(false, false, true),
 			"permissions_boundary_policy_arn": getPermissionsBoundaryPolicyArnAttribute(false, false, true),
 			"resource_prefix":                 getResourcePrefixAttribute(false, false, true),
+			"external_buckets":                getExternalBucketsAttribute(false, false, true),
 			"spec_revision":                   common.SpecRevisionAttribute,
 
 			// these options are not used in data sources,
@@ -159,6 +162,19 @@ func getPeeringConnectionsAttribute(required, optional, computed bool) rschema.L
 		MarkdownDescription: common.PEERING_CONNECTION_DESCRIPTION,
 		Validators: []validator.List{
 			listvalidator.SizeAtLeast(1),
+		},
+	}
+}
+
+func getExternalBucketsAttribute(required, optional, computed bool) rschema.SetNestedAttribute {
+	return rschema.SetNestedAttribute{
+		NestedObject:        externalBucketAttribute,
+		Optional:            optional,
+		Required:            required,
+		Computed:            computed,
+		MarkdownDescription: common.EXTERNAL_BUCKET_DESCRIPTION,
+		Validators: []validator.Set{
+			setvalidator.SizeAtLeast(1),
 		},
 	}
 }
@@ -265,6 +281,15 @@ var peeringAttribute = rschema.NestedAttributeObject{
 		"vpc_region": rschema.StringAttribute{
 			Optional:            true,
 			MarkdownDescription: common.PEERING_CONNECTION_VPC_REGION_DESCRIPTION,
+		},
+	},
+}
+
+var externalBucketAttribute = rschema.NestedAttributeObject{
+	Attributes: map[string]rschema.Attribute{
+		"name": rschema.StringAttribute{
+			Required:            true,
+			MarkdownDescription: common.EXTERNAL_BUCKET_NAME_DESCRIPTION,
 		},
 	},
 }

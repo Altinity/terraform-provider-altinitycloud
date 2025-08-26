@@ -27,6 +27,7 @@ type AWSEnvResourceModel struct {
 	Tags                         []common.KeyValueModel          `tfsdk:"tags"`
 	CloudConnect                 types.Bool                      `tfsdk:"cloud_connect"`
 	MaintenanceWindows           []common.MaintenanceWindowModel `tfsdk:"maintenance_windows"`
+	ExternalBuckets              []AWSEnvExternalBucketModel     `tfsdk:"external_buckets"`
 
 	SpecRevision                 types.Int64 `tfsdk:"spec_revision"`
 	ForceDestroy                 types.Bool  `tfsdk:"force_destroy"`
@@ -65,6 +66,10 @@ type AWSEnvPeeringConnectionModel struct {
 	VpcRegion    types.String `tfsdk:"vpc_region"`
 }
 
+type AWSEnvExternalBucketModel struct {
+	Name types.String `tfsdk:"name"`
+}
+
 func (e AWSEnvResourceModel) toSDK() (sdk.CreateAWSEnvInput, sdk.UpdateAWSEnvInput) {
 	var zones []string
 	e.Zones.ElementsAs(context.TODO(), &zones, false)
@@ -95,6 +100,13 @@ func (e AWSEnvResourceModel) toSDK() (sdk.CreateAWSEnvInput, sdk.UpdateAWSEnvInp
 		})
 	}
 
+	var externalBuckets []*sdk.AWSEnvExternalBucketSpecInput
+	for _, b := range e.ExternalBuckets {
+		externalBuckets = append(externalBuckets, &sdk.AWSEnvExternalBucketSpecInput{
+			Name: b.Name.ValueString(),
+		})
+	}
+
 	maintenanceWindows := common.MaintenanceWindowsToSDK(e.MaintenanceWindows)
 	LoadBalancers := loadBalancersToSDK(e.LoadBalancers)
 	nodeGroups := nodeGroupsToSDK(e.NodeGroups)
@@ -120,6 +132,7 @@ func (e AWSEnvResourceModel) toSDK() (sdk.CreateAWSEnvInput, sdk.UpdateAWSEnvInp
 			MaintenanceWindows:           maintenanceWindows,
 			PermissionsBoundaryPolicyArn: e.PermissionsBoundaryPolicyArn.ValueStringPointer(),
 			ResourcePrefix:               e.ResourcePrefix.ValueStringPointer(),
+			ExternalBuckets:              externalBuckets,
 		},
 	}
 
@@ -166,7 +179,6 @@ func (model *AWSEnvResourceModel) toModel(env sdk.GetAWSEnv_AWSEnv) {
 			VpcRegion:    types.StringPointerValue(p.VpcRegion),
 		})
 	}
-	model.PeeringConnections = peeringConnections
 
 	var endpoints []AWSEnvEndpointModel
 	for _, e := range env.Spec.Endpoints {
@@ -176,7 +188,6 @@ func (model *AWSEnvResourceModel) toModel(env sdk.GetAWSEnv_AWSEnv) {
 			PrivateDNS:  types.BoolValue(e.PrivateDNS),
 		})
 	}
-	model.Endpoints = endpoints
 
 	var tags []common.KeyValueModel
 	for _, t := range env.Spec.Tags {
@@ -186,10 +197,19 @@ func (model *AWSEnvResourceModel) toModel(env sdk.GetAWSEnv_AWSEnv) {
 		})
 	}
 
-	model.Tags = tags
+	var externalBuckets []AWSEnvExternalBucketModel
+	for _, b := range env.Spec.ExternalBuckets {
+		externalBuckets = append(externalBuckets, AWSEnvExternalBucketModel{
+			Name: types.StringValue(b.Name),
+		})
+	}
 
-	model.CloudConnect = types.BoolValue(env.Spec.CloudConnect)
+	model.Tags = tags
+	model.Endpoints = endpoints
+	model.ExternalBuckets = externalBuckets
+	model.PeeringConnections = peeringConnections
 	model.SpecRevision = types.Int64Value(env.SpecRevision)
+	model.CloudConnect = types.BoolValue(env.Spec.CloudConnect)
 }
 
 func loadBalancersToSDK(loadBalancers *LoadBalancersModel) *sdk.AWSEnvLoadBalancersSpecInput {

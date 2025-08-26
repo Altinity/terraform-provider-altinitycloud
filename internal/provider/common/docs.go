@@ -128,6 +128,8 @@ const AWS_NODE_GROUP_NODE_TYPE_DESCRIPTION = `Instance type ([docs](https://aws.
 		Examples:
 		- "t4g.large"
 `
+const EXTERNAL_BUCKET_DESCRIPTION = "List of external S3 bucket to allow access to."
+const EXTERNAL_BUCKET_NAME_DESCRIPTION = "External bucket name."
 const PEERING_CONNECTION_DESCRIPTION = "AWS environment VPC peering configuration."
 const PEERING_CONNECTION_ID_DESCRIPTION = "VPC peering connection ID."
 const PEERING_CONNECTION_VPC_ID_DESCRIPTION = "Target VPC ID."

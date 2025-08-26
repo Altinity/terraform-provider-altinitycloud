@@ -33,6 +33,7 @@ type AWSEnvSpecFragment struct {
 	Endpoints                    []*AWSEnvSpecFragment_Endpoints          "json:\"endpoints\" graphql:\"endpoints\""
 	Tags                         []*AWSEnvSpecFragment_Tags               "json:\"tags\" graphql:\"tags\""
 	CloudConnect                 bool                                     "json:\"cloudConnect\" graphql:\"cloudConnect\""
+	ExternalBuckets              []*AWSEnvSpecFragment_ExternalBuckets    "json:\"externalBuckets\" graphql:\"externalBuckets\""
 }
 
 func (t *AWSEnvSpecFragment) GetLoadBalancers() *AWSEnvSpecFragment_LoadBalancers {
@@ -130,6 +131,12 @@ func (t *AWSEnvSpecFragment) GetCloudConnect() bool {
 		t = &AWSEnvSpecFragment{}
 	}
 	return t.CloudConnect
+}
+func (t *AWSEnvSpecFragment) GetExternalBuckets() []*AWSEnvSpecFragment_ExternalBuckets {
+	if t == nil {
+		t = &AWSEnvSpecFragment{}
+	}
+	return t.ExternalBuckets
 }
 
 type AzureEnvSpecFragment struct {
@@ -675,6 +682,17 @@ func (t *AWSEnvSpecFragment_Tags) GetValue() string {
 		t = &AWSEnvSpecFragment_Tags{}
 	}
 	return t.Value
+}
+
+type AWSEnvSpecFragment_ExternalBuckets struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *AWSEnvSpecFragment_ExternalBuckets) GetName() string {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ExternalBuckets{}
+	}
+	return t.Name
 }
 
 type AzureEnvSpecFragment_LoadBalancers_Public struct {
@@ -1706,6 +1724,17 @@ func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Tags) GetValue() string {
 	return t.Value
 }
 
+type GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ExternalBuckets struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ExternalBuckets) GetName() string {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ExternalBuckets{}
+	}
+	return t.Name
+}
+
 type GetAWSEnv_AWSEnv struct {
 	Name         string              "json:\"name\" graphql:\"name\""
 	Spec         *AWSEnvSpecFragment "json:\"spec\" graphql:\"spec\""
@@ -2074,6 +2103,17 @@ func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Tags) GetValue() stri
 	return t.Value
 }
 
+type CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ExternalBuckets struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ExternalBuckets) GetName() string {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ExternalBuckets{}
+	}
+	return t.Name
+}
+
 type CreateAWSEnv_CreateAWSEnv struct {
 	MutationID   string              "json:\"mutationId\" graphql:\"mutationId\""
 	Spec         *AWSEnvSpecFragment "json:\"spec\" graphql:\"spec\""
@@ -2318,6 +2358,17 @@ func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Tags) GetValue() stri
 		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Tags{}
 	}
 	return t.Value
+}
+
+type UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ExternalBuckets struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ExternalBuckets) GetName() string {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ExternalBuckets{}
+	}
+	return t.Name
 }
 
 type UpdateAWSEnv_UpdateAWSEnv struct {
@@ -5796,6 +5847,9 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 		value
 	}
 	cloudConnect
+	externalBuckets {
+		name
+	}
 }
 `
 
@@ -5919,6 +5973,9 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 		value
 	}
 	cloudConnect
+	externalBuckets {
+		name
+	}
 }
 `
 
@@ -6000,6 +6057,9 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 		value
 	}
 	cloudConnect
+	externalBuckets {
+		name
+	}
 }
 `
 
