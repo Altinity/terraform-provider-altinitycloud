@@ -54,6 +54,7 @@ Bring Your Own Cloud (BYOC) AWS environment data source.
 		- (optional, vpce)
 			CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
 - `endpoints` (Attributes List) AWS environment VPC endpoint configuration (see [below for nested schema](#nestedatt--endpoints))
+- `external_buckets` (Attributes Set) List of external S3 bucket to allow access to. (see [below for nested schema](#nestedatt--external_buckets))
 - `force_destroy` (Boolean) Locks the environment for accidental deletion when running `terraform destroy` command. Your environment will be deleted, only when setting this parameter to `true`. Once this parameter is set to `true`, there must be a successful `terraform apply` run (before running the `terraform destroy`) to update this value in the state. Without a successful `terraform apply` after this parameter is set, this flag will have no effect. (default `false`)
 - `force_destroy_clusters` (Boolean) By default, the destroy operation will not delete any provisioned clusters and the deletion will fail until the clusters get removed. Set to `true` to remove all provisioned clusters as part of the environment deletion process.
 - `id` (String) ID of the environment (automatically generated based on the name)
@@ -93,6 +94,14 @@ Required:
 Optional:
 
 - `private_dns` (Boolean) `true` indicates whether to associate a private hosted zone with the specified VPC (default `false`).
+
+
+<a id="nestedatt--external_buckets"></a>
+### Nested Schema for `external_buckets`
+
+Required:
+
+- `name` (String) External bucket name.
 
 
 <a id="nestedatt--load_balancers"></a>

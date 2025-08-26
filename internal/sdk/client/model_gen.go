@@ -44,13 +44,14 @@ type AWSEnvEndpointSpecInput struct {
 }
 
 // External S3 bucket to allow access to
-type AWSEnvExternalBucket struct {
+type AWSEnvExternalBucketSpec struct {
 	// External bucket name.
 	Name string `json:"name"`
 }
 
 // External S3 bucket to allow access to
-type AWSEnvExternalBucketInput struct {
+type AWSEnvExternalBucketSpecInput struct {
+	// External bucket name.
 	Name string `json:"name"`
 }
 
@@ -324,7 +325,7 @@ type AWSEnvSpec struct {
 	// Prefix for AWS resources created by this environment.
 	ResourcePrefix string `json:"resourcePrefix"`
 	// List of external S3 buckets to allow access to
-	ExternalBuckets []*AWSEnvExternalBucket `json:"externalBuckets"`
+	ExternalBuckets []*AWSEnvExternalBucketSpec `json:"externalBuckets"`
 }
 
 // AWS environment status.
@@ -382,7 +383,7 @@ type AWSEnvUpdateSpecInput struct {
 	// Tags to apply to AWS resources.
 	Tags []*KeyValueInput `json:"tags,omitempty"`
 	// List of external S3 buckets to allow access to
-	ExternalBuckets []*AWSEnvExternalBucketInput `json:"externalBuckets,omitempty"`
+	ExternalBuckets []*AWSEnvExternalBucketSpecInput `json:"externalBuckets,omitempty"`
 }
 
 // Azure environment.
@@ -707,7 +708,7 @@ type CreateAWSEnvSpecInput struct {
 	// Immutable.
 	ResourcePrefix *string `json:"resourcePrefix,omitempty"`
 	// List of external S3 buckets to allow access to
-	ExternalBuckets []*AWSEnvExternalBucketInput `json:"externalBuckets,omitempty"`
+	ExternalBuckets []*AWSEnvExternalBucketSpecInput `json:"externalBuckets,omitempty"`
 }
 
 // Azure environment create request input.

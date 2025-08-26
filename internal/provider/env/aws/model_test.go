@@ -817,6 +817,11 @@ func TestAWSEnvResourceModel_toSDK(t *testing.T) {
 						Days:          []types.String{types.StringValue("saturday")},
 					},
 				},
+				ExternalBuckets: []AWSEnvExternalBucketModel{
+					{
+						Name: types.StringValue("external-bucket"),
+					},
+				},
 			},
 			validate: func(t *testing.T, create sdk.CreateAWSEnvInput, update sdk.UpdateAWSEnvInput) {
 
@@ -853,7 +858,9 @@ func TestAWSEnvResourceModel_toSDK(t *testing.T) {
 				if len(create.Spec.Tags) != 1 {
 					t.Errorf("Create tags: expected 1, got %d", len(create.Spec.Tags))
 				}
-
+				if len(create.Spec.ExternalBuckets) != 1 {
+					t.Errorf("Create external buckets: expected 1, got %d", len(create.Spec.ExternalBuckets))
+				}
 				if update.Name != "test-env" {
 					t.Errorf("Update name: expected 'test-env', got '%s'", update.Name)
 				}
@@ -910,6 +917,7 @@ func TestAWSEnvResourceModel_toSDK(t *testing.T) {
 				Endpoints:          []AWSEnvEndpointModel{},
 				Tags:               []common.KeyValueModel{},
 				MaintenanceWindows: []common.MaintenanceWindowModel{},
+				ExternalBuckets:    []AWSEnvExternalBucketModel{},
 				CloudConnect:       types.BoolValue(true),
 			},
 			validate: func(t *testing.T, create sdk.CreateAWSEnvInput, update sdk.UpdateAWSEnvInput) {
@@ -1012,6 +1020,11 @@ func TestAWSEnvResourceModel_toModel(t *testing.T) {
 							PrivateDNS:  true,
 						},
 					},
+					ExternalBuckets: []*sdk.AWSEnvSpecFragment_ExternalBuckets{
+						{
+							Name: "external-bucket",
+						},
+					},
 					Tags: []*sdk.AWSEnvSpecFragment_Tags{
 						{
 							Key:   "Environment",
@@ -1088,6 +1101,13 @@ func TestAWSEnvResourceModel_toModel(t *testing.T) {
 					t.Errorf("Peering connection VPC ID: expected 'vpc-12345', got '%s'", model.PeeringConnections[0].VpcID.ValueString())
 				}
 
+				if len(model.ExternalBuckets) != 1 {
+					t.Errorf("ExternalBuckets count: expected 1, got %d", len(model.ExternalBuckets))
+				}
+				if model.ExternalBuckets[0].Name.ValueString() != "external-bucket" {
+					t.Errorf("External bucket name: expected 'external-bucket', got '%s'", model.ExternalBuckets[0].Name.ValueString())
+				}
+
 				if len(model.Endpoints) != 1 {
 					t.Errorf("Endpoints count: expected 1, got %d", len(model.Endpoints))
 				}
@@ -1142,6 +1162,7 @@ func TestAWSEnvResourceModel_toModel(t *testing.T) {
 					MaintenanceWindows: []*sdk.AWSEnvSpecFragment_MaintenanceWindows{},
 					PeeringConnections: []*sdk.AWSEnvSpecFragment_PeeringConnections{},
 					Endpoints:          []*sdk.AWSEnvSpecFragment_Endpoints{},
+					ExternalBuckets:    []*sdk.AWSEnvSpecFragment_ExternalBuckets{},
 					Tags:               []*sdk.AWSEnvSpecFragment_Tags{},
 					CloudConnect:       false,
 				},
@@ -1182,6 +1203,9 @@ func TestAWSEnvResourceModel_toModel(t *testing.T) {
 				if len(model.Tags) != 0 {
 					t.Errorf("Tags: expected empty slice, got %d items", len(model.Tags))
 				}
+				if len(model.ExternalBuckets) != 0 {
+					t.Errorf("ExternalBuckets: expected empty slice, got %d items", len(model.ExternalBuckets))
+				}
 			},
 		},
 		{
@@ -1216,6 +1240,7 @@ func TestAWSEnvResourceModel_toModel(t *testing.T) {
 					PeeringConnections: []*sdk.AWSEnvSpecFragment_PeeringConnections{},
 					Endpoints:          []*sdk.AWSEnvSpecFragment_Endpoints{},
 					Tags:               []*sdk.AWSEnvSpecFragment_Tags{},
+					ExternalBuckets:    []*sdk.AWSEnvSpecFragment_ExternalBuckets{},
 					CloudConnect:       true,
 				},
 				SpecRevision: 5,

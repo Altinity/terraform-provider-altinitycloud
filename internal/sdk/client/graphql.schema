@@ -142,7 +142,7 @@ type AWSEnvSpec {
   """
   List of external S3 buckets to allow access to
   """
-  externalBuckets: [AWSEnvExternalBucket!]!
+  externalBuckets: [AWSEnvExternalBucketSpec!]!
 }
 
 """
@@ -357,7 +357,7 @@ type AWSEnvPeeringConnectionStatus {
 """
 External S3 bucket to allow access to
 """
-type AWSEnvExternalBucket {
+type AWSEnvExternalBucketSpec {
   """
   External bucket name.
   """
@@ -523,7 +523,7 @@ input CreateAWSEnvSpecInput {
   """
   List of external S3 buckets to allow access to
   """
-  externalBuckets: [AWSEnvExternalBucketInput!]
+  externalBuckets: [AWSEnvExternalBucketSpecInput!]
 }
 
 """
@@ -703,7 +703,10 @@ type CreateAWSEnvResult {
 """
 External S3 bucket to allow access to
 """
-input AWSEnvExternalBucketInput {
+input AWSEnvExternalBucketSpecInput {
+  """
+  External bucket name.
+  """
   name: String!
 }extend type Mutation {
   """
@@ -838,7 +841,7 @@ input AWSEnvUpdateSpecInput {
   """
   List of external S3 buckets to allow access to
   """
-  externalBuckets: [AWSEnvExternalBucketInput!]
+  externalBuckets: [AWSEnvExternalBucketSpecInput!]
 }
 
 """

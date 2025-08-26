@@ -111,4 +111,7 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
     value
   }
   cloudConnect,
+  externalBuckets {
+    name
+  }
 }
