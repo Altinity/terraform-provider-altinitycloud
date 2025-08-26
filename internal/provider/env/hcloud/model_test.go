@@ -17,7 +17,7 @@ func TestReorderNodeGroups(t *testing.T) {
 		apiNodeGroups  []*client.HCloudEnvSpecFragment_NodeGroups
 		expectedOrder  []string
 		expectedLength int
-		validateData   bool // Whether to validate specific field values
+		validateData   bool
 	}{
 		{
 			name: "Preserve model order and add new API node groups",
@@ -28,7 +28,7 @@ func TestReorderNodeGroups(t *testing.T) {
 			apiNodeGroups: []*client.HCloudEnvSpecFragment_NodeGroups{
 				{NodeType: "user", Name: "user-group", CapacityPerLocation: 2},
 				{NodeType: "system", Name: "system-group", CapacityPerLocation: 1},
-				{NodeType: "monitoring", Name: "monitoring-group", CapacityPerLocation: 1}, // New node group not in model
+				{NodeType: "monitoring", Name: "monitoring-group", CapacityPerLocation: 1},
 			},
 			expectedOrder:  []string{"system", "user", "monitoring"},
 			expectedLength: 3,
@@ -51,7 +51,7 @@ func TestReorderNodeGroups(t *testing.T) {
 			model: []NodeGroupsModel{
 				{NodeType: types.StringValue("system")},
 				{NodeType: types.StringValue("user")},
-				{NodeType: types.StringValue("missing")}, // Not in API
+				{NodeType: types.StringValue("missing")},
 			},
 			apiNodeGroups: []*client.HCloudEnvSpecFragment_NodeGroups{
 				{NodeType: "user", Name: "user-group", CapacityPerLocation: 2},
@@ -125,9 +125,7 @@ func TestReorderNodeGroups(t *testing.T) {
 				}
 			}
 
-			// Additional data validation for the "No data loss validation" test case
 			if tt.validateData {
-				// Verify system is first (from model order)
 				if result[0].NodeType != "system" {
 					t.Errorf("Expected first node type to be 'system', got '%s'", result[0].NodeType)
 				}
@@ -138,7 +136,6 @@ func TestReorderNodeGroups(t *testing.T) {
 					t.Errorf("Expected system CapacityPerLocation to be 10, got %d", result[0].CapacityPerLocation)
 				}
 
-				// Verify other node groups are preserved with their data
 				nodeTypeToGroup := make(map[string]*client.HCloudEnvSpecFragment_NodeGroups)
 				for _, group := range result {
 					nodeTypeToGroup[group.NodeType] = group
@@ -360,7 +357,6 @@ func TestLoadBalancersToSDK(t *testing.T) {
 			}
 
 			if tt.expected != nil && result != nil {
-				// Compare public load balancer
 				if (tt.expected.Public == nil) != (result.Public == nil) {
 					t.Errorf("Public load balancer presence mismatch")
 				}
@@ -373,7 +369,6 @@ func TestLoadBalancersToSDK(t *testing.T) {
 					}
 				}
 
-				// Compare internal load balancer
 				if (tt.expected.Internal == nil) != (result.Internal == nil) {
 					t.Errorf("Internal load balancer presence mismatch")
 				}
@@ -457,7 +452,6 @@ func TestLoadBalancersToModel(t *testing.T) {
 				return
 			}
 
-			// Test public load balancer
 			if result.Public == nil {
 				t.Error("Expected non-nil Public load balancer")
 				return
@@ -469,7 +463,6 @@ func TestLoadBalancersToModel(t *testing.T) {
 				t.Errorf("Public SourceIPRanges count: expected %d, got %d", tt.expected.publicSourceIPCount, len(result.Public.SourceIPRanges))
 			}
 
-			// Test internal load balancer
 			if result.Internal == nil {
 				t.Error("Expected non-nil Internal load balancer")
 				return
@@ -700,7 +693,6 @@ func TestNodeGroupsToModel(t *testing.T) {
 					t.Errorf("Node group %d CapacityPerLocation: expected %d, got %d", i, expected.capacityPerLocation, result[i].CapacityPerLocation.ValueInt64())
 				}
 
-				// Check locations count by converting List to slice
 				var locations []string
 				result[i].Locations.ElementsAs(context.TODO(), &locations, false)
 				if len(locations) != expected.locationsCount {
@@ -898,7 +890,6 @@ func TestWireguardPeersToModel(t *testing.T) {
 					t.Errorf("Peer %d Endpoint: expected '%s', got '%s'", i, expected.endpoint, result[i].endpoint.ValueString())
 				}
 
-				// Check allowedIPs count by converting List to slice
 				var allowedIPs []string
 				result[i].allowedIPs.ElementsAs(context.TODO(), &allowedIPs, false)
 				if len(allowedIPs) != expected.allowedIPCount {
@@ -958,7 +949,6 @@ func TestHCloudEnvResourceModel_toSDK(t *testing.T) {
 				},
 			},
 			validate: func(t *testing.T, create client.CreateHCloudEnvInput, update client.UpdateHCloudEnvInput) {
-				// Validate create input
 				if create.Name != "test-hcloud-env" {
 					t.Errorf("Create name: expected 'test-hcloud-env', got '%s'", create.Name)
 				}
@@ -987,7 +977,6 @@ func TestHCloudEnvResourceModel_toSDK(t *testing.T) {
 					t.Errorf("Create wireguard peers: expected 1, got %d", len(create.Spec.WireguardPeers))
 				}
 
-				// Validate update input
 				if update.Name != "test-hcloud-env" {
 					t.Errorf("Update name: expected 'test-hcloud-env', got '%s'", update.Name)
 				}
@@ -1143,14 +1132,12 @@ func TestHCloudEnvResourceModel_toModel(t *testing.T) {
 					t.Errorf("LoadBalancingStrategy: expected 'ROUND_ROBIN', got '%s'", model.LoadBalancingStrategy.ValueString())
 				}
 
-				// Check locations
 				var locations []string
 				model.Locations.ElementsAs(context.TODO(), &locations, false)
 				if len(locations) != 3 {
 					t.Errorf("Locations count: expected 3, got %d", len(locations))
 				}
 
-				// Check node groups
 				if len(model.NodeGroups) != 2 {
 					t.Errorf("NodeGroups count: expected 2, got %d", len(model.NodeGroups))
 				}
@@ -1158,7 +1145,6 @@ func TestHCloudEnvResourceModel_toModel(t *testing.T) {
 					t.Errorf("First node group name: expected 'system-group', got '%s'", model.NodeGroups[0].Name.ValueString())
 				}
 
-				// Check maintenance windows
 				if len(model.MaintenanceWindows) != 1 {
 					t.Errorf("MaintenanceWindows count: expected 1, got %d", len(model.MaintenanceWindows))
 				}
@@ -1166,7 +1152,6 @@ func TestHCloudEnvResourceModel_toModel(t *testing.T) {
 					t.Errorf("Maintenance window name: expected 'weekly-maintenance', got '%s'", model.MaintenanceWindows[0].Name.ValueString())
 				}
 
-				// Check wireguard peers
 				if len(model.WireguardPeers) != 1 {
 					t.Errorf("WireguardPeers count: expected 1, got %d", len(model.WireguardPeers))
 				}
@@ -1174,7 +1159,6 @@ func TestHCloudEnvResourceModel_toModel(t *testing.T) {
 					t.Errorf("Wireguard peer public key: expected 'wireguard-key-123==', got '%s'", model.WireguardPeers[0].publicKey.ValueString())
 				}
 
-				// Check load balancers
 				if model.LoadBalancers == nil {
 					t.Fatal("LoadBalancers should not be nil")
 				}
@@ -1221,7 +1205,6 @@ func TestHCloudEnvResourceModel_toModel(t *testing.T) {
 					t.Errorf("NetworkZone: expected 'us-east', got '%s'", model.NetworkZone.ValueString())
 				}
 
-				// Check empty collections
 				if len(model.NodeGroups) != 0 {
 					t.Errorf("NodeGroups: expected empty slice, got %d items", len(model.NodeGroups))
 				}
@@ -1269,7 +1252,6 @@ func TestHCloudEnvResourceModel_toModel(t *testing.T) {
 					t.Errorf("LoadBalancingStrategy: expected 'ROUND_ROBIN', got '%s'", model.LoadBalancingStrategy.ValueString())
 				}
 
-				// Check locations
 				var locations []string
 				model.Locations.ElementsAs(context.TODO(), &locations, false)
 				if len(locations) != 2 {

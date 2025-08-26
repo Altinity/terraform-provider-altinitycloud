@@ -17,7 +17,7 @@ func TestReorderNodeGroups(t *testing.T) {
 		apiNodeGroups  []*client.AzureEnvSpecFragment_NodeGroups
 		expectedOrder  []string
 		expectedLength int
-		validateData   bool // Whether to validate specific field values
+		validateData   bool
 	}{
 		{
 			name: "Preserve model order and add new API node groups",
@@ -28,7 +28,7 @@ func TestReorderNodeGroups(t *testing.T) {
 			apiNodeGroups: []*client.AzureEnvSpecFragment_NodeGroups{
 				{NodeType: "user", Name: "user-group", CapacityPerZone: 2},
 				{NodeType: "system", Name: "system-group", CapacityPerZone: 1},
-				{NodeType: "monitoring", Name: "monitoring-group", CapacityPerZone: 1}, // New node group not in model
+				{NodeType: "monitoring", Name: "monitoring-group", CapacityPerZone: 1},
 			},
 			expectedOrder:  []string{"system", "user", "monitoring"},
 			expectedLength: 3,
@@ -51,7 +51,7 @@ func TestReorderNodeGroups(t *testing.T) {
 			model: []common.NodeGroupsModel{
 				{NodeType: types.StringValue("system")},
 				{NodeType: types.StringValue("user")},
-				{NodeType: types.StringValue("missing")}, // Not in API
+				{NodeType: types.StringValue("missing")},
 			},
 			apiNodeGroups: []*client.AzureEnvSpecFragment_NodeGroups{
 				{NodeType: "user", Name: "user-group", CapacityPerZone: 2},
@@ -125,9 +125,8 @@ func TestReorderNodeGroups(t *testing.T) {
 				}
 			}
 
-			// Additional data validation for the "No data loss validation" test case
 			if tt.validateData {
-				// Verify system is first (from model order)
+
 				if result[0].NodeType != "system" {
 					t.Errorf("Expected first node type to be 'system', got '%s'", result[0].NodeType)
 				}
@@ -138,7 +137,6 @@ func TestReorderNodeGroups(t *testing.T) {
 					t.Errorf("Expected system CapacityPerZone to be 10, got %d", result[0].CapacityPerZone)
 				}
 
-				// Verify other node groups are preserved with their data
 				nodeTypeToGroup := make(map[string]*client.AzureEnvSpecFragment_NodeGroups)
 				for _, group := range result {
 					nodeTypeToGroup[group.NodeType] = group
@@ -360,7 +358,7 @@ func TestLoadBalancersToSDK(t *testing.T) {
 			}
 
 			if tt.expected != nil && result != nil {
-				// Compare public load balancer
+
 				if (tt.expected.Public == nil) != (result.Public == nil) {
 					t.Errorf("Public load balancer presence mismatch")
 				}
@@ -373,7 +371,6 @@ func TestLoadBalancersToSDK(t *testing.T) {
 					}
 				}
 
-				// Compare internal load balancer
 				if (tt.expected.Internal == nil) != (result.Internal == nil) {
 					t.Errorf("Internal load balancer presence mismatch")
 				}
@@ -457,7 +454,6 @@ func TestLoadBalancersToModel(t *testing.T) {
 				return
 			}
 
-			// Test public load balancer
 			if result.Public == nil {
 				t.Error("Expected non-nil Public load balancer")
 				return
@@ -469,7 +465,6 @@ func TestLoadBalancersToModel(t *testing.T) {
 				t.Errorf("Public SourceIPRanges count: expected %d, got %d", tt.expected.publicSourceIPCount, len(result.Public.SourceIPRanges))
 			}
 
-			// Test internal load balancer
 			if result.Internal == nil {
 				t.Error("Expected non-nil Internal load balancer")
 				return
@@ -700,7 +695,6 @@ func TestNodeGroupsToModel(t *testing.T) {
 					t.Errorf("Node group %d CapacityPerZone: expected %d, got %d", i, expected.capacityPerZone, result[i].CapacityPerZone.ValueInt64())
 				}
 
-				// Check zones count by converting List to slice
 				var zones []string
 				result[i].Zones.ElementsAs(context.TODO(), &zones, false)
 				if len(zones) != expected.zonesCount {
@@ -763,7 +757,7 @@ func TestAzureEnvResourceModel_toSDK(t *testing.T) {
 				},
 			},
 			validate: func(t *testing.T, create client.CreateAzureEnvInput, update client.UpdateAzureEnvInput) {
-				// Validate create input
+
 				if create.Name != "test-azure-env" {
 					t.Errorf("Create name: expected 'test-azure-env', got '%s'", create.Name)
 				}
@@ -798,7 +792,6 @@ func TestAzureEnvResourceModel_toSDK(t *testing.T) {
 					t.Errorf("Create private link allowed subscriptions: expected 2, got %d", len(create.Spec.PrivateLinkService.AllowedSubscriptions))
 				}
 
-				// Validate update input
 				if update.Name != "test-azure-env" {
 					t.Errorf("Update name: expected 'test-azure-env', got '%s'", update.Name)
 				}
@@ -972,14 +965,12 @@ func TestAzureEnvResourceModel_toModel(t *testing.T) {
 					t.Errorf("LoadBalancingStrategy: expected 'ROUND_ROBIN', got '%s'", model.LoadBalancingStrategy.ValueString())
 				}
 
-				// Check zones
 				var zones []string
 				model.Zones.ElementsAs(context.TODO(), &zones, false)
 				if len(zones) != 3 {
 					t.Errorf("Zones count: expected 3, got %d", len(zones))
 				}
 
-				// Check node groups
 				if len(model.NodeGroups) != 2 {
 					t.Errorf("NodeGroups count: expected 2, got %d", len(model.NodeGroups))
 				}
@@ -987,7 +978,6 @@ func TestAzureEnvResourceModel_toModel(t *testing.T) {
 					t.Errorf("First node group name: expected 'system-group', got '%s'", model.NodeGroups[0].Name.ValueString())
 				}
 
-				// Check maintenance windows
 				if len(model.MaintenanceWindows) != 1 {
 					t.Errorf("MaintenanceWindows count: expected 1, got %d", len(model.MaintenanceWindows))
 				}
@@ -995,7 +985,6 @@ func TestAzureEnvResourceModel_toModel(t *testing.T) {
 					t.Errorf("Maintenance window name: expected 'weekly-maintenance', got '%s'", model.MaintenanceWindows[0].Name.ValueString())
 				}
 
-				// Check tags
 				if len(model.Tags) != 2 {
 					t.Errorf("Tags count: expected 2, got %d", len(model.Tags))
 				}
@@ -1003,7 +992,6 @@ func TestAzureEnvResourceModel_toModel(t *testing.T) {
 					t.Errorf("First tag key: expected 'Environment', got '%s'", model.Tags[0].Key.ValueString())
 				}
 
-				// Check load balancers
 				if model.LoadBalancers == nil {
 					t.Fatal("LoadBalancers should not be nil")
 				}
@@ -1014,7 +1002,6 @@ func TestAzureEnvResourceModel_toModel(t *testing.T) {
 					t.Errorf("Public load balancer enabled: expected true, got %v", model.LoadBalancers.Public.Enabled.ValueBool())
 				}
 
-				// Check private link service
 				if model.PrivateLinkService == nil {
 					t.Fatal("PrivateLinkService should not be nil")
 				}
@@ -1069,7 +1056,6 @@ func TestAzureEnvResourceModel_toModel(t *testing.T) {
 					t.Errorf("SubscriptionID: expected 'subscription-min', got '%s'", model.SubscriptionID.ValueString())
 				}
 
-				// Check empty collections
 				if len(model.NodeGroups) != 0 {
 					t.Errorf("NodeGroups: expected empty slice, got %d items", len(model.NodeGroups))
 				}
@@ -1125,7 +1111,6 @@ func TestAzureEnvResourceModel_toModel(t *testing.T) {
 					t.Errorf("LoadBalancingStrategy: expected 'ROUND_ROBIN', got '%s'", model.LoadBalancingStrategy.ValueString())
 				}
 
-				// Check zones
 				var zones []string
 				model.Zones.ElementsAs(context.TODO(), &zones, false)
 				if len(zones) != 2 {

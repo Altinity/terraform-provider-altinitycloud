@@ -145,7 +145,6 @@ func TestAWSEnvStatusModel_toModel(t *testing.T) {
 			assert.Equal(t, tt.expected.AppliedSpecRevision, model.AppliedSpecRevision)
 			assert.Equal(t, tt.expected.PendingDelete, model.PendingDelete)
 
-			// Test LoadBalancers
 			if tt.expected.LoadBalancers != nil {
 				assert.NotNil(t, model.LoadBalancers)
 				if tt.expected.LoadBalancers.Internal != nil {
@@ -154,7 +153,6 @@ func TestAWSEnvStatusModel_toModel(t *testing.T) {
 				}
 			}
 
-			// Test PeeringConnections
 			assert.Equal(t, len(tt.expected.PeeringConnections), len(model.PeeringConnections))
 			for i, expectedConn := range tt.expected.PeeringConnections {
 				if i < len(model.PeeringConnections) {
@@ -166,7 +164,6 @@ func TestAWSEnvStatusModel_toModel(t *testing.T) {
 	}
 }
 
-// Helper function to create string pointers
 func stringPtr(s string) *string {
 	return &s
 }

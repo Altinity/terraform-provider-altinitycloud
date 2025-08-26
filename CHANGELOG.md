@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.18](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.4.17...v0.4.18)
+
+### Added
+- Add test cases for `altinitycloud_env_status` models [99c0206](https://github.com/Altinity/terraform-provider-altinitycloud/commit/99c0206).
+
+### Changed
+- Bump github.com/hashicorp/terraform-plugin-testing to `1.13.3` [#176](https://github.com/Altinity/terraform-provider-altinitycloud/pull/176).
+- Bump github.com/hashicorp/terraform-plugin-testing to `1.15.1` [#173](https://github.com/Altinity/terraform-provider-altinitycloud/pull/173).
+- Bump github.com/hashicorp/terraform-plugin-docs to `0.22.0` [#172](https://github.com/Altinity/terraform-provider-altinitycloud/pull/172).
+- Bump github.com/Yamashou/gqlgenc to `0.33.0` [#171](https://github.com/Altinity/terraform-provider-altinitycloud/pull/171).
+- Sync GraphQL schema with the latest version [2c8002a](https://github.com/Altinity/terraform-provider-altinitycloud/commit/2c8002a).
+- Update docs for AWS peering and VPC endpoint examples [457e209](https://github.com/Altinity/terraform-provider-altinitycloud/commit/457e209).
+
+### Fixed
+- Update docs distribution on k8s GKE example [30a094e](https://github.com/Altinity/terraform-provider-altinitycloud/commit/30a094e).
+- Update zone names in `altinitycloud_gcp_env` resource examples [6217068](https://github.com/Altinity/terraform-provider-altinitycloud/commit/6217068).
+- Preserve API response while reordering `node_groups` and `zones` properties [f1e9256](https://github.com/Altinity/terraform-provider-altinitycloud/commit/f1e9256).
+
 ## [0.4.17](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.4.16...v0.4.17)
 ### Fixed
 - Allow `hcloud_token_enc` to be updated [4cbed8a](https://github.com/Altinity/terraform-provider-altinitycloud/commit/4cbed8a).

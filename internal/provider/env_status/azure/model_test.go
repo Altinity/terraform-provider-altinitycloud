@@ -103,7 +103,6 @@ func TestAzureEnvStatusModel_toModel(t *testing.T) {
 			assert.Equal(t, tt.expected.AppliedSpecRevision, model.AppliedSpecRevision)
 			assert.Equal(t, tt.expected.PendingDelete, model.PendingDelete)
 
-			// Test LoadBalancers
 			if tt.expected.LoadBalancers != nil {
 				assert.NotNil(t, model.LoadBalancers)
 				if tt.expected.LoadBalancers.Internal != nil {
@@ -115,7 +114,6 @@ func TestAzureEnvStatusModel_toModel(t *testing.T) {
 	}
 }
 
-// Helper function to create string pointers
 func stringPtr(s string) *string {
 	return &s
 }
