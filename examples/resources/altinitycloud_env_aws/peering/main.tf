@@ -61,5 +61,5 @@ data "altinitycloud_env_aws_status" "this" {
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_peering_connection_accepter
 # Use this value as `vpc_peering_connection_id` in the `aws_vpc_peering_connection_accepter` resource to accept the peering connection.
 output "peering_connection_id" {
-  value = data.altinitycloud_env_aws_status.this.peering_connections[1].id
+  value = data.altinitycloud_env_aws_status.this.peering_connections[0].id
 }

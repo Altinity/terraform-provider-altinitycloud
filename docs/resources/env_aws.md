@@ -124,7 +124,6 @@ data "altinitycloud_env_aws_status" "this" {
   wait_for_applied_spec_revision = altinitycloud_env_aws.this.spec_revision
 }
 
-
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_endpoint.html
 # Use this value as `service_name` in the `aws_vpc_endpoint` resource to create the VPC Endpoint
 output "vpc_endpoint_service_name" {
@@ -197,7 +196,7 @@ data "altinitycloud_env_aws_status" "this" {
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_peering_connection_accepter
 # Use this value as `vpc_peering_connection_id` in the `aws_vpc_peering_connection_accepter` resource to accept the peering connection.
 output "peering_connection_id" {
-  value = data.altinitycloud_env_aws_status.this.peering_connections[1].id
+  value = data.altinitycloud_env_aws_status.this.peering_connections[0].id
 }
 ```
 

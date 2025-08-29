@@ -54,7 +54,6 @@ data "altinitycloud_env_aws_status" "this" {
   wait_for_applied_spec_revision = altinitycloud_env_aws.this.spec_revision
 }
 
-
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/vpc_endpoint.html
 # Use this value as `service_name` in the `aws_vpc_endpoint` resource to create the VPC Endpoint
 output "vpc_endpoint_service_name" {
