@@ -150,6 +150,7 @@ func (e AWSEnvResourceModel) toSDK() (sdk.CreateAWSEnvInput, sdk.UpdateAWSEnvInp
 			Endpoints:             endpoints,
 			Tags:                  tags,
 			MaintenanceWindows:    maintenanceWindows,
+			ExternalBuckets:       externalBuckets,
 		},
 	}
 
