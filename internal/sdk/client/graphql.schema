@@ -1717,6 +1717,7 @@ Environment code output.
 type CodeGenEnvOutput {
   terraform: String!
 }
+
 extend type Query {
   """
   List GCP environments.
@@ -1833,13 +1834,19 @@ type GCPEnvSpec {
   """
   cloudConnect: Boolean!
   """
-  Network peering configuration.
+  List of network peering configurations.
   """
   peeringConnections: [GCPEnvPeeringConnectionSpec!]!
   """
-  List of project IDs representing the network's private service consumers.
+  List of project IDs + connection limits [projectID=connectionLimit] representing the network's private service consumers. Connection limits are optional, will be set to 1 if not specified.
+
+  Example: ["project1", "project2=5"]
   """
   privateServiceConsumers: [String!]!
+  """
+  List of private service connections.
+  """
+  privateServiceConnections: [GCPEnvPrivateServiceConnectionSpec!]!
 }
 
 """
@@ -1931,6 +1938,26 @@ type GCPEnvPeeringConnectionSpec {
   Target network name.
   """
   networkName: String!
+}
+
+"""
+GCP environment private service connection configuration.
+"""
+type GCPEnvPrivateServiceConnectionSpec {
+  """
+  Name of the private service connection.
+  """
+  name: String!
+  """
+  GCP service attachment resource name.
+
+  Example: "projects/my-service-project/regions/us-central1/serviceAttachments/my-service"
+  """
+  target: String!
+  """
+  Alias of the private service connection.
+  """
+  alias: String
 }
 
 """
@@ -2079,9 +2106,15 @@ input CreateGCPEnvSpecInput {
   """
   peeringConnections: [GCPEnvPeeringConnectionSpecInput!]
   """
-  List of project IDs representing the network's private service consumers.
+  List of project IDs + connection limits [projectID=connectionLimit] representing the network's private service consumers. Connection limits are optional, will be set to 1 if not specified.
+
+  Example: ["project1", "project2=5"]
   """
   privateServiceConsumers: [String!]
+  """
+  List of private service connections.
+  """
+  privateServiceConnections: [GCPEnvPrivateServiceConnectionSpecInput!]
 }
 
 """
@@ -2178,6 +2211,27 @@ input GCPEnvPeeringConnectionSpecInput {
   Target network name.
   """
   networkName: String!
+}
+
+"""
+GCP environment private service connection configuration input.
+"""
+input GCPEnvPrivateServiceConnectionSpecInput {
+  """
+  Name of the private service connection.
+  """
+  name: String!
+  """
+  GCP service attachment resource name.
+
+
+  Example: "projects/my-service-project/regions/us-central1/serviceAttachments/my-service"
+  """
+  target: String!
+  """
+  Alias of the private service connection.
+  """
+  alias: String
 }
 
 """
@@ -2325,6 +2379,10 @@ input UpdateGCPEnvSpecInput {
   List of project IDs representing the network's private service consumers.
   """
   privateServiceConsumers: [String!]
+  """
+  List of private service connections.
+  """
+  privateServiceConnections: [GCPEnvPrivateServiceConnectionSpecInput!]
 }
 
 """

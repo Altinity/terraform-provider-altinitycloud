@@ -887,8 +887,12 @@ type CreateGCPEnvSpecInput struct {
 	CloudConnect *bool `json:"cloudConnect,omitempty"`
 	// Network peering configuration.
 	PeeringConnections []*GCPEnvPeeringConnectionSpecInput `json:"peeringConnections,omitempty"`
-	// List of project IDs representing the network's private service consumers.
+	// List of project IDs + connection limits [projectID=connectionLimit] representing the network's private service consumers. Connection limits are optional, will be set to 1 if not specified.
+	//
+	// Example: ["project1", "project2=5"]
 	PrivateServiceConsumers []string `json:"privateServiceConsumers,omitempty"`
+	// List of private service connections.
+	PrivateServiceConnections []*GCPEnvPrivateServiceConnectionSpecInput `json:"privateServiceConnections,omitempty"`
 }
 
 // HCloud environment create request input.
@@ -1283,6 +1287,31 @@ type GCPEnvPeeringConnectionSpecInput struct {
 	NetworkName string `json:"networkName"`
 }
 
+// GCP environment private service connection configuration.
+type GCPEnvPrivateServiceConnectionSpec struct {
+	// Name of the private service connection.
+	Name string `json:"name"`
+	// GCP service attachment resource name.
+	//
+	// Example: "projects/my-service-project/regions/us-central1/serviceAttachments/my-service"
+	Target string `json:"target"`
+	// Alias of the private service connection.
+	Alias *string `json:"alias,omitempty"`
+}
+
+// GCP environment private service connection configuration input.
+type GCPEnvPrivateServiceConnectionSpecInput struct {
+	// Name of the private service connection.
+	Name string `json:"name"`
+	// GCP service attachment resource name.
+	//
+	//
+	// Example: "projects/my-service-project/regions/us-central1/serviceAttachments/my-service"
+	Target string `json:"target"`
+	// Alias of the private service connection.
+	Alias *string `json:"alias,omitempty"`
+}
+
 // GCP environment configuration.
 type GCPEnvSpec struct {
 	// ID of the GCP project (https://support.google.com/googleapi/answer/7014113?hl=en#:~:text=The%20project%20ID%20is%20a,ID%20or%20create%20your%20own.)
@@ -1338,10 +1367,14 @@ type GCPEnvSpec struct {
 	// True indicates that cloud resources are to be managed via altinity/cloud-connect.
 	// False means direct management.
 	CloudConnect bool `json:"cloudConnect"`
-	// Network peering configuration.
+	// List of network peering configurations.
 	PeeringConnections []*GCPEnvPeeringConnectionSpec `json:"peeringConnections"`
-	// List of project IDs representing the network's private service consumers.
+	// List of project IDs + connection limits [projectID=connectionLimit] representing the network's private service consumers. Connection limits are optional, will be set to 1 if not specified.
+	//
+	// Example: ["project1", "project2=5"]
 	PrivateServiceConsumers []string `json:"privateServiceConsumers"`
+	// List of private service connections.
+	PrivateServiceConnections []*GCPEnvPrivateServiceConnectionSpec `json:"privateServiceConnections"`
 }
 
 // GCP environment status.
@@ -2075,6 +2108,8 @@ type UpdateGCPEnvSpecInput struct {
 	PeeringConnections []*GCPEnvPeeringConnectionSpecInput `json:"peeringConnections,omitempty"`
 	// List of project IDs representing the network's private service consumers.
 	PrivateServiceConsumers []string `json:"privateServiceConsumers,omitempty"`
+	// List of private service connections.
+	PrivateServiceConnections []*GCPEnvPrivateServiceConnectionSpecInput `json:"privateServiceConnections,omitempty"`
 }
 
 // HCloud environment update request input.
