@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.20](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.4.19...v0.4.20)
+### Changed
+- Bump github.com/stretchr/testify to `1.11.1` [#180](https://github.com/Altinity/terraform-provider-altinitycloud/pull/180).
+- Sync GraphQL schema with the latest version [9908bf2](https://github.com/Altinity/terraform-provider-altinitycloud/commit/9908bf2).
+
+### Fixed
+- Send `external_buckets` property when updating `altinitycloud_env_aws` resource [fa65c22](https://github.com/Altinity/terraform-provider-altinitycloud/commit/fa65c22).
+- Fix `altinitycloud_env_aws` output peering example [d019a43](https://github.com/Altinity/terraform-provider-altinitycloud/commit/d019a43).
+
 ## [0.4.19](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.4.18...v0.4.19)
 ### Added
 - Add `external_buckets` property to `altinitycloud_env_aws` resource [1611f0f](https://github.com/Altinity/terraform-provider-altinitycloud/commit/1611f0f).
