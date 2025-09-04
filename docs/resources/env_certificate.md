@@ -28,8 +28,8 @@ resource "altinitycloud_env_certificate" "this" {
 
 ### Required
 
-- `env_name` (String)
+- `env_name` (String) The name of the environment.
 
 ### Read-Only
 
-- `pem` (String, Sensitive)
+- `pem` (String, Sensitive) The Altinity.Cloud PEM certificate.

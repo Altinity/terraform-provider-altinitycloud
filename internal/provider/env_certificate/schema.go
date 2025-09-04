@@ -4,8 +4,10 @@ import (
 	"context"
 
 	"github.com/MakeNowJust/heredoc/v2"
+	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema"
+	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 )
 
 func (r *CertificateResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
@@ -15,12 +17,15 @@ func (r *CertificateResource) Schema(ctx context.Context, req resource.SchemaReq
 		Attributes: map[string]schema.Attribute{
 			"env_name": schema.StringAttribute{
 				Required:            true,
-				MarkdownDescription: "",
+				MarkdownDescription: "The name of the environment.",
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
+				},
 			},
 			"pem": schema.StringAttribute{
 				Computed:            true,
 				Sensitive:           true,
-				MarkdownDescription: "",
+				MarkdownDescription: "The Altinity.Cloud PEM certificate.",
 			},
 		},
 	}
