@@ -117,6 +117,9 @@ func getHCloudTokenEncAttribute(required, optional, computed bool) rschema.Strin
 		Required:            required,
 		Computed:            computed,
 		MarkdownDescription: common.HCLOUD_TOKEN_ENC_DESCRIPTION,
+		Validators: []validator.String{
+			stringvalidator.LengthAtLeast(1),
+		},
 	}
 }
 

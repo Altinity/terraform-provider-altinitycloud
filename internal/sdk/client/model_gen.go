@@ -2142,7 +2142,7 @@ type UpdateHCloudEnvSpecInput struct {
 	LoadBalancingStrategy *LoadBalancingStrategy `json:"loadBalancingStrategy,omitempty"`
 	// List of node groups.
 	// At least one required.
-	NodeGroups []*HCloudEnvNodeGroupSpecInput `json:"nodeGroups"`
+	NodeGroups []*HCloudEnvNodeGroupSpecInput `json:"nodeGroups,omitempty"`
 	// List of maintenance windows during which automatic maintenance is permitted.
 	// By default updates are applied as soon as they are available.
 	MaintenanceWindows []*MaintenanceWindowSpecInput `json:"maintenanceWindows,omitempty"`
