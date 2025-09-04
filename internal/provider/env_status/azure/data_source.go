@@ -5,46 +5,24 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk"
-	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/client"
+	"github.com/altinity/terraform-provider-altinitycloud/internal/provider/env_status/common"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
 var _ datasource.DataSource = &AzureEnvStatusDataSource{}
 var _ datasource.DataSourceWithConfigure = &AzureEnvStatusDataSource{}
-var DELETE_TIMEOUT = time.Duration(60) * time.Minute
-var DELETE_POLL_INTERVAL = 30 * time.Second
 
 func NewAzureEnvStatusDataSource() datasource.DataSource {
 	return &AzureEnvStatusDataSource{}
 }
 
 type AzureEnvStatusDataSource struct {
-	client *client.Client
+	common.EnvStatusDataSourceBase
 }
 
 func (d *AzureEnvStatusDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_env_azure_status"
-}
-
-func (d *AzureEnvStatusDataSource) Configure(ctx context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
-	if req.ProviderData == nil {
-		return
-	}
-
-	sdk, ok := req.ProviderData.(*sdk.AltinityCloudSDK)
-
-	if !ok {
-		resp.Diagnostics.AddError(
-			"Unexpected Resource Configure Type",
-			fmt.Sprintf("Expected *http.Client, got: %T. Please report this issue to the provider developers.", req.ProviderData),
-		)
-
-		return
-	}
-
-	d.client = sdk.Client
 }
 
 func (d *AzureEnvStatusDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
@@ -58,7 +36,7 @@ func (d *AzureEnvStatusDataSource) Read(ctx context.Context, req datasource.Read
 	}
 
 	envName := data.Name.ValueString()
-	apiResp, err := d.client.GetAzureEnvStatus(ctx, envName)
+	apiResp, err := d.Client.GetAzureEnvStatus(ctx, envName)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read env status %s, got error: %s", envName, err))
 		return
@@ -82,10 +60,11 @@ func (d *AzureEnvStatusDataSource) Read(ctx context.Context, req datasource.Read
 	}
 
 	// Polling to wait for deletion to complete
-	timeout := time.After(DELETE_TIMEOUT)
-	ticker := time.NewTicker(DELETE_POLL_INTERVAL)
+	timeout := time.After(common.MATCH_SPEC_TIMEOUT)
+	ticker := time.NewTicker(common.MATCH_SPEC_POLL_INTERVAL)
 	defer ticker.Stop()
 
+tickerLoop:
 	for {
 		select {
 		case <-ctx.Done():
@@ -96,7 +75,7 @@ func (d *AzureEnvStatusDataSource) Read(ctx context.Context, req datasource.Read
 			return
 		case <-ticker.C:
 			tflog.Trace(ctx, "checking if env match spec", map[string]interface{}{"name": envName})
-			apiResp, err := d.client.GetAzureEnvStatus(ctx, envName)
+			apiResp, err := d.Client.GetAzureEnvStatus(ctx, envName)
 
 			if err != nil {
 				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read env status %s, got error: %s", envName, err))
@@ -108,9 +87,14 @@ func (d *AzureEnvStatusDataSource) Read(ctx context.Context, req datasource.Read
 				return
 			}
 
-			if len(apiResp.AzureEnv.Status.Errors) > 0 {
+			errorCount := len(apiResp.AzureEnv.Status.Errors)
+			if errorCount > 0 {
 				var errorDetails string
 				for _, err := range apiResp.AzureEnv.Status.Errors {
+					// Ignore DISCONNECTED errors since will interrup matching spec with new provisioning envs.
+					if errorCount == 1 && err.Code == "DISCONNECTED" {
+						continue tickerLoop
+					}
 					errorDetails += fmt.Sprintf("%s: %s\n", err.Code, err.Message)
 				}
 				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Environment %s has provisioning errors:\n%s", envName, errorDetails))

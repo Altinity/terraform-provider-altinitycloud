@@ -35,23 +35,3 @@ func (d *EnvStatusDataSourceBase) Configure(ctx context.Context, req datasource.
 
 	d.Client = sdk.Client
 }
-
-// func (r *EnvResourceBase) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
-// 	if req.ProviderData == nil {
-// 		return
-// 	}
-
-// 	sdk, ok := req.ProviderData.(*sdk.AltinityCloudSDK)
-
-// 	if !ok {
-// 		resp.Diagnostics.AddError(
-// 			"Unexpected Resource Configure Type",
-// 			fmt.Sprintf("Expected *http.Client, got: %T. Please report this issue to the provider developers.", req.ProviderData),
-// 		)
-
-// 		return
-// 	}
-
-// 	r.Client = sdk.Client
-// 	r.Auth = sdk.Auth
-// }

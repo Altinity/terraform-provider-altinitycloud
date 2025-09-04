@@ -96,11 +96,12 @@ tickerLoop:
 				return
 			}
 
-			if len(apiResp.AWSEnv.Status.Errors) > 0 {
+			errorCount := len(apiResp.AWSEnv.Status.Errors)
+			if errorCount > 0 {
 				var errorDetails string
 				for _, err := range apiResp.AWSEnv.Status.Errors {
 					// Ignore DISCONNECTED errors since will interrup matching spec with new provisioning envs.
-					if err.Code == "DISCONNECTED" {
+					if errorCount == 1 && err.Code == "DISCONNECTED" {
 						continue tickerLoop
 					}
 					errorDetails += fmt.Sprintf("%s: %s\n", err.Code, err.Message)
