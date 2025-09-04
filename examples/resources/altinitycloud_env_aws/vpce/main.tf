@@ -48,7 +48,9 @@ resource "altinitycloud_env_aws" "this" {
   ]
 }
 
-// Since the environment provisioning is an async process, this data source is used to wait for environment to be fully provisioned.
+// ⚠️ Environment provisioning is asynchronous.
+// Without this data source, Terraform cannot detect provisioning failures.
+// This data source waits until the environment is fully reconciled and reports errors.
 data "altinitycloud_env_aws_status" "this" {
   name                           = altinitycloud_env_aws.this.name
   wait_for_applied_spec_revision = altinitycloud_env_aws.this.spec_revision
