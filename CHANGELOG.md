@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.21](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.4.20...v0.4.21)
+### Fixed
+- Do not allow empty strings on `hcloud_token_enc` property [10f1676](https://github.com/Altinity/terraform-provider-altinitycloud/commit/10f1676).
+- Do not keep looping data source status when other error than `DISCONNECTED` is returned [6d81b92](https://github.com/Altinity/terraform-provider-altinitycloud/commit/6d81b92).
+
+### Changed
+- Improve env status data sources comment in examples [52c2b9b](https://github.com/Altinity/terraform-provider-altinitycloud/commit/52c2b9b).
+
 ## [0.4.20](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.4.19...v0.4.20)
 ### Changed
 - Bump github.com/stretchr/testify to `1.11.1` [#180](https://github.com/Altinity/terraform-provider-altinitycloud/pull/180).
