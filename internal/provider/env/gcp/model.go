@@ -131,6 +131,7 @@ func (model *GCPEnvResourceModel) toModel(env sdk.GetGCPEnv_GCPEnv) {
 		})
 	}
 	model.PeeringConnections = peeringConnections
+	model.SpecRevision = types.Int64Value(env.SpecRevision)
 }
 
 func loadBalancersToSDK(loadBalancers *LoadBalancersModel) *sdk.GCPEnvLoadBalancersSpecInput {

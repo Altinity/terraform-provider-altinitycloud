@@ -114,6 +114,7 @@ func (model *HCloudEnvResourceModel) toModel(env client.GetHCloudEnv_HcloudEnv) 
 	model.MaintenanceWindows = maintenanceWindowsToModel(env.Spec.MaintenanceWindows)
 	model.Locations = common.ListToModel(env.Spec.Locations)
 	model.WireguardPeers = wireguardPeersToModel(env.Spec.WireguardPeers)
+	model.SpecRevision = types.Int64Value(env.SpecRevision)
 }
 
 func loadBalancersToSDK(loadBalancers *LoadBalancersModel) *client.HCloudEnvLoadBalancersSpecInput {

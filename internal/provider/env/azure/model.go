@@ -141,7 +141,7 @@ func (model *AzureEnvResourceModel) toModel(env client.GetAzureEnv_AzureEnv) {
 	model.PrivateLinkService = &PrivateLinkServiceModel{
 		AllowedSubscriptions: common.ListStringToModel(env.Spec.PrivateLinkService.AllowedSubscriptions),
 	}
-
+	model.SpecRevision = types.Int64Value(env.SpecRevision)
 	model.Tags = tags
 }
 

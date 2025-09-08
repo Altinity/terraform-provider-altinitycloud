@@ -134,7 +134,7 @@ func (e K8SEnvResourceModel) toSDK() (client.CreateK8SEnvInput, client.UpdateK8S
 	return create, update
 }
 
-func (model *K8SEnvResourceModel) toModel(name string, spec client.K8SEnvSpecFragment) {
+func (model *K8SEnvResourceModel) toModel(name string, specRevision int64, spec client.K8SEnvSpecFragment) {
 	model.Name = types.StringValue(name)
 	model.CustomDomain = types.StringPointerValue(spec.CustomDomain)
 	model.LoadBalancingStrategy = types.StringValue(string(spec.LoadBalancingStrategy))
@@ -145,6 +145,7 @@ func (model *K8SEnvResourceModel) toModel(name string, spec client.K8SEnvSpecFra
 	model.MaintenanceWindows = maintenanceWindowsToModel(spec.MaintenanceWindows)
 	model.Metrics = metricsToModel(spec.Metrics)
 	model.Distribution = types.StringValue(string(spec.Distribution))
+	model.SpecRevision = types.Int64Value(specRevision)
 }
 
 func loadBalancersToSDK(loadBalancers *LoadBalancersModel) *client.K8SEnvLoadBalancersSpecInput {

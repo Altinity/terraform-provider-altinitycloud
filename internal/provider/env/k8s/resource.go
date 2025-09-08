@@ -53,7 +53,7 @@ func (r *K8SEnvResource) Create(ctx context.Context, req resource.CreateRequest,
 	data.Id = data.Name
 	data.NodeGroups = nodeGroupsToModel(apiResp.CreateK8SEnv.Spec.NodeGroups)
 	data.SpecRevision = types.Int64Value(apiResp.CreateK8SEnv.SpecRevision)
-	data.toModel(data.Name.ValueString(), *apiResp.CreateK8SEnv.Spec)
+	data.toModel(data.Name.ValueString(), apiResp.CreateK8SEnv.SpecRevision, *apiResp.CreateK8SEnv.Spec)
 
 	tflog.Trace(ctx, "created resource", map[string]interface{}{"name": name})
 	diags = resp.State.Set(ctx, &data)
@@ -86,7 +86,7 @@ func (r *K8SEnvResource) Read(ctx context.Context, req resource.ReadRequest, res
 
 	// Reorder node groups  and zones to respect order in the user's configuration
 	apiResp.K8sEnv.Spec.NodeGroups = reorderNodeGroups(data.NodeGroups, apiResp.K8sEnv.Spec.NodeGroups)
-	data.toModel(apiResp.K8sEnv.Name, *apiResp.K8sEnv.Spec)
+	data.toModel(apiResp.K8sEnv.Name, apiResp.K8sEnv.SpecRevision, *apiResp.K8sEnv.Spec)
 	data.Id = data.Name
 
 	diags = resp.State.Set(ctx, &data)
