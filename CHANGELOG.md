@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Do not allow empty strings on `hcloud_token_enc` property [10f1676](https://github.com/Altinity/terraform-provider-altinitycloud/commit/10f1676).
 - Do not keep looping data source status when other error than `DISCONNECTED` is returned [6d81b92](https://github.com/Altinity/terraform-provider-altinitycloud/commit/6d81b92).
+- Add missing validations and descriptions to `altinitycloud_env_secret` and `altinitycloud_env_certificate` resources [14caf21](https://github.com/Altinity/terraform-provider-altinitycloud/commit/14caf21).
+- Add missing spec revision to `altinitycloud_env_*` data sources [c4faf74](https://github.com/Altinity/terraform-provider-altinitycloud/commit/c4faf74).
+
 
 ### Changed
 - Improve env status data sources comment in examples [52c2b9b](https://github.com/Altinity/terraform-provider-altinitycloud/commit/52c2b9b).
