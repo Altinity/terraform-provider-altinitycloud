@@ -1720,14 +1720,16 @@ func TestK8SEnvResourceModel_toSDK(t *testing.T) {
 
 func TestK8SEnvResourceModel_toModel(t *testing.T) {
 	tests := []struct {
-		name     string
-		envName  string
-		spec     client.K8SEnvSpecFragment
-		validate func(t *testing.T, model *K8SEnvResourceModel)
+		name         string
+		envName      string
+		specRevision int64
+		spec         client.K8SEnvSpecFragment
+		validate     func(t *testing.T, model *K8SEnvResourceModel)
 	}{
 		{
-			name:    "Complete spec with all fields",
-			envName: "test-k8s-environment",
+			name:         "Complete spec with all fields",
+			envName:      "test-k8s-environment",
+			specRevision: 1,
 			spec: client.K8SEnvSpecFragment{
 				CustomDomain:          &[]string{"custom.k8s.example.com"}[0],
 				LoadBalancingStrategy: client.LoadBalancingStrategyRoundRobin,
@@ -1873,8 +1875,9 @@ func TestK8SEnvResourceModel_toModel(t *testing.T) {
 			},
 		},
 		{
-			name:    "Minimal spec with required fields only",
-			envName: "minimal-k8s-env",
+			name:         "Minimal spec with required fields only",
+			envName:      "minimal-k8s-env",
+			specRevision: 1,
 			spec: client.K8SEnvSpecFragment{
 				LoadBalancingStrategy: client.LoadBalancingStrategyRoundRobin,
 				Distribution:          client.K8SDistributionGke,
@@ -1919,8 +1922,9 @@ func TestK8SEnvResourceModel_toModel(t *testing.T) {
 			},
 		},
 		{
-			name:    "Spec with nil optional fields",
-			envName: "nil-fields-k8s-env",
+			name:         "Spec with nil optional fields",
+			envName:      "nil-fields-k8s-env",
+			specRevision: 1,
 			spec: client.K8SEnvSpecFragment{
 				CustomDomain:          nil,
 				LoadBalancingStrategy: client.LoadBalancingStrategyRoundRobin,
@@ -1965,7 +1969,7 @@ func TestK8SEnvResourceModel_toModel(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			model := &K8SEnvResourceModel{}
-			model.toModel(tt.envName, tt.spec)
+			model.toModel(tt.envName, tt.specRevision, tt.spec)
 			tt.validate(t, model)
 		})
 	}
