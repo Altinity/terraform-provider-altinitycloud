@@ -119,10 +119,13 @@ Optional:
 
 - `cross_zone` (Boolean) `true` indicates that traffic should be distributed across all specified availability zones, `false` otherwise. (default `true`).
 - `enabled` (Boolean) Set to `true` if load balancer is enabled, `false` otherwise. (default `false`)
-- `endpoint_service_allowed_principals` (List of String) ARNs for AWS principals that are allowed to create VPC endpoints.
+- `endpoint_service_allowed_principals` (Set of String) ARNs for AWS principals that are allowed to create VPC endpoints.
 
 		Examples:
 		- "arn:aws:iam::$account_id:root"
+- `endpoint_service_supported_regions` (Set of String) List of supported regions for VPC endpoints.
+
+		Example: ["us-east-1", "sa-east-1"]
 - `source_ip_ranges` (List of String) IP addresses/blocks to allow traffic from (default `"0.0.0.0/0"`).
 
 

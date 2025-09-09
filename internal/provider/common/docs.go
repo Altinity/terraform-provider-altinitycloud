@@ -123,6 +123,10 @@ const AWS_LOAD_BALANCER_ENDPOINT_SERVICE_ALLOWED_PRINCIPALS_DESCRIPTION = `ARNs 
 		Examples:
 		- "arn:aws:iam::$account_id:root"
 `
+const AWS_LOAD_BALANCER_ENDPOINT_SERVICE_SUPPORTED_REGIONS_DESCRIPTION = `List of supported regions for VPC endpoints.
+
+		Example: ["us-east-1", "sa-east-1"]
+`
 const AWS_NODE_GROUP_NODE_TYPE_DESCRIPTION = `Instance type ([docs](https://aws.amazon.com/ec2/instance-types/))
 
 		Examples:

@@ -52,6 +52,7 @@ type InternalLoadBalancerModel struct {
 	SourceIPRanges                   []types.String `tfsdk:"source_ip_ranges"`
 	CrossZone                        types.Bool     `tfsdk:"cross_zone"`
 	EndpointServiceAllowedPrincipals []types.String `tfsdk:"endpoint_service_allowed_principals"`
+	EndpointServiceSupportedRegions  []types.String `tfsdk:"endpoint_service_supported_regions"`
 }
 
 type AWSEnvEndpointModel struct {
@@ -235,11 +236,17 @@ func loadBalancersToSDK(loadBalancers *LoadBalancersModel) *sdk.AWSEnvLoadBalanc
 			endpointServiceAllowedPrincipals = append(endpointServiceAllowedPrincipals, ap.ValueString())
 		}
 
+		var endpointServiceSupportedRegions []string
+		for _, sr := range loadBalancers.Internal.EndpointServiceSupportedRegions {
+			endpointServiceSupportedRegions = append(endpointServiceSupportedRegions, sr.ValueString())
+		}
+
 		internal = &sdk.AWSEnvLoadBalancerInternalSpecInput{
 			Enabled:                          loadBalancers.Internal.Enabled.ValueBoolPointer(),
 			SourceIPRanges:                   common.ListStringToSDK(loadBalancers.Internal.SourceIPRanges),
 			CrossZone:                        loadBalancers.Internal.CrossZone.ValueBoolPointer(),
 			EndpointServiceAllowedPrincipals: endpointServiceAllowedPrincipals,
+			EndpointServiceSupportedRegions:  endpointServiceSupportedRegions,
 		}
 	}
 
@@ -273,11 +280,17 @@ func loadBalancersToModel(loadBalancers sdk.AWSEnvSpecFragment_LoadBalancers) *L
 		endpointServiceAllowedPrincipals = append(endpointServiceAllowedPrincipals, types.StringValue(e))
 	}
 
+	var endpointServiceSupportedRegions []types.String
+	for _, e := range loadBalancers.Internal.EndpointServiceSupportedRegions {
+		endpointServiceSupportedRegions = append(endpointServiceSupportedRegions, types.StringValue(e))
+	}
+
 	model.Internal = &InternalLoadBalancerModel{
 		Enabled:                          types.BoolValue(loadBalancers.Internal.Enabled),
 		SourceIPRanges:                   internalSourceIpRanges,
 		CrossZone:                        types.BoolValue(loadBalancers.Internal.CrossZone),
 		EndpointServiceAllowedPrincipals: endpointServiceAllowedPrincipals,
+		EndpointServiceSupportedRegions:  endpointServiceSupportedRegions,
 	}
 
 	return model

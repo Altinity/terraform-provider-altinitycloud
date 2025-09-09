@@ -71,6 +71,7 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
       sourceIPRanges
       crossZone
       endpointServiceAllowedPrincipals
+      endpointServiceSupportedRegions
     }
   }
   loadBalancingStrategy

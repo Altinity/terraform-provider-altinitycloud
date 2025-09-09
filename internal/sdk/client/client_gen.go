@@ -492,6 +492,7 @@ type AWSEnvSpecFragment_LoadBalancers_Internal struct {
 	CrossZone                        bool     "json:\"crossZone\" graphql:\"crossZone\""
 	Enabled                          bool     "json:\"enabled\" graphql:\"enabled\""
 	EndpointServiceAllowedPrincipals []string "json:\"endpointServiceAllowedPrincipals\" graphql:\"endpointServiceAllowedPrincipals\""
+	EndpointServiceSupportedRegions  []string "json:\"endpointServiceSupportedRegions\" graphql:\"endpointServiceSupportedRegions\""
 	SourceIPRanges                   []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
 }
 
@@ -512,6 +513,12 @@ func (t *AWSEnvSpecFragment_LoadBalancers_Internal) GetEndpointServiceAllowedPri
 		t = &AWSEnvSpecFragment_LoadBalancers_Internal{}
 	}
 	return t.EndpointServiceAllowedPrincipals
+}
+func (t *AWSEnvSpecFragment_LoadBalancers_Internal) GetEndpointServiceSupportedRegions() []string {
+	if t == nil {
+		t = &AWSEnvSpecFragment_LoadBalancers_Internal{}
+	}
+	return t.EndpointServiceSupportedRegions
 }
 func (t *AWSEnvSpecFragment_LoadBalancers_Internal) GetSourceIPRanges() []string {
 	if t == nil {
@@ -1532,6 +1539,7 @@ type GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal struct {
 	CrossZone                        bool     "json:\"crossZone\" graphql:\"crossZone\""
 	Enabled                          bool     "json:\"enabled\" graphql:\"enabled\""
 	EndpointServiceAllowedPrincipals []string "json:\"endpointServiceAllowedPrincipals\" graphql:\"endpointServiceAllowedPrincipals\""
+	EndpointServiceSupportedRegions  []string "json:\"endpointServiceSupportedRegions\" graphql:\"endpointServiceSupportedRegions\""
 	SourceIPRanges                   []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
 }
 
@@ -1552,6 +1560,12 @@ func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal) GetEnd
 		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal{}
 	}
 	return t.EndpointServiceAllowedPrincipals
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal) GetEndpointServiceSupportedRegions() []string {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal{}
+	}
+	return t.EndpointServiceSupportedRegions
 }
 func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal) GetSourceIPRanges() []string {
 	if t == nil {
@@ -1911,6 +1925,7 @@ type CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal st
 	CrossZone                        bool     "json:\"crossZone\" graphql:\"crossZone\""
 	Enabled                          bool     "json:\"enabled\" graphql:\"enabled\""
 	EndpointServiceAllowedPrincipals []string "json:\"endpointServiceAllowedPrincipals\" graphql:\"endpointServiceAllowedPrincipals\""
+	EndpointServiceSupportedRegions  []string "json:\"endpointServiceSupportedRegions\" graphql:\"endpointServiceSupportedRegions\""
 	SourceIPRanges                   []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
 }
 
@@ -1931,6 +1946,12 @@ func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Interna
 		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal{}
 	}
 	return t.EndpointServiceAllowedPrincipals
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal) GetEndpointServiceSupportedRegions() []string {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal{}
+	}
+	return t.EndpointServiceSupportedRegions
 }
 func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal) GetSourceIPRanges() []string {
 	if t == nil {
@@ -2168,6 +2189,7 @@ type UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal st
 	CrossZone                        bool     "json:\"crossZone\" graphql:\"crossZone\""
 	Enabled                          bool     "json:\"enabled\" graphql:\"enabled\""
 	EndpointServiceAllowedPrincipals []string "json:\"endpointServiceAllowedPrincipals\" graphql:\"endpointServiceAllowedPrincipals\""
+	EndpointServiceSupportedRegions  []string "json:\"endpointServiceSupportedRegions\" graphql:\"endpointServiceSupportedRegions\""
 	SourceIPRanges                   []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
 }
 
@@ -2188,6 +2210,12 @@ func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Interna
 		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal{}
 	}
 	return t.EndpointServiceAllowedPrincipals
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal) GetEndpointServiceSupportedRegions() []string {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal{}
+	}
+	return t.EndpointServiceSupportedRegions
 }
 func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_LoadBalancers_Internal) GetSourceIPRanges() []string {
 	if t == nil {
@@ -5807,6 +5835,7 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 			sourceIPRanges
 			crossZone
 			endpointServiceAllowedPrincipals
+			endpointServiceSupportedRegions
 		}
 	}
 	loadBalancingStrategy
@@ -5933,6 +5962,7 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 			sourceIPRanges
 			crossZone
 			endpointServiceAllowedPrincipals
+			endpointServiceSupportedRegions
 		}
 	}
 	loadBalancingStrategy
@@ -6017,6 +6047,7 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 			sourceIPRanges
 			crossZone
 			endpointServiceAllowedPrincipals
+			endpointServiceSupportedRegions
 		}
 	}
 	loadBalancingStrategy

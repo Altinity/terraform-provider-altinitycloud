@@ -123,12 +123,20 @@ func getLoadBalancersAttribute(required, optional, computed bool) rschema.Single
 					"enabled":          common.EnabledAttribute,
 					"source_ip_ranges": common.SourceIPRangesAttribute,
 					"cross_zone":       crossZoneAttribute,
-					"endpoint_service_allowed_principals": rschema.ListAttribute{
+					"endpoint_service_allowed_principals": rschema.SetAttribute{
 						ElementType:         types.StringType,
 						Optional:            true,
 						MarkdownDescription: common.AWS_LOAD_BALANCER_ENDPOINT_SERVICE_ALLOWED_PRINCIPALS_DESCRIPTION,
-						Validators: []validator.List{
-							listvalidator.SizeAtLeast(1),
+						Validators: []validator.Set{
+							setvalidator.SizeAtLeast(1),
+						},
+					},
+					"endpoint_service_supported_regions": rschema.SetAttribute{
+						ElementType:         types.StringType,
+						Optional:            true,
+						MarkdownDescription: common.AWS_LOAD_BALANCER_ENDPOINT_SERVICE_SUPPORTED_REGIONS_DESCRIPTION,
+						Validators: []validator.Set{
+							setvalidator.SizeAtLeast(1),
 						},
 					},
 				},
@@ -308,7 +316,10 @@ var loadBalancerInternalDefaultObject, _ = types.ObjectValue(
 		"source_ip_ranges": types.ListType{
 			ElemType: types.StringType,
 		},
-		"endpoint_service_allowed_principals": types.ListType{
+		"endpoint_service_allowed_principals": types.SetType{
+			ElemType: types.StringType,
+		},
+		"endpoint_service_supported_regions": types.SetType{
 			ElemType: types.StringType,
 		},
 	},
@@ -316,7 +327,8 @@ var loadBalancerInternalDefaultObject, _ = types.ObjectValue(
 		"enabled":                             types.BoolValue(false),
 		"cross_zone":                          types.BoolValue(false),
 		"source_ip_ranges":                    types.ListNull(types.StringType),
-		"endpoint_service_allowed_principals": types.ListNull(types.StringType),
+		"endpoint_service_allowed_principals": types.SetNull(types.StringType),
+		"endpoint_service_supported_regions":  types.SetNull(types.StringType),
 	},
 )
 
