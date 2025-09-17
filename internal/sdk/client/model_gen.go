@@ -2294,10 +2294,11 @@ func (e Day) MarshalJSON() ([]byte, error) {
 type EnvStatusErrorCode string
 
 const (
-	EnvStatusErrorCodeInternal                   EnvStatusErrorCode = "INTERNAL"
-	EnvStatusErrorCodeDisconnected               EnvStatusErrorCode = "DISCONNECTED"
-	EnvStatusErrorCodeCloudProviderAccessDenied  EnvStatusErrorCode = "CLOUD_PROVIDER_ACCESS_DENIED"
-	EnvStatusErrorCodeCloudProviderQuotaExceeded EnvStatusErrorCode = "CLOUD_PROVIDER_QUOTA_EXCEEDED"
+	EnvStatusErrorCodeInternal                      EnvStatusErrorCode = "INTERNAL"
+	EnvStatusErrorCodeDisconnected                  EnvStatusErrorCode = "DISCONNECTED"
+	EnvStatusErrorCodeCloudProviderAccessDenied     EnvStatusErrorCode = "CLOUD_PROVIDER_ACCESS_DENIED"
+	EnvStatusErrorCodeCloudProviderQuotaExceeded    EnvStatusErrorCode = "CLOUD_PROVIDER_QUOTA_EXCEEDED"
+	EnvStatusErrorCodeCloudProviderResourceNotFound EnvStatusErrorCode = "CLOUD_PROVIDER_RESOURCE_NOT_FOUND"
 )
 
 var AllEnvStatusErrorCode = []EnvStatusErrorCode{
@@ -2305,11 +2306,12 @@ var AllEnvStatusErrorCode = []EnvStatusErrorCode{
 	EnvStatusErrorCodeDisconnected,
 	EnvStatusErrorCodeCloudProviderAccessDenied,
 	EnvStatusErrorCodeCloudProviderQuotaExceeded,
+	EnvStatusErrorCodeCloudProviderResourceNotFound,
 }
 
 func (e EnvStatusErrorCode) IsValid() bool {
 	switch e {
-	case EnvStatusErrorCodeInternal, EnvStatusErrorCodeDisconnected, EnvStatusErrorCodeCloudProviderAccessDenied, EnvStatusErrorCodeCloudProviderQuotaExceeded:
+	case EnvStatusErrorCodeInternal, EnvStatusErrorCodeDisconnected, EnvStatusErrorCodeCloudProviderAccessDenied, EnvStatusErrorCodeCloudProviderQuotaExceeded, EnvStatusErrorCodeCloudProviderResourceNotFound:
 		return true
 	}
 	return false
