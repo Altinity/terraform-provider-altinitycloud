@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.22](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.4.21...v0.4.22)
+### Added
+- Support for cross region VPCE [0ac549a](https://github.com/Altinity/terraform-provider-altinitycloud/commit/0ac549a).
+
+### Changed
+- Improve README format and add issue template [ef4e78b](https://github.com/Altinity/terraform-provider-altinitycloud/commit/ef4e78b).
+- Bump github.com/hashicorp/terraform-plugin-docs to `0.23.0` [#184](https://github.com/Altinity/terraform-provider-altinitycloud/pull/184).
+- Bump github.com/hashicorp/terraform-plugin-framework to `1.16.0` [#182](https://github.com/Altinity/terraform-provider-altinitycloud/pull/182).
+- Sync and update latest GraphQL schema [7e52333](https://github.com/Altinity/terraform-provider-altinitycloud/commit/7e52333).
+
 ## [0.4.21](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.4.20...v0.4.21)
 ### Fixed
 - Do not allow empty strings on `hcloud_token_enc` property [10f1676](https://github.com/Altinity/terraform-provider-altinitycloud/commit/10f1676).
