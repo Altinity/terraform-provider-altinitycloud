@@ -73,12 +73,12 @@ After you have installed Terraform and Go, you can clone the repository and star
   $ go mod tidy
   ```
 
-4. Run build process to ensure that everyhing is on place
+4. Run build process to ensure that everything is on place
   ```sh
   $ make build
   ```
 
-**You are ready to go, take a look at the [`local` script](###`make-local`) so you can easily test your changes locally.** 🙌
+**You are ready to go, take a look at the [`make local`](#make-local) command so you can easily test your changes locally.** 🙌
 
 ### Adding Dependencies
 
@@ -99,6 +99,21 @@ Then commit the changes to `go.mod` and `go.sum`.
 In order to facilitate the development process, we have a `GNUmakefile` with a few scripts that are used to build, test and run working examples.
 
 > Run `make help` to see all available local commands
+
+### Available Commands
+
+| Command | Description |
+|---------|-------------|
+| `make build` | Build the provider binary |
+| `make local` | Build and set up for local testing |
+| `make docs` | Generate provider documentation |
+| `make fmt` | Format Terraform and Go code |
+| `make sdk` | Re-sync SDK client and models |
+| `make gen` | Run SDK generation and docs generation |
+| `make test` | Run Go unit tests with coverage |
+| `make testacc` | Run acceptance tests |
+| `make lint` | Run Go linter |
+| `make bump` | Bump version tags (use with `type=major\|minor\|patch`) |
 
 ### `make local`
 This command builds your local project and sets up the provider binary to be used in a `local` directory.
@@ -124,8 +139,8 @@ Another useful tip for local testing/development is to override the `local/versi
 
   provider "altinitycloud" {
     # local settings
-    api_key  = "Get your token on ACM Dev"
-    api_url  = "https://anywhere.altinity.cloud"
+    api_token = "Get your token on ACM Dev"
+    api_url   = "https://anywhere.altinity.cloud"
     # ca_crt = file("${path.module}/ca.crt")
   }
   ```
@@ -142,10 +157,39 @@ Format the code using native terraform and go formatting tools.
 $ make fmt
 ```
 
-### `make doc`
+### `make docs`
 Use [terraform-plugin-docs](https://github.com/hashicorp/terraform-plugin-docs) to automatically generate resources documentation.
 ```sh
 $ make docs
+```
+
+### `make test`
+Run Go unit tests with coverage.
+```sh
+$ make test
+```
+
+### `make testacc`
+Run acceptance tests. These are integration tests that test real infrastructure.
+```sh
+# Set up environment variables for testing
+export ALTINITYCLOUD_API_TOKEN="your-token-here"
+export ALTINITYCLOUD_API_URL="https://anywhere.altinity.cloud"
+export ALTINITYCLOUD_TEST_ENV_PREFIX="your-prefix"
+
+$ make testacc
+```
+
+### `make lint`
+Run Go linter to check code quality.
+```sh
+$ make lint
+```
+
+### `make gen`
+Run SDK generation and documentation generation in sequence.
+```sh
+$ make gen
 ```
 
 ## Project Structure
@@ -171,4 +215,14 @@ $ make docs
 The release process is automatically handled with [goreleaser](https://goreleaser.com/) and GitHub `release` action.
 To trigger a new release you need to create a new git tag, using [SemVer](https://semver.org) pattern and then push it to the `main` branch.
 
-Remember to create release candidates releases and spend some time testing in production before publishin a final version. You can also tag the release as "Pre-Release" on GitHub until you consider it mature enough.
+Remember to create release candidate releases and spend some time testing in production before publishing a final version. You can also tag the release as "Pre-Release" on GitHub until you consider it mature enough.
+
+### Creating a Release
+
+1. **Bump Version**: Use `make bump type=[major|minor|patch]` to create a new version tag
+2. **Push Tag**: Push the new tag to trigger the release workflow
+   ```sh
+   git push origin v1.2.3
+   ```
+3. **Monitor Release**: Check the GitHub Actions workflow for the release process
+4. **Update Documentation**: Ensure all documentation is up to date
