@@ -143,6 +143,10 @@ type AWSEnvSpec {
   List of external S3 buckets to allow access to
   """
   externalBuckets: [AWSEnvExternalBucketSpec!]!
+  """
+  Backup storage configuration
+  """
+  backupStorage: AWSEnvBackupStorageSpec
 }
 
 """
@@ -365,6 +369,44 @@ type AWSEnvExternalBucketSpec {
 }
 
 """
+AWS environment backup storage configuration.
+"""
+type AWSEnvBackupStorageSpec {
+  """
+  Custom S3 bucket configuration.
+  """
+  customBucket: AWSEnvCustomBucketS3Spec
+}
+
+"""
+AWS environment custom S3 bucket configuration.
+"""
+type AWSEnvCustomBucketS3Spec {
+  """
+  S3 bucket name.
+  """
+  bucket: String!
+  """
+  S3 bucket region.
+  """
+  region: String!
+  """
+  Authentication configuration.
+  """
+  auth: AWSEnvCustomBucketS3AuthSpec!
+}
+
+"""
+AWS environment custom S3 bucket authentication configuration.
+"""
+type AWSEnvCustomBucketS3AuthSpec {
+  """
+  IAM role ARN for bucket access.
+  """
+  roleARN: String!
+}
+
+"""
 AWS environments query filter.
 """
 input AWSEnvFilter {
@@ -524,6 +566,10 @@ input CreateAWSEnvSpecInput {
   List of external S3 buckets to allow access to
   """
   externalBuckets: [AWSEnvExternalBucketSpecInput!]
+  """
+  Backup storage configuration
+  """
+  backupStorage: AWSEnvBackupStorageSpecInput
 }
 
 """
@@ -708,6 +754,44 @@ input AWSEnvExternalBucketSpecInput {
   External bucket name.
   """
   name: String!
+}
+
+"""
+AWS environment backup storage configuration input.
+"""
+input AWSEnvBackupStorageSpecInput {
+  """
+  Custom S3 bucket configuration.
+  """
+  customBucket: AWSEnvCustomBucketS3SpecInput
+}
+
+"""
+AWS environment custom S3 bucket configuration input.
+"""
+input AWSEnvCustomBucketS3SpecInput {
+  """
+  S3 bucket name.
+  """
+  bucket: String!
+  """
+  S3 bucket region.
+  """
+  region: String!
+  """
+  Authentication configuration.
+  """
+  auth: AWSEnvCustomBucketS3AuthSpecInput!
+}
+
+"""
+AWS environment custom S3 bucket authentication configuration input.
+"""
+input AWSEnvCustomBucketS3AuthSpecInput {
+  """
+  IAM role ARN for bucket access.
+  """
+  roleARN: String!
 }extend type Mutation {
   """
   Marks AWS environment for removal (if exists; noop otherwise).
@@ -842,6 +926,10 @@ input AWSEnvUpdateSpecInput {
   List of external S3 buckets to allow access to
   """
   externalBuckets: [AWSEnvExternalBucketSpecInput!]
+  """
+  Backup storage configuration
+  """
+  backupStorage: AWSEnvBackupStorageSpecInput
 }
 
 """

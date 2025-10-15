@@ -21,6 +21,50 @@ type AWSEnv struct {
 	Status *AWSEnvStatus `json:"status"`
 }
 
+// AWS environment backup storage configuration.
+type AWSEnvBackupStorageSpec struct {
+	// Custom S3 bucket configuration.
+	CustomBucket *AWSEnvCustomBucketS3Spec `json:"customBucket,omitempty"`
+}
+
+// AWS environment backup storage configuration input.
+type AWSEnvBackupStorageSpecInput struct {
+	// Custom S3 bucket configuration.
+	CustomBucket *AWSEnvCustomBucketS3SpecInput `json:"customBucket,omitempty"`
+}
+
+// AWS environment custom S3 bucket authentication configuration.
+type AWSEnvCustomBucketS3AuthSpec struct {
+	// IAM role ARN for bucket access.
+	RoleArn string `json:"roleARN"`
+}
+
+// AWS environment custom S3 bucket authentication configuration input.
+type AWSEnvCustomBucketS3AuthSpecInput struct {
+	// IAM role ARN for bucket access.
+	RoleArn string `json:"roleARN"`
+}
+
+// AWS environment custom S3 bucket configuration.
+type AWSEnvCustomBucketS3Spec struct {
+	// S3 bucket name.
+	Bucket string `json:"bucket"`
+	// S3 bucket region.
+	Region string `json:"region"`
+	// Authentication configuration.
+	Auth *AWSEnvCustomBucketS3AuthSpec `json:"auth"`
+}
+
+// AWS environment custom S3 bucket configuration input.
+type AWSEnvCustomBucketS3SpecInput struct {
+	// S3 bucket name.
+	Bucket string `json:"bucket"`
+	// S3 bucket region.
+	Region string `json:"region"`
+	// Authentication configuration.
+	Auth *AWSEnvCustomBucketS3AuthSpecInput `json:"auth"`
+}
+
 // AWS environment VPC endpoint configuration.
 type AWSEnvEndpointSpec struct {
 	// VPC endpoint service name in $endpoint_service_id.$region.vpce.amazonaws.com format.
@@ -326,6 +370,8 @@ type AWSEnvSpec struct {
 	ResourcePrefix string `json:"resourcePrefix"`
 	// List of external S3 buckets to allow access to
 	ExternalBuckets []*AWSEnvExternalBucketSpec `json:"externalBuckets"`
+	// Backup storage configuration
+	BackupStorage *AWSEnvBackupStorageSpec `json:"backupStorage,omitempty"`
 }
 
 // AWS environment status.
@@ -384,6 +430,8 @@ type AWSEnvUpdateSpecInput struct {
 	Tags []*KeyValueInput `json:"tags,omitempty"`
 	// List of external S3 buckets to allow access to
 	ExternalBuckets []*AWSEnvExternalBucketSpecInput `json:"externalBuckets,omitempty"`
+	// Backup storage configuration
+	BackupStorage *AWSEnvBackupStorageSpecInput `json:"backupStorage,omitempty"`
 }
 
 // Azure environment.
@@ -709,6 +757,8 @@ type CreateAWSEnvSpecInput struct {
 	ResourcePrefix *string `json:"resourcePrefix,omitempty"`
 	// List of external S3 buckets to allow access to
 	ExternalBuckets []*AWSEnvExternalBucketSpecInput `json:"externalBuckets,omitempty"`
+	// Backup storage configuration
+	BackupStorage *AWSEnvBackupStorageSpecInput `json:"backupStorage,omitempty"`
 }
 
 // Azure environment create request input.
