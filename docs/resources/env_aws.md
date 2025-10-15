@@ -234,6 +234,7 @@ output "peering_connection_id" {
 ### Optional
 
 - `allow_delete_while_disconnected` (Boolean) Set to `true` to allow deletion of the environment while it is disconnected from the cloud connect. If the the environment is not connected during the deletion process you will end up in a delete timeout (default `false`).
+- `backup_storage` (Attributes) Configuration for backup storage (see [below for nested schema](#nestedatt--backup_storage))
 - `cloud_connect` (Boolean) `true` indicates that cloud resources are to be managed via altinity/cloud-connect and `false` means direct management (default `true`). **[IMMUTABLE]**
 - `custom_domain` (String) Custom domain.
 
@@ -295,6 +296,32 @@ Optional:
 
 - `name` (String) Unique (among environment node groups) node group identifier.
 - `zones` (List of String) Availability zones. Check possible available zones in your cloud provider documentation
+
+
+<a id="nestedatt--backup_storage"></a>
+### Nested Schema for `backup_storage`
+
+Optional:
+
+- `custom_bucket` (Attributes) Custom S3 bucket configuration for backups (see [below for nested schema](#nestedatt--backup_storage--custom_bucket))
+
+<a id="nestedatt--backup_storage--custom_bucket"></a>
+### Nested Schema for `backup_storage.custom_bucket`
+
+Required:
+
+- `auth` (Attributes) Authentication configuration for backup bucket access (see [below for nested schema](#nestedatt--backup_storage--custom_bucket--auth))
+- `bucket` (String) S3 bucket name for backups
+- `region` (String) AWS region where the backup bucket is located
+
+<a id="nestedatt--backup_storage--custom_bucket--auth"></a>
+### Nested Schema for `backup_storage.custom_bucket.auth`
+
+Required:
+
+- `role_arn` (String) IAM role ARN for backup bucket access
+
+
 
 
 <a id="nestedatt--endpoints"></a>

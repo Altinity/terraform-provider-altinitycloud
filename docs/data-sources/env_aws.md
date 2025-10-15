@@ -33,6 +33,7 @@ Bring Your Own Cloud (BYOC) AWS environment data source.
 
 - `allow_delete_while_disconnected` (Boolean) Set to `true` to allow deletion of the environment while it is disconnected from the cloud connect. If the the environment is not connected during the deletion process you will end up in a delete timeout (default `false`).
 - `aws_account_id` (String) ID of the AWS account ([docs](https://docs.aws.amazon.com/IAM/latest/UserGuide/console_account-alias.html#ViewYourAWSId)) in which to provision AWS resources. **[IMMUTABLE]**
+- `backup_storage` (Attributes) Configuration for backup storage (see [below for nested schema](#nestedatt--backup_storage))
 - `cidr` (String) VPC CIDR block from the private IPv4 address ranges as specified in RFC 1918 (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16). At least /21 required. **[IMMUTABLE]**
 
 		Examples:
@@ -82,6 +83,32 @@ Bring Your Own Cloud (BYOC) AWS environment data source.
 		Examples:
 		- ["us-east-1a", "us-east-1b"]
 		- ["sa-east-1c", "sa-east-1d"]
+
+<a id="nestedatt--backup_storage"></a>
+### Nested Schema for `backup_storage`
+
+Optional:
+
+- `custom_bucket` (Attributes) Custom S3 bucket configuration for backups (see [below for nested schema](#nestedatt--backup_storage--custom_bucket))
+
+<a id="nestedatt--backup_storage--custom_bucket"></a>
+### Nested Schema for `backup_storage.custom_bucket`
+
+Required:
+
+- `auth` (Attributes) Authentication configuration for backup bucket access (see [below for nested schema](#nestedatt--backup_storage--custom_bucket--auth))
+- `bucket` (String) S3 bucket name for backups
+- `region` (String) AWS region where the backup bucket is located
+
+<a id="nestedatt--backup_storage--custom_bucket--auth"></a>
+### Nested Schema for `backup_storage.custom_bucket.auth`
+
+Required:
+
+- `role_arn` (String) IAM role ARN for backup bucket access
+
+
+
 
 <a id="nestedatt--endpoints"></a>
 ### Nested Schema for `endpoints`
