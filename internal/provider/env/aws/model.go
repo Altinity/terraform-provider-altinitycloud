@@ -28,6 +28,7 @@ type AWSEnvResourceModel struct {
 	CloudConnect                 types.Bool                      `tfsdk:"cloud_connect"`
 	MaintenanceWindows           []common.MaintenanceWindowModel `tfsdk:"maintenance_windows"`
 	ExternalBuckets              []AWSEnvExternalBucketModel     `tfsdk:"external_buckets"`
+	BackupStorage                *AWSEnvBackupStorageModel       `tfsdk:"backup_storage"`
 
 	SpecRevision                 types.Int64 `tfsdk:"spec_revision"`
 	ForceDestroy                 types.Bool  `tfsdk:"force_destroy"`
@@ -71,6 +72,20 @@ type AWSEnvExternalBucketModel struct {
 	Name types.String `tfsdk:"name"`
 }
 
+type AWSEnvBackupStorageModel struct {
+	CustomBucket *AWSEnvCustomBucketModel `tfsdk:"custom_bucket"`
+}
+
+type AWSEnvCustomBucketModel struct {
+	Bucket types.String     `tfsdk:"bucket"`
+	Region types.String     `tfsdk:"region"`
+	Auth   *AWSEnvAuthModel `tfsdk:"auth"`
+}
+
+type AWSEnvAuthModel struct {
+	RoleArn types.String `tfsdk:"role_arn"`
+}
+
 func (e AWSEnvResourceModel) toSDK() (sdk.CreateAWSEnvInput, sdk.UpdateAWSEnvInput) {
 	var zones []string
 	e.Zones.ElementsAs(context.TODO(), &zones, false)
@@ -108,6 +123,7 @@ func (e AWSEnvResourceModel) toSDK() (sdk.CreateAWSEnvInput, sdk.UpdateAWSEnvInp
 		})
 	}
 
+	backupStorage := backupStorageToSDK(e.BackupStorage)
 	maintenanceWindows := common.MaintenanceWindowsToSDK(e.MaintenanceWindows)
 	LoadBalancers := loadBalancersToSDK(e.LoadBalancers)
 	nodeGroups := nodeGroupsToSDK(e.NodeGroups)
@@ -134,6 +150,7 @@ func (e AWSEnvResourceModel) toSDK() (sdk.CreateAWSEnvInput, sdk.UpdateAWSEnvInp
 			PermissionsBoundaryPolicyArn: e.PermissionsBoundaryPolicyArn.ValueStringPointer(),
 			ResourcePrefix:               e.ResourcePrefix.ValueStringPointer(),
 			ExternalBuckets:              externalBuckets,
+			BackupStorage:                backupStorage,
 		},
 	}
 
@@ -152,6 +169,7 @@ func (e AWSEnvResourceModel) toSDK() (sdk.CreateAWSEnvInput, sdk.UpdateAWSEnvInp
 			Tags:                  tags,
 			MaintenanceWindows:    maintenanceWindows,
 			ExternalBuckets:       externalBuckets,
+			BackupStorage:         backupStorage,
 		},
 	}
 
@@ -206,9 +224,12 @@ func (model *AWSEnvResourceModel) toModel(env sdk.GetAWSEnv_AWSEnv) {
 		})
 	}
 
+	backupStorage := backupStorageToModel(env.Spec.BackupStorage)
+
 	model.Tags = tags
 	model.Endpoints = endpoints
 	model.ExternalBuckets = externalBuckets
+	model.BackupStorage = backupStorage
 	model.PeeringConnections = peeringConnections
 	model.SpecRevision = types.Int64Value(env.SpecRevision)
 	model.CloudConnect = types.BoolValue(env.Spec.CloudConnect)
@@ -375,4 +396,43 @@ func reorderNodeGroups(model []common.NodeGroupsModel, nodeGroups []*sdk.AWSEnvS
 	}
 
 	return orderedNodeGroups
+}
+
+func backupStorageToSDK(backupStorage *AWSEnvBackupStorageModel) *sdk.AWSEnvBackupStorageSpecInput {
+	if backupStorage == nil || backupStorage.CustomBucket == nil {
+		return nil
+	}
+
+	var auth *sdk.AWSEnvCustomBucketS3AuthSpecInput
+	if backupStorage.CustomBucket.Auth != nil {
+		auth = &sdk.AWSEnvCustomBucketS3AuthSpecInput{
+			RoleArn: backupStorage.CustomBucket.Auth.RoleArn.ValueString(),
+		}
+	}
+
+	return &sdk.AWSEnvBackupStorageSpecInput{
+		CustomBucket: &sdk.AWSEnvCustomBucketS3SpecInput{
+			Bucket: backupStorage.CustomBucket.Bucket.ValueString(),
+			Region: backupStorage.CustomBucket.Region.ValueString(),
+			Auth:   auth,
+		},
+	}
+}
+
+func backupStorageToModel(backupStorage *sdk.AWSEnvSpecFragment_BackupStorage) *AWSEnvBackupStorageModel {
+	if backupStorage == nil || backupStorage.CustomBucket == nil {
+		return nil
+	}
+
+	auth := &AWSEnvAuthModel{
+		RoleArn: types.StringValue(backupStorage.CustomBucket.Auth.RoleArn),
+	}
+
+	return &AWSEnvBackupStorageModel{
+		CustomBucket: &AWSEnvCustomBucketModel{
+			Bucket: types.StringValue(backupStorage.CustomBucket.Bucket),
+			Region: types.StringValue(backupStorage.CustomBucket.Region),
+			Auth:   auth,
+		},
+	}
 }

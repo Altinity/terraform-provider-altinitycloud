@@ -938,6 +938,77 @@ func TestAWSEnvResourceModel_toSDK(t *testing.T) {
 				}
 			},
 		},
+		{
+			name: "Complete model with backup storage",
+			model: AWSEnvResourceModel{
+				Name:                         types.StringValue("backup-env"),
+				CustomDomain:                 types.StringValue("backups.example.com"),
+				LoadBalancingStrategy:        types.StringValue("round_robin"),
+				Region:                       types.StringValue("us-east-1"),
+				PermissionsBoundaryPolicyArn: types.StringValue("arn:aws:iam::123456789012:policy/boundary"),
+				ResourcePrefix:               types.StringValue("altinity-"),
+				NAT:                          types.BoolValue(true),
+				CIDR:                         types.StringValue("10.0.0.0/16"),
+				AWSAccountID:                 types.StringValue("123456789012"),
+				Zones:                        types.ListValueMust(types.StringType, []attr.Value{types.StringValue("us-east-1a"), types.StringValue("us-east-1b")}),
+				NodeGroups: []common.NodeGroupsModel{
+					{
+						Name:            types.StringValue("system"),
+						NodeType:        types.StringValue("system"),
+						CapacityPerZone: types.Int64Value(2),
+						Zones:           types.ListValueMust(types.StringType, []attr.Value{types.StringValue("us-east-1a")}),
+						Reservations:    types.SetValueMust(types.ObjectType{}, []attr.Value{}),
+					},
+				},
+				BackupStorage: &AWSEnvBackupStorageModel{
+					CustomBucket: &AWSEnvCustomBucketModel{
+						Bucket: types.StringValue("my-backup-bucket"),
+						Region: types.StringValue("us-east-1"),
+						Auth: &AWSEnvAuthModel{
+							RoleArn: types.StringValue("arn:aws:iam::123456789012:role/backup-role"),
+						},
+					},
+				},
+				CloudConnect: types.BoolValue(true),
+			},
+			validate: func(t *testing.T, create sdk.CreateAWSEnvInput, update sdk.UpdateAWSEnvInput) {
+				if create.Name != "backup-env" {
+					t.Errorf("Create name: expected 'backup-env', got '%s'", create.Name)
+				}
+				if create.Spec == nil {
+					t.Fatal("Create spec should not be nil")
+				}
+				if create.Spec.BackupStorage == nil {
+					t.Fatal("Create backup storage should not be nil")
+				}
+				if create.Spec.BackupStorage.CustomBucket == nil {
+					t.Fatal("Create backup storage custom bucket should not be nil")
+				}
+				if create.Spec.BackupStorage.CustomBucket.Bucket != "my-backup-bucket" {
+					t.Errorf("Create backup bucket: expected 'my-backup-bucket', got '%s'", create.Spec.BackupStorage.CustomBucket.Bucket)
+				}
+				if create.Spec.BackupStorage.CustomBucket.Region != "us-east-1" {
+					t.Errorf("Create backup region: expected 'us-east-1', got '%s'", create.Spec.BackupStorage.CustomBucket.Region)
+				}
+				if create.Spec.BackupStorage.CustomBucket.Auth == nil {
+					t.Fatal("Create backup auth should not be nil")
+				}
+				if create.Spec.BackupStorage.CustomBucket.Auth.RoleArn != "arn:aws:iam::123456789012:role/backup-role" {
+					t.Errorf("Create backup role ARN: expected 'arn:aws:iam::123456789012:role/backup-role', got '%s'", create.Spec.BackupStorage.CustomBucket.Auth.RoleArn)
+				}
+
+				// Validate update input too
+				if update.Spec == nil {
+					t.Fatal("Update spec should not be nil")
+				}
+				if update.Spec.BackupStorage == nil {
+					t.Fatal("Update backup storage should not be nil")
+				}
+				if update.Spec.BackupStorage.CustomBucket.Bucket != "my-backup-bucket" {
+					t.Errorf("Update backup bucket: expected 'my-backup-bucket', got '%s'", update.Spec.BackupStorage.CustomBucket.Bucket)
+				}
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -1263,6 +1334,87 @@ func TestAWSEnvResourceModel_toModel(t *testing.T) {
 				}
 			},
 		},
+		{
+			name: "Complete SDK response with backup storage",
+			input: sdk.GetAWSEnv_AWSEnv{
+				Name: "backup-test-environment",
+				Spec: &sdk.AWSEnvSpecFragment{
+					Cidr:                         "10.0.0.0/16",
+					Region:                       "us-east-1",
+					Nat:                          true,
+					AWSAccountID:                 "123456789012",
+					CustomDomain:                 &[]string{"backup.example.com"}[0],
+					LoadBalancingStrategy:        sdk.LoadBalancingStrategyRoundRobin,
+					ResourcePrefix:               "altinity-backup-",
+					PermissionsBoundaryPolicyArn: &[]string{"arn:aws:iam::123456789012:policy/boundary"}[0],
+					Zones:                        []string{"us-east-1a", "us-east-1b"},
+					LoadBalancers: sdk.AWSEnvSpecFragment_LoadBalancers{
+						Public: sdk.AWSEnvSpecFragment_LoadBalancers_Public{
+							Enabled:        false,
+							SourceIPRanges: []string{},
+							CrossZone:      false,
+						},
+						Internal: sdk.AWSEnvSpecFragment_LoadBalancers_Internal{
+							Enabled:                          false,
+							SourceIPRanges:                   []string{},
+							CrossZone:                        false,
+							EndpointServiceAllowedPrincipals: []string{},
+						},
+					},
+					NodeGroups: []*sdk.AWSEnvSpecFragment_NodeGroups{
+						{
+							Name:            "system-group",
+							NodeType:        "system",
+							CapacityPerZone: 2,
+							Zones:           []string{"us-east-1a"},
+							Reservations:    []sdk.NodeReservation{},
+						},
+					},
+					MaintenanceWindows: []*sdk.AWSEnvSpecFragment_MaintenanceWindows{},
+					PeeringConnections: []*sdk.AWSEnvSpecFragment_PeeringConnections{},
+					Endpoints:          []*sdk.AWSEnvSpecFragment_Endpoints{},
+					Tags:               []*sdk.AWSEnvSpecFragment_Tags{},
+					ExternalBuckets:    []*sdk.AWSEnvSpecFragment_ExternalBuckets{},
+					BackupStorage: &sdk.AWSEnvSpecFragment_BackupStorage{
+						CustomBucket: &sdk.AWSEnvSpecFragment_BackupStorage_CustomBucket{
+							Bucket: "production-backups",
+							Region: "eu-west-1",
+							Auth: sdk.AWSEnvSpecFragment_BackupStorage_CustomBucket_Auth{
+								RoleArn: "arn:aws:iam::987654321098:role/backup-access",
+							},
+						},
+					},
+					CloudConnect: true,
+				},
+				SpecRevision: 10,
+			},
+			validate: func(t *testing.T, model *AWSEnvResourceModel) {
+				if model.Name.ValueString() != "backup-test-environment" {
+					t.Errorf("Name: expected 'backup-test-environment', got '%s'", model.Name.ValueString())
+				}
+				if model.BackupStorage == nil {
+					t.Fatal("BackupStorage should not be nil")
+				}
+				if model.BackupStorage.CustomBucket == nil {
+					t.Fatal("CustomBucket should not be nil")
+				}
+				if model.BackupStorage.CustomBucket.Bucket.ValueString() != "production-backups" {
+					t.Errorf("Backup bucket: expected 'production-backups', got '%s'", model.BackupStorage.CustomBucket.Bucket.ValueString())
+				}
+				if model.BackupStorage.CustomBucket.Region.ValueString() != "eu-west-1" {
+					t.Errorf("Backup region: expected 'eu-west-1', got '%s'", model.BackupStorage.CustomBucket.Region.ValueString())
+				}
+				if model.BackupStorage.CustomBucket.Auth == nil {
+					t.Fatal("Backup auth should not be nil")
+				}
+				if model.BackupStorage.CustomBucket.Auth.RoleArn.ValueString() != "arn:aws:iam::987654321098:role/backup-access" {
+					t.Errorf("Backup role ARN: expected 'arn:aws:iam::987654321098:role/backup-access', got '%s'", model.BackupStorage.CustomBucket.Auth.RoleArn.ValueString())
+				}
+				if model.SpecRevision.ValueInt64() != 10 {
+					t.Errorf("SpecRevision: expected 10, got %d", model.SpecRevision.ValueInt64())
+				}
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -1270,6 +1422,177 @@ func TestAWSEnvResourceModel_toModel(t *testing.T) {
 			model := &AWSEnvResourceModel{}
 			model.toModel(tt.input)
 			tt.validate(t, model)
+		})
+	}
+}
+
+func TestBackupStorageToSDK(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    *AWSEnvBackupStorageModel
+		expected *sdk.AWSEnvBackupStorageSpecInput
+	}{
+		{
+			name:     "Nil input",
+			input:    nil,
+			expected: nil,
+		},
+		{
+			name: "Complete backup storage config",
+			input: &AWSEnvBackupStorageModel{
+				CustomBucket: &AWSEnvCustomBucketModel{
+					Bucket: types.StringValue("my-backup-bucket"),
+					Region: types.StringValue("us-east-1"),
+					Auth: &AWSEnvAuthModel{
+						RoleArn: types.StringValue("arn:aws:iam::123456789012:role/backup-role"),
+					},
+				},
+			},
+			expected: &sdk.AWSEnvBackupStorageSpecInput{
+				CustomBucket: &sdk.AWSEnvCustomBucketS3SpecInput{
+					Bucket: "my-backup-bucket",
+					Region: "us-east-1",
+					Auth: &sdk.AWSEnvCustomBucketS3AuthSpecInput{
+						RoleArn: "arn:aws:iam::123456789012:role/backup-role",
+					},
+				},
+			},
+		},
+		{
+			name: "Backup storage with nil custom bucket",
+			input: &AWSEnvBackupStorageModel{
+				CustomBucket: nil,
+			},
+			expected: nil,
+		},
+		{
+			name: "Custom bucket with nil auth",
+			input: &AWSEnvBackupStorageModel{
+				CustomBucket: &AWSEnvCustomBucketModel{
+					Bucket: types.StringValue("test-bucket"),
+					Region: types.StringValue("us-west-2"),
+					Auth:   nil,
+				},
+			},
+			expected: &sdk.AWSEnvBackupStorageSpecInput{
+				CustomBucket: &sdk.AWSEnvCustomBucketS3SpecInput{
+					Bucket: "test-bucket",
+					Region: "us-west-2",
+					Auth:   nil,
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := backupStorageToSDK(tt.input)
+
+			if (tt.expected == nil) != (result == nil) {
+				t.Errorf("Expected nil: %v, got nil: %v", tt.expected == nil, result == nil)
+				return
+			}
+
+			if tt.expected != nil && result != nil {
+				if (tt.expected.CustomBucket == nil) != (result.CustomBucket == nil) {
+					t.Errorf("Custom bucket presence mismatch")
+					return
+				}
+
+				if tt.expected.CustomBucket != nil && result.CustomBucket != nil {
+					if tt.expected.CustomBucket.Bucket != result.CustomBucket.Bucket {
+						t.Errorf("Bucket mismatch: expected '%s', got '%s'", tt.expected.CustomBucket.Bucket, result.CustomBucket.Bucket)
+					}
+					if tt.expected.CustomBucket.Region != result.CustomBucket.Region {
+						t.Errorf("Region mismatch: expected '%s', got '%s'", tt.expected.CustomBucket.Region, result.CustomBucket.Region)
+					}
+
+					if (tt.expected.CustomBucket.Auth == nil) != (result.CustomBucket.Auth == nil) {
+						t.Errorf("Auth presence mismatch")
+					} else if tt.expected.CustomBucket.Auth != nil && result.CustomBucket.Auth != nil {
+						if tt.expected.CustomBucket.Auth.RoleArn != result.CustomBucket.Auth.RoleArn {
+							t.Errorf("RoleArn mismatch: expected '%s', got '%s'", tt.expected.CustomBucket.Auth.RoleArn, result.CustomBucket.Auth.RoleArn)
+						}
+					}
+				}
+			}
+		})
+	}
+}
+
+func TestBackupStorageToModel(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    *sdk.AWSEnvSpecFragment_BackupStorage
+		expected *AWSEnvBackupStorageModel
+	}{
+		{
+			name:     "Nil input",
+			input:    nil,
+			expected: nil,
+		},
+		{
+			name: "Complete backup storage response",
+			input: &sdk.AWSEnvSpecFragment_BackupStorage{
+				CustomBucket: &sdk.AWSEnvSpecFragment_BackupStorage_CustomBucket{
+					Bucket: "production-backups",
+					Region: "eu-west-1",
+					Auth: sdk.AWSEnvSpecFragment_BackupStorage_CustomBucket_Auth{
+						RoleArn: "arn:aws:iam::987654321098:role/backup-access",
+					},
+				},
+			},
+			expected: &AWSEnvBackupStorageModel{
+				CustomBucket: &AWSEnvCustomBucketModel{
+					Bucket: types.StringValue("production-backups"),
+					Region: types.StringValue("eu-west-1"),
+					Auth: &AWSEnvAuthModel{
+						RoleArn: types.StringValue("arn:aws:iam::987654321098:role/backup-access"),
+					},
+				},
+			},
+		},
+		{
+			name: "Backup storage with nil custom bucket",
+			input: &sdk.AWSEnvSpecFragment_BackupStorage{
+				CustomBucket: nil,
+			},
+			expected: nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := backupStorageToModel(tt.input)
+
+			if (tt.expected == nil) != (result == nil) {
+				t.Errorf("Expected nil: %v, got nil: %v", tt.expected == nil, result == nil)
+				return
+			}
+
+			if tt.expected != nil && result != nil {
+				if (tt.expected.CustomBucket == nil) != (result.CustomBucket == nil) {
+					t.Errorf("Custom bucket presence mismatch")
+					return
+				}
+
+				if tt.expected.CustomBucket != nil && result.CustomBucket != nil {
+					if tt.expected.CustomBucket.Bucket.ValueString() != result.CustomBucket.Bucket.ValueString() {
+						t.Errorf("Bucket mismatch: expected '%s', got '%s'", tt.expected.CustomBucket.Bucket.ValueString(), result.CustomBucket.Bucket.ValueString())
+					}
+					if tt.expected.CustomBucket.Region.ValueString() != result.CustomBucket.Region.ValueString() {
+						t.Errorf("Region mismatch: expected '%s', got '%s'", tt.expected.CustomBucket.Region.ValueString(), result.CustomBucket.Region.ValueString())
+					}
+
+					if (tt.expected.CustomBucket.Auth == nil) != (result.CustomBucket.Auth == nil) {
+						t.Errorf("Auth presence mismatch")
+					} else if tt.expected.CustomBucket.Auth != nil && result.CustomBucket.Auth != nil {
+						if tt.expected.CustomBucket.Auth.RoleArn.ValueString() != result.CustomBucket.Auth.RoleArn.ValueString() {
+							t.Errorf("RoleArn mismatch: expected '%s', got '%s'", tt.expected.CustomBucket.Auth.RoleArn.ValueString(), result.CustomBucket.Auth.RoleArn.ValueString())
+						}
+					}
+				}
+			}
 		})
 	}
 }

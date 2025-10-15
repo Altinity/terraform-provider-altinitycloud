@@ -115,4 +115,13 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
   externalBuckets {
     name
   }
+  backupStorage {
+    customBucket {
+      bucket
+      region
+      auth {
+        roleARN
+      }
+    }
+  }
 }
