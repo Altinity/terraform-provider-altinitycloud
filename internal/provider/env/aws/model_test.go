@@ -1397,11 +1397,8 @@ func TestAWSEnvResourceModel_toModel(t *testing.T) {
 				if model.Backups.CustomBucket.Region.ValueString() != "eu-west-1" {
 					t.Errorf("Backup region: expected 'eu-west-1', got '%s'", model.Backups.CustomBucket.Region.ValueString())
 				}
-				if model.Backups.CustomBucket.Auth == nil {
-					t.Fatal("Backup auth should not be nil")
-				}
-				if model.Backups.CustomBucket.Auth.RoleArn.ValueString() != "arn:aws:iam::987654321098:role/backup-access" {
-					t.Errorf("Backup role ARN: expected 'arn:aws:iam::987654321098:role/backup-access', got '%s'", model.Backups.CustomBucket.Auth.RoleArn.ValueString())
+				if model.Backups.CustomBucket.RoleArn.ValueString() != "arn:aws:iam::987654321098:role/backup-access" {
+					t.Errorf("Backup role ARN: expected 'arn:aws:iam::987654321098:role/backup-access', got '%s'", model.Backups.CustomBucket.RoleArn.ValueString())
 				}
 				if model.SpecRevision.ValueInt64() != 10 {
 					t.Errorf("SpecRevision: expected 10, got %d", model.SpecRevision.ValueInt64())
@@ -1440,7 +1437,7 @@ func TestBackupsToSDK(t *testing.T) {
 				},
 			},
 			expected: &sdk.AWSEnvBackupsSpecInput{
-				CustomBucket: &sdk.AWSEnvCustomBucketS3SpecInput{
+				CustomBucket: &sdk.AWSEnvBackupsCustomBucketSpecInput{
 					Name:    "my-backup-bucket",
 					Region:  "us-east-1",
 					RoleArn: "arn:aws:iam::123456789012:role/backup-role",
