@@ -45,7 +45,7 @@ func (r *AWSEnvResource) Schema(ctx context.Context, req resource.SchemaRequest,
 			"resource_prefix":                 getResourcePrefixAttribute(false, true, true),
 			"permissions_boundary_policy_arn": getPermissionsBoundaryPolicyArnAttribute(false, true, false),
 			"external_buckets":                getExternalBucketsAttribute(false, true, false),
-			"backup_storage":                  getBackupStorageAttribute(false, true, false),
+			"backups":                         getBackupStorageAttribute(false, true, false),
 
 			"spec_revision":                   common.SpecRevisionAttribute,
 			"force_destroy":                   common.GetForceDestroyAttribute(false, true, true),
@@ -79,7 +79,7 @@ func (d *AWSEnvDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 			"permissions_boundary_policy_arn": getPermissionsBoundaryPolicyArnAttribute(false, false, true),
 			"resource_prefix":                 getResourcePrefixAttribute(false, false, true),
 			"external_buckets":                getExternalBucketsAttribute(false, false, true),
-			"backup_storage":                  getBackupStorageAttribute(false, false, true),
+			"backups":                         getBackupStorageAttribute(false, false, true),
 			"spec_revision":                   common.SpecRevisionAttribute,
 
 			// these options are not used in data sources,
@@ -270,7 +270,7 @@ func getBackupStorageAttribute(required, optional, computed bool) rschema.Single
 				Optional:            true,
 				MarkdownDescription: common.AWS_BACKUP_STORAGE_CUSTOM_BUCKET_DESCRIPTION,
 				Attributes: map[string]rschema.Attribute{
-					"bucket": rschema.StringAttribute{
+					"name": rschema.StringAttribute{
 						Required:            true,
 						MarkdownDescription: common.AWS_BACKUP_STORAGE_BUCKET_DESCRIPTION,
 					},
@@ -278,15 +278,9 @@ func getBackupStorageAttribute(required, optional, computed bool) rschema.Single
 						Required:            true,
 						MarkdownDescription: common.AWS_BACKUP_STORAGE_REGION_DESCRIPTION,
 					},
-					"auth": rschema.SingleNestedAttribute{
+					"role_arn": rschema.StringAttribute{
 						Required:            true,
 						MarkdownDescription: common.AWS_BACKUP_STORAGE_AUTH_DESCRIPTION,
-						Attributes: map[string]rschema.Attribute{
-							"role_arn": rschema.StringAttribute{
-								Required:            true,
-								MarkdownDescription: common.AWS_BACKUP_STORAGE_ROLE_ARN_DESCRIPTION,
-							},
-						},
 					},
 				},
 			},

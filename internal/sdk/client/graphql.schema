@@ -140,13 +140,13 @@ type AWSEnvSpec {
   """
   resourcePrefix: String!
   """
-  List of external S3 buckets to allow access to
+  List of external S3 buckets to allow access to.
   """
   externalBuckets: [AWSEnvExternalBucketSpec!]!
   """
-  Backup storage configuration
+  Backups configuration.
   """
-  backupStorage: AWSEnvBackupStorageSpec
+  backups: AWSEnvBackupsSpec
 }
 
 """
@@ -359,7 +359,7 @@ type AWSEnvPeeringConnectionStatus {
 }
 
 """
-External S3 bucket to allow access to
+External S3 bucket to allow access to.
 """
 type AWSEnvExternalBucketSpec {
   """
@@ -369,39 +369,29 @@ type AWSEnvExternalBucketSpec {
 }
 
 """
-AWS environment backup storage configuration.
+Backups configuration.
 """
-type AWSEnvBackupStorageSpec {
+type AWSEnvBackupsSpec {
   """
-  Custom S3 bucket configuration.
+  Custom S3 bucket.
   """
-  customBucket: AWSEnvCustomBucketS3Spec
+  customBucket: AWSEnvBackupsCustomBucketSpec
 }
 
 """
 AWS environment custom S3 bucket configuration.
 """
-type AWSEnvCustomBucketS3Spec {
+type AWSEnvBackupsCustomBucketSpec {
   """
   S3 bucket name.
   """
-  bucket: String!
+  name: String!
   """
   S3 bucket region.
   """
   region: String!
   """
-  Authentication configuration.
-  """
-  auth: AWSEnvCustomBucketS3AuthSpec!
-}
-
-"""
-AWS environment custom S3 bucket authentication configuration.
-"""
-type AWSEnvCustomBucketS3AuthSpec {
-  """
-  IAM role ARN for bucket access.
+  IAM role to assume for bucket access.
   """
   roleARN: String!
 }
@@ -563,13 +553,13 @@ input CreateAWSEnvSpecInput {
   """
   resourcePrefix: String
   """
-  List of external S3 buckets to allow access to
+  List of external S3 buckets to allow access to.
   """
   externalBuckets: [AWSEnvExternalBucketSpecInput!]
   """
-  Backup storage configuration
+  Backups configuration.
   """
-  backupStorage: AWSEnvBackupStorageSpecInput
+  backups: AWSEnvBackupsSpecInput
 }
 
 """
@@ -747,7 +737,7 @@ type CreateAWSEnvResult {
 }
 
 """
-External S3 bucket to allow access to
+External S3 bucket to allow access to.
 """
 input AWSEnvExternalBucketSpecInput {
   """
@@ -757,42 +747,33 @@ input AWSEnvExternalBucketSpecInput {
 }
 
 """
-AWS environment backup storage configuration input.
+Backups configuration.
 """
-input AWSEnvBackupStorageSpecInput {
+input AWSEnvBackupsSpecInput {
   """
-  Custom S3 bucket configuration.
+  Custom S3 bucket.
   """
-  customBucket: AWSEnvCustomBucketS3SpecInput
+  customBucket: AWSEnvBackupsCustomBucketSpecInput
 }
 
 """
 AWS environment custom S3 bucket configuration input.
 """
-input AWSEnvCustomBucketS3SpecInput {
+input AWSEnvBackupsCustomBucketSpecInput {
   """
   S3 bucket name.
   """
-  bucket: String!
+  name: String!
   """
   S3 bucket region.
   """
   region: String!
   """
-  Authentication configuration.
-  """
-  auth: AWSEnvCustomBucketS3AuthSpecInput!
-}
-
-"""
-AWS environment custom S3 bucket authentication configuration input.
-"""
-input AWSEnvCustomBucketS3AuthSpecInput {
-  """
-  IAM role ARN for bucket access.
+  IAM role to assume for bucket access.
   """
   roleARN: String!
-}extend type Mutation {
+}
+extend type Mutation {
   """
   Marks AWS environment for removal (if exists; noop otherwise).
 
@@ -923,13 +904,13 @@ input AWSEnvUpdateSpecInput {
   """
   tags: [KeyValueInput!]
   """
-  List of external S3 buckets to allow access to
+  List of external S3 buckets to allow access to.
   """
   externalBuckets: [AWSEnvExternalBucketSpecInput!]
   """
-  Backup storage configuration
+  Backups configuration.
   """
-  backupStorage: AWSEnvBackupStorageSpecInput
+  backups: AWSEnvBackupsSpecInput
 }
 
 """

@@ -21,48 +21,36 @@ type AWSEnv struct {
 	Status *AWSEnvStatus `json:"status"`
 }
 
-// AWS environment backup storage configuration.
-type AWSEnvBackupStorageSpec struct {
-	// Custom S3 bucket configuration.
-	CustomBucket *AWSEnvCustomBucketS3Spec `json:"customBucket,omitempty"`
-}
-
-// AWS environment backup storage configuration input.
-type AWSEnvBackupStorageSpecInput struct {
-	// Custom S3 bucket configuration.
-	CustomBucket *AWSEnvCustomBucketS3SpecInput `json:"customBucket,omitempty"`
-}
-
-// AWS environment custom S3 bucket authentication configuration.
-type AWSEnvCustomBucketS3AuthSpec struct {
-	// IAM role ARN for bucket access.
-	RoleArn string `json:"roleARN"`
-}
-
-// AWS environment custom S3 bucket authentication configuration input.
-type AWSEnvCustomBucketS3AuthSpecInput struct {
-	// IAM role ARN for bucket access.
-	RoleArn string `json:"roleARN"`
-}
-
 // AWS environment custom S3 bucket configuration.
-type AWSEnvCustomBucketS3Spec struct {
+type AWSEnvBackupsCustomBucketSpec struct {
 	// S3 bucket name.
-	Bucket string `json:"bucket"`
+	Name string `json:"name"`
 	// S3 bucket region.
 	Region string `json:"region"`
-	// Authentication configuration.
-	Auth *AWSEnvCustomBucketS3AuthSpec `json:"auth"`
+	// IAM role to assume for bucket access.
+	RoleArn string `json:"roleARN"`
 }
 
 // AWS environment custom S3 bucket configuration input.
-type AWSEnvCustomBucketS3SpecInput struct {
+type AWSEnvBackupsCustomBucketSpecInput struct {
 	// S3 bucket name.
-	Bucket string `json:"bucket"`
+	Name string `json:"name"`
 	// S3 bucket region.
 	Region string `json:"region"`
-	// Authentication configuration.
-	Auth *AWSEnvCustomBucketS3AuthSpecInput `json:"auth"`
+	// IAM role to assume for bucket access.
+	RoleArn string `json:"roleARN"`
+}
+
+// Backups configuration.
+type AWSEnvBackupsSpec struct {
+	// Custom S3 bucket.
+	CustomBucket *AWSEnvBackupsCustomBucketSpec `json:"customBucket,omitempty"`
+}
+
+// Backups configuration.
+type AWSEnvBackupsSpecInput struct {
+	// Custom S3 bucket.
+	CustomBucket *AWSEnvBackupsCustomBucketSpecInput `json:"customBucket,omitempty"`
 }
 
 // AWS environment VPC endpoint configuration.
@@ -87,13 +75,13 @@ type AWSEnvEndpointSpecInput struct {
 	PrivateDNS *bool `json:"privateDNS,omitempty"`
 }
 
-// External S3 bucket to allow access to
+// External S3 bucket to allow access to.
 type AWSEnvExternalBucketSpec struct {
 	// External bucket name.
 	Name string `json:"name"`
 }
 
-// External S3 bucket to allow access to
+// External S3 bucket to allow access to.
 type AWSEnvExternalBucketSpecInput struct {
 	// External bucket name.
 	Name string `json:"name"`
@@ -368,10 +356,10 @@ type AWSEnvSpec struct {
 	PermissionsBoundaryPolicyArn *string `json:"permissionsBoundaryPolicyArn,omitempty"`
 	// Prefix for AWS resources created by this environment.
 	ResourcePrefix string `json:"resourcePrefix"`
-	// List of external S3 buckets to allow access to
+	// List of external S3 buckets to allow access to.
 	ExternalBuckets []*AWSEnvExternalBucketSpec `json:"externalBuckets"`
-	// Backup storage configuration
-	BackupStorage *AWSEnvBackupStorageSpec `json:"backupStorage,omitempty"`
+	// Backups configuration.
+	Backups *AWSEnvBackupsSpec `json:"backups,omitempty"`
 }
 
 // AWS environment status.
@@ -428,10 +416,10 @@ type AWSEnvUpdateSpecInput struct {
 	Endpoints []*AWSEnvEndpointSpecInput `json:"endpoints,omitempty"`
 	// Tags to apply to AWS resources.
 	Tags []*KeyValueInput `json:"tags,omitempty"`
-	// List of external S3 buckets to allow access to
+	// List of external S3 buckets to allow access to.
 	ExternalBuckets []*AWSEnvExternalBucketSpecInput `json:"externalBuckets,omitempty"`
-	// Backup storage configuration
-	BackupStorage *AWSEnvBackupStorageSpecInput `json:"backupStorage,omitempty"`
+	// Backups configuration.
+	Backups *AWSEnvBackupsSpecInput `json:"backups,omitempty"`
 }
 
 // Azure environment.
@@ -755,10 +743,10 @@ type CreateAWSEnvSpecInput struct {
 	//
 	// Immutable.
 	ResourcePrefix *string `json:"resourcePrefix,omitempty"`
-	// List of external S3 buckets to allow access to
+	// List of external S3 buckets to allow access to.
 	ExternalBuckets []*AWSEnvExternalBucketSpecInput `json:"externalBuckets,omitempty"`
-	// Backup storage configuration
-	BackupStorage *AWSEnvBackupStorageSpecInput `json:"backupStorage,omitempty"`
+	// Backups configuration.
+	Backups *AWSEnvBackupsSpecInput `json:"backups,omitempty"`
 }
 
 // Azure environment create request input.

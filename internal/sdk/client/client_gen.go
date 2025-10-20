@@ -34,7 +34,7 @@ type AWSEnvSpecFragment struct {
 	Tags                         []*AWSEnvSpecFragment_Tags               "json:\"tags\" graphql:\"tags\""
 	CloudConnect                 bool                                     "json:\"cloudConnect\" graphql:\"cloudConnect\""
 	ExternalBuckets              []*AWSEnvSpecFragment_ExternalBuckets    "json:\"externalBuckets\" graphql:\"externalBuckets\""
-	BackupStorage                *AWSEnvSpecFragment_BackupStorage        "json:\"backupStorage,omitempty\" graphql:\"backupStorage\""
+	Backups                      *AWSEnvSpecFragment_Backups              "json:\"backups,omitempty\" graphql:\"backups\""
 }
 
 func (t *AWSEnvSpecFragment) GetLoadBalancers() *AWSEnvSpecFragment_LoadBalancers {
@@ -139,11 +139,11 @@ func (t *AWSEnvSpecFragment) GetExternalBuckets() []*AWSEnvSpecFragment_External
 	}
 	return t.ExternalBuckets
 }
-func (t *AWSEnvSpecFragment) GetBackupStorage() *AWSEnvSpecFragment_BackupStorage {
+func (t *AWSEnvSpecFragment) GetBackups() *AWSEnvSpecFragment_Backups {
 	if t == nil {
 		t = &AWSEnvSpecFragment{}
 	}
-	return t.BackupStorage
+	return t.Backups
 }
 
 type AzureEnvSpecFragment struct {
@@ -709,49 +709,38 @@ func (t *AWSEnvSpecFragment_ExternalBuckets) GetName() string {
 	return t.Name
 }
 
-type AWSEnvSpecFragment_BackupStorage_CustomBucket_Auth struct {
+type AWSEnvSpecFragment_Backups_CustomBucket struct {
+	Name    string "json:\"name\" graphql:\"name\""
+	Region  string "json:\"region\" graphql:\"region\""
 	RoleArn string "json:\"roleARN\" graphql:\"roleARN\""
 }
 
-func (t *AWSEnvSpecFragment_BackupStorage_CustomBucket_Auth) GetRoleArn() string {
+func (t *AWSEnvSpecFragment_Backups_CustomBucket) GetName() string {
 	if t == nil {
-		t = &AWSEnvSpecFragment_BackupStorage_CustomBucket_Auth{}
+		t = &AWSEnvSpecFragment_Backups_CustomBucket{}
+	}
+	return t.Name
+}
+func (t *AWSEnvSpecFragment_Backups_CustomBucket) GetRegion() string {
+	if t == nil {
+		t = &AWSEnvSpecFragment_Backups_CustomBucket{}
+	}
+	return t.Region
+}
+func (t *AWSEnvSpecFragment_Backups_CustomBucket) GetRoleArn() string {
+	if t == nil {
+		t = &AWSEnvSpecFragment_Backups_CustomBucket{}
 	}
 	return t.RoleArn
 }
 
-type AWSEnvSpecFragment_BackupStorage_CustomBucket struct {
-	Auth   AWSEnvSpecFragment_BackupStorage_CustomBucket_Auth "json:\"auth\" graphql:\"auth\""
-	Bucket string                                             "json:\"bucket\" graphql:\"bucket\""
-	Region string                                             "json:\"region\" graphql:\"region\""
+type AWSEnvSpecFragment_Backups struct {
+	CustomBucket *AWSEnvSpecFragment_Backups_CustomBucket "json:\"customBucket,omitempty\" graphql:\"customBucket\""
 }
 
-func (t *AWSEnvSpecFragment_BackupStorage_CustomBucket) GetAuth() *AWSEnvSpecFragment_BackupStorage_CustomBucket_Auth {
+func (t *AWSEnvSpecFragment_Backups) GetCustomBucket() *AWSEnvSpecFragment_Backups_CustomBucket {
 	if t == nil {
-		t = &AWSEnvSpecFragment_BackupStorage_CustomBucket{}
-	}
-	return &t.Auth
-}
-func (t *AWSEnvSpecFragment_BackupStorage_CustomBucket) GetBucket() string {
-	if t == nil {
-		t = &AWSEnvSpecFragment_BackupStorage_CustomBucket{}
-	}
-	return t.Bucket
-}
-func (t *AWSEnvSpecFragment_BackupStorage_CustomBucket) GetRegion() string {
-	if t == nil {
-		t = &AWSEnvSpecFragment_BackupStorage_CustomBucket{}
-	}
-	return t.Region
-}
-
-type AWSEnvSpecFragment_BackupStorage struct {
-	CustomBucket *AWSEnvSpecFragment_BackupStorage_CustomBucket "json:\"customBucket,omitempty\" graphql:\"customBucket\""
-}
-
-func (t *AWSEnvSpecFragment_BackupStorage) GetCustomBucket() *AWSEnvSpecFragment_BackupStorage_CustomBucket {
-	if t == nil {
-		t = &AWSEnvSpecFragment_BackupStorage{}
+		t = &AWSEnvSpecFragment_Backups{}
 	}
 	return t.CustomBucket
 }
@@ -1803,49 +1792,38 @@ func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ExternalBuckets) GetName() str
 	return t.Name
 }
 
-type GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_BackupStorage_CustomBucket_Auth struct {
+type GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Backups_CustomBucket struct {
+	Name    string "json:\"name\" graphql:\"name\""
+	Region  string "json:\"region\" graphql:\"region\""
 	RoleArn string "json:\"roleARN\" graphql:\"roleARN\""
 }
 
-func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_BackupStorage_CustomBucket_Auth) GetRoleArn() string {
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Backups_CustomBucket) GetName() string {
 	if t == nil {
-		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_BackupStorage_CustomBucket_Auth{}
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Backups_CustomBucket{}
+	}
+	return t.Name
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Backups_CustomBucket) GetRegion() string {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Backups_CustomBucket{}
+	}
+	return t.Region
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Backups_CustomBucket) GetRoleArn() string {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Backups_CustomBucket{}
 	}
 	return t.RoleArn
 }
 
-type GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_BackupStorage_CustomBucket struct {
-	Auth   GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_BackupStorage_CustomBucket_Auth "json:\"auth\" graphql:\"auth\""
-	Bucket string                                                                   "json:\"bucket\" graphql:\"bucket\""
-	Region string                                                                   "json:\"region\" graphql:\"region\""
+type GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Backups struct {
+	CustomBucket *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Backups_CustomBucket "json:\"customBucket,omitempty\" graphql:\"customBucket\""
 }
 
-func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_BackupStorage_CustomBucket) GetAuth() *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_BackupStorage_CustomBucket_Auth {
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Backups) GetCustomBucket() *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Backups_CustomBucket {
 	if t == nil {
-		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_BackupStorage_CustomBucket{}
-	}
-	return &t.Auth
-}
-func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_BackupStorage_CustomBucket) GetBucket() string {
-	if t == nil {
-		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_BackupStorage_CustomBucket{}
-	}
-	return t.Bucket
-}
-func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_BackupStorage_CustomBucket) GetRegion() string {
-	if t == nil {
-		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_BackupStorage_CustomBucket{}
-	}
-	return t.Region
-}
-
-type GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_BackupStorage struct {
-	CustomBucket *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_BackupStorage_CustomBucket "json:\"customBucket,omitempty\" graphql:\"customBucket\""
-}
-
-func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_BackupStorage) GetCustomBucket() *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_BackupStorage_CustomBucket {
-	if t == nil {
-		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_BackupStorage{}
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Backups{}
 	}
 	return t.CustomBucket
 }
@@ -2236,49 +2214,38 @@ func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ExternalBuckets) GetN
 	return t.Name
 }
 
-type CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_BackupStorage_CustomBucket_Auth struct {
+type CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Backups_CustomBucket struct {
+	Name    string "json:\"name\" graphql:\"name\""
+	Region  string "json:\"region\" graphql:\"region\""
 	RoleArn string "json:\"roleARN\" graphql:\"roleARN\""
 }
 
-func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_BackupStorage_CustomBucket_Auth) GetRoleArn() string {
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Backups_CustomBucket) GetName() string {
 	if t == nil {
-		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_BackupStorage_CustomBucket_Auth{}
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Backups_CustomBucket{}
+	}
+	return t.Name
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Backups_CustomBucket) GetRegion() string {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Backups_CustomBucket{}
+	}
+	return t.Region
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Backups_CustomBucket) GetRoleArn() string {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Backups_CustomBucket{}
 	}
 	return t.RoleArn
 }
 
-type CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_BackupStorage_CustomBucket struct {
-	Auth   CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_BackupStorage_CustomBucket_Auth "json:\"auth\" graphql:\"auth\""
-	Bucket string                                                                            "json:\"bucket\" graphql:\"bucket\""
-	Region string                                                                            "json:\"region\" graphql:\"region\""
+type CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Backups struct {
+	CustomBucket *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Backups_CustomBucket "json:\"customBucket,omitempty\" graphql:\"customBucket\""
 }
 
-func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_BackupStorage_CustomBucket) GetAuth() *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_BackupStorage_CustomBucket_Auth {
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Backups) GetCustomBucket() *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Backups_CustomBucket {
 	if t == nil {
-		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_BackupStorage_CustomBucket{}
-	}
-	return &t.Auth
-}
-func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_BackupStorage_CustomBucket) GetBucket() string {
-	if t == nil {
-		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_BackupStorage_CustomBucket{}
-	}
-	return t.Bucket
-}
-func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_BackupStorage_CustomBucket) GetRegion() string {
-	if t == nil {
-		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_BackupStorage_CustomBucket{}
-	}
-	return t.Region
-}
-
-type CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_BackupStorage struct {
-	CustomBucket *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_BackupStorage_CustomBucket "json:\"customBucket,omitempty\" graphql:\"customBucket\""
-}
-
-func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_BackupStorage) GetCustomBucket() *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_BackupStorage_CustomBucket {
-	if t == nil {
-		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_BackupStorage{}
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Backups{}
 	}
 	return t.CustomBucket
 }
@@ -2547,49 +2514,38 @@ func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ExternalBuckets) GetN
 	return t.Name
 }
 
-type UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_BackupStorage_CustomBucket_Auth struct {
+type UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Backups_CustomBucket struct {
+	Name    string "json:\"name\" graphql:\"name\""
+	Region  string "json:\"region\" graphql:\"region\""
 	RoleArn string "json:\"roleARN\" graphql:\"roleARN\""
 }
 
-func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_BackupStorage_CustomBucket_Auth) GetRoleArn() string {
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Backups_CustomBucket) GetName() string {
 	if t == nil {
-		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_BackupStorage_CustomBucket_Auth{}
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Backups_CustomBucket{}
+	}
+	return t.Name
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Backups_CustomBucket) GetRegion() string {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Backups_CustomBucket{}
+	}
+	return t.Region
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Backups_CustomBucket) GetRoleArn() string {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Backups_CustomBucket{}
 	}
 	return t.RoleArn
 }
 
-type UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_BackupStorage_CustomBucket struct {
-	Auth   UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_BackupStorage_CustomBucket_Auth "json:\"auth\" graphql:\"auth\""
-	Bucket string                                                                            "json:\"bucket\" graphql:\"bucket\""
-	Region string                                                                            "json:\"region\" graphql:\"region\""
+type UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Backups struct {
+	CustomBucket *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Backups_CustomBucket "json:\"customBucket,omitempty\" graphql:\"customBucket\""
 }
 
-func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_BackupStorage_CustomBucket) GetAuth() *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_BackupStorage_CustomBucket_Auth {
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Backups) GetCustomBucket() *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Backups_CustomBucket {
 	if t == nil {
-		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_BackupStorage_CustomBucket{}
-	}
-	return &t.Auth
-}
-func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_BackupStorage_CustomBucket) GetBucket() string {
-	if t == nil {
-		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_BackupStorage_CustomBucket{}
-	}
-	return t.Bucket
-}
-func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_BackupStorage_CustomBucket) GetRegion() string {
-	if t == nil {
-		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_BackupStorage_CustomBucket{}
-	}
-	return t.Region
-}
-
-type UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_BackupStorage struct {
-	CustomBucket *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_BackupStorage_CustomBucket "json:\"customBucket,omitempty\" graphql:\"customBucket\""
-}
-
-func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_BackupStorage) GetCustomBucket() *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_BackupStorage_CustomBucket {
-	if t == nil {
-		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_BackupStorage{}
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Backups{}
 	}
 	return t.CustomBucket
 }
@@ -6074,13 +6030,11 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 	externalBuckets {
 		name
 	}
-	backupStorage {
+	backups {
 		customBucket {
-			bucket
+			name
 			region
-			auth {
-				roleARN
-			}
+			roleARN
 		}
 	}
 }
@@ -6210,13 +6164,11 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 	externalBuckets {
 		name
 	}
-	backupStorage {
+	backups {
 		customBucket {
-			bucket
+			name
 			region
-			auth {
-				roleARN
-			}
+			roleARN
 		}
 	}
 }
@@ -6304,13 +6256,11 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 	externalBuckets {
 		name
 	}
-	backupStorage {
+	backups {
 		customBucket {
-			bucket
+			name
 			region
-			auth {
-				roleARN
-			}
+			roleARN
 		}
 	}
 }
