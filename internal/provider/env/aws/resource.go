@@ -48,9 +48,10 @@ func (r *AWSEnvResource) Create(ctx context.Context, req resource.CreateRequest,
 		return
 	}
 
-	// Reorder node groups  and zones to respect order in the user's configuration
+	// Reorder node groups, zones and tags to respect order in the user's configuration
 	apiResp.CreateAWSEnv.Spec.NodeGroups = reorderNodeGroups(data.NodeGroups, apiResp.CreateAWSEnv.Spec.NodeGroups)
 	apiResp.CreateAWSEnv.Spec.Zones = common.ReorderList(data.Zones, apiResp.CreateAWSEnv.Spec.Zones)
+	apiResp.CreateAWSEnv.Spec.Tags = reorderTags(data.Tags, apiResp.CreateAWSEnv.Spec.Tags)
 	data.Id = data.Name
 	data.Zones = common.ListToModel(apiResp.CreateAWSEnv.Spec.Zones)
 	data.NodeGroups = nodeGroupsToModel(apiResp.CreateAWSEnv.Spec.NodeGroups)
@@ -85,9 +86,10 @@ func (r *AWSEnvResource) Read(ctx context.Context, req resource.ReadRequest, res
 		return
 	}
 
-	// Reorder node groups  and zones to respect order in the user's configuration
+	// Reorder node groups, zones and tags to respect order in the user's configuration
 	apiResp.AWSEnv.Spec.NodeGroups = reorderNodeGroups(data.NodeGroups, apiResp.AWSEnv.Spec.NodeGroups)
 	apiResp.AWSEnv.Spec.Zones = common.ReorderList(data.Zones, apiResp.AWSEnv.Spec.Zones)
+	apiResp.AWSEnv.Spec.Tags = reorderTags(data.Tags, apiResp.AWSEnv.Spec.Tags)
 	data.toModel(*apiResp.AWSEnv)
 	data.Id = data.Name
 
@@ -115,9 +117,10 @@ func (r *AWSEnvResource) Update(ctx context.Context, req resource.UpdateRequest,
 		return
 	}
 
-	// Reorder node groups  and zones to respect order in the user's configuration
+	// Reorder node groups, zones and tags to respect order in the user's configuration
 	apiResp.UpdateAWSEnv.Spec.NodeGroups = reorderNodeGroups(data.NodeGroups, apiResp.UpdateAWSEnv.Spec.NodeGroups)
 	apiResp.UpdateAWSEnv.Spec.Zones = common.ReorderList(data.Zones, apiResp.UpdateAWSEnv.Spec.Zones)
+	apiResp.UpdateAWSEnv.Spec.Tags = reorderTags(data.Tags, apiResp.UpdateAWSEnv.Spec.Tags)
 	data.Zones = common.ListToModel(apiResp.UpdateAWSEnv.Spec.Zones)
 	data.NodeGroups = nodeGroupsToModel(apiResp.UpdateAWSEnv.Spec.NodeGroups)
 	data.SpecRevision = types.Int64Value(apiResp.UpdateAWSEnv.SpecRevision)
