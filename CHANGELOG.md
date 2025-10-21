@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [0.4.23](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.4.22...v0.4.23)
+
+### Added
+- Support for custom backup bucket in AWS environments [871b89c](https://github.com/Altinity/terraform-provider-altinitycloud/commit/871b89c).
+
+### Changed
+- Bump github.com/hashicorp/terraform-plugin-framework to `1.16.1` [#185](https://github.com/Altinity/terraform-provider-altinitycloud/pull/185).
+- Bump github.com/hashicorp/terraform-plugin-docs to `0.24.0` [#187](https://github.com/Altinity/terraform-provider-altinitycloud/pull/187).
+- Bump github.com/hashicorp/terraform-plugin-framework-validators to `0.19.0` [#186](https://github.com/Altinity/terraform-provider-altinitycloud/pull/186).
+- Sync and update latest GraphQL schema [bb76d58](https://github.com/Altinity/terraform-provider-altinitycloud/commit/bb76d58).
+
+### Fixed
+- Preserve API response while ordering AWS tags [c665175](https://github.com/Altinity/terraform-provider-altinitycloud/commit/c665175).
+
 ## [0.4.22](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.4.21...v0.4.22)
 ### Added
 - Support for cross region VPCE [0ac549a](https://github.com/Altinity/terraform-provider-altinitycloud/commit/0ac549a).
