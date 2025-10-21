@@ -77,7 +77,7 @@ type AWSEnvBackupsModel struct {
 }
 
 type AWSEnvCustomBucketModel struct {
-	Name    types.String `tfsdk:"bucket"`
+	Name    types.String `tfsdk:"name"`
 	Region  types.String `tfsdk:"region"`
 	RoleArn types.String `tfsdk:"role_arn"`
 }
