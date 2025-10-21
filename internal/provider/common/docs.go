@@ -147,12 +147,12 @@ const CLOUD_CONNECT_DESCRIPTION = "`true` indicates that cloud resources are to 
 const PERMISSIONS_BOUNDARY_POLICY_ARN_DESCRIPTION = "Policy ARN that sets the maximum permissions for the IAM roles created by the environment. **[IMMUTABLE]**"
 const RESOURCE_PREFIX_DESCRIPTION = "Resource prefix used for provisioned resources **[IMMUTABLE]**"
 const NAT_DESCRIPTION = "Enable AWS NAT Gateway. **[IMMUTABLE]**"
-const AWS_BACKUP_STORAGE_DESCRIPTION = "Configuration for backup storage"
-const AWS_BACKUP_STORAGE_CUSTOM_BUCKET_DESCRIPTION = "Custom S3 bucket configuration for backups"
-const AWS_BACKUP_STORAGE_BUCKET_DESCRIPTION = "S3 bucket name for backups"
-const AWS_BACKUP_STORAGE_REGION_DESCRIPTION = "AWS region where the backup bucket is located"
-const AWS_BACKUP_STORAGE_AUTH_DESCRIPTION = "Authentication configuration for backup bucket access"
-const AWS_BACKUP_STORAGE_ROLE_ARN_DESCRIPTION = "IAM role ARN for backup bucket access"
+const AWS_BACKUPS_DESCRIPTION = "Configuration for backup storage"
+const AWS_BACKUPS_CUSTOM_BUCKET_DESCRIPTION = "Custom S3 bucket configuration for backups"
+const AWS_BACKUPS_BUCKET_DESCRIPTION = "S3 bucket name for backups"
+const AWS_BACKUPS_REGION_DESCRIPTION = "AWS region where the backup bucket is located"
+const AWS_BACKUPS_AUTH_DESCRIPTION = "Authentication configuration for backup bucket access"
+const AWS_BACKUPS_ROLE_ARN_DESCRIPTION = "IAM role ARN for backup bucket access"
 
 // GCP descriptions.
 const GCP_REGION_DESCRIPTION = `GCP region ([docs](https://cloud.google.com/about/locations)). **[IMMUTABLE]**

@@ -28,7 +28,7 @@ type AWSEnvResourceModel struct {
 	CloudConnect                 types.Bool                      `tfsdk:"cloud_connect"`
 	MaintenanceWindows           []common.MaintenanceWindowModel `tfsdk:"maintenance_windows"`
 	ExternalBuckets              []AWSEnvExternalBucketModel     `tfsdk:"external_buckets"`
-	Backups                      *AWSEnvBackupsModel             `tfsdk:"backup_storage"`
+	Backups                      *AWSEnvBackupsModel             `tfsdk:"backups"`
 
 	SpecRevision                 types.Int64 `tfsdk:"spec_revision"`
 	ForceDestroy                 types.Bool  `tfsdk:"force_destroy"`

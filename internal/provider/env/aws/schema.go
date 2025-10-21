@@ -264,23 +264,23 @@ func getBackupStorageAttribute(required, optional, computed bool) rschema.Single
 		Optional:            optional,
 		Required:            required,
 		Computed:            computed,
-		MarkdownDescription: common.AWS_BACKUP_STORAGE_DESCRIPTION,
+		MarkdownDescription: common.AWS_BACKUPS_DESCRIPTION,
 		Attributes: map[string]rschema.Attribute{
 			"custom_bucket": rschema.SingleNestedAttribute{
 				Optional:            true,
-				MarkdownDescription: common.AWS_BACKUP_STORAGE_CUSTOM_BUCKET_DESCRIPTION,
+				MarkdownDescription: common.AWS_BACKUPS_CUSTOM_BUCKET_DESCRIPTION,
 				Attributes: map[string]rschema.Attribute{
 					"name": rschema.StringAttribute{
 						Required:            true,
-						MarkdownDescription: common.AWS_BACKUP_STORAGE_BUCKET_DESCRIPTION,
+						MarkdownDescription: common.AWS_BACKUPS_BUCKET_DESCRIPTION,
 					},
 					"region": rschema.StringAttribute{
 						Required:            true,
-						MarkdownDescription: common.AWS_BACKUP_STORAGE_REGION_DESCRIPTION,
+						MarkdownDescription: common.AWS_BACKUPS_REGION_DESCRIPTION,
 					},
 					"role_arn": rschema.StringAttribute{
 						Required:            true,
-						MarkdownDescription: common.AWS_BACKUP_STORAGE_AUTH_DESCRIPTION,
+						MarkdownDescription: common.AWS_BACKUPS_AUTH_DESCRIPTION,
 					},
 				},
 			},
