@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.4.26](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.4.25...v0.4.26)
 ### Changed
-- Implement default transport configuration for all SDK HTTP client [1de625f](https://github.com/Altinity/terraform-provider-altinitycloud/commit/1de625f).
+- Implement default transport configuration for all SDK HTTP client [889d662](https://github.com/Altinity/terraform-provider-altinitycloud/commit/889d662).
 
 ## [0.4.25](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.4.24...v0.4.25)
 ### Changed
