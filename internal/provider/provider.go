@@ -132,6 +132,7 @@ func (p *altinityCloudProvider) Configure(ctx context.Context, req provider.Conf
 	client := client.NewClient(
 		&http.Client{
 			Transport: &http.Transport{
+				Proxy: http.ProxyFromEnvironment,
 				DialContext: (&net.Dialer{
 					Timeout:   30 * time.Second,
 					KeepAlive: 30 * time.Second,

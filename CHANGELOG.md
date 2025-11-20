@@ -4,6 +4,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.25](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.4.24...v0.4.25)
+
 ## [0.4.24](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.4.23...v0.4.24)
 ### Added
 - Add docs example for AWS environment with Permission Boundaries [8b73c2d](https://github.com/Altinity/terraform-provider-altinitycloud/commit/8b73c2d).
