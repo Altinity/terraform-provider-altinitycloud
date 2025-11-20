@@ -6,7 +6,6 @@ import (
 	"crypto/x509"
 	"errors"
 	"fmt"
-	"net"
 	"net/http"
 	"os"
 	"runtime"
@@ -129,19 +128,25 @@ func (p *altinityCloudProvider) Configure(ctx context.Context, req provider.Conf
 		}
 	}
 
+	defaultTransport, ok := http.DefaultTransport.(*http.Transport)
+	if !ok {
+		resp.Diagnostics.AddError(
+			"Failed to configure HTTP client",
+			"Unable to get default HTTP transport",
+		)
+		return
+	}
+
 	client := client.NewClient(
 		&http.Client{
 			Transport: &http.Transport{
-				Proxy: http.ProxyFromEnvironment,
-				DialContext: (&net.Dialer{
-					Timeout:   30 * time.Second,
-					KeepAlive: 30 * time.Second,
-				}).DialContext,
-				ForceAttemptHTTP2:     true,
-				MaxIdleConns:          16,
-				IdleConnTimeout:       45 * time.Second,
-				TLSHandshakeTimeout:   10 * time.Second,
-				ExpectContinueTimeout: 1 * time.Second,
+				Proxy:                 defaultTransport.Proxy,
+				DialContext:           defaultTransport.DialContext,
+				ForceAttemptHTTP2:     defaultTransport.ForceAttemptHTTP2,
+				MaxIdleConns:          defaultTransport.MaxIdleConns,
+				IdleConnTimeout:       defaultTransport.IdleConnTimeout,
+				TLSHandshakeTimeout:   defaultTransport.TLSHandshakeTimeout,
+				ExpectContinueTimeout: defaultTransport.ExpectContinueTimeout,
 				TLSClientConfig: &tls.Config{
 					RootCAs: rootCAs,
 				},
