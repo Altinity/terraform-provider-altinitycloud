@@ -22,7 +22,8 @@ resource "google_project_iam_member" "this" {
     "roles/iam.workloadIdentityPoolAdmin",
     "roles/serviceusage.serviceUsageAdmin",
     "roles/resourcemanager.projectIamAdmin",
-    "roles/iap.tunnelResourceAccessor"
+    "roles/iap.tunnelResourceAccessor",
+    "roles/iam.roleAdmin"
   ])
   project = google_project.this.id
   role    = each.key
