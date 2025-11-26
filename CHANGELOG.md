@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.27](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.4.26...v0.4.27)
+### Added
+- Add new `roles/iam.roleAdmin` required permission to GCP environment examples [b33481c](https://github.com/Altinity/terraform-provider-altinitycloud/commit/b33481c).
+
 ## [0.4.26](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.4.25...v0.4.26)
 ### Changed
 - Implement default transport configuration for all SDK HTTP client [889d662](https://github.com/Altinity/terraform-provider-altinitycloud/commit/889d662).
