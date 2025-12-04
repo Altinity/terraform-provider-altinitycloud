@@ -59,6 +59,26 @@ func (r *AWSEnvStatusDataSource) Schema(ctx context.Context, req datasource.Sche
 				Computed:            true,
 				MarkdownDescription: common.PEERING_CONNECTION_DESCRIPTION,
 			},
+			"aws_resources": schema.ListNestedAttribute{
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"id": schema.StringAttribute{
+							Computed:            true,
+							MarkdownDescription: common.AWS_RESOURCES_ID_DESCRIPTION,
+						},
+						"arn": schema.StringAttribute{
+							Computed:            true,
+							MarkdownDescription: common.AWS_RESOURCES_ARN_DESCRIPTION,
+						},
+						"name": schema.StringAttribute{
+							Computed:            true,
+							MarkdownDescription: common.AWS_RESOURCES_NAME_DESCRIPTION,
+						},
+					},
+				},
+				Computed:            true,
+				MarkdownDescription: common.AWS_RESOURCES_DESCRIPTION,
+			},
 		},
 	}
 }

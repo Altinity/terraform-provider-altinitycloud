@@ -153,6 +153,10 @@ const AWS_BACKUPS_BUCKET_DESCRIPTION = "S3 bucket name for backups"
 const AWS_BACKUPS_REGION_DESCRIPTION = "AWS region where the backup bucket is located"
 const AWS_BACKUPS_AUTH_DESCRIPTION = "Authentication configuration for backup bucket access"
 const AWS_BACKUPS_ROLE_ARN_DESCRIPTION = "IAM role ARN for backup bucket access"
+const AWS_RESOURCES_DESCRIPTION = "AWS resources associated with the environment."
+const AWS_RESOURCES_ID_DESCRIPTION = "AWS resource ID."
+const AWS_RESOURCES_ARN_DESCRIPTION = "AWS resource ARN."
+const AWS_RESOURCES_NAME_DESCRIPTION = "AWS resource name."
 
 // GCP descriptions.
 const GCP_REGION_DESCRIPTION = `GCP region ([docs](https://cloud.google.com/about/locations)). **[IMMUTABLE]**

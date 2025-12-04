@@ -68,10 +68,21 @@ data "altinitycloud_env_aws_status" "current" {
 ### Read-Only
 
 - `applied_spec_revision` (Number) Applied spec revision
+- `aws_resources` (Attributes List) AWS resources associated with the environment. (see [below for nested schema](#nestedatt--aws_resources))
 - `id` (String) ID of the environment (automatically generated based on the name)
 - `load_balancers` (Attributes) Status of internal load balancer. (see [below for nested schema](#nestedatt--load_balancers))
 - `peering_connections` (Attributes List) AWS environment VPC peering configuration. (see [below for nested schema](#nestedatt--peering_connections))
 - `pending_delete` (Boolean) `true` indicates that environment is pending deletion
+
+<a id="nestedatt--aws_resources"></a>
+### Nested Schema for `aws_resources`
+
+Read-Only:
+
+- `arn` (String) AWS resource ARN.
+- `id` (String) AWS resource ID.
+- `name` (String) AWS resource name.
+
 
 <a id="nestedatt--load_balancers"></a>
 ### Nested Schema for `load_balancers`

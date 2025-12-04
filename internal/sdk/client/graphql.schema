@@ -299,6 +299,24 @@ type AWSEnvEndpointSpec {
 }
 
 """
+AWS resource information.
+"""
+type AWSResource {
+  """
+  Resource name (e.g. "oidcProvider").
+  """
+  name: String!
+  """
+  Resource ARN.
+  """
+  arn: String!
+  """
+  Resource ID.
+  """
+  id: String!
+}
+
+"""
 AWS environment status.
 """
 type AWSEnvStatus {
@@ -318,6 +336,10 @@ type AWSEnvStatus {
   True indicates that environment is pending deletion.
   """
   pendingDelete: Boolean!
+  """
+  AWS resources information.
+  """
+  awsResources: [AWSResource!]!
   """
   Status errors.
   """

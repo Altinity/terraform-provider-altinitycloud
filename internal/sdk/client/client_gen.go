@@ -1893,6 +1893,31 @@ func (t *GetAWSEnvStatus_AWSEnv_Status_PeeringConnections) GetVpcID() string {
 	return t.VpcID
 }
 
+type GetAWSEnvStatus_AWSEnv_Status_AWSResources struct {
+	Arn  string "json:\"arn\" graphql:\"arn\""
+	ID   string "json:\"id\" graphql:\"id\""
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *GetAWSEnvStatus_AWSEnv_Status_AWSResources) GetArn() string {
+	if t == nil {
+		t = &GetAWSEnvStatus_AWSEnv_Status_AWSResources{}
+	}
+	return t.Arn
+}
+func (t *GetAWSEnvStatus_AWSEnv_Status_AWSResources) GetID() string {
+	if t == nil {
+		t = &GetAWSEnvStatus_AWSEnv_Status_AWSResources{}
+	}
+	return t.ID
+}
+func (t *GetAWSEnvStatus_AWSEnv_Status_AWSResources) GetName() string {
+	if t == nil {
+		t = &GetAWSEnvStatus_AWSEnv_Status_AWSResources{}
+	}
+	return t.Name
+}
+
 type GetAWSEnvStatus_AWSEnv_Status_Errors struct {
 	Code    EnvStatusErrorCode "json:\"code\" graphql:\"code\""
 	Message string             "json:\"message\" graphql:\"message\""
@@ -1913,6 +1938,7 @@ func (t *GetAWSEnvStatus_AWSEnv_Status_Errors) GetMessage() string {
 
 type GetAWSEnvStatus_AWSEnv_Status struct {
 	AppliedSpecRevision int64                                               "json:\"appliedSpecRevision\" graphql:\"appliedSpecRevision\""
+	AWSResources        []*GetAWSEnvStatus_AWSEnv_Status_AWSResources       "json:\"awsResources\" graphql:\"awsResources\""
 	Errors              []*GetAWSEnvStatus_AWSEnv_Status_Errors             "json:\"errors\" graphql:\"errors\""
 	LoadBalancers       GetAWSEnvStatus_AWSEnv_Status_LoadBalancers         "json:\"loadBalancers\" graphql:\"loadBalancers\""
 	PeeringConnections  []*GetAWSEnvStatus_AWSEnv_Status_PeeringConnections "json:\"peeringConnections\" graphql:\"peeringConnections\""
@@ -1924,6 +1950,12 @@ func (t *GetAWSEnvStatus_AWSEnv_Status) GetAppliedSpecRevision() int64 {
 		t = &GetAWSEnvStatus_AWSEnv_Status{}
 	}
 	return t.AppliedSpecRevision
+}
+func (t *GetAWSEnvStatus_AWSEnv_Status) GetAWSResources() []*GetAWSEnvStatus_AWSEnv_Status_AWSResources {
+	if t == nil {
+		t = &GetAWSEnvStatus_AWSEnv_Status{}
+	}
+	return t.AWSResources
 }
 func (t *GetAWSEnvStatus_AWSEnv_Status) GetErrors() []*GetAWSEnvStatus_AWSEnv_Status_Errors {
 	if t == nil {
@@ -6072,6 +6104,11 @@ const GetAWSEnvStatusDocument = `query GetAWSEnvStatus ($name: String!) {
 			peeringConnections {
 				id
 				vpcID
+			}
+			awsResources {
+				id
+				arn
+				name
 			}
 			errors {
 				code

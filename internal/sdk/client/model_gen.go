@@ -372,6 +372,8 @@ type AWSEnvStatus struct {
 	PeeringConnections []*AWSEnvPeeringConnectionStatus `json:"peeringConnections"`
 	// True indicates that environment is pending deletion.
 	PendingDelete bool `json:"pendingDelete"`
+	// AWS resources information.
+	AWSResources []*AWSResource `json:"awsResources"`
 	// Status errors.
 	Errors []*EnvStatusError `json:"errors"`
 }
@@ -420,6 +422,16 @@ type AWSEnvUpdateSpecInput struct {
 	ExternalBuckets []*AWSEnvExternalBucketSpecInput `json:"externalBuckets,omitempty"`
 	// Backups configuration.
 	Backups *AWSEnvBackupsSpecInput `json:"backups,omitempty"`
+}
+
+// AWS resource information.
+type AWSResource struct {
+	// Resource name (e.g. "oidcProvider").
+	Name string `json:"name"`
+	// Resource ARN.
+	Arn string `json:"arn"`
+	// Resource ID.
+	ID string `json:"id"`
 }
 
 // Azure environment.

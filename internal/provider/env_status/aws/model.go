@@ -13,6 +13,7 @@ type AWSEnvStatusModel struct {
 	LoadBalancers              *AWSEnvLoadBalancersStatus      `tfsdk:"load_balancers"`
 	PeeringConnections         []AWSEnvPeeringConnectionStatus `tfsdk:"peering_connections"`
 	PendingDelete              types.Bool                      `tfsdk:"pending_delete"`
+	AWSResources               []AWSResourceStatus             `tfsdk:"aws_resources"`
 }
 
 type AWSEnvLoadBalancersStatus struct {
@@ -26,6 +27,12 @@ type AWSEnvLoadBalancerInternalStatus struct {
 type AWSEnvPeeringConnectionStatus struct {
 	Id    types.String `tfsdk:"id"`
 	VpcId types.String `tfsdk:"vpc_id"`
+}
+
+type AWSResourceStatus struct {
+	Id   types.String `tfsdk:"id"`
+	Arn  types.String `tfsdk:"arn"`
+	Name types.String `tfsdk:"name"`
 }
 
 func (model *AWSEnvStatusModel) toModel(env sdk.GetAWSEnvStatus_AWSEnv) {
@@ -44,5 +51,16 @@ func (model *AWSEnvStatusModel) toModel(env sdk.GetAWSEnvStatus_AWSEnv) {
 		})
 	}
 	model.PeeringConnections = peeringConnections
+
+	var awsResources []AWSResourceStatus
+	for _, r := range env.Status.AWSResources {
+		awsResources = append(awsResources, AWSResourceStatus{
+			Id:   types.StringValue(r.ID),
+			Arn:  types.StringValue(r.Arn),
+			Name: types.StringValue(r.Name),
+		})
+	}
+	model.AWSResources = awsResources
+
 	model.PendingDelete = types.BoolValue(env.Status.PendingDelete)
 }
