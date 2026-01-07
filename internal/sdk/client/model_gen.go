@@ -1355,7 +1355,6 @@ type GCPEnvPrivateServiceConnectionSpecInput struct {
 	Name string `json:"name"`
 	// GCP service attachment resource name.
 	//
-	//
 	// Example: "projects/my-service-project/regions/us-central1/serviceAttachments/my-service"
 	Target string `json:"target"`
 	// Alias of the private service connection.

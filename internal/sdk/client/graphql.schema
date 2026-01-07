@@ -965,7 +965,10 @@ extend type Query {
   """
   Get generated code for Azure environment.
   """
-  codeGenAzureEnv(name: String!, boilerplate: Boolean = false): CodeGenEnvOutput!
+  codeGenAzureEnv(
+    name: String!
+    boilerplate: Boolean = false
+  ): CodeGenEnvOutput!
 }
 
 """
@@ -1809,7 +1812,6 @@ Environment code output.
 type CodeGenEnvOutput {
   terraform: String!
 }
-
 extend type Query {
   """
   List GCP environments.
@@ -2316,7 +2318,6 @@ input GCPEnvPrivateServiceConnectionSpecInput {
   """
   GCP service attachment resource name.
 
-
   Example: "projects/my-service-project/regions/us-central1/serviceAttachments/my-service"
   """
   target: String!
@@ -2507,7 +2508,10 @@ extend type Query {
   """
   Get generated code for HCloud environment.
   """
-  codeGenHCloudEnv(name: String!, boilerplate: Boolean = false): CodeGenEnvOutput!
+  codeGenHCloudEnv(
+    name: String!
+    boilerplate: Boolean = false
+  ): CodeGenEnvOutput!
 }
 
 """
@@ -2963,7 +2967,8 @@ type CreateHCloudEnvResult {
   Spec revision (monotonically-increasing).
   """
   specRevision: Int!
-}extend type Mutation {
+}
+extend type Mutation {
   """
   Marks HCloud environment for removal (if exists; noop otherwise).
 
@@ -3606,9 +3611,9 @@ input K8SEnvNodeGroupSpecInput {
   selector: [KeyValueInput!]
 }
 
-input NodeTolerationSpecInput  {
+input NodeTolerationSpecInput {
   key: String!
-  operator:  NodeTolerationOperator!
+  operator: NodeTolerationOperator!
   value: String!
   effect: NodeTolerationEffect!
 }
