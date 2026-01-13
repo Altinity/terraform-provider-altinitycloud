@@ -2677,9 +2677,7 @@ type HCloudEnvNodeGroupSpec {
   """
   name: String!
   """
-  HCloud server type (https://docs.hetzner.com/cloud/servers/overview#server-types).
-
-  Example: "cpx11"
+  HCloud server type (https://docs.hetzner.com/cloud/servers/overview#server-types). 
   """
   nodeType: String!
   """
@@ -2915,8 +2913,6 @@ input HCloudEnvNodeGroupSpecInput {
   name: String
   """
   Machine type (https://cloud.google.com/compute/docs/machine-resource).
-
-  Example: "cpx11"
   """
   nodeType: String!
   """

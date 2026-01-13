@@ -1530,8 +1530,6 @@ type HCloudEnvNodeGroupSpec struct {
 	// Unique (among environment node groups) node group identifier.
 	Name string `json:"name"`
 	// HCloud server type (https://docs.hetzner.com/cloud/servers/overview#server-types).
-	//
-	// Example: "cpx11"
 	NodeType string `json:"nodeType"`
 	// Locations.
 	Locations []string `json:"locations"`
@@ -1548,8 +1546,6 @@ type HCloudEnvNodeGroupSpecInput struct {
 	// Defaults to $nodeType.
 	Name *string `json:"name,omitempty"`
 	// Machine type (https://cloud.google.com/compute/docs/machine-resource).
-	//
-	// Example: "cpx11"
 	NodeType string `json:"nodeType"`
 	// HCloud locations.
 	Locations []string `json:"locations,omitempty"`
