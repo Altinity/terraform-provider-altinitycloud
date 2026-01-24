@@ -360,6 +360,8 @@ type AWSEnvSpec struct {
 	ExternalBuckets []*AWSEnvExternalBucketSpec `json:"externalBuckets"`
 	// Backups configuration.
 	Backups *AWSEnvBackupsSpec `json:"backups,omitempty"`
+	// Iceberg configuration.
+	Iceberg *IcebergSpec `json:"iceberg,omitempty"`
 }
 
 // AWS environment status.
@@ -422,6 +424,8 @@ type AWSEnvUpdateSpecInput struct {
 	ExternalBuckets []*AWSEnvExternalBucketSpecInput `json:"externalBuckets,omitempty"`
 	// Backups configuration.
 	Backups *AWSEnvBackupsSpecInput `json:"backups,omitempty"`
+	// Iceberg configuration.
+	Iceberg *IcebergUpdateInputSpec `json:"iceberg,omitempty"`
 }
 
 // AWS resource information.
@@ -759,6 +763,8 @@ type CreateAWSEnvSpecInput struct {
 	ExternalBuckets []*AWSEnvExternalBucketSpecInput `json:"externalBuckets,omitempty"`
 	// Backups configuration.
 	Backups *AWSEnvBackupsSpecInput `json:"backups,omitempty"`
+	// Iceberg configuration.
+	Iceberg *IcebergInputSpec `json:"iceberg,omitempty"`
 }
 
 // Azure environment create request input.
@@ -1641,6 +1647,112 @@ type HCloudEnvWireguardPeerSpecInput struct {
 	Endpoint string `json:"endpoint"`
 }
 
+// Iceberg catalog configuration input.
+type IcebergCatalogInputSpec struct {
+	// Catalog name.
+	// Empty name represents the default catalog.
+	Name *string `json:"name,omitempty"`
+	// Catalog type.
+	Type IcebergCatalogTypeSpec `json:"type"`
+	// Custom S3 bucket name.
+	CustomS3Bucket *string `json:"customS3Bucket,omitempty"`
+	// Path within the custom S3 bucket.
+	CustomS3BucketPath *string `json:"customS3BucketPath,omitempty"`
+	// ARN of the S3 Tables bucket.
+	CustomS3TableBucketArn *string `json:"customS3TableBucketARN,omitempty"`
+	// AWS region for the catalog.
+	AWSRegion *string `json:"awsRegion,omitempty"`
+	// Whether anonymous access is enabled.
+	AnonymousAccessEnabled *bool `json:"anonymousAccessEnabled,omitempty"`
+	// Maintenance configuration.
+	Maintenance *IcebergCatalogMaintenanceInputSpec `json:"maintenance,omitempty"`
+	// Table watch configurations.
+	Watches []*IcebergCatalogWatchInputSpec `json:"watches,omitempty"`
+	// IAM role ARN for BYOK environments.
+	RoleArn *string `json:"roleARN,omitempty"`
+	// IAM role ARN to assume for read-write access.
+	AssumeRoleArnrw *string `json:"assumeRoleARNRW,omitempty"`
+	// IAM role ARN to assume for read-only access.
+	AssumeRoleArnro *string `json:"assumeRoleARNRO,omitempty"`
+}
+
+// Iceberg catalog maintenance configuration input.
+type IcebergCatalogMaintenanceInputSpec struct {
+	// Whether maintenance is enabled.
+	Enabled bool `json:"enabled"`
+}
+
+// Iceberg catalog maintenance configuration.
+type IcebergCatalogMaintenanceSpec struct {
+	// Whether maintenance is enabled.
+	Enabled bool `json:"enabled"`
+}
+
+// Iceberg catalog configuration.
+type IcebergCatalogSpec struct {
+	// Catalog name.
+	// Empty name represents the default catalog.
+	Name *string `json:"name,omitempty"`
+	// Catalog type.
+	Type IcebergCatalogTypeSpec `json:"type"`
+	// Custom S3 bucket name.
+	CustomS3Bucket *string `json:"customS3Bucket,omitempty"`
+	// Path within the custom S3 bucket.
+	CustomS3BucketPath *string `json:"customS3BucketPath,omitempty"`
+	// ARN of the S3 Tables bucket.
+	CustomS3TableBucketArn *string `json:"customS3TableBucketARN,omitempty"`
+	// AWS region for the catalog.
+	AWSRegion *string `json:"awsRegion,omitempty"`
+	// Whether anonymous access is enabled.
+	AnonymousAccessEnabled *bool `json:"anonymousAccessEnabled,omitempty"`
+	// Maintenance configuration.
+	Maintenance *IcebergCatalogMaintenanceSpec `json:"maintenance"`
+	// Table watch configurations.
+	Watches []*IcebergCatalogWatchSpec `json:"watches"`
+	// IAM role ARN for BYOK environments.
+	RoleArn *string `json:"roleARN,omitempty"`
+	// IAM role ARN to assume for read-write access.
+	AssumeRoleArnrw *string `json:"assumeRoleARNRW,omitempty"`
+	// IAM role ARN to assume for read-only access.
+	AssumeRoleArnro *string `json:"assumeRoleARNRO,omitempty"`
+}
+
+// Iceberg catalog watch configuration input.
+type IcebergCatalogWatchInputSpec struct {
+	// Table name to watch.
+	Table string `json:"table"`
+	// Paths relative to table location to watch.
+	PathsRelativeToTableLocation []string `json:"pathsRelativeToTableLocation,omitempty"`
+}
+
+// Iceberg catalog watch configuration.
+type IcebergCatalogWatchSpec struct {
+	// Table name to watch.
+	Table string `json:"table"`
+	// Paths relative to table location to watch.
+	PathsRelativeToTableLocation []string `json:"pathsRelativeToTableLocation"`
+}
+
+// Iceberg configuration input.
+type IcebergInputSpec struct {
+	// List of Iceberg catalogs.
+	Catalogs []*IcebergCatalogInputSpec `json:"catalogs,omitempty"`
+}
+
+// Iceberg configuration.
+type IcebergSpec struct {
+	// List of Iceberg catalogs.
+	Catalogs []*IcebergCatalogSpec `json:"catalogs"`
+}
+
+// Iceberg configuration update input.
+type IcebergUpdateInputSpec struct {
+	// List of Iceberg catalogs to create or update.
+	Catalogs []*IcebergCatalogInputSpec `json:"catalogs,omitempty"`
+	// List of catalog names to delete.
+	CatalogsToDelete []string `json:"catalogsToDelete,omitempty"`
+}
+
 // Kubernetes environment.
 type K8SEnv struct {
 	// A globally-unique environment identifier.
@@ -2392,6 +2504,64 @@ func (e *EnvStatusErrorCode) UnmarshalJSON(b []byte) error {
 }
 
 func (e EnvStatusErrorCode) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// Iceberg catalog type.
+type IcebergCatalogTypeSpec string
+
+const (
+	// S3 bucket-based catalog.
+	IcebergCatalogTypeSpecS3 IcebergCatalogTypeSpec = "S3"
+	// S3 Tables-based catalog.
+	IcebergCatalogTypeSpecS3Table IcebergCatalogTypeSpec = "S3_TABLE"
+)
+
+var AllIcebergCatalogTypeSpec = []IcebergCatalogTypeSpec{
+	IcebergCatalogTypeSpecS3,
+	IcebergCatalogTypeSpecS3Table,
+}
+
+func (e IcebergCatalogTypeSpec) IsValid() bool {
+	switch e {
+	case IcebergCatalogTypeSpecS3, IcebergCatalogTypeSpecS3Table:
+		return true
+	}
+	return false
+}
+
+func (e IcebergCatalogTypeSpec) String() string {
+	return string(e)
+}
+
+func (e *IcebergCatalogTypeSpec) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = IcebergCatalogTypeSpec(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid IcebergCatalogTypeSpec", str)
+	}
+	return nil
+}
+
+func (e IcebergCatalogTypeSpec) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *IcebergCatalogTypeSpec) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e IcebergCatalogTypeSpec) MarshalJSON() ([]byte, error) {
 	var buf bytes.Buffer
 	e.MarshalGQL(&buf)
 	return buf.Bytes(), nil

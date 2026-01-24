@@ -147,6 +147,10 @@ type AWSEnvSpec {
   Backups configuration.
   """
   backups: AWSEnvBackupsSpec
+  """
+  Iceberg configuration.
+  """
+  iceberg: IcebergSpec
 }
 
 """
@@ -582,6 +586,10 @@ input CreateAWSEnvSpecInput {
   Backups configuration.
   """
   backups: AWSEnvBackupsSpecInput
+  """
+  Iceberg configuration.
+  """
+  iceberg: IcebergInputSpec
 }
 
 """
@@ -933,6 +941,10 @@ input AWSEnvUpdateSpecInput {
   Backups configuration.
   """
   backups: AWSEnvBackupsSpecInput
+  """
+  Iceberg configuration.
+  """
+  iceberg: IcebergUpdateInputSpec
 }
 
 """
@@ -1812,6 +1824,213 @@ Environment code output.
 type CodeGenEnvOutput {
   terraform: String!
 }
+
+"""
+Iceberg configuration.
+"""
+type IcebergSpec {
+  """
+  List of Iceberg catalogs.
+  """
+  catalogs: [IcebergCatalogSpec!]!
+}
+
+"""
+Iceberg catalog type.
+"""
+enum IcebergCatalogTypeSpec {
+  """
+  S3 bucket-based catalog.
+  """
+  S3
+  """
+  S3 Tables-based catalog.
+  """
+  S3_TABLE
+}
+
+"""
+Iceberg catalog configuration.
+"""
+type IcebergCatalogSpec {
+  """
+  Catalog name.
+  Empty name represents the default catalog.
+  """
+  name: String
+  """
+  Catalog type.
+  """
+  type: IcebergCatalogTypeSpec!
+  """
+  Custom S3 bucket name.
+  """
+  customS3Bucket: String
+  """
+  Path within the custom S3 bucket.
+  """
+  customS3BucketPath: String
+  """
+  ARN of the S3 Tables bucket.
+  """
+  customS3TableBucketARN: String
+  """
+  AWS region for the catalog.
+  """
+  awsRegion: String
+  """
+  Whether anonymous access is enabled.
+  """
+  anonymousAccessEnabled: Boolean
+  """
+  Maintenance configuration.
+  """
+  maintenance: IcebergCatalogMaintenanceSpec!
+  """
+  Table watch configurations.
+  """
+  watches: [IcebergCatalogWatchSpec!]!
+  """
+  IAM role ARN for BYOK environments.
+  """
+  roleARN: String
+  """
+  IAM role ARN to assume for read-write access.
+  """
+  assumeRoleARNRW: String
+  """
+  IAM role ARN to assume for read-only access.
+  """
+  assumeRoleARNRO: String
+}
+
+"""
+Iceberg catalog maintenance configuration.
+"""
+type IcebergCatalogMaintenanceSpec {
+  """
+  Whether maintenance is enabled.
+  """
+  enabled: Boolean!
+}
+
+"""
+Iceberg catalog watch configuration.
+"""
+type IcebergCatalogWatchSpec {
+  """
+  Table name to watch.
+  """
+  table: String!
+  """
+  Paths relative to table location to watch.
+  """
+  pathsRelativeToTableLocation: [String!]!
+}
+
+"""
+Iceberg configuration input.
+"""
+input IcebergInputSpec {
+  """
+  List of Iceberg catalogs.
+  """
+  catalogs: [IcebergCatalogInputSpec!]
+}
+
+"""
+Iceberg catalog configuration input.
+"""
+input IcebergCatalogInputSpec {
+  """
+  Catalog name.
+  Empty name represents the default catalog.
+  """
+  name: String
+  """
+  Catalog type.
+  """
+  type: IcebergCatalogTypeSpec!
+  """
+  Custom S3 bucket name.
+  """
+  customS3Bucket: String
+  """
+  Path within the custom S3 bucket.
+  """
+  customS3BucketPath: String
+  """
+  ARN of the S3 Tables bucket.
+  """
+  customS3TableBucketARN: String
+  """
+  AWS region for the catalog.
+  """
+  awsRegion: String
+  """
+  Whether anonymous access is enabled.
+  """
+  anonymousAccessEnabled: Boolean
+  """
+  Maintenance configuration.
+  """
+  maintenance: IcebergCatalogMaintenanceInputSpec
+  """
+  Table watch configurations.
+  """
+  watches: [IcebergCatalogWatchInputSpec!]
+  """
+  IAM role ARN for BYOK environments.
+  """
+  roleARN: String
+  """
+  IAM role ARN to assume for read-write access.
+  """
+  assumeRoleARNRW: String
+  """
+  IAM role ARN to assume for read-only access.
+  """
+  assumeRoleARNRO: String
+}
+
+"""
+Iceberg catalog maintenance configuration input.
+"""
+input IcebergCatalogMaintenanceInputSpec {
+  """
+  Whether maintenance is enabled.
+  """
+  enabled: Boolean!
+}
+
+"""
+Iceberg catalog watch configuration input.
+"""
+input IcebergCatalogWatchInputSpec {
+  """
+  Table name to watch.
+  """
+  table: String!
+  """
+  Paths relative to table location to watch.
+  """
+  pathsRelativeToTableLocation: [String!]
+}
+
+"""
+Iceberg configuration update input.
+"""
+input IcebergUpdateInputSpec {
+  """
+  List of Iceberg catalogs to create or update.
+  """
+  catalogs: [IcebergCatalogInputSpec!]
+  """
+  List of catalog names to delete.
+  """
+  catalogsToDelete: [String!]
+}
+
 extend type Query {
   """
   List GCP environments.
