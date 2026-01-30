@@ -90,18 +90,18 @@ type AWSEnvIcebergModel struct {
 }
 
 type AWSEnvIcebergCatalogModel struct {
-	Name                   types.String                       `tfsdk:"name"`
-	Type                   types.String                       `tfsdk:"type"`
-	CustomS3Bucket         types.String                       `tfsdk:"custom_s3_bucket"`
-	CustomS3BucketPath     types.String                       `tfsdk:"custom_s3_bucket_path"`
-	CustomS3TableBucketARN types.String                       `tfsdk:"custom_s3_table_bucket_arn"`
-	AWSRegion              types.String                       `tfsdk:"aws_region"`
-	AnonymousAccessEnabled types.Bool                         `tfsdk:"anonymous_access_enabled"`
+	Name                   types.String                          `tfsdk:"name"`
+	Type                   types.String                          `tfsdk:"type"`
+	CustomS3Bucket         types.String                          `tfsdk:"custom_s3_bucket"`
+	CustomS3BucketPath     types.String                          `tfsdk:"custom_s3_bucket_path"`
+	CustomS3TableBucketARN types.String                          `tfsdk:"custom_s3_table_bucket_arn"`
+	AWSRegion              types.String                          `tfsdk:"aws_region"`
+	AnonymousAccessEnabled types.Bool                            `tfsdk:"anonymous_access_enabled"`
 	Maintenance            *AWSEnvIcebergCatalogMaintenanceModel `tfsdk:"maintenance"`
-	Watches                []AWSEnvIcebergCatalogWatchModel   `tfsdk:"watches"`
-	RoleARN                types.String                       `tfsdk:"role_arn"`
-	AssumeRoleARNRW        types.String                       `tfsdk:"assume_role_arn_rw"`
-	AssumeRoleARNRO        types.String                       `tfsdk:"assume_role_arn_ro"`
+	Watches                []AWSEnvIcebergCatalogWatchModel      `tfsdk:"watches"`
+	RoleARN                types.String                          `tfsdk:"role_arn"`
+	AssumeRoleARNRW        types.String                          `tfsdk:"assume_role_arn_rw"`
+	AssumeRoleARNRO        types.String                          `tfsdk:"assume_role_arn_ro"`
 }
 
 type AWSEnvIcebergCatalogMaintenanceModel struct {

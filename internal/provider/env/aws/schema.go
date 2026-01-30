@@ -408,8 +408,8 @@ func getIcebergAttribute(required, optional, computed bool) rschema.SingleNested
 							MarkdownDescription: common.ICEBERG_CATALOG_TYPE_DESCRIPTION,
 							Validators: []validator.String{
 								stringvalidator.OneOf(
-									string(types.StringValue("S3").ValueString()),
-									string(types.StringValue("S3_TABLE").ValueString()),
+									"S3",
+									"S3_TABLE",
 								),
 							},
 						},
