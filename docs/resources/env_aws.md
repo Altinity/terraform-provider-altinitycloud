@@ -322,6 +322,7 @@ output "peering_connection_id" {
 - `external_buckets` (Attributes Set) List of external S3 bucket to allow access to. (see [below for nested schema](#nestedatt--external_buckets))
 - `force_destroy` (Boolean) Locks the environment for accidental deletion when running `terraform destroy` command. Your environment will be deleted, only when setting this parameter to `true`. Once this parameter is set to `true`, there must be a successful `terraform apply` run (before running the `terraform destroy`) to update this value in the state. Without a successful `terraform apply` after this parameter is set, this flag will have no effect. (default `false`)
 - `force_destroy_clusters` (Boolean) By default, the destroy operation will not delete any provisioned clusters and the deletion will fail until the clusters get removed. Set to `true` to remove all provisioned clusters as part of the environment deletion process.
+- `iceberg` (Attributes) Iceberg configuration for Apache Iceberg table format support. (see [below for nested schema](#nestedatt--iceberg))
 - `load_balancers` (Attributes) Load balancers configuration. (see [below for nested schema](#nestedatt--load_balancers))
 - `load_balancing_strategy` (String) Load balancing strategy for the environment.
 
@@ -403,6 +404,60 @@ Optional:
 Required:
 
 - `name` (String) External bucket name.
+
+
+<a id="nestedatt--iceberg"></a>
+### Nested Schema for `iceberg`
+
+Required:
+
+- `catalogs` (Attributes List) List of Iceberg catalogs. (see [below for nested schema](#nestedatt--iceberg--catalogs))
+
+<a id="nestedatt--iceberg--catalogs"></a>
+### Nested Schema for `iceberg.catalogs`
+
+Required:
+
+- `type` (String) Catalog type.
+
+		Possible values:
+		- "S3": S3 bucket-based catalog
+		- "S3_TABLE": S3 Tables-based catalog
+
+Optional:
+
+- `anonymous_access_enabled` (Boolean) Whether anonymous access is enabled (default `false`).
+- `assume_role_arn_ro` (String) IAM role ARN to assume for read-only access.
+- `assume_role_arn_rw` (String) IAM role ARN to assume for read-write access.
+- `aws_region` (String) AWS region for the catalog.
+- `custom_s3_bucket` (String) Custom S3 bucket name.
+- `custom_s3_bucket_path` (String) Path within the custom S3 bucket.
+- `custom_s3_table_bucket_arn` (String) ARN of the S3 Tables bucket.
+- `maintenance` (Attributes) Maintenance configuration for the catalog. (see [below for nested schema](#nestedatt--iceberg--catalogs--maintenance))
+- `name` (String) Catalog name. Empty name represents the default catalog.
+- `role_arn` (String) IAM role ARN for BYOK environments.
+- `watches` (Attributes List) Table watch configurations. (see [below for nested schema](#nestedatt--iceberg--catalogs--watches))
+
+<a id="nestedatt--iceberg--catalogs--maintenance"></a>
+### Nested Schema for `iceberg.catalogs.maintenance`
+
+Optional:
+
+- `enabled` (Boolean) Whether maintenance is enabled (default `false`).
+
+
+<a id="nestedatt--iceberg--catalogs--watches"></a>
+### Nested Schema for `iceberg.catalogs.watches`
+
+Required:
+
+- `table` (String) Table name to watch.
+
+Optional:
+
+- `paths_relative_to_table_location` (List of String) Paths relative to table location to watch.
+
+
 
 
 <a id="nestedatt--load_balancers"></a>

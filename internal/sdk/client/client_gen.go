@@ -36,6 +36,7 @@ type AWSEnvSpecFragment struct {
 	ExternalBuckets              []*AWSEnvSpecFragment_ExternalBuckets    "json:\"externalBuckets\" graphql:\"externalBuckets\""
 	Backups                      *AWSEnvSpecFragment_Backups              "json:\"backups,omitempty\" graphql:\"backups\""
 	Iceberg                      *AWSEnvSpecFragment_Iceberg              "json:\"iceberg,omitempty\" graphql:\"iceberg\""
+	EksLogging                   bool                                     "json:\"eksLogging\" graphql:\"eksLogging\""
 }
 
 func (t *AWSEnvSpecFragment) GetLoadBalancers() *AWSEnvSpecFragment_LoadBalancers {
@@ -151,6 +152,12 @@ func (t *AWSEnvSpecFragment) GetIceberg() *AWSEnvSpecFragment_Iceberg {
 		t = &AWSEnvSpecFragment{}
 	}
 	return t.Iceberg
+}
+func (t *AWSEnvSpecFragment) GetEksLogging() bool {
+	if t == nil {
+		t = &AWSEnvSpecFragment{}
+	}
+	return t.EksLogging
 }
 
 type AzureEnvSpecFragment struct {
@@ -6609,6 +6616,7 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 			assumeRoleARNRO
 		}
 	}
+	eksLogging
 }
 `
 
@@ -6769,6 +6777,7 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 			assumeRoleARNRO
 		}
 	}
+	eksLogging
 }
 `
 
@@ -6882,6 +6891,7 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 			assumeRoleARNRO
 		}
 	}
+	eksLogging
 }
 `
 

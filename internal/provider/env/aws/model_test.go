@@ -1825,3 +1825,129 @@ func TestIcebergToModel(t *testing.T) {
 		})
 	}
 }
+
+func TestEdgeProxyAPIGatewayToSDK(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    *AWSEnvEdgeProxyAPIGatewayModel
+		expected *sdk.EdgeProxyAPIGatewaySpecInput
+	}{
+		{
+			name:     "Nil input",
+			input:    nil,
+			expected: nil,
+		},
+		{
+			name: "Complete edge proxy API gateway config",
+			input: &AWSEnvEdgeProxyAPIGatewayModel{
+				Enabled:   types.BoolValue(true),
+				Whitelist: []types.String{types.StringValue("10.0.0.0/8"), types.StringValue("192.168.1.0/24")},
+			},
+			expected: &sdk.EdgeProxyAPIGatewaySpecInput{
+				Enabled:   &[]bool{true}[0],
+				Whitelist: []string{"10.0.0.0/8", "192.168.1.0/24"},
+			},
+		},
+		{
+			name: "Edge proxy API gateway disabled with empty whitelist",
+			input: &AWSEnvEdgeProxyAPIGatewayModel{
+				Enabled:   types.BoolValue(false),
+				Whitelist: []types.String{},
+			},
+			expected: &sdk.EdgeProxyAPIGatewaySpecInput{
+				Enabled:   &[]bool{false}[0],
+				Whitelist: nil,
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := edgeProxyAPIGatewayToSDK(tt.input)
+
+			if (tt.expected == nil) != (result == nil) {
+				t.Errorf("Expected nil: %v, got nil: %v", tt.expected == nil, result == nil)
+				return
+			}
+
+			if tt.expected != nil && result != nil {
+				if *tt.expected.Enabled != *result.Enabled {
+					t.Errorf("Enabled mismatch: expected %v, got %v", *tt.expected.Enabled, *result.Enabled)
+				}
+
+				if len(tt.expected.Whitelist) != len(result.Whitelist) {
+					t.Errorf("Whitelist count mismatch: expected %d, got %d", len(tt.expected.Whitelist), len(result.Whitelist))
+				} else {
+					for i, expected := range tt.expected.Whitelist {
+						if expected != result.Whitelist[i] {
+							t.Errorf("Whitelist[%d] mismatch: expected '%s', got '%s'", i, expected, result.Whitelist[i])
+						}
+					}
+				}
+			}
+		})
+	}
+}
+
+func TestEdgeProxyAPIGatewayToModel(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    *sdk.EdgeProxyAPIGatewaySpec
+		expected *AWSEnvEdgeProxyAPIGatewayModel
+	}{
+		{
+			name:     "Nil input",
+			input:    nil,
+			expected: nil,
+		},
+		{
+			name: "Complete edge proxy API gateway response",
+			input: &sdk.EdgeProxyAPIGatewaySpec{
+				Enabled:   true,
+				Whitelist: []string{"10.0.0.0/8", "172.16.0.0/12"},
+			},
+			expected: &AWSEnvEdgeProxyAPIGatewayModel{
+				Enabled:   types.BoolValue(true),
+				Whitelist: []types.String{types.StringValue("10.0.0.0/8"), types.StringValue("172.16.0.0/12")},
+			},
+		},
+		{
+			name: "Edge proxy API gateway disabled with empty whitelist",
+			input: &sdk.EdgeProxyAPIGatewaySpec{
+				Enabled:   false,
+				Whitelist: []string{},
+			},
+			expected: &AWSEnvEdgeProxyAPIGatewayModel{
+				Enabled:   types.BoolValue(false),
+				Whitelist: nil,
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := edgeProxyAPIGatewayToModel(tt.input)
+
+			if (tt.expected == nil) != (result == nil) {
+				t.Errorf("Expected nil: %v, got nil: %v", tt.expected == nil, result == nil)
+				return
+			}
+
+			if tt.expected != nil && result != nil {
+				if tt.expected.Enabled.ValueBool() != result.Enabled.ValueBool() {
+					t.Errorf("Enabled mismatch: expected %v, got %v", tt.expected.Enabled.ValueBool(), result.Enabled.ValueBool())
+				}
+
+				if len(tt.expected.Whitelist) != len(result.Whitelist) {
+					t.Errorf("Whitelist count mismatch: expected %d, got %d", len(tt.expected.Whitelist), len(result.Whitelist))
+				} else {
+					for i, expected := range tt.expected.Whitelist {
+						if expected.ValueString() != result.Whitelist[i].ValueString() {
+							t.Errorf("Whitelist[%d] mismatch: expected '%s', got '%s'", i, expected.ValueString(), result.Whitelist[i].ValueString())
+						}
+					}
+				}
+			}
+		})
+	}
+}

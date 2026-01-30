@@ -148,4 +148,8 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
       assumeRoleARNRO
     }
   }
+  edgeProxyApiGateway {
+    enabled
+    whitelist
+  }
 }

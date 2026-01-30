@@ -30,6 +30,8 @@ type AWSEnvResourceModel struct {
 	ExternalBuckets              []AWSEnvExternalBucketModel     `tfsdk:"external_buckets"`
 	Backups                      *AWSEnvBackupsModel             `tfsdk:"backups"`
 	Iceberg                      *AWSEnvIcebergModel             `tfsdk:"iceberg"`
+	EdgeProxyAPIGateway          *AWSEnvEdgeProxyAPIGatewayModel `tfsdk:"edge_proxy_api_gateway"`
+	EksLogging                   types.Bool                      `tfsdk:"eks_logging"`
 
 	SpecRevision                 types.Int64 `tfsdk:"spec_revision"`
 	ForceDestroy                 types.Bool  `tfsdk:"force_destroy"`
@@ -111,6 +113,11 @@ type AWSEnvIcebergCatalogWatchModel struct {
 	PathsRelativeToTableLocation []types.String `tfsdk:"paths_relative_to_table_location"`
 }
 
+type AWSEnvEdgeProxyAPIGatewayModel struct {
+	Enabled   types.Bool     `tfsdk:"enabled"`
+	Whitelist []types.String `tfsdk:"whitelist"`
+}
+
 func (e AWSEnvResourceModel) toSDK() (sdk.CreateAWSEnvInput, sdk.UpdateAWSEnvInput) {
 	var zones []string
 	e.Zones.ElementsAs(context.TODO(), &zones, false)
@@ -156,6 +163,7 @@ func (e AWSEnvResourceModel) toSDK() (sdk.CreateAWSEnvInput, sdk.UpdateAWSEnvInp
 	cloudConnect := e.CloudConnect.ValueBool()
 
 	iceberg := icebergToSDK(e.Iceberg)
+	edgeProxyAPIGateway := edgeProxyAPIGatewayToSDK(e.EdgeProxyAPIGateway)
 
 	create := sdk.CreateAWSEnvInput{
 		Name: e.Name.ValueString(),
@@ -179,6 +187,8 @@ func (e AWSEnvResourceModel) toSDK() (sdk.CreateAWSEnvInput, sdk.UpdateAWSEnvInp
 			ExternalBuckets:              externalBuckets,
 			Backups:                      backups,
 			Iceberg:                      iceberg,
+			EdgeProxyAPIGateway:          edgeProxyAPIGateway,
+			EksLogging:                   e.EksLogging.ValueBoolPointer(),
 		},
 	}
 
@@ -201,6 +211,8 @@ func (e AWSEnvResourceModel) toSDK() (sdk.CreateAWSEnvInput, sdk.UpdateAWSEnvInp
 			ExternalBuckets:       externalBuckets,
 			Backups:               backups,
 			Iceberg:               icebergUpdate,
+			EdgeProxyAPIGateway:   edgeProxyAPIGateway,
+			EksLogging:            e.EksLogging.ValueBoolPointer(),
 		},
 	}
 
@@ -266,6 +278,7 @@ func (model *AWSEnvResourceModel) toModel(env sdk.GetAWSEnv_AWSEnv) {
 	model.PeeringConnections = peeringConnections
 	model.SpecRevision = types.Int64Value(env.SpecRevision)
 	model.CloudConnect = types.BoolValue(env.Spec.CloudConnect)
+	model.EksLogging = types.BoolValue(env.Spec.EksLogging)
 }
 
 func loadBalancersToSDK(loadBalancers *LoadBalancersModel) *sdk.AWSEnvLoadBalancersSpecInput {
@@ -595,6 +608,38 @@ func icebergToModel(iceberg *sdk.AWSEnvSpecFragment_Iceberg) *AWSEnvIcebergModel
 
 	return &AWSEnvIcebergModel{
 		Catalogs: catalogs,
+	}
+}
+
+func edgeProxyAPIGatewayToSDK(gateway *AWSEnvEdgeProxyAPIGatewayModel) *sdk.EdgeProxyAPIGatewaySpecInput {
+	if gateway == nil {
+		return nil
+	}
+
+	var whitelist []string
+	for _, w := range gateway.Whitelist {
+		whitelist = append(whitelist, w.ValueString())
+	}
+
+	return &sdk.EdgeProxyAPIGatewaySpecInput{
+		Enabled:   gateway.Enabled.ValueBoolPointer(),
+		Whitelist: whitelist,
+	}
+}
+
+func edgeProxyAPIGatewayToModel(gateway *sdk.EdgeProxyAPIGatewaySpec) *AWSEnvEdgeProxyAPIGatewayModel {
+	if gateway == nil {
+		return nil
+	}
+
+	var whitelist []types.String
+	for _, w := range gateway.Whitelist {
+		whitelist = append(whitelist, types.StringValue(w))
+	}
+
+	return &AWSEnvEdgeProxyAPIGatewayModel{
+		Enabled:   types.BoolValue(gateway.Enabled),
+		Whitelist: whitelist,
 	}
 }
 
