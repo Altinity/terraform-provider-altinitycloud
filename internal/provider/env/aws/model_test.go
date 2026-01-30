@@ -1004,6 +1004,116 @@ func TestAWSEnvResourceModel_toSDK(t *testing.T) {
 				}
 			},
 		},
+		{
+			name: "Complete model with iceberg, edge proxy and eks logging",
+			model: AWSEnvResourceModel{
+				Name:         types.StringValue("iceberg-env"),
+				Region:       types.StringValue("us-east-1"),
+				CIDR:         types.StringValue("10.0.0.0/16"),
+				AWSAccountID: types.StringValue("123456789012"),
+				Zones:        types.ListValueMust(types.StringType, []attr.Value{types.StringValue("us-east-1a"), types.StringValue("us-east-1b")}),
+				NodeGroups: []common.NodeGroupsModel{
+					{
+						Name:            types.StringValue("system"),
+						NodeType:        types.StringValue("system"),
+						CapacityPerZone: types.Int64Value(2),
+						Zones:           types.ListValueMust(types.StringType, []attr.Value{types.StringValue("us-east-1a")}),
+						Reservations:    types.SetValueMust(types.ObjectType{}, []attr.Value{}),
+					},
+				},
+				CloudConnect: types.BoolValue(true),
+				EksLogging:   types.BoolValue(true),
+				Iceberg: &AWSEnvIcebergModel{
+					Catalogs: []AWSEnvIcebergCatalogModel{
+						{
+							Name:                   types.StringValue("my-catalog"),
+							Type:                   types.StringValue("S3"),
+							CustomS3Bucket:         types.StringValue("my-iceberg-bucket"),
+							CustomS3BucketPath:     types.StringValue("/data"),
+							AWSRegion:              types.StringValue("us-east-1"),
+							AnonymousAccessEnabled: types.BoolValue(false),
+							Maintenance: &AWSEnvIcebergCatalogMaintenanceModel{
+								Enabled: types.BoolValue(true),
+							},
+							Watches: []AWSEnvIcebergCatalogWatchModel{
+								{
+									Table:                        types.StringValue("events"),
+									PathsRelativeToTableLocation: []types.String{types.StringValue("data/")},
+								},
+							},
+							RoleARN:         types.StringValue("arn:aws:iam::123456789012:role/iceberg"),
+							AssumeRoleARNRW: types.StringValue("arn:aws:iam::123456789012:role/rw"),
+							AssumeRoleARNRO: types.StringValue("arn:aws:iam::123456789012:role/ro"),
+						},
+					},
+				},
+				EdgeProxyAPIGateway: &AWSEnvEdgeProxyAPIGatewayModel{
+					Enabled:   types.BoolValue(true),
+					Whitelist: []types.String{types.StringValue("10.0.0.0/8"), types.StringValue("192.168.0.0/16")},
+				},
+			},
+			validate: func(t *testing.T, create sdk.CreateAWSEnvInput, update sdk.UpdateAWSEnvInput) {
+				if create.Name != "iceberg-env" {
+					t.Errorf("Create name: expected 'iceberg-env', got '%s'", create.Name)
+				}
+				if create.Spec == nil {
+					t.Fatal("Create spec should not be nil")
+				}
+
+				// Validate EKS Logging
+				if create.Spec.EksLogging == nil || *create.Spec.EksLogging != true {
+					t.Errorf("Create EksLogging: expected true, got %v", create.Spec.EksLogging)
+				}
+				if update.Spec.EksLogging == nil || *update.Spec.EksLogging != true {
+					t.Errorf("Update EksLogging: expected true, got %v", update.Spec.EksLogging)
+				}
+
+				// Validate Iceberg
+				if create.Spec.Iceberg == nil {
+					t.Fatal("Create Iceberg should not be nil")
+				}
+				if len(create.Spec.Iceberg.Catalogs) != 1 {
+					t.Errorf("Create Iceberg catalogs: expected 1, got %d", len(create.Spec.Iceberg.Catalogs))
+				}
+				if create.Spec.Iceberg.Catalogs[0].Type != sdk.IcebergCatalogTypeSpecS3 {
+					t.Errorf("Create Iceberg catalog type: expected S3, got %s", create.Spec.Iceberg.Catalogs[0].Type)
+				}
+				if *create.Spec.Iceberg.Catalogs[0].Name != "my-catalog" {
+					t.Errorf("Create Iceberg catalog name: expected 'my-catalog', got '%s'", *create.Spec.Iceberg.Catalogs[0].Name)
+				}
+				if *create.Spec.Iceberg.Catalogs[0].CustomS3Bucket != "my-iceberg-bucket" {
+					t.Errorf("Create Iceberg catalog bucket: expected 'my-iceberg-bucket', got '%s'", *create.Spec.Iceberg.Catalogs[0].CustomS3Bucket)
+				}
+				if create.Spec.Iceberg.Catalogs[0].Maintenance == nil || !create.Spec.Iceberg.Catalogs[0].Maintenance.Enabled {
+					t.Error("Create Iceberg catalog maintenance should be enabled")
+				}
+				if len(create.Spec.Iceberg.Catalogs[0].Watches) != 1 {
+					t.Errorf("Create Iceberg catalog watches: expected 1, got %d", len(create.Spec.Iceberg.Catalogs[0].Watches))
+				}
+
+				// Validate Edge Proxy API Gateway
+				if create.Spec.EdgeProxyAPIGateway == nil {
+					t.Fatal("Create EdgeProxyAPIGateway should not be nil")
+				}
+				if *create.Spec.EdgeProxyAPIGateway.Enabled != true {
+					t.Errorf("Create EdgeProxyAPIGateway enabled: expected true, got %v", *create.Spec.EdgeProxyAPIGateway.Enabled)
+				}
+				if len(create.Spec.EdgeProxyAPIGateway.Whitelist) != 2 {
+					t.Errorf("Create EdgeProxyAPIGateway whitelist: expected 2, got %d", len(create.Spec.EdgeProxyAPIGateway.Whitelist))
+				}
+				if create.Spec.EdgeProxyAPIGateway.Whitelist[0] != "10.0.0.0/8" {
+					t.Errorf("Create EdgeProxyAPIGateway whitelist[0]: expected '10.0.0.0/8', got '%s'", create.Spec.EdgeProxyAPIGateway.Whitelist[0])
+				}
+
+				// Validate Update EdgeProxyAPIGateway
+				if update.Spec.EdgeProxyAPIGateway == nil {
+					t.Fatal("Update EdgeProxyAPIGateway should not be nil")
+				}
+				if *update.Spec.EdgeProxyAPIGateway.Enabled != true {
+					t.Errorf("Update EdgeProxyAPIGateway enabled: expected true, got %v", *update.Spec.EdgeProxyAPIGateway.Enabled)
+				}
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -1402,6 +1512,141 @@ func TestAWSEnvResourceModel_toModel(t *testing.T) {
 				}
 				if model.SpecRevision.ValueInt64() != 10 {
 					t.Errorf("SpecRevision: expected 10, got %d", model.SpecRevision.ValueInt64())
+				}
+			},
+		},
+		{
+			name: "Complete SDK response with iceberg and eks logging",
+			input: sdk.GetAWSEnv_AWSEnv{
+				Name: "iceberg-test-environment",
+				Spec: &sdk.AWSEnvSpecFragment{
+					Cidr:                  "10.0.0.0/16",
+					Region:                "us-east-1",
+					Nat:                   true,
+					AWSAccountID:          "123456789012",
+					LoadBalancingStrategy: sdk.LoadBalancingStrategyRoundRobin,
+					ResourcePrefix:        "altinity-iceberg-",
+					Zones:                 []string{"us-east-1a", "us-east-1b"},
+					LoadBalancers: sdk.AWSEnvSpecFragment_LoadBalancers{
+						Public: sdk.AWSEnvSpecFragment_LoadBalancers_Public{
+							Enabled:        false,
+							SourceIPRanges: []string{},
+							CrossZone:      false,
+						},
+						Internal: sdk.AWSEnvSpecFragment_LoadBalancers_Internal{
+							Enabled:                          false,
+							SourceIPRanges:                   []string{},
+							CrossZone:                        false,
+							EndpointServiceAllowedPrincipals: []string{},
+						},
+					},
+					NodeGroups: []*sdk.AWSEnvSpecFragment_NodeGroups{
+						{
+							Name:            "system-group",
+							NodeType:        "system",
+							CapacityPerZone: 2,
+							Zones:           []string{"us-east-1a"},
+							Reservations:    []sdk.NodeReservation{},
+						},
+					},
+					MaintenanceWindows: []*sdk.AWSEnvSpecFragment_MaintenanceWindows{},
+					PeeringConnections: []*sdk.AWSEnvSpecFragment_PeeringConnections{},
+					Endpoints:          []*sdk.AWSEnvSpecFragment_Endpoints{},
+					Tags:               []*sdk.AWSEnvSpecFragment_Tags{},
+					ExternalBuckets:    []*sdk.AWSEnvSpecFragment_ExternalBuckets{},
+					CloudConnect:       true,
+					EksLogging:         true,
+					Iceberg: &sdk.AWSEnvSpecFragment_Iceberg{
+						Catalogs: []*sdk.AWSEnvSpecFragment_Iceberg_Catalogs{
+							{
+								Name:                   &[]string{"production-catalog"}[0],
+								Type:                   sdk.IcebergCatalogTypeSpecS3,
+								CustomS3Bucket:         &[]string{"prod-iceberg-bucket"}[0],
+								CustomS3BucketPath:     &[]string{"/iceberg"}[0],
+								AWSRegion:              &[]string{"us-east-1"}[0],
+								AnonymousAccessEnabled: &[]bool{false}[0],
+								Maintenance: sdk.AWSEnvSpecFragment_Iceberg_Catalogs_Maintenance{
+									Enabled: true,
+								},
+								Watches: []*sdk.AWSEnvSpecFragment_Iceberg_Catalogs_Watches{
+									{
+										Table:                        "events",
+										PathsRelativeToTableLocation: []string{"data/", "metadata/"},
+									},
+								},
+								RoleArn:         &[]string{"arn:aws:iam::123456789012:role/iceberg"}[0],
+								AssumeRoleArnrw: &[]string{"arn:aws:iam::123456789012:role/rw"}[0],
+								AssumeRoleArnro: &[]string{"arn:aws:iam::123456789012:role/ro"}[0],
+							},
+						},
+					},
+				},
+				SpecRevision: 15,
+			},
+			validate: func(t *testing.T, model *AWSEnvResourceModel) {
+				if model.Name.ValueString() != "iceberg-test-environment" {
+					t.Errorf("Name: expected 'iceberg-test-environment', got '%s'", model.Name.ValueString())
+				}
+
+				// Validate EKS Logging
+				if !model.EksLogging.ValueBool() {
+					t.Errorf("EksLogging: expected true, got %v", model.EksLogging.ValueBool())
+				}
+
+				// Validate Iceberg
+				if model.Iceberg == nil {
+					t.Fatal("Iceberg should not be nil")
+				}
+				if len(model.Iceberg.Catalogs) != 1 {
+					t.Fatalf("Iceberg catalogs: expected 1, got %d", len(model.Iceberg.Catalogs))
+				}
+
+				catalog := model.Iceberg.Catalogs[0]
+				if catalog.Name.ValueString() != "production-catalog" {
+					t.Errorf("Iceberg catalog name: expected 'production-catalog', got '%s'", catalog.Name.ValueString())
+				}
+				if catalog.Type.ValueString() != "S3" {
+					t.Errorf("Iceberg catalog type: expected 'S3', got '%s'", catalog.Type.ValueString())
+				}
+				if catalog.CustomS3Bucket.ValueString() != "prod-iceberg-bucket" {
+					t.Errorf("Iceberg catalog bucket: expected 'prod-iceberg-bucket', got '%s'", catalog.CustomS3Bucket.ValueString())
+				}
+				if catalog.CustomS3BucketPath.ValueString() != "/iceberg" {
+					t.Errorf("Iceberg catalog path: expected '/iceberg', got '%s'", catalog.CustomS3BucketPath.ValueString())
+				}
+				if catalog.AWSRegion.ValueString() != "us-east-1" {
+					t.Errorf("Iceberg catalog region: expected 'us-east-1', got '%s'", catalog.AWSRegion.ValueString())
+				}
+				if catalog.AnonymousAccessEnabled.ValueBool() != false {
+					t.Errorf("Iceberg catalog anonymous access: expected false, got %v", catalog.AnonymousAccessEnabled.ValueBool())
+				}
+				if catalog.Maintenance == nil {
+					t.Fatal("Iceberg catalog maintenance should not be nil")
+				}
+				if !catalog.Maintenance.Enabled.ValueBool() {
+					t.Error("Iceberg catalog maintenance should be enabled")
+				}
+				if len(catalog.Watches) != 1 {
+					t.Fatalf("Iceberg catalog watches: expected 1, got %d", len(catalog.Watches))
+				}
+				if catalog.Watches[0].Table.ValueString() != "events" {
+					t.Errorf("Iceberg catalog watch table: expected 'events', got '%s'", catalog.Watches[0].Table.ValueString())
+				}
+				if len(catalog.Watches[0].PathsRelativeToTableLocation) != 2 {
+					t.Errorf("Iceberg catalog watch paths: expected 2, got %d", len(catalog.Watches[0].PathsRelativeToTableLocation))
+				}
+				if catalog.RoleARN.ValueString() != "arn:aws:iam::123456789012:role/iceberg" {
+					t.Errorf("Iceberg catalog role ARN: expected 'arn:aws:iam::123456789012:role/iceberg', got '%s'", catalog.RoleARN.ValueString())
+				}
+				if catalog.AssumeRoleARNRW.ValueString() != "arn:aws:iam::123456789012:role/rw" {
+					t.Errorf("Iceberg catalog assume role RW: expected 'arn:aws:iam::123456789012:role/rw', got '%s'", catalog.AssumeRoleARNRW.ValueString())
+				}
+				if catalog.AssumeRoleARNRO.ValueString() != "arn:aws:iam::123456789012:role/ro" {
+					t.Errorf("Iceberg catalog assume role RO: expected 'arn:aws:iam::123456789012:role/ro', got '%s'", catalog.AssumeRoleARNRO.ValueString())
+				}
+
+				if model.SpecRevision.ValueInt64() != 15 {
+					t.Errorf("SpecRevision: expected 15, got %d", model.SpecRevision.ValueInt64())
 				}
 			},
 		},
