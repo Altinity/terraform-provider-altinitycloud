@@ -127,4 +127,25 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
       roleARN
     }
   }
+  iceberg {
+    catalogs {
+      name
+      type
+      customS3Bucket
+      customS3BucketPath
+      customS3TableBucketARN
+      awsRegion
+      anonymousAccessEnabled
+      maintenance {
+        enabled
+      }
+      watches {
+        table
+        pathsRelativeToTableLocation
+      }
+      roleARN
+      assumeRoleARNRW
+      assumeRoleARNRO
+    }
+  }
 }

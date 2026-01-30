@@ -362,6 +362,10 @@ type AWSEnvSpec struct {
 	Backups *AWSEnvBackupsSpec `json:"backups,omitempty"`
 	// Iceberg configuration.
 	Iceberg *IcebergSpec `json:"iceberg,omitempty"`
+	// Enable/Disable EKS control plane logging to CloudWatch.
+	EksLogging bool `json:"eksLogging"`
+	// Edge proxy API gateway configuration.
+	EdgeProxyAPIGateway *EdgeProxyAPIGatewaySpec `json:"edgeProxyApiGateway"`
 }
 
 // AWS environment status.
@@ -426,6 +430,10 @@ type AWSEnvUpdateSpecInput struct {
 	Backups *AWSEnvBackupsSpecInput `json:"backups,omitempty"`
 	// Iceberg configuration.
 	Iceberg *IcebergUpdateInputSpec `json:"iceberg,omitempty"`
+	// Enable/Disable EKS control plane logging to CloudWatch.
+	EksLogging *bool `json:"eksLogging,omitempty"`
+	// Edge proxy API gateway configuration.
+	EdgeProxyAPIGateway *EdgeProxyAPIGatewaySpecInput `json:"edgeProxyApiGateway,omitempty"`
 }
 
 // AWS resource information.
@@ -637,6 +645,8 @@ type AzureEnvSpec struct {
 	// True indicates that cloud resources are to be managed via altinity/cloud-connect.
 	// False means direct management.
 	CloudConnect bool `json:"cloudConnect"`
+	// Edge proxy API gateway configuration.
+	EdgeProxyAPIGateway *EdgeProxyAPIGatewaySpec `json:"edgeProxyApiGateway"`
 }
 
 // Azure environment status.
@@ -765,6 +775,10 @@ type CreateAWSEnvSpecInput struct {
 	Backups *AWSEnvBackupsSpecInput `json:"backups,omitempty"`
 	// Iceberg configuration.
 	Iceberg *IcebergInputSpec `json:"iceberg,omitempty"`
+	// Enable/Disable EKS control plane logging to CloudWatch.
+	EksLogging *bool `json:"eksLogging,omitempty"`
+	// Edge proxy API gateway configuration.
+	EdgeProxyAPIGateway *EdgeProxyAPIGatewaySpecInput `json:"edgeProxyApiGateway,omitempty"`
 }
 
 // Azure environment create request input.
@@ -856,6 +870,8 @@ type CreateAzureEnvSpecInput struct {
 	//
 	// Immutable.
 	CloudConnect *bool `json:"cloudConnect,omitempty"`
+	// Edge proxy API gateway configuration.
+	EdgeProxyAPIGateway *EdgeProxyAPIGatewaySpecInput `json:"edgeProxyApiGateway,omitempty"`
 }
 
 // GCP environment create request input.
@@ -949,6 +965,8 @@ type CreateGCPEnvSpecInput struct {
 	PrivateServiceConsumers []string `json:"privateServiceConsumers,omitempty"`
 	// List of private service connections.
 	PrivateServiceConnections []*GCPEnvPrivateServiceConnectionSpecInput `json:"privateServiceConnections,omitempty"`
+	// Edge proxy API gateway configuration.
+	EdgeProxyAPIGateway *EdgeProxyAPIGatewaySpecInput `json:"edgeProxyApiGateway,omitempty"`
 }
 
 // HCloud environment create request input.
@@ -1028,6 +1046,8 @@ type CreateHCloudEnvSpecInput struct {
 	HcloudTokenEnc string `json:"hcloudTokenEnc"`
 	// Wireguard peers configuration.
 	WireguardPeers []*HCloudEnvWireguardPeerSpecInput `json:"wireguardPeers,omitempty"`
+	// Edge proxy API gateway configuration.
+	EdgeProxyAPIGateway *EdgeProxyAPIGatewaySpecInput `json:"edgeProxyApiGateway,omitempty"`
 }
 
 // Kubernetes environment create request input.
@@ -1088,6 +1108,8 @@ type CreateK8SEnvSpecInput struct {
 	// - (optional, vpce)
 	// CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
 	CustomDomain *string `json:"customDomain,omitempty"`
+	// Edge proxy API gateway configuration.
+	EdgeProxyAPIGateway *EdgeProxyAPIGatewaySpecInput `json:"edgeProxyApiGateway,omitempty"`
 }
 
 // AWS environment delete request input.
@@ -1193,6 +1215,26 @@ type DeleteK8SEnvResult struct {
 	// Mutation unique identifier.
 	MutationID string `json:"mutationId"`
 	PendingMfa bool   `json:"pendingMFA"`
+}
+
+// Edge proxy API gateway configuration.
+type EdgeProxyAPIGatewaySpec struct {
+	// True if edge proxy API gateway is enabled,
+	// false otherwise.
+	Enabled bool `json:"enabled"`
+	// IP addresses/blocks to allow traffic from when API gateway is enabled.
+	Whitelist []string `json:"whitelist"`
+}
+
+// Edge proxy API gateway configuration input.
+type EdgeProxyAPIGatewaySpecInput struct {
+	// True if edge proxy API gateway is enabled,
+	// false otherwise.
+	//
+	// False by default.
+	Enabled *bool `json:"enabled,omitempty"`
+	// IP addresses/blocks to allow traffic from when API gateway is enabled.
+	Whitelist []string `json:"whitelist,omitempty"`
 }
 
 // Status error.
@@ -1430,6 +1472,8 @@ type GCPEnvSpec struct {
 	PrivateServiceConsumers []string `json:"privateServiceConsumers"`
 	// List of private service connections.
 	PrivateServiceConnections []*GCPEnvPrivateServiceConnectionSpec `json:"privateServiceConnections"`
+	// Edge proxy API gateway configuration.
+	EdgeProxyAPIGateway *EdgeProxyAPIGatewaySpec `json:"edgeProxyApiGateway"`
 }
 
 // GCP environment status.
@@ -1615,6 +1659,8 @@ type HCloudEnvSpec struct {
 	Labels []*KeyValue `json:"labels"`
 	// Wireguard peers configuration.
 	WireguardPeers []*HCloudEnvWireguardPeerSpec `json:"wireguardPeers"`
+	// Edge proxy API gateway configuration.
+	EdgeProxyAPIGateway *EdgeProxyAPIGatewaySpec `json:"edgeProxyApiGateway"`
 }
 
 // HCloud environment status.
@@ -1998,6 +2044,8 @@ type K8SEnvSpec struct {
 	// - (optional, vpce)
 	// CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
 	CustomDomain *string `json:"customDomain,omitempty"`
+	// Edge proxy API gateway configuration.
+	EdgeProxyAPIGateway *EdgeProxyAPIGatewaySpec `json:"edgeProxyApiGateway"`
 }
 
 // Kubernetes environment logs GCS storage configuration.
@@ -2202,6 +2250,8 @@ type UpdateAzureEnvSpecInput struct {
 	// Azure Private Link service configuration.
 	PrivateLinkService *PrivateLinkServiceSpecInput `json:"privateLinkService,omitempty"`
 	Tags               []*KeyValueInput             `json:"tags,omitempty"`
+	// Edge proxy API gateway configuration.
+	EdgeProxyAPIGateway *EdgeProxyAPIGatewaySpecInput `json:"edgeProxyApiGateway,omitempty"`
 }
 
 // GCP environment update request input.
@@ -2267,6 +2317,8 @@ type UpdateGCPEnvSpecInput struct {
 	PrivateServiceConsumers []string `json:"privateServiceConsumers,omitempty"`
 	// List of private service connections.
 	PrivateServiceConnections []*GCPEnvPrivateServiceConnectionSpecInput `json:"privateServiceConnections,omitempty"`
+	// Edge proxy API gateway configuration.
+	EdgeProxyAPIGateway *EdgeProxyAPIGatewaySpecInput `json:"edgeProxyApiGateway,omitempty"`
 }
 
 // HCloud environment update request input.
@@ -2324,6 +2376,8 @@ type UpdateHCloudEnvSpecInput struct {
 	HcloudTokenEnc *string `json:"hcloudTokenEnc,omitempty"`
 	// Wireguard peers configuration.
 	WireguardPeers []*HCloudEnvWireguardPeerSpecInput `json:"wireguardPeers,omitempty"`
+	// Edge proxy API gateway configuration.
+	EdgeProxyAPIGateway *EdgeProxyAPIGatewaySpecInput `json:"edgeProxyApiGateway,omitempty"`
 }
 
 // Kubernetes environment update request input.
@@ -2379,6 +2433,8 @@ type UpdateK8SEnvSpecInput struct {
 	// - (optional, vpce)
 	// CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
 	CustomDomain *string `json:"customDomain,omitempty"`
+	// Edge proxy API gateway configuration.
+	EdgeProxyAPIGateway *EdgeProxyAPIGatewaySpecInput `json:"edgeProxyApiGateway,omitempty"`
 }
 
 // Day of the week.

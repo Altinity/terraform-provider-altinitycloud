@@ -29,6 +29,7 @@ type AWSEnvResourceModel struct {
 	MaintenanceWindows           []common.MaintenanceWindowModel `tfsdk:"maintenance_windows"`
 	ExternalBuckets              []AWSEnvExternalBucketModel     `tfsdk:"external_buckets"`
 	Backups                      *AWSEnvBackupsModel             `tfsdk:"backups"`
+	Iceberg                      *AWSEnvIcebergModel             `tfsdk:"iceberg"`
 
 	SpecRevision                 types.Int64 `tfsdk:"spec_revision"`
 	ForceDestroy                 types.Bool  `tfsdk:"force_destroy"`
@@ -82,6 +83,34 @@ type AWSEnvCustomBucketModel struct {
 	RoleArn types.String `tfsdk:"role_arn"`
 }
 
+type AWSEnvIcebergModel struct {
+	Catalogs []AWSEnvIcebergCatalogModel `tfsdk:"catalogs"`
+}
+
+type AWSEnvIcebergCatalogModel struct {
+	Name                   types.String                       `tfsdk:"name"`
+	Type                   types.String                       `tfsdk:"type"`
+	CustomS3Bucket         types.String                       `tfsdk:"custom_s3_bucket"`
+	CustomS3BucketPath     types.String                       `tfsdk:"custom_s3_bucket_path"`
+	CustomS3TableBucketARN types.String                       `tfsdk:"custom_s3_table_bucket_arn"`
+	AWSRegion              types.String                       `tfsdk:"aws_region"`
+	AnonymousAccessEnabled types.Bool                         `tfsdk:"anonymous_access_enabled"`
+	Maintenance            *AWSEnvIcebergCatalogMaintenanceModel `tfsdk:"maintenance"`
+	Watches                []AWSEnvIcebergCatalogWatchModel   `tfsdk:"watches"`
+	RoleARN                types.String                       `tfsdk:"role_arn"`
+	AssumeRoleARNRW        types.String                       `tfsdk:"assume_role_arn_rw"`
+	AssumeRoleARNRO        types.String                       `tfsdk:"assume_role_arn_ro"`
+}
+
+type AWSEnvIcebergCatalogMaintenanceModel struct {
+	Enabled types.Bool `tfsdk:"enabled"`
+}
+
+type AWSEnvIcebergCatalogWatchModel struct {
+	Table                        types.String   `tfsdk:"table"`
+	PathsRelativeToTableLocation []types.String `tfsdk:"paths_relative_to_table_location"`
+}
+
 func (e AWSEnvResourceModel) toSDK() (sdk.CreateAWSEnvInput, sdk.UpdateAWSEnvInput) {
 	var zones []string
 	e.Zones.ElementsAs(context.TODO(), &zones, false)
@@ -126,6 +155,8 @@ func (e AWSEnvResourceModel) toSDK() (sdk.CreateAWSEnvInput, sdk.UpdateAWSEnvInp
 	loadBalancingStrategy := (*sdk.LoadBalancingStrategy)(e.LoadBalancingStrategy.ValueStringPointer())
 	cloudConnect := e.CloudConnect.ValueBool()
 
+	iceberg := icebergToSDK(e.Iceberg)
+
 	create := sdk.CreateAWSEnvInput{
 		Name: e.Name.ValueString(),
 		Spec: &sdk.CreateAWSEnvSpecInput{
@@ -147,8 +178,11 @@ func (e AWSEnvResourceModel) toSDK() (sdk.CreateAWSEnvInput, sdk.UpdateAWSEnvInp
 			ResourcePrefix:               e.ResourcePrefix.ValueStringPointer(),
 			ExternalBuckets:              externalBuckets,
 			Backups:                      backups,
+			Iceberg:                      iceberg,
 		},
 	}
+
+	icebergUpdate := icebergToUpdateSDK(e.Iceberg)
 
 	strategy := sdk.UpdateStrategyReplace
 	update := sdk.UpdateAWSEnvInput{
@@ -166,6 +200,7 @@ func (e AWSEnvResourceModel) toSDK() (sdk.CreateAWSEnvInput, sdk.UpdateAWSEnvInp
 			MaintenanceWindows:    maintenanceWindows,
 			ExternalBuckets:       externalBuckets,
 			Backups:               backups,
+			Iceberg:               icebergUpdate,
 		},
 	}
 
@@ -221,11 +256,13 @@ func (model *AWSEnvResourceModel) toModel(env sdk.GetAWSEnv_AWSEnv) {
 	}
 
 	backups := backupsToModel(env.Spec.Backups)
+	iceberg := icebergToModel(env.Spec.Iceberg)
 
 	model.Tags = tags
 	model.Endpoints = endpoints
 	model.ExternalBuckets = externalBuckets
 	model.Backups = backups
+	model.Iceberg = iceberg
 	model.PeeringConnections = peeringConnections
 	model.SpecRevision = types.Int64Value(env.SpecRevision)
 	model.CloudConnect = types.BoolValue(env.Spec.CloudConnect)
@@ -419,6 +456,145 @@ func backupsToModel(backups *sdk.AWSEnvSpecFragment_Backups) *AWSEnvBackupsModel
 			Region:  types.StringValue(backups.CustomBucket.Region),
 			RoleArn: types.StringValue(backups.CustomBucket.RoleArn),
 		},
+	}
+}
+
+func icebergToSDK(iceberg *AWSEnvIcebergModel) *sdk.IcebergInputSpec {
+	if iceberg == nil {
+		return nil
+	}
+
+	var catalogs []*sdk.IcebergCatalogInputSpec
+	for _, c := range iceberg.Catalogs {
+		catalog := &sdk.IcebergCatalogInputSpec{
+			Name:                   c.Name.ValueStringPointer(),
+			Type:                   sdk.IcebergCatalogTypeSpec(c.Type.ValueString()),
+			CustomS3Bucket:         c.CustomS3Bucket.ValueStringPointer(),
+			CustomS3BucketPath:     c.CustomS3BucketPath.ValueStringPointer(),
+			CustomS3TableBucketArn: c.CustomS3TableBucketARN.ValueStringPointer(),
+			AWSRegion:              c.AWSRegion.ValueStringPointer(),
+			AnonymousAccessEnabled: c.AnonymousAccessEnabled.ValueBoolPointer(),
+			RoleArn:                c.RoleARN.ValueStringPointer(),
+			AssumeRoleArnrw:        c.AssumeRoleARNRW.ValueStringPointer(),
+			AssumeRoleArnro:        c.AssumeRoleARNRO.ValueStringPointer(),
+		}
+
+		if c.Maintenance != nil {
+			catalog.Maintenance = &sdk.IcebergCatalogMaintenanceInputSpec{
+				Enabled: c.Maintenance.Enabled.ValueBool(),
+			}
+		}
+
+		var watches []*sdk.IcebergCatalogWatchInputSpec
+		for _, w := range c.Watches {
+			var paths []string
+			for _, p := range w.PathsRelativeToTableLocation {
+				paths = append(paths, p.ValueString())
+			}
+			watches = append(watches, &sdk.IcebergCatalogWatchInputSpec{
+				Table:                        w.Table.ValueString(),
+				PathsRelativeToTableLocation: paths,
+			})
+		}
+		catalog.Watches = watches
+
+		catalogs = append(catalogs, catalog)
+	}
+
+	return &sdk.IcebergInputSpec{
+		Catalogs: catalogs,
+	}
+}
+
+func icebergToUpdateSDK(iceberg *AWSEnvIcebergModel) *sdk.IcebergUpdateInputSpec {
+	if iceberg == nil {
+		return nil
+	}
+
+	var catalogs []*sdk.IcebergCatalogInputSpec
+	for _, c := range iceberg.Catalogs {
+		catalog := &sdk.IcebergCatalogInputSpec{
+			Name:                   c.Name.ValueStringPointer(),
+			Type:                   sdk.IcebergCatalogTypeSpec(c.Type.ValueString()),
+			CustomS3Bucket:         c.CustomS3Bucket.ValueStringPointer(),
+			CustomS3BucketPath:     c.CustomS3BucketPath.ValueStringPointer(),
+			CustomS3TableBucketArn: c.CustomS3TableBucketARN.ValueStringPointer(),
+			AWSRegion:              c.AWSRegion.ValueStringPointer(),
+			AnonymousAccessEnabled: c.AnonymousAccessEnabled.ValueBoolPointer(),
+			RoleArn:                c.RoleARN.ValueStringPointer(),
+			AssumeRoleArnrw:        c.AssumeRoleARNRW.ValueStringPointer(),
+			AssumeRoleArnro:        c.AssumeRoleARNRO.ValueStringPointer(),
+		}
+
+		if c.Maintenance != nil {
+			catalog.Maintenance = &sdk.IcebergCatalogMaintenanceInputSpec{
+				Enabled: c.Maintenance.Enabled.ValueBool(),
+			}
+		}
+
+		var watches []*sdk.IcebergCatalogWatchInputSpec
+		for _, w := range c.Watches {
+			var paths []string
+			for _, p := range w.PathsRelativeToTableLocation {
+				paths = append(paths, p.ValueString())
+			}
+			watches = append(watches, &sdk.IcebergCatalogWatchInputSpec{
+				Table:                        w.Table.ValueString(),
+				PathsRelativeToTableLocation: paths,
+			})
+		}
+		catalog.Watches = watches
+
+		catalogs = append(catalogs, catalog)
+	}
+
+	return &sdk.IcebergUpdateInputSpec{
+		Catalogs: catalogs,
+	}
+}
+
+func icebergToModel(iceberg *sdk.AWSEnvSpecFragment_Iceberg) *AWSEnvIcebergModel {
+	if iceberg == nil || len(iceberg.Catalogs) == 0 {
+		return nil
+	}
+
+	var catalogs []AWSEnvIcebergCatalogModel
+	for _, c := range iceberg.Catalogs {
+		catalog := AWSEnvIcebergCatalogModel{
+			Name:                   types.StringPointerValue(c.Name),
+			Type:                   types.StringValue(string(c.Type)),
+			CustomS3Bucket:         types.StringPointerValue(c.CustomS3Bucket),
+			CustomS3BucketPath:     types.StringPointerValue(c.CustomS3BucketPath),
+			CustomS3TableBucketARN: types.StringPointerValue(c.CustomS3TableBucketArn),
+			AWSRegion:              types.StringPointerValue(c.AWSRegion),
+			AnonymousAccessEnabled: types.BoolPointerValue(c.AnonymousAccessEnabled),
+			RoleARN:                types.StringPointerValue(c.RoleArn),
+			AssumeRoleARNRW:        types.StringPointerValue(c.AssumeRoleArnrw),
+			AssumeRoleARNRO:        types.StringPointerValue(c.AssumeRoleArnro),
+		}
+
+		catalog.Maintenance = &AWSEnvIcebergCatalogMaintenanceModel{
+			Enabled: types.BoolValue(c.Maintenance.Enabled),
+		}
+
+		var watches []AWSEnvIcebergCatalogWatchModel
+		for _, w := range c.Watches {
+			var paths []types.String
+			for _, p := range w.PathsRelativeToTableLocation {
+				paths = append(paths, types.StringValue(p))
+			}
+			watches = append(watches, AWSEnvIcebergCatalogWatchModel{
+				Table:                        types.StringValue(w.Table),
+				PathsRelativeToTableLocation: paths,
+			})
+		}
+		catalog.Watches = watches
+
+		catalogs = append(catalogs, catalog)
+	}
+
+	return &AWSEnvIcebergModel{
+		Catalogs: catalogs,
 	}
 }
 

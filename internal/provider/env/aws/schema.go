@@ -46,6 +46,7 @@ func (r *AWSEnvResource) Schema(ctx context.Context, req resource.SchemaRequest,
 			"permissions_boundary_policy_arn": getPermissionsBoundaryPolicyArnAttribute(false, true, false),
 			"external_buckets":                getExternalBucketsAttribute(false, true, false),
 			"backups":                         getBackupStorageAttribute(false, true, false),
+			"iceberg":                         getIcebergAttribute(false, true, false),
 
 			"spec_revision":                   common.SpecRevisionAttribute,
 			"force_destroy":                   common.GetForceDestroyAttribute(false, true, true),
@@ -80,6 +81,7 @@ func (d *AWSEnvDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 			"resource_prefix":                 getResourcePrefixAttribute(false, false, true),
 			"external_buckets":                getExternalBucketsAttribute(false, false, true),
 			"backups":                         getBackupStorageAttribute(false, false, true),
+			"iceberg":                         getIcebergAttribute(false, false, true),
 			"spec_revision":                   common.SpecRevisionAttribute,
 
 			// these options are not used in data sources,
@@ -377,3 +379,103 @@ var loadBalancerPublicDefaultObject, _ = types.ObjectValue(
 		"source_ip_ranges": types.ListNull(types.StringType),
 	},
 )
+
+func getIcebergAttribute(required, optional, computed bool) rschema.SingleNestedAttribute {
+	return rschema.SingleNestedAttribute{
+		Optional:            optional,
+		Required:            required,
+		Computed:            computed,
+		MarkdownDescription: common.ICEBERG_DESCRIPTION,
+		Attributes: map[string]rschema.Attribute{
+			"catalogs": rschema.ListNestedAttribute{
+				Required:            true,
+				MarkdownDescription: common.ICEBERG_CATALOGS_DESCRIPTION,
+				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
+				},
+				NestedObject: rschema.NestedAttributeObject{
+					Attributes: map[string]rschema.Attribute{
+						"name": rschema.StringAttribute{
+							Optional:            true,
+							MarkdownDescription: common.ICEBERG_CATALOG_NAME_DESCRIPTION,
+						},
+						"type": rschema.StringAttribute{
+							Required:            true,
+							MarkdownDescription: common.ICEBERG_CATALOG_TYPE_DESCRIPTION,
+							Validators: []validator.String{
+								stringvalidator.OneOf(
+									string(types.StringValue("S3").ValueString()),
+									string(types.StringValue("S3_TABLE").ValueString()),
+								),
+							},
+						},
+						"custom_s3_bucket": rschema.StringAttribute{
+							Optional:            true,
+							MarkdownDescription: common.ICEBERG_CATALOG_CUSTOM_S3_BUCKET_DESCRIPTION,
+						},
+						"custom_s3_bucket_path": rschema.StringAttribute{
+							Optional:            true,
+							MarkdownDescription: common.ICEBERG_CATALOG_CUSTOM_S3_BUCKET_PATH_DESCRIPTION,
+						},
+						"custom_s3_table_bucket_arn": rschema.StringAttribute{
+							Optional:            true,
+							MarkdownDescription: common.ICEBERG_CATALOG_CUSTOM_S3_TABLE_BUCKET_ARN_DESCRIPTION,
+						},
+						"aws_region": rschema.StringAttribute{
+							Optional:            true,
+							MarkdownDescription: common.ICEBERG_CATALOG_AWS_REGION_DESCRIPTION,
+						},
+						"anonymous_access_enabled": rschema.BoolAttribute{
+							Optional:            true,
+							Computed:            true,
+							MarkdownDescription: common.ICEBERG_CATALOG_ANONYMOUS_ACCESS_ENABLED_DESCRIPTION,
+							Default:             booldefault.StaticBool(false),
+						},
+						"maintenance": rschema.SingleNestedAttribute{
+							Optional:            true,
+							Computed:            true,
+							MarkdownDescription: common.ICEBERG_CATALOG_MAINTENANCE_DESCRIPTION,
+							Attributes: map[string]rschema.Attribute{
+								"enabled": rschema.BoolAttribute{
+									Optional:            true,
+									Computed:            true,
+									MarkdownDescription: common.ICEBERG_CATALOG_MAINTENANCE_ENABLED_DESCRIPTION,
+									Default:             booldefault.StaticBool(false),
+								},
+							},
+						},
+						"watches": rschema.ListNestedAttribute{
+							Optional:            true,
+							MarkdownDescription: common.ICEBERG_CATALOG_WATCHES_DESCRIPTION,
+							NestedObject: rschema.NestedAttributeObject{
+								Attributes: map[string]rschema.Attribute{
+									"table": rschema.StringAttribute{
+										Required:            true,
+										MarkdownDescription: common.ICEBERG_CATALOG_WATCH_TABLE_DESCRIPTION,
+									},
+									"paths_relative_to_table_location": rschema.ListAttribute{
+										ElementType:         types.StringType,
+										Optional:            true,
+										MarkdownDescription: common.ICEBERG_CATALOG_WATCH_PATHS_DESCRIPTION,
+									},
+								},
+							},
+						},
+						"role_arn": rschema.StringAttribute{
+							Optional:            true,
+							MarkdownDescription: common.ICEBERG_CATALOG_ROLE_ARN_DESCRIPTION,
+						},
+						"assume_role_arn_rw": rschema.StringAttribute{
+							Optional:            true,
+							MarkdownDescription: common.ICEBERG_CATALOG_ASSUME_ROLE_ARN_RW_DESCRIPTION,
+						},
+						"assume_role_arn_ro": rschema.StringAttribute{
+							Optional:            true,
+							MarkdownDescription: common.ICEBERG_CATALOG_ASSUME_ROLE_ARN_RO_DESCRIPTION,
+						},
+					},
+				},
+			},
+		},
+	}
+}

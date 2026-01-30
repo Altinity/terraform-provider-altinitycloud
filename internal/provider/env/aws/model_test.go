@@ -1552,3 +1552,276 @@ func TestBackupsToModel(t *testing.T) {
 		})
 	}
 }
+
+func TestIcebergToSDK(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    *AWSEnvIcebergModel
+		expected *sdk.IcebergInputSpec
+	}{
+		{
+			name:     "Nil input",
+			input:    nil,
+			expected: nil,
+		},
+		{
+			name: "Complete iceberg config with S3 catalog",
+			input: &AWSEnvIcebergModel{
+				Catalogs: []AWSEnvIcebergCatalogModel{
+					{
+						Name:                   types.StringValue("my-catalog"),
+						Type:                   types.StringValue("S3"),
+						CustomS3Bucket:         types.StringValue("my-bucket"),
+						CustomS3BucketPath:     types.StringValue("/data"),
+						AWSRegion:              types.StringValue("us-east-1"),
+						AnonymousAccessEnabled: types.BoolValue(false),
+						Maintenance: &AWSEnvIcebergCatalogMaintenanceModel{
+							Enabled: types.BoolValue(true),
+						},
+						Watches: []AWSEnvIcebergCatalogWatchModel{
+							{
+								Table:                        types.StringValue("my_table"),
+								PathsRelativeToTableLocation: []types.String{types.StringValue("data/"), types.StringValue("metadata/")},
+							},
+						},
+						RoleARN:         types.StringValue("arn:aws:iam::123456789012:role/iceberg-role"),
+						AssumeRoleARNRW: types.StringValue("arn:aws:iam::123456789012:role/rw-role"),
+						AssumeRoleARNRO: types.StringValue("arn:aws:iam::123456789012:role/ro-role"),
+					},
+				},
+			},
+			expected: &sdk.IcebergInputSpec{
+				Catalogs: []*sdk.IcebergCatalogInputSpec{
+					{
+						Name:                   &[]string{"my-catalog"}[0],
+						Type:                   sdk.IcebergCatalogTypeSpecS3,
+						CustomS3Bucket:         &[]string{"my-bucket"}[0],
+						CustomS3BucketPath:     &[]string{"/data"}[0],
+						AWSRegion:              &[]string{"us-east-1"}[0],
+						AnonymousAccessEnabled: &[]bool{false}[0],
+						Maintenance: &sdk.IcebergCatalogMaintenanceInputSpec{
+							Enabled: true,
+						},
+						Watches: []*sdk.IcebergCatalogWatchInputSpec{
+							{
+								Table:                        "my_table",
+								PathsRelativeToTableLocation: []string{"data/", "metadata/"},
+							},
+						},
+						RoleArn:         &[]string{"arn:aws:iam::123456789012:role/iceberg-role"}[0],
+						AssumeRoleArnrw: &[]string{"arn:aws:iam::123456789012:role/rw-role"}[0],
+						AssumeRoleArnro: &[]string{"arn:aws:iam::123456789012:role/ro-role"}[0],
+					},
+				},
+			},
+		},
+		{
+			name: "Iceberg config with S3_TABLE catalog",
+			input: &AWSEnvIcebergModel{
+				Catalogs: []AWSEnvIcebergCatalogModel{
+					{
+						Type:                   types.StringValue("S3_TABLE"),
+						CustomS3TableBucketARN: types.StringValue("arn:aws:s3tables:us-east-1:123456789012:bucket/my-table-bucket"),
+						AWSRegion:              types.StringValue("us-east-1"),
+						Maintenance: &AWSEnvIcebergCatalogMaintenanceModel{
+							Enabled: types.BoolValue(false),
+						},
+					},
+				},
+			},
+			expected: &sdk.IcebergInputSpec{
+				Catalogs: []*sdk.IcebergCatalogInputSpec{
+					{
+						Type:                   sdk.IcebergCatalogTypeSpecS3Table,
+						CustomS3TableBucketArn: &[]string{"arn:aws:s3tables:us-east-1:123456789012:bucket/my-table-bucket"}[0],
+						AWSRegion:              &[]string{"us-east-1"}[0],
+						Maintenance: &sdk.IcebergCatalogMaintenanceInputSpec{
+							Enabled: false,
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "Iceberg config with empty catalogs",
+			input: &AWSEnvIcebergModel{
+				Catalogs: []AWSEnvIcebergCatalogModel{},
+			},
+			expected: &sdk.IcebergInputSpec{
+				Catalogs: nil,
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := icebergToSDK(tt.input)
+
+			if (tt.expected == nil) != (result == nil) {
+				t.Errorf("Expected nil: %v, got nil: %v", tt.expected == nil, result == nil)
+				return
+			}
+
+			if tt.expected != nil && result != nil {
+				if len(tt.expected.Catalogs) != len(result.Catalogs) {
+					t.Errorf("Catalogs count mismatch: expected %d, got %d", len(tt.expected.Catalogs), len(result.Catalogs))
+					return
+				}
+
+				for i, expectedCatalog := range tt.expected.Catalogs {
+					resultCatalog := result.Catalogs[i]
+
+					if expectedCatalog.Type != resultCatalog.Type {
+						t.Errorf("Catalog %d type mismatch: expected '%s', got '%s'", i, expectedCatalog.Type, resultCatalog.Type)
+					}
+
+					if expectedCatalog.Maintenance != nil && resultCatalog.Maintenance != nil {
+						if expectedCatalog.Maintenance.Enabled != resultCatalog.Maintenance.Enabled {
+							t.Errorf("Catalog %d maintenance enabled mismatch: expected %v, got %v", i, expectedCatalog.Maintenance.Enabled, resultCatalog.Maintenance.Enabled)
+						}
+					}
+
+					if len(expectedCatalog.Watches) != len(resultCatalog.Watches) {
+						t.Errorf("Catalog %d watches count mismatch: expected %d, got %d", i, len(expectedCatalog.Watches), len(resultCatalog.Watches))
+					}
+				}
+			}
+		})
+	}
+}
+
+func TestIcebergToModel(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    *sdk.AWSEnvSpecFragment_Iceberg
+		expected *AWSEnvIcebergModel
+	}{
+		{
+			name:     "Nil input",
+			input:    nil,
+			expected: nil,
+		},
+		{
+			name: "Empty catalogs",
+			input: &sdk.AWSEnvSpecFragment_Iceberg{
+				Catalogs: []*sdk.AWSEnvSpecFragment_Iceberg_Catalogs{},
+			},
+			expected: nil,
+		},
+		{
+			name: "Complete iceberg response with S3 catalog",
+			input: &sdk.AWSEnvSpecFragment_Iceberg{
+				Catalogs: []*sdk.AWSEnvSpecFragment_Iceberg_Catalogs{
+					{
+						Name:                   &[]string{"production-catalog"}[0],
+						Type:                   sdk.IcebergCatalogTypeSpecS3,
+						CustomS3Bucket:         &[]string{"prod-bucket"}[0],
+						CustomS3BucketPath:     &[]string{"/iceberg"}[0],
+						AWSRegion:              &[]string{"us-west-2"}[0],
+						AnonymousAccessEnabled: &[]bool{true}[0],
+						Maintenance: sdk.AWSEnvSpecFragment_Iceberg_Catalogs_Maintenance{
+							Enabled: true,
+						},
+						Watches: []*sdk.AWSEnvSpecFragment_Iceberg_Catalogs_Watches{
+							{
+								Table:                        "events",
+								PathsRelativeToTableLocation: []string{"data/"},
+							},
+						},
+						RoleArn:         &[]string{"arn:aws:iam::123456789012:role/iceberg"}[0],
+						AssumeRoleArnrw: &[]string{"arn:aws:iam::123456789012:role/rw"}[0],
+						AssumeRoleArnro: &[]string{"arn:aws:iam::123456789012:role/ro"}[0],
+					},
+				},
+			},
+			expected: &AWSEnvIcebergModel{
+				Catalogs: []AWSEnvIcebergCatalogModel{
+					{
+						Name:                   types.StringValue("production-catalog"),
+						Type:                   types.StringValue("S3"),
+						CustomS3Bucket:         types.StringValue("prod-bucket"),
+						CustomS3BucketPath:     types.StringValue("/iceberg"),
+						AWSRegion:              types.StringValue("us-west-2"),
+						AnonymousAccessEnabled: types.BoolValue(true),
+						Maintenance: &AWSEnvIcebergCatalogMaintenanceModel{
+							Enabled: types.BoolValue(true),
+						},
+						Watches: []AWSEnvIcebergCatalogWatchModel{
+							{
+								Table:                        types.StringValue("events"),
+								PathsRelativeToTableLocation: []types.String{types.StringValue("data/")},
+							},
+						},
+						RoleARN:         types.StringValue("arn:aws:iam::123456789012:role/iceberg"),
+						AssumeRoleARNRW: types.StringValue("arn:aws:iam::123456789012:role/rw"),
+						AssumeRoleARNRO: types.StringValue("arn:aws:iam::123456789012:role/ro"),
+					},
+				},
+			},
+		},
+		{
+			name: "Iceberg response with S3_TABLE catalog",
+			input: &sdk.AWSEnvSpecFragment_Iceberg{
+				Catalogs: []*sdk.AWSEnvSpecFragment_Iceberg_Catalogs{
+					{
+						Type:                   sdk.IcebergCatalogTypeSpecS3Table,
+						CustomS3TableBucketArn: &[]string{"arn:aws:s3tables:us-east-1:123456789012:bucket/tables"}[0],
+						AWSRegion:              &[]string{"us-east-1"}[0],
+						Maintenance: sdk.AWSEnvSpecFragment_Iceberg_Catalogs_Maintenance{
+							Enabled: false,
+						},
+						Watches: []*sdk.AWSEnvSpecFragment_Iceberg_Catalogs_Watches{},
+					},
+				},
+			},
+			expected: &AWSEnvIcebergModel{
+				Catalogs: []AWSEnvIcebergCatalogModel{
+					{
+						Type:                   types.StringValue("S3_TABLE"),
+						CustomS3TableBucketARN: types.StringValue("arn:aws:s3tables:us-east-1:123456789012:bucket/tables"),
+						AWSRegion:              types.StringValue("us-east-1"),
+						Maintenance: &AWSEnvIcebergCatalogMaintenanceModel{
+							Enabled: types.BoolValue(false),
+						},
+					},
+				},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := icebergToModel(tt.input)
+
+			if (tt.expected == nil) != (result == nil) {
+				t.Errorf("Expected nil: %v, got nil: %v", tt.expected == nil, result == nil)
+				return
+			}
+
+			if tt.expected != nil && result != nil {
+				if len(tt.expected.Catalogs) != len(result.Catalogs) {
+					t.Errorf("Catalogs count mismatch: expected %d, got %d", len(tt.expected.Catalogs), len(result.Catalogs))
+					return
+				}
+
+				for i, expectedCatalog := range tt.expected.Catalogs {
+					resultCatalog := result.Catalogs[i]
+
+					if expectedCatalog.Type.ValueString() != resultCatalog.Type.ValueString() {
+						t.Errorf("Catalog %d type mismatch: expected '%s', got '%s'", i, expectedCatalog.Type.ValueString(), resultCatalog.Type.ValueString())
+					}
+
+					if expectedCatalog.Maintenance != nil && resultCatalog.Maintenance != nil {
+						if expectedCatalog.Maintenance.Enabled.ValueBool() != resultCatalog.Maintenance.Enabled.ValueBool() {
+							t.Errorf("Catalog %d maintenance enabled mismatch: expected %v, got %v", i, expectedCatalog.Maintenance.Enabled.ValueBool(), resultCatalog.Maintenance.Enabled.ValueBool())
+						}
+					}
+
+					if len(expectedCatalog.Watches) != len(resultCatalog.Watches) {
+						t.Errorf("Catalog %d watches count mismatch: expected %d, got %d", i, len(expectedCatalog.Watches), len(resultCatalog.Watches))
+					}
+				}
+			}
+		})
+	}
+}

@@ -151,6 +151,14 @@ type AWSEnvSpec {
   Iceberg configuration.
   """
   iceberg: IcebergSpec
+  """
+  Enable/Disable EKS control plane logging to CloudWatch.
+  """
+  eksLogging: Boolean!
+  """
+  Edge proxy API gateway configuration.
+  """
+  edgeProxyApiGateway: EdgeProxyApiGatewaySpec!
 }
 
 """
@@ -590,6 +598,14 @@ input CreateAWSEnvSpecInput {
   Iceberg configuration.
   """
   iceberg: IcebergInputSpec
+  """
+  Enable/Disable EKS control plane logging to CloudWatch.
+  """
+  eksLogging: Boolean
+  """
+  Edge proxy API gateway configuration.
+  """
+  edgeProxyApiGateway: EdgeProxyApiGatewaySpecInput
 }
 
 """
@@ -945,6 +961,14 @@ input AWSEnvUpdateSpecInput {
   Iceberg configuration.
   """
   iceberg: IcebergUpdateInputSpec
+  """
+  Enable/Disable EKS control plane logging to CloudWatch.
+  """
+  eksLogging: Boolean
+  """
+  Edge proxy API gateway configuration.
+  """
+  edgeProxyApiGateway: EdgeProxyApiGatewaySpecInput
 }
 
 """
@@ -1095,6 +1119,10 @@ type AzureEnvSpec {
   False means direct management.
   """
   cloudConnect: Boolean!
+  """
+  Edge proxy API gateway configuration.
+  """
+  edgeProxyApiGateway: EdgeProxyApiGatewaySpec!
 }
 
 """
@@ -1369,6 +1397,10 @@ input CreateAzureEnvSpecInput {
   Immutable.
   """
   cloudConnect: Boolean
+  """
+  Edge proxy API gateway configuration.
+  """
+  edgeProxyApiGateway: EdgeProxyApiGatewaySpecInput
 }
 
 """
@@ -1612,6 +1644,10 @@ input UpdateAzureEnvSpecInput {
   # Tags to apply to Azure resources.
   # """
   tags: [KeyValueInput!]
+  """
+  Edge proxy API gateway configuration.
+  """
+  edgeProxyApiGateway: EdgeProxyApiGatewaySpecInput
 }
 
 """
@@ -2031,6 +2067,38 @@ input IcebergUpdateInputSpec {
   catalogsToDelete: [String!]
 }
 
+"""
+Edge proxy API gateway configuration.
+"""
+type EdgeProxyApiGatewaySpec {
+  """
+  True if edge proxy API gateway is enabled,
+  false otherwise.
+  """
+  enabled: Boolean!
+  """
+  IP addresses/blocks to allow traffic from when API gateway is enabled.
+  """
+  whitelist: [String!]!
+}
+
+"""
+Edge proxy API gateway configuration input.
+"""
+input EdgeProxyApiGatewaySpecInput {
+  """
+  True if edge proxy API gateway is enabled,
+  false otherwise.
+
+  False by default.
+  """
+  enabled: Boolean
+  """
+  IP addresses/blocks to allow traffic from when API gateway is enabled.
+  """
+  whitelist: [String!]
+}
+
 extend type Query {
   """
   List GCP environments.
@@ -2160,6 +2228,10 @@ type GCPEnvSpec {
   List of private service connections.
   """
   privateServiceConnections: [GCPEnvPrivateServiceConnectionSpec!]!
+  """
+  Edge proxy API gateway configuration.
+  """
+  edgeProxyApiGateway: EdgeProxyApiGatewaySpec!
 }
 
 """
@@ -2428,6 +2500,10 @@ input CreateGCPEnvSpecInput {
   List of private service connections.
   """
   privateServiceConnections: [GCPEnvPrivateServiceConnectionSpecInput!]
+  """
+  Edge proxy API gateway configuration.
+  """
+  edgeProxyApiGateway: EdgeProxyApiGatewaySpecInput
 }
 
 """
@@ -2695,6 +2771,10 @@ input UpdateGCPEnvSpecInput {
   List of private service connections.
   """
   privateServiceConnections: [GCPEnvPrivateServiceConnectionSpecInput!]
+  """
+  Edge proxy API gateway configuration.
+  """
+  edgeProxyApiGateway: EdgeProxyApiGatewaySpecInput
 }
 
 """
@@ -2833,6 +2913,10 @@ type HCloudEnvSpec {
   Wireguard peers configuration.
   """
   wireguardPeers: [HCloudEnvWireguardPeerSpec!]!
+  """
+  Edge proxy API gateway configuration.
+  """
+  edgeProxyApiGateway: EdgeProxyApiGatewaySpec!
 }
 
 """
@@ -3068,6 +3152,10 @@ input CreateHCloudEnvSpecInput {
   Wireguard peers configuration.
   """
   wireguardPeers: [HCloudEnvWireguardPeerSpecInput!]
+  """
+  Edge proxy API gateway configuration.
+  """
+  edgeProxyApiGateway: EdgeProxyApiGatewaySpecInput
 }
 
 """
@@ -3303,6 +3391,10 @@ input UpdateHCloudEnvSpecInput {
   Wireguard peers configuration.
   """
   wireguardPeers: [HCloudEnvWireguardPeerSpecInput!]
+  """
+  Edge proxy API gateway configuration.
+  """
+  edgeProxyApiGateway: EdgeProxyApiGatewaySpecInput
 }
 
 """
@@ -3417,6 +3509,10 @@ type K8SEnvSpec {
   CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
   """
   customDomain: String
+  """
+  Edge proxy API gateway configuration.
+  """
+  edgeProxyApiGateway: EdgeProxyApiGatewaySpec!
 }
 
 """
@@ -3727,6 +3823,10 @@ input CreateK8SEnvSpecInput {
   CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
   """
   customDomain: String
+  """
+  Edge proxy API gateway configuration.
+  """
+  edgeProxyApiGateway: EdgeProxyApiGatewaySpecInput
 }
 
 """
@@ -4048,6 +4148,10 @@ input UpdateK8SEnvSpecInput {
   CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
   """
   customDomain: String
+  """
+  Edge proxy API gateway configuration.
+  """
+  edgeProxyApiGateway: EdgeProxyApiGatewaySpecInput
 }
 
 """

@@ -255,3 +255,27 @@ const HCLOUD_WIREGUARD_PEERS_DESCRIPTION = "HCloud Wireguard peer configuration.
 const HCLOUD_WIREGUARD_PEERS_PUBLIC_KEY_DESCRIPTION = "Peer public key."
 const HCLOUD_WIREGUARD_PEERS_ALLOWED_IPS_DESCRIPTION = "A list of addresses (in CIDR notation) that should get routed to the peer."
 const HCLOUD_WIREGUARD_PEERS_ENDPOINT_DESCRIPTION = "Peer endpoint."
+
+// Iceberg descriptions.
+const ICEBERG_DESCRIPTION = "Iceberg configuration for Apache Iceberg table format support."
+const ICEBERG_CATALOGS_DESCRIPTION = "List of Iceberg catalogs."
+const ICEBERG_CATALOG_NAME_DESCRIPTION = "Catalog name. Empty name represents the default catalog."
+const ICEBERG_CATALOG_TYPE_DESCRIPTION = `Catalog type.
+
+		Possible values:
+		- "S3": S3 bucket-based catalog
+		- "S3_TABLE": S3 Tables-based catalog
+`
+const ICEBERG_CATALOG_CUSTOM_S3_BUCKET_DESCRIPTION = "Custom S3 bucket name."
+const ICEBERG_CATALOG_CUSTOM_S3_BUCKET_PATH_DESCRIPTION = "Path within the custom S3 bucket."
+const ICEBERG_CATALOG_CUSTOM_S3_TABLE_BUCKET_ARN_DESCRIPTION = "ARN of the S3 Tables bucket."
+const ICEBERG_CATALOG_AWS_REGION_DESCRIPTION = "AWS region for the catalog."
+const ICEBERG_CATALOG_ANONYMOUS_ACCESS_ENABLED_DESCRIPTION = "Whether anonymous access is enabled (default `false`)."
+const ICEBERG_CATALOG_MAINTENANCE_DESCRIPTION = "Maintenance configuration for the catalog."
+const ICEBERG_CATALOG_MAINTENANCE_ENABLED_DESCRIPTION = "Whether maintenance is enabled (default `false`)."
+const ICEBERG_CATALOG_WATCHES_DESCRIPTION = "Table watch configurations."
+const ICEBERG_CATALOG_WATCH_TABLE_DESCRIPTION = "Table name to watch."
+const ICEBERG_CATALOG_WATCH_PATHS_DESCRIPTION = "Paths relative to table location to watch."
+const ICEBERG_CATALOG_ROLE_ARN_DESCRIPTION = "IAM role ARN for BYOK environments."
+const ICEBERG_CATALOG_ASSUME_ROLE_ARN_RW_DESCRIPTION = "IAM role ARN to assume for read-write access."
+const ICEBERG_CATALOG_ASSUME_ROLE_ARN_RO_DESCRIPTION = "IAM role ARN to assume for read-only access."

@@ -35,6 +35,7 @@ type AWSEnvSpecFragment struct {
 	CloudConnect                 bool                                     "json:\"cloudConnect\" graphql:\"cloudConnect\""
 	ExternalBuckets              []*AWSEnvSpecFragment_ExternalBuckets    "json:\"externalBuckets\" graphql:\"externalBuckets\""
 	Backups                      *AWSEnvSpecFragment_Backups              "json:\"backups,omitempty\" graphql:\"backups\""
+	Iceberg                      *AWSEnvSpecFragment_Iceberg              "json:\"iceberg,omitempty\" graphql:\"iceberg\""
 }
 
 func (t *AWSEnvSpecFragment) GetLoadBalancers() *AWSEnvSpecFragment_LoadBalancers {
@@ -144,6 +145,12 @@ func (t *AWSEnvSpecFragment) GetBackups() *AWSEnvSpecFragment_Backups {
 		t = &AWSEnvSpecFragment{}
 	}
 	return t.Backups
+}
+func (t *AWSEnvSpecFragment) GetIceberg() *AWSEnvSpecFragment_Iceberg {
+	if t == nil {
+		t = &AWSEnvSpecFragment{}
+	}
+	return t.Iceberg
 }
 
 type AzureEnvSpecFragment struct {
@@ -743,6 +750,134 @@ func (t *AWSEnvSpecFragment_Backups) GetCustomBucket() *AWSEnvSpecFragment_Backu
 		t = &AWSEnvSpecFragment_Backups{}
 	}
 	return t.CustomBucket
+}
+
+type AWSEnvSpecFragment_Iceberg_Catalogs_Maintenance struct {
+	Enabled bool "json:\"enabled\" graphql:\"enabled\""
+}
+
+func (t *AWSEnvSpecFragment_Iceberg_Catalogs_Maintenance) GetEnabled() bool {
+	if t == nil {
+		t = &AWSEnvSpecFragment_Iceberg_Catalogs_Maintenance{}
+	}
+	return t.Enabled
+}
+
+type AWSEnvSpecFragment_Iceberg_Catalogs_Watches struct {
+	PathsRelativeToTableLocation []string "json:\"pathsRelativeToTableLocation\" graphql:\"pathsRelativeToTableLocation\""
+	Table                        string   "json:\"table\" graphql:\"table\""
+}
+
+func (t *AWSEnvSpecFragment_Iceberg_Catalogs_Watches) GetPathsRelativeToTableLocation() []string {
+	if t == nil {
+		t = &AWSEnvSpecFragment_Iceberg_Catalogs_Watches{}
+	}
+	return t.PathsRelativeToTableLocation
+}
+func (t *AWSEnvSpecFragment_Iceberg_Catalogs_Watches) GetTable() string {
+	if t == nil {
+		t = &AWSEnvSpecFragment_Iceberg_Catalogs_Watches{}
+	}
+	return t.Table
+}
+
+type AWSEnvSpecFragment_Iceberg_Catalogs struct {
+	AnonymousAccessEnabled *bool                                           "json:\"anonymousAccessEnabled,omitempty\" graphql:\"anonymousAccessEnabled\""
+	AssumeRoleArnro        *string                                         "json:\"assumeRoleARNRO,omitempty\" graphql:\"assumeRoleARNRO\""
+	AssumeRoleArnrw        *string                                         "json:\"assumeRoleARNRW,omitempty\" graphql:\"assumeRoleARNRW\""
+	AWSRegion              *string                                         "json:\"awsRegion,omitempty\" graphql:\"awsRegion\""
+	CustomS3Bucket         *string                                         "json:\"customS3Bucket,omitempty\" graphql:\"customS3Bucket\""
+	CustomS3BucketPath     *string                                         "json:\"customS3BucketPath,omitempty\" graphql:\"customS3BucketPath\""
+	CustomS3TableBucketArn *string                                         "json:\"customS3TableBucketARN,omitempty\" graphql:\"customS3TableBucketARN\""
+	Maintenance            AWSEnvSpecFragment_Iceberg_Catalogs_Maintenance "json:\"maintenance\" graphql:\"maintenance\""
+	Name                   *string                                         "json:\"name,omitempty\" graphql:\"name\""
+	RoleArn                *string                                         "json:\"roleARN,omitempty\" graphql:\"roleARN\""
+	Type                   IcebergCatalogTypeSpec                          "json:\"type\" graphql:\"type\""
+	Watches                []*AWSEnvSpecFragment_Iceberg_Catalogs_Watches  "json:\"watches\" graphql:\"watches\""
+}
+
+func (t *AWSEnvSpecFragment_Iceberg_Catalogs) GetAnonymousAccessEnabled() *bool {
+	if t == nil {
+		t = &AWSEnvSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.AnonymousAccessEnabled
+}
+func (t *AWSEnvSpecFragment_Iceberg_Catalogs) GetAssumeRoleArnro() *string {
+	if t == nil {
+		t = &AWSEnvSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.AssumeRoleArnro
+}
+func (t *AWSEnvSpecFragment_Iceberg_Catalogs) GetAssumeRoleArnrw() *string {
+	if t == nil {
+		t = &AWSEnvSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.AssumeRoleArnrw
+}
+func (t *AWSEnvSpecFragment_Iceberg_Catalogs) GetAWSRegion() *string {
+	if t == nil {
+		t = &AWSEnvSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.AWSRegion
+}
+func (t *AWSEnvSpecFragment_Iceberg_Catalogs) GetCustomS3Bucket() *string {
+	if t == nil {
+		t = &AWSEnvSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.CustomS3Bucket
+}
+func (t *AWSEnvSpecFragment_Iceberg_Catalogs) GetCustomS3BucketPath() *string {
+	if t == nil {
+		t = &AWSEnvSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.CustomS3BucketPath
+}
+func (t *AWSEnvSpecFragment_Iceberg_Catalogs) GetCustomS3TableBucketArn() *string {
+	if t == nil {
+		t = &AWSEnvSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.CustomS3TableBucketArn
+}
+func (t *AWSEnvSpecFragment_Iceberg_Catalogs) GetMaintenance() *AWSEnvSpecFragment_Iceberg_Catalogs_Maintenance {
+	if t == nil {
+		t = &AWSEnvSpecFragment_Iceberg_Catalogs{}
+	}
+	return &t.Maintenance
+}
+func (t *AWSEnvSpecFragment_Iceberg_Catalogs) GetName() *string {
+	if t == nil {
+		t = &AWSEnvSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.Name
+}
+func (t *AWSEnvSpecFragment_Iceberg_Catalogs) GetRoleArn() *string {
+	if t == nil {
+		t = &AWSEnvSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.RoleArn
+}
+func (t *AWSEnvSpecFragment_Iceberg_Catalogs) GetType() *IcebergCatalogTypeSpec {
+	if t == nil {
+		t = &AWSEnvSpecFragment_Iceberg_Catalogs{}
+	}
+	return &t.Type
+}
+func (t *AWSEnvSpecFragment_Iceberg_Catalogs) GetWatches() []*AWSEnvSpecFragment_Iceberg_Catalogs_Watches {
+	if t == nil {
+		t = &AWSEnvSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.Watches
+}
+
+type AWSEnvSpecFragment_Iceberg struct {
+	Catalogs []*AWSEnvSpecFragment_Iceberg_Catalogs "json:\"catalogs\" graphql:\"catalogs\""
+}
+
+func (t *AWSEnvSpecFragment_Iceberg) GetCatalogs() []*AWSEnvSpecFragment_Iceberg_Catalogs {
+	if t == nil {
+		t = &AWSEnvSpecFragment_Iceberg{}
+	}
+	return t.Catalogs
 }
 
 type AzureEnvSpecFragment_LoadBalancers_Public struct {
@@ -1828,6 +1963,134 @@ func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Backups) GetCustomBucket() *Ge
 	return t.CustomBucket
 }
 
+type GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs_Maintenance struct {
+	Enabled bool "json:\"enabled\" graphql:\"enabled\""
+}
+
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs_Maintenance) GetEnabled() bool {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs_Maintenance{}
+	}
+	return t.Enabled
+}
+
+type GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs_Watches struct {
+	PathsRelativeToTableLocation []string "json:\"pathsRelativeToTableLocation\" graphql:\"pathsRelativeToTableLocation\""
+	Table                        string   "json:\"table\" graphql:\"table\""
+}
+
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs_Watches) GetPathsRelativeToTableLocation() []string {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs_Watches{}
+	}
+	return t.PathsRelativeToTableLocation
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs_Watches) GetTable() string {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs_Watches{}
+	}
+	return t.Table
+}
+
+type GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs struct {
+	AnonymousAccessEnabled *bool                                                                 "json:\"anonymousAccessEnabled,omitempty\" graphql:\"anonymousAccessEnabled\""
+	AssumeRoleArnro        *string                                                               "json:\"assumeRoleARNRO,omitempty\" graphql:\"assumeRoleARNRO\""
+	AssumeRoleArnrw        *string                                                               "json:\"assumeRoleARNRW,omitempty\" graphql:\"assumeRoleARNRW\""
+	AWSRegion              *string                                                               "json:\"awsRegion,omitempty\" graphql:\"awsRegion\""
+	CustomS3Bucket         *string                                                               "json:\"customS3Bucket,omitempty\" graphql:\"customS3Bucket\""
+	CustomS3BucketPath     *string                                                               "json:\"customS3BucketPath,omitempty\" graphql:\"customS3BucketPath\""
+	CustomS3TableBucketArn *string                                                               "json:\"customS3TableBucketARN,omitempty\" graphql:\"customS3TableBucketARN\""
+	Maintenance            GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs_Maintenance "json:\"maintenance\" graphql:\"maintenance\""
+	Name                   *string                                                               "json:\"name,omitempty\" graphql:\"name\""
+	RoleArn                *string                                                               "json:\"roleARN,omitempty\" graphql:\"roleARN\""
+	Type                   IcebergCatalogTypeSpec                                                "json:\"type\" graphql:\"type\""
+	Watches                []*GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs_Watches  "json:\"watches\" graphql:\"watches\""
+}
+
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs) GetAnonymousAccessEnabled() *bool {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.AnonymousAccessEnabled
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs) GetAssumeRoleArnro() *string {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.AssumeRoleArnro
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs) GetAssumeRoleArnrw() *string {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.AssumeRoleArnrw
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs) GetAWSRegion() *string {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.AWSRegion
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs) GetCustomS3Bucket() *string {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.CustomS3Bucket
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs) GetCustomS3BucketPath() *string {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.CustomS3BucketPath
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs) GetCustomS3TableBucketArn() *string {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.CustomS3TableBucketArn
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs) GetMaintenance() *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs_Maintenance {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs{}
+	}
+	return &t.Maintenance
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs) GetName() *string {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.Name
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs) GetRoleArn() *string {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.RoleArn
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs) GetType() *IcebergCatalogTypeSpec {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs{}
+	}
+	return &t.Type
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs) GetWatches() []*GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs_Watches {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.Watches
+}
+
+type GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Iceberg struct {
+	Catalogs []*GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs "json:\"catalogs\" graphql:\"catalogs\""
+}
+
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Iceberg) GetCatalogs() []*GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Iceberg{}
+	}
+	return t.Catalogs
+}
+
 type GetAWSEnv_AWSEnv struct {
 	Name         string              "json:\"name\" graphql:\"name\""
 	Spec         *AWSEnvSpecFragment "json:\"spec\" graphql:\"spec\""
@@ -2282,6 +2545,134 @@ func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Backups) GetCustomBuc
 	return t.CustomBucket
 }
 
+type CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs_Maintenance struct {
+	Enabled bool "json:\"enabled\" graphql:\"enabled\""
+}
+
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs_Maintenance) GetEnabled() bool {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs_Maintenance{}
+	}
+	return t.Enabled
+}
+
+type CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs_Watches struct {
+	PathsRelativeToTableLocation []string "json:\"pathsRelativeToTableLocation\" graphql:\"pathsRelativeToTableLocation\""
+	Table                        string   "json:\"table\" graphql:\"table\""
+}
+
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs_Watches) GetPathsRelativeToTableLocation() []string {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs_Watches{}
+	}
+	return t.PathsRelativeToTableLocation
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs_Watches) GetTable() string {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs_Watches{}
+	}
+	return t.Table
+}
+
+type CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs struct {
+	AnonymousAccessEnabled *bool                                                                          "json:\"anonymousAccessEnabled,omitempty\" graphql:\"anonymousAccessEnabled\""
+	AssumeRoleArnro        *string                                                                        "json:\"assumeRoleARNRO,omitempty\" graphql:\"assumeRoleARNRO\""
+	AssumeRoleArnrw        *string                                                                        "json:\"assumeRoleARNRW,omitempty\" graphql:\"assumeRoleARNRW\""
+	AWSRegion              *string                                                                        "json:\"awsRegion,omitempty\" graphql:\"awsRegion\""
+	CustomS3Bucket         *string                                                                        "json:\"customS3Bucket,omitempty\" graphql:\"customS3Bucket\""
+	CustomS3BucketPath     *string                                                                        "json:\"customS3BucketPath,omitempty\" graphql:\"customS3BucketPath\""
+	CustomS3TableBucketArn *string                                                                        "json:\"customS3TableBucketARN,omitempty\" graphql:\"customS3TableBucketARN\""
+	Maintenance            CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs_Maintenance "json:\"maintenance\" graphql:\"maintenance\""
+	Name                   *string                                                                        "json:\"name,omitempty\" graphql:\"name\""
+	RoleArn                *string                                                                        "json:\"roleARN,omitempty\" graphql:\"roleARN\""
+	Type                   IcebergCatalogTypeSpec                                                         "json:\"type\" graphql:\"type\""
+	Watches                []*CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs_Watches  "json:\"watches\" graphql:\"watches\""
+}
+
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs) GetAnonymousAccessEnabled() *bool {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.AnonymousAccessEnabled
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs) GetAssumeRoleArnro() *string {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.AssumeRoleArnro
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs) GetAssumeRoleArnrw() *string {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.AssumeRoleArnrw
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs) GetAWSRegion() *string {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.AWSRegion
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs) GetCustomS3Bucket() *string {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.CustomS3Bucket
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs) GetCustomS3BucketPath() *string {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.CustomS3BucketPath
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs) GetCustomS3TableBucketArn() *string {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.CustomS3TableBucketArn
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs) GetMaintenance() *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs_Maintenance {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs{}
+	}
+	return &t.Maintenance
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs) GetName() *string {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.Name
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs) GetRoleArn() *string {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.RoleArn
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs) GetType() *IcebergCatalogTypeSpec {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs{}
+	}
+	return &t.Type
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs) GetWatches() []*CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs_Watches {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.Watches
+}
+
+type CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg struct {
+	Catalogs []*CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs "json:\"catalogs\" graphql:\"catalogs\""
+}
+
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg) GetCatalogs() []*CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg{}
+	}
+	return t.Catalogs
+}
+
 type CreateAWSEnv_CreateAWSEnv struct {
 	MutationID   string              "json:\"mutationId\" graphql:\"mutationId\""
 	Spec         *AWSEnvSpecFragment "json:\"spec\" graphql:\"spec\""
@@ -2580,6 +2971,134 @@ func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Backups) GetCustomBuc
 		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Backups{}
 	}
 	return t.CustomBucket
+}
+
+type UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs_Maintenance struct {
+	Enabled bool "json:\"enabled\" graphql:\"enabled\""
+}
+
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs_Maintenance) GetEnabled() bool {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs_Maintenance{}
+	}
+	return t.Enabled
+}
+
+type UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs_Watches struct {
+	PathsRelativeToTableLocation []string "json:\"pathsRelativeToTableLocation\" graphql:\"pathsRelativeToTableLocation\""
+	Table                        string   "json:\"table\" graphql:\"table\""
+}
+
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs_Watches) GetPathsRelativeToTableLocation() []string {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs_Watches{}
+	}
+	return t.PathsRelativeToTableLocation
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs_Watches) GetTable() string {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs_Watches{}
+	}
+	return t.Table
+}
+
+type UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs struct {
+	AnonymousAccessEnabled *bool                                                                          "json:\"anonymousAccessEnabled,omitempty\" graphql:\"anonymousAccessEnabled\""
+	AssumeRoleArnro        *string                                                                        "json:\"assumeRoleARNRO,omitempty\" graphql:\"assumeRoleARNRO\""
+	AssumeRoleArnrw        *string                                                                        "json:\"assumeRoleARNRW,omitempty\" graphql:\"assumeRoleARNRW\""
+	AWSRegion              *string                                                                        "json:\"awsRegion,omitempty\" graphql:\"awsRegion\""
+	CustomS3Bucket         *string                                                                        "json:\"customS3Bucket,omitempty\" graphql:\"customS3Bucket\""
+	CustomS3BucketPath     *string                                                                        "json:\"customS3BucketPath,omitempty\" graphql:\"customS3BucketPath\""
+	CustomS3TableBucketArn *string                                                                        "json:\"customS3TableBucketARN,omitempty\" graphql:\"customS3TableBucketARN\""
+	Maintenance            UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs_Maintenance "json:\"maintenance\" graphql:\"maintenance\""
+	Name                   *string                                                                        "json:\"name,omitempty\" graphql:\"name\""
+	RoleArn                *string                                                                        "json:\"roleARN,omitempty\" graphql:\"roleARN\""
+	Type                   IcebergCatalogTypeSpec                                                         "json:\"type\" graphql:\"type\""
+	Watches                []*UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs_Watches  "json:\"watches\" graphql:\"watches\""
+}
+
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs) GetAnonymousAccessEnabled() *bool {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.AnonymousAccessEnabled
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs) GetAssumeRoleArnro() *string {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.AssumeRoleArnro
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs) GetAssumeRoleArnrw() *string {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.AssumeRoleArnrw
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs) GetAWSRegion() *string {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.AWSRegion
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs) GetCustomS3Bucket() *string {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.CustomS3Bucket
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs) GetCustomS3BucketPath() *string {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.CustomS3BucketPath
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs) GetCustomS3TableBucketArn() *string {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.CustomS3TableBucketArn
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs) GetMaintenance() *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs_Maintenance {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs{}
+	}
+	return &t.Maintenance
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs) GetName() *string {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.Name
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs) GetRoleArn() *string {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.RoleArn
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs) GetType() *IcebergCatalogTypeSpec {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs{}
+	}
+	return &t.Type
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs) GetWatches() []*UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs_Watches {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.Watches
+}
+
+type UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg struct {
+	Catalogs []*UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs "json:\"catalogs\" graphql:\"catalogs\""
+}
+
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg) GetCatalogs() []*UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg_Catalogs {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg{}
+	}
+	return t.Catalogs
 }
 
 type UpdateAWSEnv_UpdateAWSEnv struct {
@@ -6069,6 +6588,27 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 			roleARN
 		}
 	}
+	iceberg {
+		catalogs {
+			name
+			type
+			customS3Bucket
+			customS3BucketPath
+			customS3TableBucketARN
+			awsRegion
+			anonymousAccessEnabled
+			maintenance {
+				enabled
+			}
+			watches {
+				table
+				pathsRelativeToTableLocation
+			}
+			roleARN
+			assumeRoleARNRW
+			assumeRoleARNRO
+		}
+	}
 }
 `
 
@@ -6208,6 +6748,27 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 			roleARN
 		}
 	}
+	iceberg {
+		catalogs {
+			name
+			type
+			customS3Bucket
+			customS3BucketPath
+			customS3TableBucketARN
+			awsRegion
+			anonymousAccessEnabled
+			maintenance {
+				enabled
+			}
+			watches {
+				table
+				pathsRelativeToTableLocation
+			}
+			roleARN
+			assumeRoleARNRW
+			assumeRoleARNRO
+		}
+	}
 }
 `
 
@@ -6298,6 +6859,27 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 			name
 			region
 			roleARN
+		}
+	}
+	iceberg {
+		catalogs {
+			name
+			type
+			customS3Bucket
+			customS3BucketPath
+			customS3TableBucketARN
+			awsRegion
+			anonymousAccessEnabled
+			maintenance {
+				enabled
+			}
+			watches {
+				table
+				pathsRelativeToTableLocation
+			}
+			roleARN
+			assumeRoleARNRW
+			assumeRoleARNRO
 		}
 	}
 }
