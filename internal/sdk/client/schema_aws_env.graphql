@@ -148,6 +148,7 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
       assumeRoleARNRO
     }
   }
+  eksLogging
   edgeProxyApiGateway {
     enabled
     whitelist

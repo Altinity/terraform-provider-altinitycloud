@@ -37,6 +37,7 @@ type AWSEnvSpecFragment struct {
 	Backups                      *AWSEnvSpecFragment_Backups              "json:\"backups,omitempty\" graphql:\"backups\""
 	Iceberg                      *AWSEnvSpecFragment_Iceberg              "json:\"iceberg,omitempty\" graphql:\"iceberg\""
 	EksLogging                   bool                                     "json:\"eksLogging\" graphql:\"eksLogging\""
+	EdgeProxyAPIGateway          AWSEnvSpecFragment_EdgeProxyAPIGateway   "json:\"edgeProxyApiGateway\" graphql:\"edgeProxyApiGateway\""
 }
 
 func (t *AWSEnvSpecFragment) GetLoadBalancers() *AWSEnvSpecFragment_LoadBalancers {
@@ -158,6 +159,12 @@ func (t *AWSEnvSpecFragment) GetEksLogging() bool {
 		t = &AWSEnvSpecFragment{}
 	}
 	return t.EksLogging
+}
+func (t *AWSEnvSpecFragment) GetEdgeProxyAPIGateway() *AWSEnvSpecFragment_EdgeProxyAPIGateway {
+	if t == nil {
+		t = &AWSEnvSpecFragment{}
+	}
+	return &t.EdgeProxyAPIGateway
 }
 
 type AzureEnvSpecFragment struct {
@@ -885,6 +892,24 @@ func (t *AWSEnvSpecFragment_Iceberg) GetCatalogs() []*AWSEnvSpecFragment_Iceberg
 		t = &AWSEnvSpecFragment_Iceberg{}
 	}
 	return t.Catalogs
+}
+
+type AWSEnvSpecFragment_EdgeProxyAPIGateway struct {
+	Enabled   bool     "json:\"enabled\" graphql:\"enabled\""
+	Whitelist []string "json:\"whitelist\" graphql:\"whitelist\""
+}
+
+func (t *AWSEnvSpecFragment_EdgeProxyAPIGateway) GetEnabled() bool {
+	if t == nil {
+		t = &AWSEnvSpecFragment_EdgeProxyAPIGateway{}
+	}
+	return t.Enabled
+}
+func (t *AWSEnvSpecFragment_EdgeProxyAPIGateway) GetWhitelist() []string {
+	if t == nil {
+		t = &AWSEnvSpecFragment_EdgeProxyAPIGateway{}
+	}
+	return t.Whitelist
 }
 
 type AzureEnvSpecFragment_LoadBalancers_Public struct {
@@ -2098,6 +2123,24 @@ func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Iceberg) GetCatalogs() []*GetA
 	return t.Catalogs
 }
 
+type GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_EdgeProxyAPIGateway struct {
+	Enabled   bool     "json:\"enabled\" graphql:\"enabled\""
+	Whitelist []string "json:\"whitelist\" graphql:\"whitelist\""
+}
+
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_EdgeProxyAPIGateway) GetEnabled() bool {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_EdgeProxyAPIGateway{}
+	}
+	return t.Enabled
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_EdgeProxyAPIGateway) GetWhitelist() []string {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_EdgeProxyAPIGateway{}
+	}
+	return t.Whitelist
+}
+
 type GetAWSEnv_AWSEnv struct {
 	Name         string              "json:\"name\" graphql:\"name\""
 	Spec         *AWSEnvSpecFragment "json:\"spec\" graphql:\"spec\""
@@ -2680,6 +2723,24 @@ func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg) GetCatalogs(
 	return t.Catalogs
 }
 
+type CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_EdgeProxyAPIGateway struct {
+	Enabled   bool     "json:\"enabled\" graphql:\"enabled\""
+	Whitelist []string "json:\"whitelist\" graphql:\"whitelist\""
+}
+
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_EdgeProxyAPIGateway) GetEnabled() bool {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_EdgeProxyAPIGateway{}
+	}
+	return t.Enabled
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_EdgeProxyAPIGateway) GetWhitelist() []string {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_EdgeProxyAPIGateway{}
+	}
+	return t.Whitelist
+}
+
 type CreateAWSEnv_CreateAWSEnv struct {
 	MutationID   string              "json:\"mutationId\" graphql:\"mutationId\""
 	Spec         *AWSEnvSpecFragment "json:\"spec\" graphql:\"spec\""
@@ -3106,6 +3167,24 @@ func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg) GetCatalogs(
 		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg{}
 	}
 	return t.Catalogs
+}
+
+type UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_EdgeProxyAPIGateway struct {
+	Enabled   bool     "json:\"enabled\" graphql:\"enabled\""
+	Whitelist []string "json:\"whitelist\" graphql:\"whitelist\""
+}
+
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_EdgeProxyAPIGateway) GetEnabled() bool {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_EdgeProxyAPIGateway{}
+	}
+	return t.Enabled
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_EdgeProxyAPIGateway) GetWhitelist() []string {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_EdgeProxyAPIGateway{}
+	}
+	return t.Whitelist
 }
 
 type UpdateAWSEnv_UpdateAWSEnv struct {
@@ -6617,6 +6696,10 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 		}
 	}
 	eksLogging
+	edgeProxyApiGateway {
+		enabled
+		whitelist
+	}
 }
 `
 
@@ -6778,6 +6861,10 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 		}
 	}
 	eksLogging
+	edgeProxyApiGateway {
+		enabled
+		whitelist
+	}
 }
 `
 
@@ -6892,6 +6979,10 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 		}
 	}
 	eksLogging
+	edgeProxyApiGateway {
+		enabled
+		whitelist
+	}
 }
 `
 

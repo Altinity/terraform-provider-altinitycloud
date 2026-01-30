@@ -54,6 +54,8 @@ Bring Your Own Cloud (BYOC) AWS environment data source.
 			CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
 		- (optional, vpce)
 			CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
+- `edge_proxy_api_gateway` (Attributes) Edge proxy API gateway configuration. (see [below for nested schema](#nestedatt--edge_proxy_api_gateway))
+- `eks_logging` (Boolean) Enable/Disable EKS control plane logging to CloudWatch (default `false`).
 - `endpoints` (Attributes List) AWS environment VPC endpoint configuration (see [below for nested schema](#nestedatt--endpoints))
 - `external_buckets` (Attributes Set) List of external S3 bucket to allow access to. (see [below for nested schema](#nestedatt--external_buckets))
 - `force_destroy` (Boolean) Locks the environment for accidental deletion when running `terraform destroy` command. Your environment will be deleted, only when setting this parameter to `true`. Once this parameter is set to `true`, there must be a successful `terraform apply` run (before running the `terraform destroy`) to update this value in the state. Without a successful `terraform apply` after this parameter is set, this flag will have no effect. (default `false`)
@@ -101,6 +103,15 @@ Required:
 - `region` (String) AWS region where the backup bucket is located
 - `role_arn` (String) Authentication configuration for backup bucket access
 
+
+
+<a id="nestedatt--edge_proxy_api_gateway"></a>
+### Nested Schema for `edge_proxy_api_gateway`
+
+Optional:
+
+- `enabled` (Boolean) Set to `true` if edge proxy API gateway is enabled, `false` otherwise (default `false`).
+- `whitelist` (List of String) IP addresses/blocks to allow traffic from when API gateway is enabled.
 
 
 <a id="nestedatt--endpoints"></a>
