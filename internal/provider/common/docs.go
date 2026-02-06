@@ -280,10 +280,10 @@ const ICEBERG_CATALOG_ROLE_ARN_DESCRIPTION = "IAM role ARN for BYOK environments
 const ICEBERG_CATALOG_ASSUME_ROLE_ARN_RW_DESCRIPTION = "IAM role ARN to assume for read-write access."
 const ICEBERG_CATALOG_ASSUME_ROLE_ARN_RO_DESCRIPTION = "IAM role ARN to assume for read-only access."
 
-// Edge Proxy API Gateway descriptions.
-const EDGE_PROXY_API_GATEWAY_DESCRIPTION = "Edge proxy API gateway configuration."
-const EDGE_PROXY_API_GATEWAY_ENABLED_DESCRIPTION = "Set to `true` if edge proxy API gateway is enabled, `false` otherwise (default `false`)."
-const EDGE_PROXY_API_GATEWAY_WHITELIST_DESCRIPTION = "IP addresses/blocks to allow traffic from when API gateway is enabled."
+// Metrics Endpoint descriptions.
+const METRICS_ENDPOINT_DESCRIPTION = "Metrics endpoint configuration."
+const METRICS_ENDPOINT_ENABLED_DESCRIPTION = "Set to `true` if metrics endpoint is enabled, `false` otherwise (default `false`)."
+const METRICS_ENDPOINT_SOURCE_IP_RANGES_DESCRIPTION = "IP addresses/blocks to allow traffic from when metrics endpoint is enabled."
 
 // EKS Logging descriptions.
 const EKS_LOGGING_DESCRIPTION = "Enable/Disable EKS control plane logging to CloudWatch (default `false`)."

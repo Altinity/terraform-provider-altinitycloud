@@ -20,6 +20,7 @@ type K8SEnvResourceModel struct {
 	Logs                  *LogsModel                      `tfsdk:"logs"`
 	Metrics               *MetricsModel                   `tfsdk:"metrics"`
 	MaintenanceWindows    []common.MaintenanceWindowModel `tfsdk:"maintenance_windows"`
+	MetricsEndpoint       *MetricsEndpointModel           `tfsdk:"metrics_endpoint"`
 
 	SpecRevision                 types.Int64 `tfsdk:"spec_revision"`
 	ForceDestroy                 types.Bool  `tfsdk:"force_destroy"`
@@ -90,6 +91,11 @@ type InternalLoadBalancerModel struct {
 	Annotations    []common.KeyValueModel `tfsdk:"annotations"`
 }
 
+type MetricsEndpointModel struct {
+	Enabled        types.Bool     `tfsdk:"enabled"`
+	SourceIPRanges []types.String `tfsdk:"source_ip_ranges"`
+}
+
 func (e K8SEnvResourceModel) toSDK() (client.CreateK8SEnvInput, client.UpdateK8SEnvInput) {
 	nodeGroups := nodeGroupsToSDK(e.NodeGroups)
 	customNodeTypes := nodeTypesToSDK(e.CustomNodeTypes)
@@ -98,6 +104,7 @@ func (e K8SEnvResourceModel) toSDK() (client.CreateK8SEnvInput, client.UpdateK8S
 	maintenanceWindows := common.MaintenanceWindowsToSDK(e.MaintenanceWindows)
 	loadBalancingStrategy := (*client.LoadBalancingStrategy)(e.LoadBalancingStrategy.ValueStringPointer())
 	metrics := metricsToSDK(e.Metrics)
+	metricsEndpoint := metricsEndpointToSDK(e.MetricsEndpoint)
 	distribution := client.K8SDistribution(e.Distribution.ValueString())
 
 	create := client.CreateK8SEnvInput{
@@ -112,6 +119,7 @@ func (e K8SEnvResourceModel) toSDK() (client.CreateK8SEnvInput, client.UpdateK8S
 			Logs:                  logs,
 			Metrics:               metrics,
 			MaintenanceWindows:    maintenanceWindows,
+			MetricsEndpoint:       metricsEndpoint,
 		},
 	}
 
@@ -128,6 +136,7 @@ func (e K8SEnvResourceModel) toSDK() (client.CreateK8SEnvInput, client.UpdateK8S
 			Logs:                  logs,
 			Metrics:               metrics,
 			MaintenanceWindows:    maintenanceWindows,
+			MetricsEndpoint:       metricsEndpoint,
 		},
 	}
 
@@ -144,6 +153,7 @@ func (model *K8SEnvResourceModel) toModel(name string, specRevision int64, spec 
 	model.Logs = logsToModel(spec.Logs)
 	model.MaintenanceWindows = maintenanceWindowsToModel(spec.MaintenanceWindows)
 	model.Metrics = metricsToModel(spec.Metrics)
+	model.MetricsEndpoint = metricsEndpointToModel(&spec.MetricsEndpoint)
 	model.Distribution = types.StringValue(string(spec.Distribution))
 	model.SpecRevision = types.Int64Value(specRevision)
 }
@@ -485,4 +495,36 @@ func reorderTolerations(model []TolerationModel, sdk []*client.K8SEnvSpecFragmen
 	}
 
 	return orderedTolerations
+}
+
+func metricsEndpointToSDK(endpoint *MetricsEndpointModel) *client.MetricsEndpointSpecInput {
+	if endpoint == nil {
+		return nil
+	}
+
+	var sourceIPRanges []string
+	for _, ip := range endpoint.SourceIPRanges {
+		sourceIPRanges = append(sourceIPRanges, ip.ValueString())
+	}
+
+	return &client.MetricsEndpointSpecInput{
+		Enabled:        endpoint.Enabled.ValueBoolPointer(),
+		SourceIPRanges: sourceIPRanges,
+	}
+}
+
+func metricsEndpointToModel(endpoint *client.K8SEnvSpecFragment_MetricsEndpoint) *MetricsEndpointModel {
+	if endpoint == nil {
+		return nil
+	}
+
+	var sourceIPRanges []types.String
+	for _, ip := range endpoint.SourceIPRanges {
+		sourceIPRanges = append(sourceIPRanges, types.StringValue(ip))
+	}
+
+	return &MetricsEndpointModel{
+		Enabled:        types.BoolValue(endpoint.Enabled),
+		SourceIPRanges: sourceIPRanges,
+	}
 }

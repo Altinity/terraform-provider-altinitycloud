@@ -371,6 +371,7 @@ resource "altinitycloud_env_k8s" "this" {
 - `logs` (Attributes) Kubernetes environment logs configuration (see [below for nested schema](#nestedatt--logs))
 - `maintenance_windows` (Attributes List) List of maintenance windows during which automatic maintenance is permitted. By default updates are applied as soon as they are available. (see [below for nested schema](#nestedatt--maintenance_windows))
 - `metrics` (Attributes) Metrics configuration (see [below for nested schema](#nestedatt--metrics))
+- `metrics_endpoint` (Attributes) Metrics endpoint configuration. (see [below for nested schema](#nestedatt--metrics_endpoint))
 - `skip_deprovision_on_destroy` (Boolean) Set to `true` will delete without waiting for environment deprovisioning. Use this with precaution, it may end up with dangling resources in your cloud provider (default `false`).
 
 ### Read-Only
@@ -557,6 +558,15 @@ Optional:
 Optional:
 
 - `retention_period_in_days` (Number) Metrics retention period in days (default `30`).
+
+
+<a id="nestedatt--metrics_endpoint"></a>
+### Nested Schema for `metrics_endpoint`
+
+Optional:
+
+- `enabled` (Boolean) Set to `true` if metrics endpoint is enabled, `false` otherwise (default `false`).
+- `source_ip_ranges` (List of String) IP addresses/blocks to allow traffic from when metrics endpoint is enabled.
 
 ## Import
 

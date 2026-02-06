@@ -21,6 +21,7 @@ type HCloudEnvResourceModel struct {
 	LoadBalancingStrategy types.String                    `tfsdk:"load_balancing_strategy"`
 	MaintenanceWindows    []common.MaintenanceWindowModel `tfsdk:"maintenance_windows"`
 	WireguardPeers        []WireguardPeers                `tfsdk:"wireguard_peers"`
+	MetricsEndpoint       *MetricsEndpointModel           `tfsdk:"metrics_endpoint"`
 
 	SpecRevision                 types.Int64 `tfsdk:"spec_revision"`
 	ForceDestroy                 types.Bool  `tfsdk:"force_destroy"`
@@ -58,6 +59,11 @@ type WireguardPeers struct {
 	endpoint   types.String `tfsdk:"endpoint"`
 }
 
+type MetricsEndpointModel struct {
+	Enabled        types.Bool     `tfsdk:"enabled"`
+	SourceIPRanges []types.String `tfsdk:"source_ip_ranges"`
+}
+
 func (e HCloudEnvResourceModel) toSDK() (client.CreateHCloudEnvInput, client.UpdateHCloudEnvInput) {
 	var locations []string
 	e.Locations.ElementsAs(context.TODO(), &locations, false)
@@ -66,6 +72,7 @@ func (e HCloudEnvResourceModel) toSDK() (client.CreateHCloudEnvInput, client.Upd
 	LoadBalancers := loadBalancersToSDK(e.LoadBalancers)
 	nodeGroups := nodeGroupsToSDK(e.NodeGroups)
 	loadBalancingStrategy := (*client.LoadBalancingStrategy)(e.LoadBalancingStrategy.ValueStringPointer())
+	metricsEndpoint := metricsEndpointToSDK(e.MetricsEndpoint)
 	cloudConnect := false
 
 	create := client.CreateHCloudEnvInput{
@@ -82,6 +89,7 @@ func (e HCloudEnvResourceModel) toSDK() (client.CreateHCloudEnvInput, client.Upd
 			MaintenanceWindows:    maintenanceWindows,
 			CloudConnect:          &cloudConnect,
 			WireguardPeers:        wireguardPeers,
+			MetricsEndpoint:       metricsEndpoint,
 		},
 	}
 
@@ -97,6 +105,7 @@ func (e HCloudEnvResourceModel) toSDK() (client.CreateHCloudEnvInput, client.Upd
 			LoadBalancers:         LoadBalancers,
 			MaintenanceWindows:    maintenanceWindows,
 			WireguardPeers:        wireguardPeers,
+			MetricsEndpoint:       metricsEndpoint,
 		},
 	}
 
@@ -114,6 +123,7 @@ func (model *HCloudEnvResourceModel) toModel(env client.GetHCloudEnv_HcloudEnv) 
 	model.MaintenanceWindows = maintenanceWindowsToModel(env.Spec.MaintenanceWindows)
 	model.Locations = common.ListToModel(env.Spec.Locations)
 	model.WireguardPeers = wireguardPeersToModel(env.Spec.WireguardPeers)
+	model.MetricsEndpoint = metricsEndpointToModel(&env.Spec.MetricsEndpoint)
 	model.SpecRevision = types.Int64Value(env.SpecRevision)
 }
 
@@ -279,4 +289,36 @@ func reorderNodeGroups(model []NodeGroupsModel, sdk []*client.HCloudEnvSpecFragm
 	}
 
 	return orderedNodeGroups
+}
+
+func metricsEndpointToSDK(endpoint *MetricsEndpointModel) *client.MetricsEndpointSpecInput {
+	if endpoint == nil {
+		return nil
+	}
+
+	var sourceIPRanges []string
+	for _, ip := range endpoint.SourceIPRanges {
+		sourceIPRanges = append(sourceIPRanges, ip.ValueString())
+	}
+
+	return &client.MetricsEndpointSpecInput{
+		Enabled:        endpoint.Enabled.ValueBoolPointer(),
+		SourceIPRanges: sourceIPRanges,
+	}
+}
+
+func metricsEndpointToModel(endpoint *client.HCloudEnvSpecFragment_MetricsEndpoint) *MetricsEndpointModel {
+	if endpoint == nil {
+		return nil
+	}
+
+	var sourceIPRanges []types.String
+	for _, ip := range endpoint.SourceIPRanges {
+		sourceIPRanges = append(sourceIPRanges, types.StringValue(ip))
+	}
+
+	return &MetricsEndpointModel{
+		Enabled:        types.BoolValue(endpoint.Enabled),
+		SourceIPRanges: sourceIPRanges,
+	}
 }

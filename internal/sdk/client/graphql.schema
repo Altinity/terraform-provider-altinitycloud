@@ -156,9 +156,9 @@ type AWSEnvSpec {
   """
   eksLogging: Boolean!
   """
-  Edge proxy API gateway configuration.
+  Metrics endpoint configuration.
   """
-  edgeProxyApiGateway: EdgeProxyApiGatewaySpec!
+  metricsEndpoint: MetricsEndpointSpec!
 }
 
 """
@@ -603,9 +603,9 @@ input CreateAWSEnvSpecInput {
   """
   eksLogging: Boolean
   """
-  Edge proxy API gateway configuration.
+  Metrics endpoint configuration.
   """
-  edgeProxyApiGateway: EdgeProxyApiGatewaySpecInput
+  metricsEndpoint: MetricsEndpointSpecInput
 }
 
 """
@@ -966,9 +966,9 @@ input AWSEnvUpdateSpecInput {
   """
   eksLogging: Boolean
   """
-  Edge proxy API gateway configuration.
+  Metrics endpoint configuration.
   """
-  edgeProxyApiGateway: EdgeProxyApiGatewaySpecInput
+  metricsEndpoint: MetricsEndpointSpecInput
 }
 
 """
@@ -1120,9 +1120,9 @@ type AzureEnvSpec {
   """
   cloudConnect: Boolean!
   """
-  Edge proxy API gateway configuration.
+  Metrics endpoint configuration.
   """
-  edgeProxyApiGateway: EdgeProxyApiGatewaySpec!
+  metricsEndpoint: MetricsEndpointSpec!
 }
 
 """
@@ -1398,9 +1398,9 @@ input CreateAzureEnvSpecInput {
   """
   cloudConnect: Boolean
   """
-  Edge proxy API gateway configuration.
+  Metrics endpoint configuration.
   """
-  edgeProxyApiGateway: EdgeProxyApiGatewaySpecInput
+  metricsEndpoint: MetricsEndpointSpecInput
 }
 
 """
@@ -1645,9 +1645,9 @@ input UpdateAzureEnvSpecInput {
   # """
   tags: [KeyValueInput!]
   """
-  Edge proxy API gateway configuration.
+  Metrics endpoint configuration.
   """
-  edgeProxyApiGateway: EdgeProxyApiGatewaySpecInput
+  metricsEndpoint: MetricsEndpointSpecInput
 }
 
 """
@@ -2068,35 +2068,35 @@ input IcebergUpdateInputSpec {
 }
 
 """
-Edge proxy API gateway configuration.
+Metrics endpoint configuration.
 """
-type EdgeProxyApiGatewaySpec {
+type MetricsEndpointSpec {
   """
-  True if edge proxy API gateway is enabled,
+  True if metrics endpoint is enabled,
   false otherwise.
   """
   enabled: Boolean!
   """
-  IP addresses/blocks to allow traffic from when API gateway is enabled.
+  IP addresses/blocks to allow traffic from when metrics endpoint is enabled.
   """
-  whitelist: [String!]!
+  sourceIPRanges: [String!]!
 }
 
 """
-Edge proxy API gateway configuration input.
+Metrics endpoint configuration input.
 """
-input EdgeProxyApiGatewaySpecInput {
+input MetricsEndpointSpecInput {
   """
-  True if edge proxy API gateway is enabled,
+  True if metrics endpoint is enabled,
   false otherwise.
 
   False by default.
   """
   enabled: Boolean
   """
-  IP addresses/blocks to allow traffic from when API gateway is enabled.
+  IP addresses/blocks to allow traffic from when metrics endpoint is enabled.
   """
-  whitelist: [String!]
+  sourceIPRanges: [String!]
 }
 
 extend type Query {
@@ -2229,9 +2229,9 @@ type GCPEnvSpec {
   """
   privateServiceConnections: [GCPEnvPrivateServiceConnectionSpec!]!
   """
-  Edge proxy API gateway configuration.
+  Metrics endpoint configuration.
   """
-  edgeProxyApiGateway: EdgeProxyApiGatewaySpec!
+  metricsEndpoint: MetricsEndpointSpec!
 }
 
 """
@@ -2501,9 +2501,9 @@ input CreateGCPEnvSpecInput {
   """
   privateServiceConnections: [GCPEnvPrivateServiceConnectionSpecInput!]
   """
-  Edge proxy API gateway configuration.
+  Metrics endpoint configuration.
   """
-  edgeProxyApiGateway: EdgeProxyApiGatewaySpecInput
+  metricsEndpoint: MetricsEndpointSpecInput
 }
 
 """
@@ -2772,9 +2772,9 @@ input UpdateGCPEnvSpecInput {
   """
   privateServiceConnections: [GCPEnvPrivateServiceConnectionSpecInput!]
   """
-  Edge proxy API gateway configuration.
+  Metrics endpoint configuration.
   """
-  edgeProxyApiGateway: EdgeProxyApiGatewaySpecInput
+  metricsEndpoint: MetricsEndpointSpecInput
 }
 
 """
@@ -2914,9 +2914,9 @@ type HCloudEnvSpec {
   """
   wireguardPeers: [HCloudEnvWireguardPeerSpec!]!
   """
-  Edge proxy API gateway configuration.
+  Metrics endpoint configuration.
   """
-  edgeProxyApiGateway: EdgeProxyApiGatewaySpec!
+  metricsEndpoint: MetricsEndpointSpec!
 }
 
 """
@@ -3153,9 +3153,9 @@ input CreateHCloudEnvSpecInput {
   """
   wireguardPeers: [HCloudEnvWireguardPeerSpecInput!]
   """
-  Edge proxy API gateway configuration.
+  Metrics endpoint configuration.
   """
-  edgeProxyApiGateway: EdgeProxyApiGatewaySpecInput
+  metricsEndpoint: MetricsEndpointSpecInput
 }
 
 """
@@ -3392,9 +3392,9 @@ input UpdateHCloudEnvSpecInput {
   """
   wireguardPeers: [HCloudEnvWireguardPeerSpecInput!]
   """
-  Edge proxy API gateway configuration.
+  Metrics endpoint configuration.
   """
-  edgeProxyApiGateway: EdgeProxyApiGatewaySpecInput
+  metricsEndpoint: MetricsEndpointSpecInput
 }
 
 """
@@ -3510,9 +3510,9 @@ type K8SEnvSpec {
   """
   customDomain: String
   """
-  Edge proxy API gateway configuration.
+  Metrics endpoint configuration.
   """
-  edgeProxyApiGateway: EdgeProxyApiGatewaySpec!
+  metricsEndpoint: MetricsEndpointSpec!
 }
 
 """
@@ -3824,9 +3824,9 @@ input CreateK8SEnvSpecInput {
   """
   customDomain: String
   """
-  Edge proxy API gateway configuration.
+  Metrics endpoint configuration.
   """
-  edgeProxyApiGateway: EdgeProxyApiGatewaySpecInput
+  metricsEndpoint: MetricsEndpointSpecInput
 }
 
 """
@@ -4149,9 +4149,9 @@ input UpdateK8SEnvSpecInput {
   """
   customDomain: String
   """
-  Edge proxy API gateway configuration.
+  Metrics endpoint configuration.
   """
-  edgeProxyApiGateway: EdgeProxyApiGatewaySpecInput
+  metricsEndpoint: MetricsEndpointSpecInput
 }
 
 """

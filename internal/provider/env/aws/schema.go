@@ -47,7 +47,7 @@ func (r *AWSEnvResource) Schema(ctx context.Context, req resource.SchemaRequest,
 			"external_buckets":                getExternalBucketsAttribute(false, true, false),
 			"backups":                         getBackupStorageAttribute(false, true, false),
 			"iceberg":                         getIcebergAttribute(false, true, false),
-			"edge_proxy_api_gateway":          getEdgeProxyAPIGatewayAttribute(false, true, false),
+			"metrics_endpoint":                common.GetMetricsEndpointAttribute(false, true, false),
 			"eks_logging":                     getEksLoggingAttribute(false, true, true),
 
 			"spec_revision":                   common.SpecRevisionAttribute,
@@ -84,7 +84,7 @@ func (d *AWSEnvDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 			"external_buckets":                getExternalBucketsAttribute(false, false, true),
 			"backups":                         getBackupStorageAttribute(false, false, true),
 			"iceberg":                         getIcebergAttribute(false, false, true),
-			"edge_proxy_api_gateway":          getEdgeProxyAPIGatewayAttribute(false, false, true),
+			"metrics_endpoint":                common.GetMetricsEndpointAttribute(false, false, true),
 			"eks_logging":                     getEksLoggingAttribute(false, false, true),
 			"spec_revision":                   common.SpecRevisionAttribute,
 
@@ -478,34 +478,6 @@ func getIcebergAttribute(required, optional, computed bool) rschema.SingleNested
 							MarkdownDescription: common.ICEBERG_CATALOG_ASSUME_ROLE_ARN_RO_DESCRIPTION,
 						},
 					},
-				},
-			},
-		},
-	}
-}
-
-func getEdgeProxyAPIGatewayAttribute(required, optional, computed bool) rschema.SingleNestedAttribute {
-	return rschema.SingleNestedAttribute{
-		Optional:            optional,
-		Required:            required,
-		Computed:            computed,
-		MarkdownDescription: common.EDGE_PROXY_API_GATEWAY_DESCRIPTION,
-		Attributes: map[string]rschema.Attribute{
-			"enabled": rschema.BoolAttribute{
-				Optional:            true,
-				Computed:            true,
-				MarkdownDescription: common.EDGE_PROXY_API_GATEWAY_ENABLED_DESCRIPTION,
-				Default:             booldefault.StaticBool(false),
-			},
-			"whitelist": rschema.ListAttribute{
-				ElementType:         types.StringType,
-				Optional:            true,
-				MarkdownDescription: common.EDGE_PROXY_API_GATEWAY_WHITELIST_DESCRIPTION,
-				Validators: []validator.List{
-					listvalidator.SizeAtLeast(1),
-					listvalidator.ValueStringsAre(
-						stringvalidator.RegexMatches(common.CIDR_REGEX, "invalid CIDR (expecting something like 1.2.3.4/32)"),
-					),
 				},
 			},
 		},

@@ -148,8 +148,9 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
       assumeRoleARNRO
     }
   }
-  edgeProxyApiGateway {
+  eksLogging
+  metricsEndpoint {
     enabled
-    whitelist
+    sourceIPRanges
   }
 }

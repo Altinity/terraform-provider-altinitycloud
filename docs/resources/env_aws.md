@@ -318,6 +318,7 @@ output "peering_connection_id" {
 			CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
 		- (optional, vpce)
 			CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
+- `eks_logging` (Boolean) Enable/Disable EKS control plane logging to CloudWatch (default `false`).
 - `endpoints` (Attributes List) AWS environment VPC endpoint configuration (see [below for nested schema](#nestedatt--endpoints))
 - `external_buckets` (Attributes Set) List of external S3 bucket to allow access to. (see [below for nested schema](#nestedatt--external_buckets))
 - `force_destroy` (Boolean) Locks the environment for accidental deletion when running `terraform destroy` command. Your environment will be deleted, only when setting this parameter to `true`. Once this parameter is set to `true`, there must be a successful `terraform apply` run (before running the `terraform destroy`) to update this value in the state. Without a successful `terraform apply` after this parameter is set, this flag will have no effect. (default `false`)
@@ -330,6 +331,7 @@ output "peering_connection_id" {
 		- "ROUND_ROBIN": load balance traffic across all zones in round-robin fashion (default)
 		- "ZONE_BEST_EFFORT": keep traffic within same zone
 - `maintenance_windows` (Attributes List) List of maintenance windows during which automatic maintenance is permitted. By default updates are applied as soon as they are available. (see [below for nested schema](#nestedatt--maintenance_windows))
+- `metrics_endpoint` (Attributes) Metrics endpoint configuration. (see [below for nested schema](#nestedatt--metrics_endpoint))
 - `nat` (Boolean) Enable AWS NAT Gateway. **[IMMUTABLE]**
 - `peering_connections` (Attributes List) AWS environment VPC peering configuration. (see [below for nested schema](#nestedatt--peering_connections))
 - `permissions_boundary_policy_arn` (String) Policy ARN that sets the maximum permissions for the IAM roles created by the environment. **[IMMUTABLE]**
@@ -518,6 +520,15 @@ Required:
 Optional:
 
 - `enabled` (Boolean) Set to `true` if maintenance window is enabled, `false` otherwise. (default `false`)
+
+
+<a id="nestedatt--metrics_endpoint"></a>
+### Nested Schema for `metrics_endpoint`
+
+Optional:
+
+- `enabled` (Boolean) Set to `true` if metrics endpoint is enabled, `false` otherwise (default `false`).
+- `source_ip_ranges` (List of String) IP addresses/blocks to allow traffic from when metrics endpoint is enabled.
 
 
 <a id="nestedatt--peering_connections"></a>

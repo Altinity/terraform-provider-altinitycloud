@@ -86,4 +86,8 @@ fragment HCloudEnvSpecFragment on HCloudEnvSpec {
     allowedIPs
     endpoint
   }
+  metricsEndpoint {
+    enabled
+    sourceIPRanges
+  }
 }

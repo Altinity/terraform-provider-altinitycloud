@@ -269,6 +269,34 @@ var SpecRevisionAttribute = rschema.Int64Attribute{
 	MarkdownDescription: STATUS_SPEC_REVISION_DESCRIPTION,
 }
 
+func GetMetricsEndpointAttribute(required, optional, computed bool) rschema.SingleNestedAttribute {
+	return rschema.SingleNestedAttribute{
+		Optional:            optional,
+		Required:            required,
+		Computed:            computed,
+		MarkdownDescription: METRICS_ENDPOINT_DESCRIPTION,
+		Attributes: map[string]rschema.Attribute{
+			"enabled": rschema.BoolAttribute{
+				Optional:            true,
+				Computed:            true,
+				MarkdownDescription: METRICS_ENDPOINT_ENABLED_DESCRIPTION,
+				Default:             booldefault.StaticBool(false),
+			},
+			"source_ip_ranges": rschema.ListAttribute{
+				ElementType:         types.StringType,
+				Optional:            true,
+				MarkdownDescription: METRICS_ENDPOINT_SOURCE_IP_RANGES_DESCRIPTION,
+				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
+					listvalidator.ValueStringsAre(
+						stringvalidator.RegexMatches(CIDR_REGEX, "invalid CIDR (expecting something like 1.2.3.4/32)"),
+					),
+				},
+			},
+		},
+	}
+}
+
 var WaitForAppliedSpecRevisionAttribute = rschema.Int64Attribute{
 	Optional:            true,
 	MarkdownDescription: STATUS_WAIT_FOR_APPLIED_SPEC_REVISION_DESCRIPTION,

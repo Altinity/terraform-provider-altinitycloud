@@ -115,4 +115,8 @@ fragment K8SEnvSpecFragment on K8SEnvSpec {
       }
     }
   }
+  metricsEndpoint {
+    enabled
+    sourceIPRanges
+  }
 }

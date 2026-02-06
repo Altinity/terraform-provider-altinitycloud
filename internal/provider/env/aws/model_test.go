@@ -1005,7 +1005,7 @@ func TestAWSEnvResourceModel_toSDK(t *testing.T) {
 			},
 		},
 		{
-			name: "Complete model with iceberg, edge proxy and eks logging",
+			name: "Complete model with iceberg, metrics endpoint and eks logging",
 			model: AWSEnvResourceModel{
 				Name:         types.StringValue("iceberg-env"),
 				Region:       types.StringValue("us-east-1"),
@@ -1047,9 +1047,9 @@ func TestAWSEnvResourceModel_toSDK(t *testing.T) {
 						},
 					},
 				},
-				EdgeProxyAPIGateway: &AWSEnvEdgeProxyAPIGatewayModel{
-					Enabled:   types.BoolValue(true),
-					Whitelist: []types.String{types.StringValue("10.0.0.0/8"), types.StringValue("192.168.0.0/16")},
+				MetricsEndpoint: &AWSEnvMetricsEndpointModel{
+					Enabled:        types.BoolValue(true),
+					SourceIPRanges: []types.String{types.StringValue("10.0.0.0/8"), types.StringValue("192.168.0.0/16")},
 				},
 			},
 			validate: func(t *testing.T, create sdk.CreateAWSEnvInput, update sdk.UpdateAWSEnvInput) {
@@ -1091,26 +1091,26 @@ func TestAWSEnvResourceModel_toSDK(t *testing.T) {
 					t.Errorf("Create Iceberg catalog watches: expected 1, got %d", len(create.Spec.Iceberg.Catalogs[0].Watches))
 				}
 
-				// Validate Edge Proxy API Gateway
-				if create.Spec.EdgeProxyAPIGateway == nil {
-					t.Fatal("Create EdgeProxyAPIGateway should not be nil")
+				// Validate Metrics Endpoint
+				if create.Spec.MetricsEndpoint == nil {
+					t.Fatal("Create MetricsEndpoint should not be nil")
 				}
-				if *create.Spec.EdgeProxyAPIGateway.Enabled != true {
-					t.Errorf("Create EdgeProxyAPIGateway enabled: expected true, got %v", *create.Spec.EdgeProxyAPIGateway.Enabled)
+				if *create.Spec.MetricsEndpoint.Enabled != true {
+					t.Errorf("Create MetricsEndpoint enabled: expected true, got %v", *create.Spec.MetricsEndpoint.Enabled)
 				}
-				if len(create.Spec.EdgeProxyAPIGateway.Whitelist) != 2 {
-					t.Errorf("Create EdgeProxyAPIGateway whitelist: expected 2, got %d", len(create.Spec.EdgeProxyAPIGateway.Whitelist))
+				if len(create.Spec.MetricsEndpoint.SourceIPRanges) != 2 {
+					t.Errorf("Create MetricsEndpoint source_ip_ranges: expected 2, got %d", len(create.Spec.MetricsEndpoint.SourceIPRanges))
 				}
-				if create.Spec.EdgeProxyAPIGateway.Whitelist[0] != "10.0.0.0/8" {
-					t.Errorf("Create EdgeProxyAPIGateway whitelist[0]: expected '10.0.0.0/8', got '%s'", create.Spec.EdgeProxyAPIGateway.Whitelist[0])
+				if create.Spec.MetricsEndpoint.SourceIPRanges[0] != "10.0.0.0/8" {
+					t.Errorf("Create MetricsEndpoint source_ip_ranges[0]: expected '10.0.0.0/8', got '%s'", create.Spec.MetricsEndpoint.SourceIPRanges[0])
 				}
 
-				// Validate Update EdgeProxyAPIGateway
-				if update.Spec.EdgeProxyAPIGateway == nil {
-					t.Fatal("Update EdgeProxyAPIGateway should not be nil")
+				// Validate Update MetricsEndpoint
+				if update.Spec.MetricsEndpoint == nil {
+					t.Fatal("Update MetricsEndpoint should not be nil")
 				}
-				if *update.Spec.EdgeProxyAPIGateway.Enabled != true {
-					t.Errorf("Update EdgeProxyAPIGateway enabled: expected true, got %v", *update.Spec.EdgeProxyAPIGateway.Enabled)
+				if *update.Spec.MetricsEndpoint.Enabled != true {
+					t.Errorf("Update MetricsEndpoint enabled: expected true, got %v", *update.Spec.MetricsEndpoint.Enabled)
 				}
 			},
 		},
@@ -2071,11 +2071,11 @@ func TestIcebergToModel(t *testing.T) {
 	}
 }
 
-func TestEdgeProxyAPIGatewayToSDK(t *testing.T) {
+func TestMetricsEndpointToSDK(t *testing.T) {
 	tests := []struct {
 		name     string
-		input    *AWSEnvEdgeProxyAPIGatewayModel
-		expected *sdk.EdgeProxyAPIGatewaySpecInput
+		input    *AWSEnvMetricsEndpointModel
+		expected *sdk.MetricsEndpointSpecInput
 	}{
 		{
 			name:     "Nil input",
@@ -2083,32 +2083,32 @@ func TestEdgeProxyAPIGatewayToSDK(t *testing.T) {
 			expected: nil,
 		},
 		{
-			name: "Complete edge proxy API gateway config",
-			input: &AWSEnvEdgeProxyAPIGatewayModel{
-				Enabled:   types.BoolValue(true),
-				Whitelist: []types.String{types.StringValue("10.0.0.0/8"), types.StringValue("192.168.1.0/24")},
+			name: "Complete metrics endpoint config",
+			input: &AWSEnvMetricsEndpointModel{
+				Enabled:        types.BoolValue(true),
+				SourceIPRanges: []types.String{types.StringValue("10.0.0.0/8"), types.StringValue("192.168.1.0/24")},
 			},
-			expected: &sdk.EdgeProxyAPIGatewaySpecInput{
-				Enabled:   &[]bool{true}[0],
-				Whitelist: []string{"10.0.0.0/8", "192.168.1.0/24"},
+			expected: &sdk.MetricsEndpointSpecInput{
+				Enabled:        &[]bool{true}[0],
+				SourceIPRanges: []string{"10.0.0.0/8", "192.168.1.0/24"},
 			},
 		},
 		{
-			name: "Edge proxy API gateway disabled with empty whitelist",
-			input: &AWSEnvEdgeProxyAPIGatewayModel{
-				Enabled:   types.BoolValue(false),
-				Whitelist: []types.String{},
+			name: "Metrics endpoint disabled with empty source IP ranges",
+			input: &AWSEnvMetricsEndpointModel{
+				Enabled:        types.BoolValue(false),
+				SourceIPRanges: []types.String{},
 			},
-			expected: &sdk.EdgeProxyAPIGatewaySpecInput{
-				Enabled:   &[]bool{false}[0],
-				Whitelist: nil,
+			expected: &sdk.MetricsEndpointSpecInput{
+				Enabled:        &[]bool{false}[0],
+				SourceIPRanges: nil,
 			},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := edgeProxyAPIGatewayToSDK(tt.input)
+			result := metricsEndpointToSDK(tt.input)
 
 			if (tt.expected == nil) != (result == nil) {
 				t.Errorf("Expected nil: %v, got nil: %v", tt.expected == nil, result == nil)
@@ -2120,12 +2120,12 @@ func TestEdgeProxyAPIGatewayToSDK(t *testing.T) {
 					t.Errorf("Enabled mismatch: expected %v, got %v", *tt.expected.Enabled, *result.Enabled)
 				}
 
-				if len(tt.expected.Whitelist) != len(result.Whitelist) {
-					t.Errorf("Whitelist count mismatch: expected %d, got %d", len(tt.expected.Whitelist), len(result.Whitelist))
+				if len(tt.expected.SourceIPRanges) != len(result.SourceIPRanges) {
+					t.Errorf("SourceIPRanges count mismatch: expected %d, got %d", len(tt.expected.SourceIPRanges), len(result.SourceIPRanges))
 				} else {
-					for i, expected := range tt.expected.Whitelist {
-						if expected != result.Whitelist[i] {
-							t.Errorf("Whitelist[%d] mismatch: expected '%s', got '%s'", i, expected, result.Whitelist[i])
+					for i, expected := range tt.expected.SourceIPRanges {
+						if expected != result.SourceIPRanges[i] {
+							t.Errorf("SourceIPRanges[%d] mismatch: expected '%s', got '%s'", i, expected, result.SourceIPRanges[i])
 						}
 					}
 				}
@@ -2134,11 +2134,11 @@ func TestEdgeProxyAPIGatewayToSDK(t *testing.T) {
 	}
 }
 
-func TestEdgeProxyAPIGatewayToModel(t *testing.T) {
+func TestMetricsEndpointToModel(t *testing.T) {
 	tests := []struct {
 		name     string
-		input    *sdk.EdgeProxyAPIGatewaySpec
-		expected *AWSEnvEdgeProxyAPIGatewayModel
+		input    *sdk.AWSEnvSpecFragment_MetricsEndpoint
+		expected *AWSEnvMetricsEndpointModel
 	}{
 		{
 			name:     "Nil input",
@@ -2146,32 +2146,32 @@ func TestEdgeProxyAPIGatewayToModel(t *testing.T) {
 			expected: nil,
 		},
 		{
-			name: "Complete edge proxy API gateway response",
-			input: &sdk.EdgeProxyAPIGatewaySpec{
-				Enabled:   true,
-				Whitelist: []string{"10.0.0.0/8", "172.16.0.0/12"},
+			name: "Complete metrics endpoint response",
+			input: &sdk.AWSEnvSpecFragment_MetricsEndpoint{
+				Enabled:        true,
+				SourceIPRanges: []string{"10.0.0.0/8", "172.16.0.0/12"},
 			},
-			expected: &AWSEnvEdgeProxyAPIGatewayModel{
-				Enabled:   types.BoolValue(true),
-				Whitelist: []types.String{types.StringValue("10.0.0.0/8"), types.StringValue("172.16.0.0/12")},
+			expected: &AWSEnvMetricsEndpointModel{
+				Enabled:        types.BoolValue(true),
+				SourceIPRanges: []types.String{types.StringValue("10.0.0.0/8"), types.StringValue("172.16.0.0/12")},
 			},
 		},
 		{
-			name: "Edge proxy API gateway disabled with empty whitelist",
-			input: &sdk.EdgeProxyAPIGatewaySpec{
-				Enabled:   false,
-				Whitelist: []string{},
+			name: "Metrics endpoint disabled with empty source IP ranges",
+			input: &sdk.AWSEnvSpecFragment_MetricsEndpoint{
+				Enabled:        false,
+				SourceIPRanges: []string{},
 			},
-			expected: &AWSEnvEdgeProxyAPIGatewayModel{
-				Enabled:   types.BoolValue(false),
-				Whitelist: nil,
+			expected: &AWSEnvMetricsEndpointModel{
+				Enabled:        types.BoolValue(false),
+				SourceIPRanges: nil,
 			},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := edgeProxyAPIGatewayToModel(tt.input)
+			result := metricsEndpointToModel(tt.input)
 
 			if (tt.expected == nil) != (result == nil) {
 				t.Errorf("Expected nil: %v, got nil: %v", tt.expected == nil, result == nil)
@@ -2183,12 +2183,12 @@ func TestEdgeProxyAPIGatewayToModel(t *testing.T) {
 					t.Errorf("Enabled mismatch: expected %v, got %v", tt.expected.Enabled.ValueBool(), result.Enabled.ValueBool())
 				}
 
-				if len(tt.expected.Whitelist) != len(result.Whitelist) {
-					t.Errorf("Whitelist count mismatch: expected %d, got %d", len(tt.expected.Whitelist), len(result.Whitelist))
+				if len(tt.expected.SourceIPRanges) != len(result.SourceIPRanges) {
+					t.Errorf("SourceIPRanges count mismatch: expected %d, got %d", len(tt.expected.SourceIPRanges), len(result.SourceIPRanges))
 				} else {
-					for i, expected := range tt.expected.Whitelist {
-						if expected.ValueString() != result.Whitelist[i].ValueString() {
-							t.Errorf("Whitelist[%d] mismatch: expected '%s', got '%s'", i, expected.ValueString(), result.Whitelist[i].ValueString())
+					for i, expected := range tt.expected.SourceIPRanges {
+						if expected.ValueString() != result.SourceIPRanges[i].ValueString() {
+							t.Errorf("SourceIPRanges[%d] mismatch: expected '%s', got '%s'", i, expected.ValueString(), result.SourceIPRanges[i].ValueString())
 						}
 					}
 				}

@@ -1461,6 +1461,132 @@ func TestLogsToModel(t *testing.T) {
 	}
 }
 
+func TestMetricsEndpointToSDK(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    *MetricsEndpointModel
+		expected *client.MetricsEndpointSpecInput
+	}{
+		{
+			name:     "Nil input",
+			input:    nil,
+			expected: nil,
+		},
+		{
+			name: "Complete metrics endpoint config",
+			input: &MetricsEndpointModel{
+				Enabled:        types.BoolValue(true),
+				SourceIPRanges: []types.String{types.StringValue("10.0.0.0/8"), types.StringValue("192.168.1.0/24")},
+			},
+			expected: &client.MetricsEndpointSpecInput{
+				Enabled:        &[]bool{true}[0],
+				SourceIPRanges: []string{"10.0.0.0/8", "192.168.1.0/24"},
+			},
+		},
+		{
+			name: "Metrics endpoint disabled with empty source IP ranges",
+			input: &MetricsEndpointModel{
+				Enabled:        types.BoolValue(false),
+				SourceIPRanges: []types.String{},
+			},
+			expected: &client.MetricsEndpointSpecInput{
+				Enabled:        &[]bool{false}[0],
+				SourceIPRanges: nil,
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := metricsEndpointToSDK(tt.input)
+
+			if (tt.expected == nil) != (result == nil) {
+				t.Errorf("Expected nil: %v, got nil: %v", tt.expected == nil, result == nil)
+				return
+			}
+
+			if tt.expected != nil && result != nil {
+				if *tt.expected.Enabled != *result.Enabled {
+					t.Errorf("Enabled mismatch: expected %v, got %v", *tt.expected.Enabled, *result.Enabled)
+				}
+
+				if len(tt.expected.SourceIPRanges) != len(result.SourceIPRanges) {
+					t.Errorf("SourceIPRanges count mismatch: expected %d, got %d", len(tt.expected.SourceIPRanges), len(result.SourceIPRanges))
+				} else {
+					for i, expected := range tt.expected.SourceIPRanges {
+						if expected != result.SourceIPRanges[i] {
+							t.Errorf("SourceIPRanges[%d] mismatch: expected '%s', got '%s'", i, expected, result.SourceIPRanges[i])
+						}
+					}
+				}
+			}
+		})
+	}
+}
+
+func TestMetricsEndpointToModel(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    *client.K8SEnvSpecFragment_MetricsEndpoint
+		expected *MetricsEndpointModel
+	}{
+		{
+			name:     "Nil input",
+			input:    nil,
+			expected: nil,
+		},
+		{
+			name: "Complete metrics endpoint response",
+			input: &client.K8SEnvSpecFragment_MetricsEndpoint{
+				Enabled:        true,
+				SourceIPRanges: []string{"10.0.0.0/8", "172.16.0.0/12"},
+			},
+			expected: &MetricsEndpointModel{
+				Enabled:        types.BoolValue(true),
+				SourceIPRanges: []types.String{types.StringValue("10.0.0.0/8"), types.StringValue("172.16.0.0/12")},
+			},
+		},
+		{
+			name: "Metrics endpoint disabled with empty source IP ranges",
+			input: &client.K8SEnvSpecFragment_MetricsEndpoint{
+				Enabled:        false,
+				SourceIPRanges: []string{},
+			},
+			expected: &MetricsEndpointModel{
+				Enabled:        types.BoolValue(false),
+				SourceIPRanges: nil,
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := metricsEndpointToModel(tt.input)
+
+			if (tt.expected == nil) != (result == nil) {
+				t.Errorf("Expected nil: %v, got nil: %v", tt.expected == nil, result == nil)
+				return
+			}
+
+			if tt.expected != nil && result != nil {
+				if tt.expected.Enabled.ValueBool() != result.Enabled.ValueBool() {
+					t.Errorf("Enabled mismatch: expected %v, got %v", tt.expected.Enabled.ValueBool(), result.Enabled.ValueBool())
+				}
+
+				if len(tt.expected.SourceIPRanges) != len(result.SourceIPRanges) {
+					t.Errorf("SourceIPRanges count mismatch: expected %d, got %d", len(tt.expected.SourceIPRanges), len(result.SourceIPRanges))
+				} else {
+					for i, expected := range tt.expected.SourceIPRanges {
+						if expected.ValueString() != result.SourceIPRanges[i].ValueString() {
+							t.Errorf("SourceIPRanges[%d] mismatch: expected '%s', got '%s'", i, expected.ValueString(), result.SourceIPRanges[i].ValueString())
+						}
+					}
+				}
+			}
+		})
+	}
+}
+
 func TestMetricsToSDK(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -1617,6 +1743,10 @@ func TestK8SEnvResourceModel_toSDK(t *testing.T) {
 						Days:          []types.String{types.StringValue("saturday")},
 					},
 				},
+				MetricsEndpoint: &MetricsEndpointModel{
+					Enabled:        types.BoolValue(true),
+					SourceIPRanges: []types.String{types.StringValue("10.0.0.0/8")},
+				},
 			},
 			validate: func(t *testing.T, create client.CreateK8SEnvInput, update client.UpdateK8SEnvInput) {
 				// Validate create input
@@ -1643,6 +1773,12 @@ func TestK8SEnvResourceModel_toSDK(t *testing.T) {
 				}
 				if create.Spec.Metrics == nil {
 					t.Error("Create metrics should not be nil")
+				}
+				if create.Spec.MetricsEndpoint == nil {
+					t.Fatal("Create MetricsEndpoint should not be nil")
+				}
+				if *create.Spec.MetricsEndpoint.Enabled != true {
+					t.Errorf("Create MetricsEndpoint enabled: expected true, got %v", *create.Spec.MetricsEndpoint.Enabled)
 				}
 
 				// Validate update input
@@ -1795,6 +1931,10 @@ func TestK8SEnvResourceModel_toModel(t *testing.T) {
 						Days:          []client.Day{"saturday", "sunday"},
 					},
 				},
+				MetricsEndpoint: client.K8SEnvSpecFragment_MetricsEndpoint{
+					Enabled:        true,
+					SourceIPRanges: []string{"10.0.0.0/8", "192.168.0.0/16"},
+				},
 			},
 			validate: func(t *testing.T, model *K8SEnvResourceModel) {
 				if model.Name.ValueString() != "test-k8s-environment" {
@@ -1871,6 +2011,16 @@ func TestK8SEnvResourceModel_toModel(t *testing.T) {
 				}
 				if len(model.LoadBalancers.Public.Annotations) != 1 {
 					t.Errorf("Public load balancer annotations: expected 1, got %d", len(model.LoadBalancers.Public.Annotations))
+				}
+
+				if model.MetricsEndpoint == nil {
+					t.Fatal("MetricsEndpoint should not be nil")
+				}
+				if !model.MetricsEndpoint.Enabled.ValueBool() {
+					t.Errorf("MetricsEndpoint enabled: expected true, got %v", model.MetricsEndpoint.Enabled.ValueBool())
+				}
+				if len(model.MetricsEndpoint.SourceIPRanges) != 2 {
+					t.Errorf("MetricsEndpoint source IP ranges: expected 2, got %d", len(model.MetricsEndpoint.SourceIPRanges))
 				}
 			},
 		},

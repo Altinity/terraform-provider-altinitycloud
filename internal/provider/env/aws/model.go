@@ -30,7 +30,7 @@ type AWSEnvResourceModel struct {
 	ExternalBuckets              []AWSEnvExternalBucketModel     `tfsdk:"external_buckets"`
 	Backups                      *AWSEnvBackupsModel             `tfsdk:"backups"`
 	Iceberg                      *AWSEnvIcebergModel             `tfsdk:"iceberg"`
-	EdgeProxyAPIGateway          *AWSEnvEdgeProxyAPIGatewayModel `tfsdk:"edge_proxy_api_gateway"`
+	MetricsEndpoint              *AWSEnvMetricsEndpointModel     `tfsdk:"metrics_endpoint"`
 	EksLogging                   types.Bool                      `tfsdk:"eks_logging"`
 
 	SpecRevision                 types.Int64 `tfsdk:"spec_revision"`
@@ -113,9 +113,9 @@ type AWSEnvIcebergCatalogWatchModel struct {
 	PathsRelativeToTableLocation []types.String `tfsdk:"paths_relative_to_table_location"`
 }
 
-type AWSEnvEdgeProxyAPIGatewayModel struct {
-	Enabled   types.Bool     `tfsdk:"enabled"`
-	Whitelist []types.String `tfsdk:"whitelist"`
+type AWSEnvMetricsEndpointModel struct {
+	Enabled        types.Bool     `tfsdk:"enabled"`
+	SourceIPRanges []types.String `tfsdk:"source_ip_ranges"`
 }
 
 func (e AWSEnvResourceModel) toSDK() (sdk.CreateAWSEnvInput, sdk.UpdateAWSEnvInput) {
@@ -163,7 +163,7 @@ func (e AWSEnvResourceModel) toSDK() (sdk.CreateAWSEnvInput, sdk.UpdateAWSEnvInp
 	cloudConnect := e.CloudConnect.ValueBool()
 
 	iceberg := icebergToSDK(e.Iceberg)
-	edgeProxyAPIGateway := edgeProxyAPIGatewayToSDK(e.EdgeProxyAPIGateway)
+	metricsEndpoint := metricsEndpointToSDK(e.MetricsEndpoint)
 
 	create := sdk.CreateAWSEnvInput{
 		Name: e.Name.ValueString(),
@@ -187,7 +187,7 @@ func (e AWSEnvResourceModel) toSDK() (sdk.CreateAWSEnvInput, sdk.UpdateAWSEnvInp
 			ExternalBuckets:              externalBuckets,
 			Backups:                      backups,
 			Iceberg:                      iceberg,
-			EdgeProxyAPIGateway:          edgeProxyAPIGateway,
+			MetricsEndpoint:              metricsEndpoint,
 			EksLogging:                   e.EksLogging.ValueBoolPointer(),
 		},
 	}
@@ -211,7 +211,7 @@ func (e AWSEnvResourceModel) toSDK() (sdk.CreateAWSEnvInput, sdk.UpdateAWSEnvInp
 			ExternalBuckets:       externalBuckets,
 			Backups:               backups,
 			Iceberg:               icebergUpdate,
-			EdgeProxyAPIGateway:   edgeProxyAPIGateway,
+			MetricsEndpoint:       metricsEndpoint,
 			EksLogging:            e.EksLogging.ValueBoolPointer(),
 		},
 	}
@@ -279,6 +279,7 @@ func (model *AWSEnvResourceModel) toModel(env sdk.GetAWSEnv_AWSEnv) {
 	model.SpecRevision = types.Int64Value(env.SpecRevision)
 	model.CloudConnect = types.BoolValue(env.Spec.CloudConnect)
 	model.EksLogging = types.BoolValue(env.Spec.EksLogging)
+	model.MetricsEndpoint = metricsEndpointToModel(&env.Spec.MetricsEndpoint)
 }
 
 func loadBalancersToSDK(loadBalancers *LoadBalancersModel) *sdk.AWSEnvLoadBalancersSpecInput {
@@ -611,35 +612,35 @@ func icebergToModel(iceberg *sdk.AWSEnvSpecFragment_Iceberg) *AWSEnvIcebergModel
 	}
 }
 
-func edgeProxyAPIGatewayToSDK(gateway *AWSEnvEdgeProxyAPIGatewayModel) *sdk.EdgeProxyAPIGatewaySpecInput {
-	if gateway == nil {
+func metricsEndpointToSDK(endpoint *AWSEnvMetricsEndpointModel) *sdk.MetricsEndpointSpecInput {
+	if endpoint == nil {
 		return nil
 	}
 
-	var whitelist []string
-	for _, w := range gateway.Whitelist {
-		whitelist = append(whitelist, w.ValueString())
+	var sourceIPRanges []string
+	for _, ip := range endpoint.SourceIPRanges {
+		sourceIPRanges = append(sourceIPRanges, ip.ValueString())
 	}
 
-	return &sdk.EdgeProxyAPIGatewaySpecInput{
-		Enabled:   gateway.Enabled.ValueBoolPointer(),
-		Whitelist: whitelist,
+	return &sdk.MetricsEndpointSpecInput{
+		Enabled:        endpoint.Enabled.ValueBoolPointer(),
+		SourceIPRanges: sourceIPRanges,
 	}
 }
 
-func edgeProxyAPIGatewayToModel(gateway *sdk.EdgeProxyAPIGatewaySpec) *AWSEnvEdgeProxyAPIGatewayModel {
-	if gateway == nil {
+func metricsEndpointToModel(endpoint *sdk.AWSEnvSpecFragment_MetricsEndpoint) *AWSEnvMetricsEndpointModel {
+	if endpoint == nil {
 		return nil
 	}
 
-	var whitelist []types.String
-	for _, w := range gateway.Whitelist {
-		whitelist = append(whitelist, types.StringValue(w))
+	var sourceIPRanges []types.String
+	for _, ip := range endpoint.SourceIPRanges {
+		sourceIPRanges = append(sourceIPRanges, types.StringValue(ip))
 	}
 
-	return &AWSEnvEdgeProxyAPIGatewayModel{
-		Enabled:   types.BoolValue(gateway.Enabled),
-		Whitelist: whitelist,
+	return &AWSEnvMetricsEndpointModel{
+		Enabled:        types.BoolValue(endpoint.Enabled),
+		SourceIPRanges: sourceIPRanges,
 	}
 }
 

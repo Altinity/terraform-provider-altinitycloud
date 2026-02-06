@@ -23,6 +23,7 @@ type AzureEnvResourceModel struct {
 	MaintenanceWindows    []common.MaintenanceWindowModel `tfsdk:"maintenance_windows"`
 	Tags                  []common.KeyValueModel          `tfsdk:"tags"`
 	PrivateLinkService    *PrivateLinkServiceModel        `tfsdk:"private_link_service"`
+	MetricsEndpoint       *MetricsEndpointModel           `tfsdk:"metrics_endpoint"`
 
 	SpecRevision                 types.Int64 `tfsdk:"spec_revision"`
 	ForceDestroy                 types.Bool  `tfsdk:"force_destroy"`
@@ -50,6 +51,11 @@ type InternalLoadBalancerModel struct {
 	SourceIPRanges []types.String `tfsdk:"source_ip_ranges"`
 }
 
+type MetricsEndpointModel struct {
+	Enabled        types.Bool     `tfsdk:"enabled"`
+	SourceIPRanges []types.String `tfsdk:"source_ip_ranges"`
+}
+
 func (e AzureEnvResourceModel) toSDK() (client.CreateAzureEnvInput, client.UpdateAzureEnvInput) {
 	var zones []string
 	e.Zones.ElementsAs(context.TODO(), &zones, false)
@@ -58,6 +64,7 @@ func (e AzureEnvResourceModel) toSDK() (client.CreateAzureEnvInput, client.Updat
 	LoadBalancers := loadBalancersToSDK(e.LoadBalancers)
 	nodeGroups := nodeGroupsToSDK(e.NodeGroups)
 	loadBalancingStrategy := (*client.LoadBalancingStrategy)(e.LoadBalancingStrategy.ValueStringPointer())
+	metricsEndpoint := metricsEndpointToSDK(e.MetricsEndpoint)
 	cloudConnect := false
 
 	var tags []*client.KeyValueInput
@@ -93,6 +100,7 @@ func (e AzureEnvResourceModel) toSDK() (client.CreateAzureEnvInput, client.Updat
 			PrivateLinkService: &client.PrivateLinkServiceSpecInput{
 				AllowedSubscriptions: allowedSubscriptions,
 			},
+			MetricsEndpoint: metricsEndpoint,
 		},
 	}
 
@@ -111,6 +119,7 @@ func (e AzureEnvResourceModel) toSDK() (client.CreateAzureEnvInput, client.Updat
 			PrivateLinkService: &client.PrivateLinkServiceSpecInput{
 				AllowedSubscriptions: allowedSubscriptions,
 			},
+			MetricsEndpoint: metricsEndpoint,
 		},
 	}
 
@@ -129,6 +138,7 @@ func (model *AzureEnvResourceModel) toModel(env client.GetAzureEnv_AzureEnv) {
 	model.NodeGroups = nodeGroupsToModel(env.Spec.NodeGroups)
 	model.MaintenanceWindows = maintenanceWindowsToModel(env.Spec.MaintenanceWindows)
 	model.Zones = common.ListToModel(env.Spec.Zones)
+	model.MetricsEndpoint = metricsEndpointToModel(&env.Spec.MetricsEndpoint)
 
 	var tags []common.KeyValueModel
 	for _, t := range env.Spec.Tags {
@@ -278,4 +288,36 @@ func reorderNodeGroups(model []common.NodeGroupsModel, sdk []*client.AzureEnvSpe
 	}
 
 	return orderedNodeGroups
+}
+
+func metricsEndpointToSDK(endpoint *MetricsEndpointModel) *client.MetricsEndpointSpecInput {
+	if endpoint == nil {
+		return nil
+	}
+
+	var sourceIPRanges []string
+	for _, ip := range endpoint.SourceIPRanges {
+		sourceIPRanges = append(sourceIPRanges, ip.ValueString())
+	}
+
+	return &client.MetricsEndpointSpecInput{
+		Enabled:        endpoint.Enabled.ValueBoolPointer(),
+		SourceIPRanges: sourceIPRanges,
+	}
+}
+
+func metricsEndpointToModel(endpoint *client.AzureEnvSpecFragment_MetricsEndpoint) *MetricsEndpointModel {
+	if endpoint == nil {
+		return nil
+	}
+
+	var sourceIPRanges []types.String
+	for _, ip := range endpoint.SourceIPRanges {
+		sourceIPRanges = append(sourceIPRanges, types.StringValue(ip))
+	}
+
+	return &MetricsEndpointModel{
+		Enabled:        types.BoolValue(endpoint.Enabled),
+		SourceIPRanges: sourceIPRanges,
+	}
 }
