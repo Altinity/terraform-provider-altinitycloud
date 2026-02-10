@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.4.27...v0.5.0)
+### Added
+- Support for `metrics_endpoint` in all environment resources [e9ce14a](https://github.com/Altinity/terraform-provider-altinitycloud/commit/e9ce14a).
+- Support for `eks_logging` and `dge_proxy_api_gateway` in AWS environments [15bbe68](https://github.com/Altinity/terraform-provider-altinitycloud/commit/15bbe68).
+- Support for `iceberg` in AWS environments [54eca42](https://github.com/Altinity/terraform-provider-altinitycloud/commit/54eca42).
+- Add `aws_resource` to `altinitycloud_env_aws` data sources [80cb34f](https://github.com/Altinity/terraform-provider-altinitycloud/commit/80cb34f).
+
+### Changed
+- Sync and update latest GraphQL schema [9ecaab2](https://github.com/Altinity/terraform-provider-altinitycloud/commit/9ecaab2).
+- Bump github.com/hashicorp/terraform-plugin-framework to `1.17.0` [#200](https://github.com/Altinity/terraform-provider-altinitycloud/pull/200).
+- Bump github.com/hashicorp/terraform-plugin-testing to `1.14.0` [#199](https://github.com/Altinity/terraform-provider-altinitycloud/pull/199).
+- Update test cases for AWS environment model [4fcaf13](https://github.com/Altinity/terraform-provider-altinitycloud/commit/4fcaf13).
+
 ## [0.4.27](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.4.26...v0.4.27)
 ### Added
 - Add new `roles/iam.roleAdmin` required permission to GCP environment examples [b33481c](https://github.com/Altinity/terraform-provider-altinitycloud/commit/b33481c).

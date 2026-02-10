@@ -2980,7 +2980,7 @@ type HCloudEnvNodeGroupSpec {
   """
   name: String!
   """
-  HCloud server type (https://docs.hetzner.com/cloud/servers/overview#server-types). 
+  HCloud server type (https://docs.hetzner.com/cloud/servers/overview#server-types).
   """
   nodeType: String!
   """
