@@ -10,6 +10,11 @@ on:
   release:
     types: [published]
   workflow_dispatch:
+    inputs:
+      version:
+        description: "Provider version to test (required for manual trigger)"
+        type: string
+        required: true
 
 jobs:
   sanity-tests:
@@ -26,6 +31,7 @@ jobs:
           workflow_file_name: tf-release.yml
           ref: main
           wait_interval: 60
+          client_payload: '{"provider_version": "${{ github.event.release.tag_name || inputs.version }}"}'
           propagate_failure: true
           trigger_workflow: true
           wait_workflow: true
