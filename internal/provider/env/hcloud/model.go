@@ -21,7 +21,7 @@ type HCloudEnvResourceModel struct {
 	LoadBalancingStrategy types.String                    `tfsdk:"load_balancing_strategy"`
 	MaintenanceWindows    []common.MaintenanceWindowModel `tfsdk:"maintenance_windows"`
 	WireguardPeers        []WireguardPeers                `tfsdk:"wireguard_peers"`
-	MetricsEndpoint       *MetricsEndpointModel           `tfsdk:"metrics_endpoint"`
+	// MetricsEndpoint       *MetricsEndpointModel           `tfsdk:"metrics_endpoint"`
 
 	SpecRevision                 types.Int64 `tfsdk:"spec_revision"`
 	ForceDestroy                 types.Bool  `tfsdk:"force_destroy"`
@@ -72,7 +72,7 @@ func (e HCloudEnvResourceModel) toSDK() (client.CreateHCloudEnvInput, client.Upd
 	LoadBalancers := loadBalancersToSDK(e.LoadBalancers)
 	nodeGroups := nodeGroupsToSDK(e.NodeGroups)
 	loadBalancingStrategy := (*client.LoadBalancingStrategy)(e.LoadBalancingStrategy.ValueStringPointer())
-	metricsEndpoint := metricsEndpointToSDK(e.MetricsEndpoint)
+	// metricsEndpoint := metricsEndpointToSDK(e.MetricsEndpoint)
 	cloudConnect := false
 
 	create := client.CreateHCloudEnvInput{
@@ -89,7 +89,7 @@ func (e HCloudEnvResourceModel) toSDK() (client.CreateHCloudEnvInput, client.Upd
 			MaintenanceWindows:    maintenanceWindows,
 			CloudConnect:          &cloudConnect,
 			WireguardPeers:        wireguardPeers,
-			MetricsEndpoint:       metricsEndpoint,
+			MetricsEndpoint:       nil, // metricsEndpoint
 		},
 	}
 
@@ -105,7 +105,7 @@ func (e HCloudEnvResourceModel) toSDK() (client.CreateHCloudEnvInput, client.Upd
 			LoadBalancers:         LoadBalancers,
 			MaintenanceWindows:    maintenanceWindows,
 			WireguardPeers:        wireguardPeers,
-			MetricsEndpoint:       metricsEndpoint,
+			MetricsEndpoint:       nil, // metricsEndpoint
 		},
 	}
 
@@ -123,7 +123,7 @@ func (model *HCloudEnvResourceModel) toModel(env client.GetHCloudEnv_HcloudEnv) 
 	model.MaintenanceWindows = maintenanceWindowsToModel(env.Spec.MaintenanceWindows)
 	model.Locations = common.ListToModel(env.Spec.Locations)
 	model.WireguardPeers = wireguardPeersToModel(env.Spec.WireguardPeers)
-	model.MetricsEndpoint = metricsEndpointToModel(&env.Spec.MetricsEndpoint)
+	// model.MetricsEndpoint = metricsEndpointToModel(&env.Spec.MetricsEndpoint)
 	model.SpecRevision = types.Int64Value(env.SpecRevision)
 }
 
