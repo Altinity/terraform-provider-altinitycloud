@@ -1,6 +1,6 @@
-name: Regression Tests
+name: Sanity Tests
 
-# Triggers terraform smoke tests in the cloud-regression repo and
+# Triggers terraform sanity tests in the cloud-regression repo and
 # waits for them to finish, mirroring the result (pass/fail/cancelled).
 #
 # Requires a CLOUD_REGRESSION_PAT secret: a GitHub PAT (or fine-grained token)
@@ -12,12 +12,12 @@ on:
   workflow_dispatch:
 
 jobs:
-  regression-tests:
-    name: cloud-regression smoke tests
+  sanity-tests:
+    name: cloud-regression sanity tests
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
-      - name: Trigger and wait for regression tests
+      - name: Trigger and wait for sanity tests
         uses: convictional/trigger-workflow-and-wait@v1.6.5
         with:
           owner: Altinity
