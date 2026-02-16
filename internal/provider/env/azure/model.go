@@ -23,7 +23,7 @@ type AzureEnvResourceModel struct {
 	MaintenanceWindows    []common.MaintenanceWindowModel `tfsdk:"maintenance_windows"`
 	Tags                  []common.KeyValueModel          `tfsdk:"tags"`
 	PrivateLinkService    *PrivateLinkServiceModel        `tfsdk:"private_link_service"`
-	MetricsEndpoint       *MetricsEndpointModel           `tfsdk:"metrics_endpoint"`
+	// MetricsEndpoint       *MetricsEndpointModel           `tfsdk:"metrics_endpoint"`
 
 	SpecRevision                 types.Int64 `tfsdk:"spec_revision"`
 	ForceDestroy                 types.Bool  `tfsdk:"force_destroy"`
@@ -64,7 +64,7 @@ func (e AzureEnvResourceModel) toSDK() (client.CreateAzureEnvInput, client.Updat
 	LoadBalancers := loadBalancersToSDK(e.LoadBalancers)
 	nodeGroups := nodeGroupsToSDK(e.NodeGroups)
 	loadBalancingStrategy := (*client.LoadBalancingStrategy)(e.LoadBalancingStrategy.ValueStringPointer())
-	metricsEndpoint := metricsEndpointToSDK(e.MetricsEndpoint)
+	// metricsEndpoint := metricsEndpointToSDK(e.MetricsEndpoint)
 	cloudConnect := false
 
 	var tags []*client.KeyValueInput
@@ -100,7 +100,7 @@ func (e AzureEnvResourceModel) toSDK() (client.CreateAzureEnvInput, client.Updat
 			PrivateLinkService: &client.PrivateLinkServiceSpecInput{
 				AllowedSubscriptions: allowedSubscriptions,
 			},
-			MetricsEndpoint: metricsEndpoint,
+			MetricsEndpoint: nil, // metricsEndpoint
 		},
 	}
 
@@ -119,7 +119,7 @@ func (e AzureEnvResourceModel) toSDK() (client.CreateAzureEnvInput, client.Updat
 			PrivateLinkService: &client.PrivateLinkServiceSpecInput{
 				AllowedSubscriptions: allowedSubscriptions,
 			},
-			MetricsEndpoint: metricsEndpoint,
+			MetricsEndpoint: nil, // metricsEndpoint
 		},
 	}
 
@@ -138,7 +138,7 @@ func (model *AzureEnvResourceModel) toModel(env client.GetAzureEnv_AzureEnv) {
 	model.NodeGroups = nodeGroupsToModel(env.Spec.NodeGroups)
 	model.MaintenanceWindows = maintenanceWindowsToModel(env.Spec.MaintenanceWindows)
 	model.Zones = common.ListToModel(env.Spec.Zones)
-	model.MetricsEndpoint = metricsEndpointToModel(&env.Spec.MetricsEndpoint)
+	// model.MetricsEndpoint = metricsEndpointToModel(&env.Spec.MetricsEndpoint)
 
 	var tags []common.KeyValueModel
 	for _, t := range env.Spec.Tags {

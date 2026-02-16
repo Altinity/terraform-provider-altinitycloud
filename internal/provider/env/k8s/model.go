@@ -20,7 +20,7 @@ type K8SEnvResourceModel struct {
 	Logs                  *LogsModel                      `tfsdk:"logs"`
 	Metrics               *MetricsModel                   `tfsdk:"metrics"`
 	MaintenanceWindows    []common.MaintenanceWindowModel `tfsdk:"maintenance_windows"`
-	MetricsEndpoint       *MetricsEndpointModel           `tfsdk:"metrics_endpoint"`
+	// MetricsEndpoint       *MetricsEndpointModel           `tfsdk:"metrics_endpoint"`
 
 	SpecRevision                 types.Int64 `tfsdk:"spec_revision"`
 	ForceDestroy                 types.Bool  `tfsdk:"force_destroy"`
@@ -104,7 +104,7 @@ func (e K8SEnvResourceModel) toSDK() (client.CreateK8SEnvInput, client.UpdateK8S
 	maintenanceWindows := common.MaintenanceWindowsToSDK(e.MaintenanceWindows)
 	loadBalancingStrategy := (*client.LoadBalancingStrategy)(e.LoadBalancingStrategy.ValueStringPointer())
 	metrics := metricsToSDK(e.Metrics)
-	metricsEndpoint := metricsEndpointToSDK(e.MetricsEndpoint)
+	// metricsEndpoint := metricsEndpointToSDK(e.MetricsEndpoint)
 	distribution := client.K8SDistribution(e.Distribution.ValueString())
 
 	create := client.CreateK8SEnvInput{
@@ -119,7 +119,7 @@ func (e K8SEnvResourceModel) toSDK() (client.CreateK8SEnvInput, client.UpdateK8S
 			Logs:                  logs,
 			Metrics:               metrics,
 			MaintenanceWindows:    maintenanceWindows,
-			MetricsEndpoint:       metricsEndpoint,
+			MetricsEndpoint:       nil, // metricsEndpoint
 		},
 	}
 
@@ -136,7 +136,7 @@ func (e K8SEnvResourceModel) toSDK() (client.CreateK8SEnvInput, client.UpdateK8S
 			Logs:                  logs,
 			Metrics:               metrics,
 			MaintenanceWindows:    maintenanceWindows,
-			MetricsEndpoint:       metricsEndpoint,
+			MetricsEndpoint:       nil, // metricsEndpoint
 		},
 	}
 
@@ -153,7 +153,7 @@ func (model *K8SEnvResourceModel) toModel(name string, specRevision int64, spec 
 	model.Logs = logsToModel(spec.Logs)
 	model.MaintenanceWindows = maintenanceWindowsToModel(spec.MaintenanceWindows)
 	model.Metrics = metricsToModel(spec.Metrics)
-	model.MetricsEndpoint = metricsEndpointToModel(&spec.MetricsEndpoint)
+	// model.MetricsEndpoint = metricsEndpointToModel(&spec.MetricsEndpoint)
 	model.Distribution = types.StringValue(string(spec.Distribution))
 	model.SpecRevision = types.Int64Value(specRevision)
 }
