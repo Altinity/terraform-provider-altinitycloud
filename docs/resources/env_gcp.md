@@ -132,7 +132,6 @@ data "altinitycloud_env_gcp_status" "this" {
 		- "ROUND_ROBIN": load balance traffic across all zones in round-robin fashion (default)
 		- "ZONE_BEST_EFFORT": keep traffic within same zone
 - `maintenance_windows` (Attributes List) List of maintenance windows during which automatic maintenance is permitted. By default updates are applied as soon as they are available. (see [below for nested schema](#nestedatt--maintenance_windows))
-- `metrics_endpoint` (Attributes) Metrics endpoint configuration. (see [below for nested schema](#nestedatt--metrics_endpoint))
 - `peering_connections` (Attributes List) Network peering configuration. (see [below for nested schema](#nestedatt--peering_connections))
 - `private_service_consumers` (List of String) List of project IDs representing the network's private service consumers.
 - `skip_deprovision_on_destroy` (Boolean) Set to `true` will delete without waiting for environment deprovisioning. Use this with precaution, it may end up with dangling resources in your cloud provider (default `false`).
@@ -214,15 +213,6 @@ Required:
 Optional:
 
 - `enabled` (Boolean) Set to `true` if maintenance window is enabled, `false` otherwise. (default `false`)
-
-
-<a id="nestedatt--metrics_endpoint"></a>
-### Nested Schema for `metrics_endpoint`
-
-Optional:
-
-- `enabled` (Boolean) Set to `true` if metrics endpoint is enabled, `false` otherwise (default `false`).
-- `source_ip_ranges` (List of String) IP addresses/blocks to allow traffic from when metrics endpoint is enabled.
 
 
 <a id="nestedatt--peering_connections"></a>
@@ -373,7 +363,6 @@ data "altinitycloud_env_gcp_status" "this" {
 		- "ROUND_ROBIN": load balance traffic across all zones in round-robin fashion (default)
 		- "ZONE_BEST_EFFORT": keep traffic within same zone
 - `maintenance_windows` (Attributes List) List of maintenance windows during which automatic maintenance is permitted. By default updates are applied as soon as they are available. (see [below for nested schema](#nestedatt--maintenance_windows))
-- `metrics_endpoint` (Attributes) Metrics endpoint configuration. (see [below for nested schema](#nestedatt--metrics_endpoint))
 - `peering_connections` (Attributes List) Network peering configuration. (see [below for nested schema](#nestedatt--peering_connections))
 - `private_service_consumers` (List of String) List of project IDs representing the network's private service consumers.
 - `skip_deprovision_on_destroy` (Boolean) Set to `true` will delete without waiting for environment deprovisioning. Use this with precaution, it may end up with dangling resources in your cloud provider (default `false`).
@@ -455,15 +444,6 @@ Required:
 Optional:
 
 - `enabled` (Boolean) Set to `true` if maintenance window is enabled, `false` otherwise. (default `false`)
-
-
-<a id="nestedatt--metrics_endpoint"></a>
-### Nested Schema for `metrics_endpoint`
-
-Optional:
-
-- `enabled` (Boolean) Set to `true` if metrics endpoint is enabled, `false` otherwise (default `false`).
-- `source_ip_ranges` (List of String) IP addresses/blocks to allow traffic from when metrics endpoint is enabled.
 
 
 <a id="nestedatt--peering_connections"></a>

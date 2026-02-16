@@ -706,6 +706,7 @@ func TestNodeGroupsToModel(t *testing.T) {
 }
 
 func TestMetricsEndpointToSDK(t *testing.T) {
+	t.Skip("metrics_endpoint temporarily removed from schema")
 	tests := []struct {
 		name     string
 		input    *MetricsEndpointModel
@@ -769,6 +770,7 @@ func TestMetricsEndpointToSDK(t *testing.T) {
 }
 
 func TestMetricsEndpointToModel(t *testing.T) {
+	t.Skip("metrics_endpoint temporarily removed from schema")
 	tests := []struct {
 		name     string
 		input    *sdk.GCPEnvSpecFragment_MetricsEndpoint
@@ -878,10 +880,10 @@ func TestGCPEnvResourceModel_toSDK(t *testing.T) {
 					},
 				},
 				PrivateServiceConsumers: types.ListValueMust(types.StringType, []attr.Value{types.StringValue("consumer-123"), types.StringValue("consumer-456")}),
-				MetricsEndpoint: &MetricsEndpointModel{
-					Enabled:        types.BoolValue(true),
-					SourceIPRanges: []types.String{types.StringValue("10.0.0.0/8")},
-				},
+				// MetricsEndpoint: &MetricsEndpointModel{
+				// 	Enabled:        types.BoolValue(true),
+				// 	SourceIPRanges: []types.String{types.StringValue("10.0.0.0/8")},
+				// },
 			},
 			validate: func(t *testing.T, create sdk.CreateGCPEnvInput, update sdk.UpdateGCPEnvInput) {
 
@@ -915,12 +917,13 @@ func TestGCPEnvResourceModel_toSDK(t *testing.T) {
 				if len(create.Spec.PrivateServiceConsumers) != 2 {
 					t.Errorf("Create private service consumers: expected 2, got %d", len(create.Spec.PrivateServiceConsumers))
 				}
-				if create.Spec.MetricsEndpoint == nil {
-					t.Fatal("Create MetricsEndpoint should not be nil")
-				}
-				if *create.Spec.MetricsEndpoint.Enabled != true {
-					t.Errorf("Create MetricsEndpoint enabled: expected true, got %v", *create.Spec.MetricsEndpoint.Enabled)
-				}
+				// metrics_endpoint temporarily removed from schema
+				// if create.Spec.MetricsEndpoint == nil {
+				// 	t.Fatal("Create MetricsEndpoint should not be nil")
+				// }
+				// if *create.Spec.MetricsEndpoint.Enabled != true {
+				// 	t.Errorf("Create MetricsEndpoint enabled: expected true, got %v", *create.Spec.MetricsEndpoint.Enabled)
+				// }
 
 				if update.Name != "test-gcp-env" {
 					t.Errorf("Update name: expected 'test-gcp-env', got '%s'", update.Name)
@@ -1132,15 +1135,16 @@ func TestGCPEnvResourceModel_toModel(t *testing.T) {
 					t.Errorf("PrivateServiceConsumers count: expected 2, got %d", len(privateServiceConsumers))
 				}
 
-				if model.MetricsEndpoint == nil {
-					t.Fatal("MetricsEndpoint should not be nil")
-				}
-				if !model.MetricsEndpoint.Enabled.ValueBool() {
-					t.Errorf("MetricsEndpoint enabled: expected true, got %v", model.MetricsEndpoint.Enabled.ValueBool())
-				}
-				if len(model.MetricsEndpoint.SourceIPRanges) != 2 {
-					t.Errorf("MetricsEndpoint source IP ranges: expected 2, got %d", len(model.MetricsEndpoint.SourceIPRanges))
-				}
+				// metrics_endpoint temporarily removed from schema
+				// if model.MetricsEndpoint == nil {
+				// 	t.Fatal("MetricsEndpoint should not be nil")
+				// }
+				// if !model.MetricsEndpoint.Enabled.ValueBool() {
+				// 	t.Errorf("MetricsEndpoint enabled: expected true, got %v", model.MetricsEndpoint.Enabled.ValueBool())
+				// }
+				// if len(model.MetricsEndpoint.SourceIPRanges) != 2 {
+				// 	t.Errorf("MetricsEndpoint source IP ranges: expected 2, got %d", len(model.MetricsEndpoint.SourceIPRanges))
+				// }
 			},
 		},
 		{

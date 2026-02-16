@@ -62,7 +62,6 @@ Bring Your Own Cloud (BYOC) HCloud environment data source.
 		Examples:
 		- ["hil"]
 - `maintenance_windows` (Attributes List) List of maintenance windows during which automatic maintenance is permitted. By default updates are applied as soon as they are available. (see [below for nested schema](#nestedatt--maintenance_windows))
-- `metrics_endpoint` (Attributes) Metrics endpoint configuration. (see [below for nested schema](#nestedatt--metrics_endpoint))
 - `network_zone` (String) HCloud network ([docs](https://docs.hetzner.com/cloud/general/locations)). **[IMMUTABLE]**
 
 		Examples:
@@ -121,15 +120,6 @@ Required:
 Optional:
 
 - `enabled` (Boolean) Set to `true` if maintenance window is enabled, `false` otherwise. (default `false`)
-
-
-<a id="nestedatt--metrics_endpoint"></a>
-### Nested Schema for `metrics_endpoint`
-
-Optional:
-
-- `enabled` (Boolean) Set to `true` if metrics endpoint is enabled, `false` otherwise (default `false`).
-- `source_ip_ranges` (List of String) IP addresses/blocks to allow traffic from when metrics endpoint is enabled.
 
 
 <a id="nestedatt--node_groups"></a>

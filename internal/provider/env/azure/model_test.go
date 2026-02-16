@@ -706,6 +706,7 @@ func TestNodeGroupsToModel(t *testing.T) {
 }
 
 func TestMetricsEndpointToSDK(t *testing.T) {
+	t.Skip("metrics_endpoint temporarily removed from schema")
 	tests := []struct {
 		name     string
 		input    *MetricsEndpointModel
@@ -769,6 +770,7 @@ func TestMetricsEndpointToSDK(t *testing.T) {
 }
 
 func TestMetricsEndpointToModel(t *testing.T) {
+	t.Skip("metrics_endpoint temporarily removed from schema")
 	tests := []struct {
 		name     string
 		input    *client.AzureEnvSpecFragment_MetricsEndpoint
@@ -881,10 +883,10 @@ func TestAzureEnvResourceModel_toSDK(t *testing.T) {
 				PrivateLinkService: &PrivateLinkServiceModel{
 					AllowedSubscriptions: []types.String{types.StringValue("sub-123"), types.StringValue("sub-456")},
 				},
-				MetricsEndpoint: &MetricsEndpointModel{
-					Enabled:        types.BoolValue(true),
-					SourceIPRanges: []types.String{types.StringValue("10.0.0.0/8")},
-				},
+				// MetricsEndpoint: &MetricsEndpointModel{
+				// 	Enabled:        types.BoolValue(true),
+				// 	SourceIPRanges: []types.String{types.StringValue("10.0.0.0/8")},
+				// },
 			},
 			validate: func(t *testing.T, create client.CreateAzureEnvInput, update client.UpdateAzureEnvInput) {
 
@@ -921,12 +923,13 @@ func TestAzureEnvResourceModel_toSDK(t *testing.T) {
 				if len(create.Spec.PrivateLinkService.AllowedSubscriptions) != 2 {
 					t.Errorf("Create private link allowed subscriptions: expected 2, got %d", len(create.Spec.PrivateLinkService.AllowedSubscriptions))
 				}
-				if create.Spec.MetricsEndpoint == nil {
-					t.Fatal("Create MetricsEndpoint should not be nil")
-				}
-				if *create.Spec.MetricsEndpoint.Enabled != true {
-					t.Errorf("Create MetricsEndpoint enabled: expected true, got %v", *create.Spec.MetricsEndpoint.Enabled)
-				}
+				// metrics_endpoint temporarily removed from schema
+				// if create.Spec.MetricsEndpoint == nil {
+				// 	t.Fatal("Create MetricsEndpoint should not be nil")
+				// }
+				// if *create.Spec.MetricsEndpoint.Enabled != true {
+				// 	t.Errorf("Create MetricsEndpoint enabled: expected true, got %v", *create.Spec.MetricsEndpoint.Enabled)
+				// }
 
 				if update.Name != "test-azure-env" {
 					t.Errorf("Update name: expected 'test-azure-env', got '%s'", update.Name)
@@ -1149,15 +1152,16 @@ func TestAzureEnvResourceModel_toModel(t *testing.T) {
 					t.Errorf("PrivateLinkService allowed subscriptions count: expected 3, got %d", len(model.PrivateLinkService.AllowedSubscriptions))
 				}
 
-				if model.MetricsEndpoint == nil {
-					t.Fatal("MetricsEndpoint should not be nil")
-				}
-				if !model.MetricsEndpoint.Enabled.ValueBool() {
-					t.Errorf("MetricsEndpoint enabled: expected true, got %v", model.MetricsEndpoint.Enabled.ValueBool())
-				}
-				if len(model.MetricsEndpoint.SourceIPRanges) != 2 {
-					t.Errorf("MetricsEndpoint source IP ranges: expected 2, got %d", len(model.MetricsEndpoint.SourceIPRanges))
-				}
+				// metrics_endpoint temporarily removed from schema
+				// if model.MetricsEndpoint == nil {
+				// 	t.Fatal("MetricsEndpoint should not be nil")
+				// }
+				// if !model.MetricsEndpoint.Enabled.ValueBool() {
+				// 	t.Errorf("MetricsEndpoint enabled: expected true, got %v", model.MetricsEndpoint.Enabled.ValueBool())
+				// }
+				// if len(model.MetricsEndpoint.SourceIPRanges) != 2 {
+				// 	t.Errorf("MetricsEndpoint source IP ranges: expected 2, got %d", len(model.MetricsEndpoint.SourceIPRanges))
+				// }
 			},
 		},
 		{

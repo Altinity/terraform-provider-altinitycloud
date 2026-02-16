@@ -1047,10 +1047,10 @@ func TestAWSEnvResourceModel_toSDK(t *testing.T) {
 						},
 					},
 				},
-				MetricsEndpoint: &AWSEnvMetricsEndpointModel{
-					Enabled:        types.BoolValue(true),
-					SourceIPRanges: []types.String{types.StringValue("10.0.0.0/8"), types.StringValue("192.168.0.0/16")},
-				},
+				// MetricsEndpoint: &AWSEnvMetricsEndpointModel{
+				// 	Enabled:        types.BoolValue(true),
+				// 	SourceIPRanges: []types.String{types.StringValue("10.0.0.0/8"), types.StringValue("192.168.0.0/16")},
+				// },
 			},
 			validate: func(t *testing.T, create sdk.CreateAWSEnvInput, update sdk.UpdateAWSEnvInput) {
 				if create.Name != "iceberg-env" {
@@ -1091,27 +1091,25 @@ func TestAWSEnvResourceModel_toSDK(t *testing.T) {
 					t.Errorf("Create Iceberg catalog watches: expected 1, got %d", len(create.Spec.Iceberg.Catalogs[0].Watches))
 				}
 
-				// Validate Metrics Endpoint
-				if create.Spec.MetricsEndpoint == nil {
-					t.Fatal("Create MetricsEndpoint should not be nil")
-				}
-				if *create.Spec.MetricsEndpoint.Enabled != true {
-					t.Errorf("Create MetricsEndpoint enabled: expected true, got %v", *create.Spec.MetricsEndpoint.Enabled)
-				}
-				if len(create.Spec.MetricsEndpoint.SourceIPRanges) != 2 {
-					t.Errorf("Create MetricsEndpoint source_ip_ranges: expected 2, got %d", len(create.Spec.MetricsEndpoint.SourceIPRanges))
-				}
-				if create.Spec.MetricsEndpoint.SourceIPRanges[0] != "10.0.0.0/8" {
-					t.Errorf("Create MetricsEndpoint source_ip_ranges[0]: expected '10.0.0.0/8', got '%s'", create.Spec.MetricsEndpoint.SourceIPRanges[0])
-				}
-
-				// Validate Update MetricsEndpoint
-				if update.Spec.MetricsEndpoint == nil {
-					t.Fatal("Update MetricsEndpoint should not be nil")
-				}
-				if *update.Spec.MetricsEndpoint.Enabled != true {
-					t.Errorf("Update MetricsEndpoint enabled: expected true, got %v", *update.Spec.MetricsEndpoint.Enabled)
-				}
+				// Validate Metrics Endpoint (commented out - metrics_endpoint temporarily removed from schema)
+				// if create.Spec.MetricsEndpoint == nil {
+				// 	t.Fatal("Create MetricsEndpoint should not be nil")
+				// }
+				// if *create.Spec.MetricsEndpoint.Enabled != true {
+				// 	t.Errorf("Create MetricsEndpoint enabled: expected true, got %v", *create.Spec.MetricsEndpoint.Enabled)
+				// }
+				// if len(create.Spec.MetricsEndpoint.SourceIPRanges) != 2 {
+				// 	t.Errorf("Create MetricsEndpoint source_ip_ranges: expected 2, got %d", len(create.Spec.MetricsEndpoint.SourceIPRanges))
+				// }
+				// if create.Spec.MetricsEndpoint.SourceIPRanges[0] != "10.0.0.0/8" {
+				// 	t.Errorf("Create MetricsEndpoint source_ip_ranges[0]: expected '10.0.0.0/8', got '%s'", create.Spec.MetricsEndpoint.SourceIPRanges[0])
+				// }
+				// if update.Spec.MetricsEndpoint == nil {
+				// 	t.Fatal("Update MetricsEndpoint should not be nil")
+				// }
+				// if *update.Spec.MetricsEndpoint.Enabled != true {
+				// 	t.Errorf("Update MetricsEndpoint enabled: expected true, got %v", *update.Spec.MetricsEndpoint.Enabled)
+				// }
 			},
 		},
 	}
@@ -2072,6 +2070,7 @@ func TestIcebergToModel(t *testing.T) {
 }
 
 func TestMetricsEndpointToSDK(t *testing.T) {
+	t.Skip("metrics_endpoint temporarily removed from schema")
 	tests := []struct {
 		name     string
 		input    *AWSEnvMetricsEndpointModel
@@ -2135,6 +2134,7 @@ func TestMetricsEndpointToSDK(t *testing.T) {
 }
 
 func TestMetricsEndpointToModel(t *testing.T) {
+	t.Skip("metrics_endpoint temporarily removed from schema")
 	tests := []struct {
 		name     string
 		input    *sdk.AWSEnvSpecFragment_MetricsEndpoint
