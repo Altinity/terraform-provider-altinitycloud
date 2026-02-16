@@ -1,6 +1,8 @@
-name: Trigger Regression Tests
+name: Regression Tests
 
-# Triggers terraform smoke tests in the cloud-regression repo.
+# Triggers terraform smoke tests in the cloud-regression repo and
+# waits for them to finish, mirroring the result (pass/fail/cancelled).
+#
 # Requires a CLOUD_REGRESSION_PAT secret: a GitHub PAT (or fine-grained token)
 # with "actions:write" permission on the Altinity/cloud-regression repository.
 
@@ -10,17 +12,21 @@ on:
   workflow_dispatch:
 
 jobs:
-  trigger-cloud-regression:
-    name: Trigger cloud-regression aws_byoc_smoke
+  regression-tests:
+    name: cloud-regression aws_byoc_smoke
     runs-on: ubuntu-latest
+    timeout-minutes: 120
     steps:
-      - name: Trigger terraform smoke tests
-        env:
-          GH_TOKEN: ${{ secrets.CLOUD_REGRESSION_PAT }}
-        run: |
-          gh workflow run tf-development.yml \
-            --repo Altinity/cloud-regression \
-            --ref main \
-            -f suite=aws_byoc_smoke \
-            -f upload_reports=True \
-            -f output_format=nice
+      - name: Trigger and wait for regression tests
+        uses: convictional/trigger-workflow-and-wait@v1.6.5
+        with:
+          owner: Altinity
+          repo: cloud-regression
+          github_token: ${{ secrets.CLOUD_REGRESSION_PAT }}
+          workflow_file_name: tf-development.yml
+          ref: main
+          wait_interval: 60
+          client_payload: '{"suite": "aws_byoc_smoke", "upload_reports": "True", "output_format": "nice"}'
+          propagate_failure: true
+          trigger_workflow: true
+          wait_workflow: true
