@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Provider version to test (required for manual trigger)"
+        description: "Provider version to test, e.g. '0.5.0"
         type: string
         required: true
 
