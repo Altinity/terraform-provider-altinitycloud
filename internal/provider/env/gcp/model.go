@@ -24,7 +24,7 @@ type GCPEnvResourceModel struct {
 	MaintenanceWindows      []common.MaintenanceWindowModel `tfsdk:"maintenance_windows"`
 	PeeringConnections      []GCPEnvPeeringConnectionModel  `tfsdk:"peering_connections"`
 	PrivateServiceConsumers types.List                      `tfsdk:"private_service_consumers"`
-	MetricsEndpoint         *MetricsEndpointModel           `tfsdk:"metrics_endpoint"`
+	// MetricsEndpoint         *MetricsEndpointModel           `tfsdk:"metrics_endpoint"`
 
 	SpecRevision                 types.Int64 `tfsdk:"spec_revision"`
 	ForceDestroy                 types.Bool  `tfsdk:"force_destroy"`
@@ -66,7 +66,7 @@ func (e GCPEnvResourceModel) toSDK() (sdk.CreateGCPEnvInput, sdk.UpdateGCPEnvInp
 	LoadBalancers := loadBalancersToSDK(e.LoadBalancers)
 	nodeGroups := nodeGroupsToSDK(e.NodeGroups)
 	loadBalancingStrategy := (*sdk.LoadBalancingStrategy)(e.LoadBalancingStrategy.ValueStringPointer())
-	metricsEndpoint := metricsEndpointToSDK(e.MetricsEndpoint)
+	// metricsEndpoint := metricsEndpointToSDK(e.MetricsEndpoint)
 	cloudConnect := false
 
 	peeringConnections := make([]*sdk.GCPEnvPeeringConnectionSpecInput, 0, len(e.PeeringConnections))
@@ -95,7 +95,7 @@ func (e GCPEnvResourceModel) toSDK() (sdk.CreateGCPEnvInput, sdk.UpdateGCPEnvInp
 			CloudConnect:            &cloudConnect,
 			PeeringConnections:      peeringConnections,
 			PrivateServiceConsumers: privateServiceConsumers,
-			MetricsEndpoint:         metricsEndpoint,
+			MetricsEndpoint:         nil, // metricsEndpoint
 		},
 	}
 
@@ -112,7 +112,7 @@ func (e GCPEnvResourceModel) toSDK() (sdk.CreateGCPEnvInput, sdk.UpdateGCPEnvInp
 			MaintenanceWindows:      maintenanceWindows,
 			PeeringConnections:      peeringConnections,
 			PrivateServiceConsumers: privateServiceConsumers,
-			MetricsEndpoint:         metricsEndpoint,
+			MetricsEndpoint:         nil, // metricsEndpoint
 		},
 	}
 
@@ -131,7 +131,7 @@ func (model *GCPEnvResourceModel) toModel(env sdk.GetGCPEnv_GCPEnv) {
 	model.MaintenanceWindows = maintenanceWindowsToModel(env.Spec.MaintenanceWindows)
 	model.Zones = common.ListToModel(env.Spec.Zones)
 	model.PrivateServiceConsumers = common.ListToModel(env.Spec.PrivateServiceConsumers)
-	model.MetricsEndpoint = metricsEndpointToModel(&env.Spec.MetricsEndpoint)
+	// model.MetricsEndpoint = metricsEndpointToModel(&env.Spec.MetricsEndpoint)
 
 	var peeringConnections []GCPEnvPeeringConnectionModel
 	for _, p := range env.Spec.PeeringConnections {

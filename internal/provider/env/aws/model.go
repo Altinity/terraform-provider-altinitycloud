@@ -30,7 +30,7 @@ type AWSEnvResourceModel struct {
 	ExternalBuckets              []AWSEnvExternalBucketModel     `tfsdk:"external_buckets"`
 	Backups                      *AWSEnvBackupsModel             `tfsdk:"backups"`
 	Iceberg                      *AWSEnvIcebergModel             `tfsdk:"iceberg"`
-	MetricsEndpoint              *AWSEnvMetricsEndpointModel     `tfsdk:"metrics_endpoint"`
+	// MetricsEndpoint              *AWSEnvMetricsEndpointModel     `tfsdk:"metrics_endpoint"`
 	EksLogging                   types.Bool                      `tfsdk:"eks_logging"`
 
 	SpecRevision                 types.Int64 `tfsdk:"spec_revision"`
@@ -163,7 +163,7 @@ func (e AWSEnvResourceModel) toSDK() (sdk.CreateAWSEnvInput, sdk.UpdateAWSEnvInp
 	cloudConnect := e.CloudConnect.ValueBool()
 
 	iceberg := icebergToSDK(e.Iceberg)
-	metricsEndpoint := metricsEndpointToSDK(e.MetricsEndpoint)
+	// metricsEndpoint := metricsEndpointToSDK(e.MetricsEndpoint)
 
 	create := sdk.CreateAWSEnvInput{
 		Name: e.Name.ValueString(),
@@ -187,7 +187,7 @@ func (e AWSEnvResourceModel) toSDK() (sdk.CreateAWSEnvInput, sdk.UpdateAWSEnvInp
 			ExternalBuckets:              externalBuckets,
 			Backups:                      backups,
 			Iceberg:                      iceberg,
-			MetricsEndpoint:              metricsEndpoint,
+			MetricsEndpoint:              nil, // metricsEndpoint
 			EksLogging:                   e.EksLogging.ValueBoolPointer(),
 		},
 	}
@@ -211,7 +211,7 @@ func (e AWSEnvResourceModel) toSDK() (sdk.CreateAWSEnvInput, sdk.UpdateAWSEnvInp
 			ExternalBuckets:       externalBuckets,
 			Backups:               backups,
 			Iceberg:               icebergUpdate,
-			MetricsEndpoint:       metricsEndpoint,
+			MetricsEndpoint:       nil, // metricsEndpoint
 			EksLogging:            e.EksLogging.ValueBoolPointer(),
 		},
 	}
@@ -279,7 +279,7 @@ func (model *AWSEnvResourceModel) toModel(env sdk.GetAWSEnv_AWSEnv) {
 	model.SpecRevision = types.Int64Value(env.SpecRevision)
 	model.CloudConnect = types.BoolValue(env.Spec.CloudConnect)
 	model.EksLogging = types.BoolValue(env.Spec.EksLogging)
-	model.MetricsEndpoint = metricsEndpointToModel(&env.Spec.MetricsEndpoint)
+	// model.MetricsEndpoint = metricsEndpointToModel(&env.Spec.MetricsEndpoint)
 }
 
 func loadBalancersToSDK(loadBalancers *LoadBalancersModel) *sdk.AWSEnvLoadBalancersSpecInput {
