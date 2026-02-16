@@ -30,7 +30,6 @@ type AWSEnvResourceModel struct {
 	ExternalBuckets              []AWSEnvExternalBucketModel     `tfsdk:"external_buckets"`
 	Backups                      *AWSEnvBackupsModel             `tfsdk:"backups"`
 	Iceberg                      *AWSEnvIcebergModel             `tfsdk:"iceberg"`
-	// MetricsEndpoint              *AWSEnvMetricsEndpointModel     `tfsdk:"metrics_endpoint"`
 	EksLogging                   types.Bool                      `tfsdk:"eks_logging"`
 
 	SpecRevision                 types.Int64 `tfsdk:"spec_revision"`
