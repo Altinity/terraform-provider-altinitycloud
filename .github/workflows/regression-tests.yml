@@ -1,0 +1,26 @@
+name: Trigger Regression Tests
+
+# Triggers terraform smoke tests in the cloud-regression repo.
+# Requires a CLOUD_REGRESSION_PAT secret: a GitHub PAT (or fine-grained token)
+# with "actions:write" permission on the Altinity/cloud-regression repository.
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  trigger-cloud-regression:
+    name: Trigger cloud-regression aws_byoc_smoke
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger terraform smoke tests
+        env:
+          GH_TOKEN: ${{ secrets.CLOUD_REGRESSION_PAT }}
+        run: |
+          gh workflow run tf-development.yml \
+            --repo Altinity/cloud-regression \
+            --ref main \
+            -f suite=aws_byoc_smoke \
+            -f upload_reports=True \
+            -f output_format=nice
