@@ -95,8 +95,8 @@ fragment AzureEnvSpecFragment on AzureEnvSpec {
   tenantID
   subscriptionID
   cloudConnect
-  metricsEndpoint {
-    enabled
-    sourceIPRanges
-  }
+  # metricsEndpoint {
+  #   enabled
+  #   sourceIPRanges
+  # }
 }

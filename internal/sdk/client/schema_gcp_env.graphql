@@ -87,8 +87,8 @@ fragment GCPEnvSpecFragment on GCPEnvSpec {
   cidr
   gcpProjectId
   cloudConnect
-  metricsEndpoint {
-    enabled
-    sourceIPRanges
-  }
+  # metricsEndpoint {
+  #   enabled
+  #   sourceIPRanges
+  # }
 }
