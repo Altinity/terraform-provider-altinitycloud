@@ -149,8 +149,8 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
     }
   }
   eksLogging
-  metricsEndpoint {
-    enabled
-    sourceIPRanges
-  }
+  # metricsEndpoint {
+  #   enabled
+  #   sourceIPRanges
+  # }
 }

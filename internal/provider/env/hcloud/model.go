@@ -291,34 +291,34 @@ func reorderNodeGroups(model []NodeGroupsModel, sdk []*client.HCloudEnvSpecFragm
 	return orderedNodeGroups
 }
 
-func metricsEndpointToSDK(endpoint *MetricsEndpointModel) *client.MetricsEndpointSpecInput {
-	if endpoint == nil {
-		return nil
-	}
+// func metricsEndpointToSDK(endpoint *MetricsEndpointModel) *client.MetricsEndpointSpecInput {
+// 	if endpoint == nil {
+// 		return nil
+// 	}
 
-	var sourceIPRanges []string
-	for _, ip := range endpoint.SourceIPRanges {
-		sourceIPRanges = append(sourceIPRanges, ip.ValueString())
-	}
+// 	var sourceIPRanges []string
+// 	for _, ip := range endpoint.SourceIPRanges {
+// 		sourceIPRanges = append(sourceIPRanges, ip.ValueString())
+// 	}
 
-	return &client.MetricsEndpointSpecInput{
-		Enabled:        endpoint.Enabled.ValueBoolPointer(),
-		SourceIPRanges: sourceIPRanges,
-	}
-}
+// 	return &client.MetricsEndpointSpecInput{
+// 		Enabled:        endpoint.Enabled.ValueBoolPointer(),
+// 		SourceIPRanges: sourceIPRanges,
+// 	}
+// }
 
-func metricsEndpointToModel(endpoint *client.HCloudEnvSpecFragment_MetricsEndpoint) *MetricsEndpointModel {
-	if endpoint == nil {
-		return nil
-	}
+// func metricsEndpointToModel(endpoint *client.HCloudEnvSpecFragment_MetricsEndpoint) *MetricsEndpointModel {
+// 	if endpoint == nil {
+// 		return nil
+// 	}
 
-	var sourceIPRanges []types.String
-	for _, ip := range endpoint.SourceIPRanges {
-		sourceIPRanges = append(sourceIPRanges, types.StringValue(ip))
-	}
+// 	var sourceIPRanges []types.String
+// 	for _, ip := range endpoint.SourceIPRanges {
+// 		sourceIPRanges = append(sourceIPRanges, types.StringValue(ip))
+// 	}
 
-	return &MetricsEndpointModel{
-		Enabled:        types.BoolValue(endpoint.Enabled),
-		SourceIPRanges: sourceIPRanges,
-	}
-}
+// 	return &MetricsEndpointModel{
+// 		Enabled:        types.BoolValue(endpoint.Enabled),
+// 		SourceIPRanges: sourceIPRanges,
+// 	}
+// }

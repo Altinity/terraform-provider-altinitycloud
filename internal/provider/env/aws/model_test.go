@@ -2069,130 +2069,130 @@ func TestIcebergToModel(t *testing.T) {
 	}
 }
 
-func TestMetricsEndpointToSDK(t *testing.T) {
-	t.Skip("metrics_endpoint temporarily removed from schema")
-	tests := []struct {
-		name     string
-		input    *AWSEnvMetricsEndpointModel
-		expected *sdk.MetricsEndpointSpecInput
-	}{
-		{
-			name:     "Nil input",
-			input:    nil,
-			expected: nil,
-		},
-		{
-			name: "Complete metrics endpoint config",
-			input: &AWSEnvMetricsEndpointModel{
-				Enabled:        types.BoolValue(true),
-				SourceIPRanges: []types.String{types.StringValue("10.0.0.0/8"), types.StringValue("192.168.1.0/24")},
-			},
-			expected: &sdk.MetricsEndpointSpecInput{
-				Enabled:        &[]bool{true}[0],
-				SourceIPRanges: []string{"10.0.0.0/8", "192.168.1.0/24"},
-			},
-		},
-		{
-			name: "Metrics endpoint disabled with empty source IP ranges",
-			input: &AWSEnvMetricsEndpointModel{
-				Enabled:        types.BoolValue(false),
-				SourceIPRanges: []types.String{},
-			},
-			expected: &sdk.MetricsEndpointSpecInput{
-				Enabled:        &[]bool{false}[0],
-				SourceIPRanges: nil,
-			},
-		},
-	}
+// func TestMetricsEndpointToSDK(t *testing.T) {
+// 	t.Skip("metrics_endpoint temporarily removed from schema")
+// 	tests := []struct {
+// 		name     string
+// 		input    *AWSEnvMetricsEndpointModel
+// 		expected *sdk.MetricsEndpointSpecInput
+// 	}{
+// 		{
+// 			name:     "Nil input",
+// 			input:    nil,
+// 			expected: nil,
+// 		},
+// 		{
+// 			name: "Complete metrics endpoint config",
+// 			input: &AWSEnvMetricsEndpointModel{
+// 				Enabled:        types.BoolValue(true),
+// 				SourceIPRanges: []types.String{types.StringValue("10.0.0.0/8"), types.StringValue("192.168.1.0/24")},
+// 			},
+// 			expected: &sdk.MetricsEndpointSpecInput{
+// 				Enabled:        &[]bool{true}[0],
+// 				SourceIPRanges: []string{"10.0.0.0/8", "192.168.1.0/24"},
+// 			},
+// 		},
+// 		{
+// 			name: "Metrics endpoint disabled with empty source IP ranges",
+// 			input: &AWSEnvMetricsEndpointModel{
+// 				Enabled:        types.BoolValue(false),
+// 				SourceIPRanges: []types.String{},
+// 			},
+// 			expected: &sdk.MetricsEndpointSpecInput{
+// 				Enabled:        &[]bool{false}[0],
+// 				SourceIPRanges: nil,
+// 			},
+// 		},
+// 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			result := metricsEndpointToSDK(tt.input)
+// 	for _, tt := range tests {
+// 		t.Run(tt.name, func(t *testing.T) {
+// 			result := metricsEndpointToSDK(tt.input)
 
-			if (tt.expected == nil) != (result == nil) {
-				t.Errorf("Expected nil: %v, got nil: %v", tt.expected == nil, result == nil)
-				return
-			}
+// 			if (tt.expected == nil) != (result == nil) {
+// 				t.Errorf("Expected nil: %v, got nil: %v", tt.expected == nil, result == nil)
+// 				return
+// 			}
 
-			if tt.expected != nil && result != nil {
-				if *tt.expected.Enabled != *result.Enabled {
-					t.Errorf("Enabled mismatch: expected %v, got %v", *tt.expected.Enabled, *result.Enabled)
-				}
+// 			if tt.expected != nil && result != nil {
+// 				if *tt.expected.Enabled != *result.Enabled {
+// 					t.Errorf("Enabled mismatch: expected %v, got %v", *tt.expected.Enabled, *result.Enabled)
+// 				}
 
-				if len(tt.expected.SourceIPRanges) != len(result.SourceIPRanges) {
-					t.Errorf("SourceIPRanges count mismatch: expected %d, got %d", len(tt.expected.SourceIPRanges), len(result.SourceIPRanges))
-				} else {
-					for i, expected := range tt.expected.SourceIPRanges {
-						if expected != result.SourceIPRanges[i] {
-							t.Errorf("SourceIPRanges[%d] mismatch: expected '%s', got '%s'", i, expected, result.SourceIPRanges[i])
-						}
-					}
-				}
-			}
-		})
-	}
-}
+// 				if len(tt.expected.SourceIPRanges) != len(result.SourceIPRanges) {
+// 					t.Errorf("SourceIPRanges count mismatch: expected %d, got %d", len(tt.expected.SourceIPRanges), len(result.SourceIPRanges))
+// 				} else {
+// 					for i, expected := range tt.expected.SourceIPRanges {
+// 						if expected != result.SourceIPRanges[i] {
+// 							t.Errorf("SourceIPRanges[%d] mismatch: expected '%s', got '%s'", i, expected, result.SourceIPRanges[i])
+// 						}
+// 					}
+// 				}
+// 			}
+// 		})
+// 	}
+// }
 
-func TestMetricsEndpointToModel(t *testing.T) {
-	t.Skip("metrics_endpoint temporarily removed from schema")
-	tests := []struct {
-		name     string
-		input    *sdk.AWSEnvSpecFragment_MetricsEndpoint
-		expected *AWSEnvMetricsEndpointModel
-	}{
-		{
-			name:     "Nil input",
-			input:    nil,
-			expected: nil,
-		},
-		{
-			name: "Complete metrics endpoint response",
-			input: &sdk.AWSEnvSpecFragment_MetricsEndpoint{
-				Enabled:        true,
-				SourceIPRanges: []string{"10.0.0.0/8", "172.16.0.0/12"},
-			},
-			expected: &AWSEnvMetricsEndpointModel{
-				Enabled:        types.BoolValue(true),
-				SourceIPRanges: []types.String{types.StringValue("10.0.0.0/8"), types.StringValue("172.16.0.0/12")},
-			},
-		},
-		{
-			name: "Metrics endpoint disabled with empty source IP ranges",
-			input: &sdk.AWSEnvSpecFragment_MetricsEndpoint{
-				Enabled:        false,
-				SourceIPRanges: []string{},
-			},
-			expected: &AWSEnvMetricsEndpointModel{
-				Enabled:        types.BoolValue(false),
-				SourceIPRanges: nil,
-			},
-		},
-	}
+// func TestMetricsEndpointToModel(t *testing.T) {
+// 	t.Skip("metrics_endpoint temporarily removed from schema")
+// 	tests := []struct {
+// 		name     string
+// 		input    *sdk.AWSEnvSpecFragment_MetricsEndpoint
+// 		expected *AWSEnvMetricsEndpointModel
+// 	}{
+// 		{
+// 			name:     "Nil input",
+// 			input:    nil,
+// 			expected: nil,
+// 		},
+// 		{
+// 			name: "Complete metrics endpoint response",
+// 			input: &sdk.AWSEnvSpecFragment_MetricsEndpoint{
+// 				Enabled:        true,
+// 				SourceIPRanges: []string{"10.0.0.0/8", "172.16.0.0/12"},
+// 			},
+// 			expected: &AWSEnvMetricsEndpointModel{
+// 				Enabled:        types.BoolValue(true),
+// 				SourceIPRanges: []types.String{types.StringValue("10.0.0.0/8"), types.StringValue("172.16.0.0/12")},
+// 			},
+// 		},
+// 		{
+// 			name: "Metrics endpoint disabled with empty source IP ranges",
+// 			input: &sdk.AWSEnvSpecFragment_MetricsEndpoint{
+// 				Enabled:        false,
+// 				SourceIPRanges: []string{},
+// 			},
+// 			expected: &AWSEnvMetricsEndpointModel{
+// 				Enabled:        types.BoolValue(false),
+// 				SourceIPRanges: nil,
+// 			},
+// 		},
+// 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			result := metricsEndpointToModel(tt.input)
+// 	for _, tt := range tests {
+// 		t.Run(tt.name, func(t *testing.T) {
+// 			result := metricsEndpointToModel(tt.input)
 
-			if (tt.expected == nil) != (result == nil) {
-				t.Errorf("Expected nil: %v, got nil: %v", tt.expected == nil, result == nil)
-				return
-			}
+// 			if (tt.expected == nil) != (result == nil) {
+// 				t.Errorf("Expected nil: %v, got nil: %v", tt.expected == nil, result == nil)
+// 				return
+// 			}
 
-			if tt.expected != nil && result != nil {
-				if tt.expected.Enabled.ValueBool() != result.Enabled.ValueBool() {
-					t.Errorf("Enabled mismatch: expected %v, got %v", tt.expected.Enabled.ValueBool(), result.Enabled.ValueBool())
-				}
+// 			if tt.expected != nil && result != nil {
+// 				if tt.expected.Enabled.ValueBool() != result.Enabled.ValueBool() {
+// 					t.Errorf("Enabled mismatch: expected %v, got %v", tt.expected.Enabled.ValueBool(), result.Enabled.ValueBool())
+// 				}
 
-				if len(tt.expected.SourceIPRanges) != len(result.SourceIPRanges) {
-					t.Errorf("SourceIPRanges count mismatch: expected %d, got %d", len(tt.expected.SourceIPRanges), len(result.SourceIPRanges))
-				} else {
-					for i, expected := range tt.expected.SourceIPRanges {
-						if expected.ValueString() != result.SourceIPRanges[i].ValueString() {
-							t.Errorf("SourceIPRanges[%d] mismatch: expected '%s', got '%s'", i, expected.ValueString(), result.SourceIPRanges[i].ValueString())
-						}
-					}
-				}
-			}
-		})
-	}
-}
+// 				if len(tt.expected.SourceIPRanges) != len(result.SourceIPRanges) {
+// 					t.Errorf("SourceIPRanges count mismatch: expected %d, got %d", len(tt.expected.SourceIPRanges), len(result.SourceIPRanges))
+// 				} else {
+// 					for i, expected := range tt.expected.SourceIPRanges {
+// 						if expected.ValueString() != result.SourceIPRanges[i].ValueString() {
+// 							t.Errorf("SourceIPRanges[%d] mismatch: expected '%s', got '%s'", i, expected.ValueString(), result.SourceIPRanges[i].ValueString())
+// 						}
+// 					}
+// 				}
+// 			}
+// 		})
+// 	}
+// }
