@@ -1,0 +1,37 @@
+name: Sanity Tests
+
+# Triggers terraform sanity tests in the cloud-regression repo and
+# waits for them to finish, mirroring the result (pass/fail/cancelled).
+#
+# Requires a CLOUD_REGRESSION_PAT secret: a GitHub PAT (or fine-grained token)
+# with "actions:write" permission on the Altinity/cloud-regression repository.
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Provider version to test, e.g. '0.5.0'"
+        type: string
+        required: true
+
+jobs:
+  sanity-tests:
+    name: cloud-regression sanity tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Trigger and wait for sanity tests
+        uses: convictional/trigger-workflow-and-wait@v1.6.5
+        with:
+          owner: Altinity
+          repo: cloud-regression
+          github_token: ${{ secrets.CLOUD_REGRESSION_PAT }}
+          workflow_file_name: tf-release.yml
+          ref: main
+          wait_interval: 60
+          client_payload: '{"provider_version": "${{ github.event.release.tag_name || inputs.version }}"}'
+          propagate_failure: true
+          trigger_workflow: true
+          wait_workflow: true
