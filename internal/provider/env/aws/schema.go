@@ -414,6 +414,9 @@ func getIcebergAttribute(required, optional, computed bool) rschema.SingleNested
 						"custom_s3_table_bucket_arn": rschema.StringAttribute{
 							Optional:            true,
 							MarkdownDescription: common.ICEBERG_CATALOG_CUSTOM_S3_TABLE_BUCKET_ARN_DESCRIPTION,
+							Validators: []validator.String{
+								modifiers.RequiredIfSiblingValue("type", "S3_TABLE"),
+							},
 						},
 						"anonymous_access_enabled": rschema.BoolAttribute{
 							Optional:            true,
