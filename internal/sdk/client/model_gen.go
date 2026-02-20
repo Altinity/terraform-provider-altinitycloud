@@ -2512,6 +2512,8 @@ const (
 	EnvStatusErrorCodeCloudProviderAccessDenied     EnvStatusErrorCode = "CLOUD_PROVIDER_ACCESS_DENIED"
 	EnvStatusErrorCodeCloudProviderQuotaExceeded    EnvStatusErrorCode = "CLOUD_PROVIDER_QUOTA_EXCEEDED"
 	EnvStatusErrorCodeCloudProviderResourceNotFound EnvStatusErrorCode = "CLOUD_PROVIDER_RESOURCE_NOT_FOUND"
+	EnvStatusErrorCodeGCPProjectNotFound            EnvStatusErrorCode = "GCP_PROJECT_NOT_FOUND"
+	EnvStatusErrorCodeK8sDisconnected               EnvStatusErrorCode = "K8S_DISCONNECTED"
 )
 
 var AllEnvStatusErrorCode = []EnvStatusErrorCode{
@@ -2520,11 +2522,13 @@ var AllEnvStatusErrorCode = []EnvStatusErrorCode{
 	EnvStatusErrorCodeCloudProviderAccessDenied,
 	EnvStatusErrorCodeCloudProviderQuotaExceeded,
 	EnvStatusErrorCodeCloudProviderResourceNotFound,
+	EnvStatusErrorCodeGCPProjectNotFound,
+	EnvStatusErrorCodeK8sDisconnected,
 }
 
 func (e EnvStatusErrorCode) IsValid() bool {
 	switch e {
-	case EnvStatusErrorCodeInternal, EnvStatusErrorCodeDisconnected, EnvStatusErrorCodeCloudProviderAccessDenied, EnvStatusErrorCodeCloudProviderQuotaExceeded, EnvStatusErrorCodeCloudProviderResourceNotFound:
+	case EnvStatusErrorCodeInternal, EnvStatusErrorCodeDisconnected, EnvStatusErrorCodeCloudProviderAccessDenied, EnvStatusErrorCodeCloudProviderQuotaExceeded, EnvStatusErrorCodeCloudProviderResourceNotFound, EnvStatusErrorCodeGCPProjectNotFound, EnvStatusErrorCodeK8sDisconnected:
 		return true
 	}
 	return false

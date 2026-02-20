@@ -146,15 +146,9 @@ Required:
 Optional:
 
 - `anonymous_access_enabled` (Boolean) Whether anonymous access is enabled (default `false`).
-- `assume_role_arn_ro` (String) IAM role ARN to assume for read-only access.
-- `assume_role_arn_rw` (String) IAM role ARN to assume for read-write access.
-- `aws_region` (String) AWS region for the catalog.
-- `custom_s3_bucket` (String) Custom S3 bucket name.
-- `custom_s3_bucket_path` (String) Path within the custom S3 bucket.
 - `custom_s3_table_bucket_arn` (String) ARN of the S3 Tables bucket.
 - `maintenance` (Attributes) Maintenance configuration for the catalog. (see [below for nested schema](#nestedatt--iceberg--catalogs--maintenance))
 - `name` (String) Catalog name. Empty name represents the default catalog.
-- `role_arn` (String) IAM role ARN for BYOK environments.
 - `watches` (Attributes List) Table watch configurations. (see [below for nested schema](#nestedatt--iceberg--catalogs--watches))
 
 <a id="nestedatt--iceberg--catalogs--maintenance"></a>
