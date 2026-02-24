@@ -11,10 +11,32 @@ on:
     types: [published]
   workflow_dispatch:
     inputs:
+      use_local_provider:
+        description: "Build and use local terraform provider"
+        type: boolean
+        required: false
+        default: false
       version:
-        description: "Provider version to test, e.g. '0.5.0'"
+        description: "Provider version to test (if not local), e.g. '0.5.0'"
         type: string
-        required: true
+        required: false
+        default: ""
+      provider_ref:
+        description: "terraform-provider-altinitycloud ref (branch/tag/sha)"
+        type: string
+        required: false
+        default: "master"
+      job:
+        description: "Which job to run"
+        type: choice
+        required: false
+        default: "all"
+        options:
+          - all
+          - aws_byoc
+          - aws_byok
+          - gcp_byoc
+          - hetzner_byoc
 
 jobs:
   sanity-tests:
@@ -31,7 +53,13 @@ jobs:
           workflow_file_name: tf-release.yml
           ref: main
           wait_interval: 60
-          client_payload: '{"provider_version": "${{ github.event.release.tag_name || inputs.version }}"}'
+          client_payload: >-
+            {
+              "use_local_provider": "${{ inputs.use_local_provider }}",
+              "provider_version": "${{ github.event.release.tag_name || inputs.version }}",
+              "provider_ref": "${{ inputs.provider_ref }}",
+              "job": "${{ inputs.job }}"
+            }
           propagate_failure: true
           trigger_workflow: true
           wait_workflow: true
