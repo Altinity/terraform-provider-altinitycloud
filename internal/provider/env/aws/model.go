@@ -91,16 +91,10 @@ type AWSEnvIcebergModel struct {
 type AWSEnvIcebergCatalogModel struct {
 	Name                   types.String                          `tfsdk:"name"`
 	Type                   types.String                          `tfsdk:"type"`
-	CustomS3Bucket         types.String                          `tfsdk:"custom_s3_bucket"`
-	CustomS3BucketPath     types.String                          `tfsdk:"custom_s3_bucket_path"`
 	CustomS3TableBucketARN types.String                          `tfsdk:"custom_s3_table_bucket_arn"`
-	AWSRegion              types.String                          `tfsdk:"aws_region"`
 	AnonymousAccessEnabled types.Bool                            `tfsdk:"anonymous_access_enabled"`
 	Maintenance            *AWSEnvIcebergCatalogMaintenanceModel `tfsdk:"maintenance"`
 	Watches                []AWSEnvIcebergCatalogWatchModel      `tfsdk:"watches"`
-	RoleARN                types.String                          `tfsdk:"role_arn"`
-	AssumeRoleARNRW        types.String                          `tfsdk:"assume_role_arn_rw"`
-	AssumeRoleARNRO        types.String                          `tfsdk:"assume_role_arn_ro"`
 }
 
 type AWSEnvIcebergCatalogMaintenanceModel struct {
@@ -482,14 +476,8 @@ func icebergToSDK(iceberg *AWSEnvIcebergModel) *sdk.IcebergInputSpec {
 		catalog := &sdk.IcebergCatalogInputSpec{
 			Name:                   c.Name.ValueStringPointer(),
 			Type:                   sdk.IcebergCatalogTypeSpec(c.Type.ValueString()),
-			CustomS3Bucket:         c.CustomS3Bucket.ValueStringPointer(),
-			CustomS3BucketPath:     c.CustomS3BucketPath.ValueStringPointer(),
 			CustomS3TableBucketArn: c.CustomS3TableBucketARN.ValueStringPointer(),
-			AWSRegion:              c.AWSRegion.ValueStringPointer(),
 			AnonymousAccessEnabled: c.AnonymousAccessEnabled.ValueBoolPointer(),
-			RoleArn:                c.RoleARN.ValueStringPointer(),
-			AssumeRoleArnrw:        c.AssumeRoleARNRW.ValueStringPointer(),
-			AssumeRoleArnro:        c.AssumeRoleARNRO.ValueStringPointer(),
 		}
 
 		if c.Maintenance != nil {
@@ -529,14 +517,8 @@ func icebergToUpdateSDK(iceberg *AWSEnvIcebergModel) *sdk.IcebergUpdateInputSpec
 		catalog := &sdk.IcebergCatalogInputSpec{
 			Name:                   c.Name.ValueStringPointer(),
 			Type:                   sdk.IcebergCatalogTypeSpec(c.Type.ValueString()),
-			CustomS3Bucket:         c.CustomS3Bucket.ValueStringPointer(),
-			CustomS3BucketPath:     c.CustomS3BucketPath.ValueStringPointer(),
 			CustomS3TableBucketArn: c.CustomS3TableBucketARN.ValueStringPointer(),
-			AWSRegion:              c.AWSRegion.ValueStringPointer(),
 			AnonymousAccessEnabled: c.AnonymousAccessEnabled.ValueBoolPointer(),
-			RoleArn:                c.RoleARN.ValueStringPointer(),
-			AssumeRoleArnrw:        c.AssumeRoleARNRW.ValueStringPointer(),
-			AssumeRoleArnro:        c.AssumeRoleARNRO.ValueStringPointer(),
 		}
 
 		if c.Maintenance != nil {
@@ -576,14 +558,8 @@ func icebergToModel(iceberg *sdk.AWSEnvSpecFragment_Iceberg) *AWSEnvIcebergModel
 		catalog := AWSEnvIcebergCatalogModel{
 			Name:                   types.StringPointerValue(c.Name),
 			Type:                   types.StringValue(string(c.Type)),
-			CustomS3Bucket:         types.StringPointerValue(c.CustomS3Bucket),
-			CustomS3BucketPath:     types.StringPointerValue(c.CustomS3BucketPath),
 			CustomS3TableBucketARN: types.StringPointerValue(c.CustomS3TableBucketArn),
-			AWSRegion:              types.StringPointerValue(c.AWSRegion),
 			AnonymousAccessEnabled: types.BoolPointerValue(c.AnonymousAccessEnabled),
-			RoleARN:                types.StringPointerValue(c.RoleArn),
-			AssumeRoleARNRW:        types.StringPointerValue(c.AssumeRoleArnrw),
-			AssumeRoleARNRO:        types.StringPointerValue(c.AssumeRoleArnro),
 		}
 
 		catalog.Maintenance = &AWSEnvIcebergCatalogMaintenanceModel{

@@ -44,7 +44,7 @@ func (r *AWSEnvResource) Create(ctx context.Context, req resource.CreateRequest,
 	apiResp, err := r.Client.CreateAWSEnv(ctx, sdkEnv)
 
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create env %s, got error: %s", envName, err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create env %s, got error: %s", envName, client.FormatError(err, envName)))
 		return
 	}
 
@@ -81,7 +81,7 @@ func (r *AWSEnvResource) Read(ctx context.Context, req resource.ReadRequest, res
 			tflog.Trace(ctx, "removing resource from state", map[string]interface{}{"name": envName})
 			resp.State.RemoveResource(ctx)
 		} else {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read env %s, got error: %s", envName, err))
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read env %s, got error: %s", envName, client.FormatError(err, envName)))
 		}
 		return
 	}
@@ -113,7 +113,7 @@ func (r *AWSEnvResource) Update(ctx context.Context, req resource.UpdateRequest,
 	apiResp, err := r.Client.UpdateAWSEnv(ctx, sdkEnv)
 
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update env %s, got error: %s", envName, err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update env %s, got error: %s", envName, client.FormatError(err, envName)))
 		return
 	}
 

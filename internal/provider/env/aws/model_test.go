@@ -1028,9 +1028,6 @@ func TestAWSEnvResourceModel_toSDK(t *testing.T) {
 						{
 							Name:                   types.StringValue("my-catalog"),
 							Type:                   types.StringValue("S3"),
-							CustomS3Bucket:         types.StringValue("my-iceberg-bucket"),
-							CustomS3BucketPath:     types.StringValue("/data"),
-							AWSRegion:              types.StringValue("us-east-1"),
 							AnonymousAccessEnabled: types.BoolValue(false),
 							Maintenance: &AWSEnvIcebergCatalogMaintenanceModel{
 								Enabled: types.BoolValue(true),
@@ -1041,9 +1038,6 @@ func TestAWSEnvResourceModel_toSDK(t *testing.T) {
 									PathsRelativeToTableLocation: []types.String{types.StringValue("data/")},
 								},
 							},
-							RoleARN:         types.StringValue("arn:aws:iam::123456789012:role/iceberg"),
-							AssumeRoleARNRW: types.StringValue("arn:aws:iam::123456789012:role/rw"),
-							AssumeRoleARNRO: types.StringValue("arn:aws:iam::123456789012:role/ro"),
 						},
 					},
 				},
@@ -1080,9 +1074,6 @@ func TestAWSEnvResourceModel_toSDK(t *testing.T) {
 				}
 				if *create.Spec.Iceberg.Catalogs[0].Name != "my-catalog" {
 					t.Errorf("Create Iceberg catalog name: expected 'my-catalog', got '%s'", *create.Spec.Iceberg.Catalogs[0].Name)
-				}
-				if *create.Spec.Iceberg.Catalogs[0].CustomS3Bucket != "my-iceberg-bucket" {
-					t.Errorf("Create Iceberg catalog bucket: expected 'my-iceberg-bucket', got '%s'", *create.Spec.Iceberg.Catalogs[0].CustomS3Bucket)
 				}
 				if create.Spec.Iceberg.Catalogs[0].Maintenance == nil || !create.Spec.Iceberg.Catalogs[0].Maintenance.Enabled {
 					t.Error("Create Iceberg catalog maintenance should be enabled")
@@ -1559,9 +1550,6 @@ func TestAWSEnvResourceModel_toModel(t *testing.T) {
 							{
 								Name:                   &[]string{"production-catalog"}[0],
 								Type:                   sdk.IcebergCatalogTypeSpecS3,
-								CustomS3Bucket:         &[]string{"prod-iceberg-bucket"}[0],
-								CustomS3BucketPath:     &[]string{"/iceberg"}[0],
-								AWSRegion:              &[]string{"us-east-1"}[0],
 								AnonymousAccessEnabled: &[]bool{false}[0],
 								Maintenance: sdk.AWSEnvSpecFragment_Iceberg_Catalogs_Maintenance{
 									Enabled: true,
@@ -1572,9 +1560,6 @@ func TestAWSEnvResourceModel_toModel(t *testing.T) {
 										PathsRelativeToTableLocation: []string{"data/", "metadata/"},
 									},
 								},
-								RoleArn:         &[]string{"arn:aws:iam::123456789012:role/iceberg"}[0],
-								AssumeRoleArnrw: &[]string{"arn:aws:iam::123456789012:role/rw"}[0],
-								AssumeRoleArnro: &[]string{"arn:aws:iam::123456789012:role/ro"}[0],
 							},
 						},
 					},
@@ -1606,15 +1591,6 @@ func TestAWSEnvResourceModel_toModel(t *testing.T) {
 				if catalog.Type.ValueString() != "S3" {
 					t.Errorf("Iceberg catalog type: expected 'S3', got '%s'", catalog.Type.ValueString())
 				}
-				if catalog.CustomS3Bucket.ValueString() != "prod-iceberg-bucket" {
-					t.Errorf("Iceberg catalog bucket: expected 'prod-iceberg-bucket', got '%s'", catalog.CustomS3Bucket.ValueString())
-				}
-				if catalog.CustomS3BucketPath.ValueString() != "/iceberg" {
-					t.Errorf("Iceberg catalog path: expected '/iceberg', got '%s'", catalog.CustomS3BucketPath.ValueString())
-				}
-				if catalog.AWSRegion.ValueString() != "us-east-1" {
-					t.Errorf("Iceberg catalog region: expected 'us-east-1', got '%s'", catalog.AWSRegion.ValueString())
-				}
 				if catalog.AnonymousAccessEnabled.ValueBool() != false {
 					t.Errorf("Iceberg catalog anonymous access: expected false, got %v", catalog.AnonymousAccessEnabled.ValueBool())
 				}
@@ -1633,16 +1609,6 @@ func TestAWSEnvResourceModel_toModel(t *testing.T) {
 				if len(catalog.Watches[0].PathsRelativeToTableLocation) != 2 {
 					t.Errorf("Iceberg catalog watch paths: expected 2, got %d", len(catalog.Watches[0].PathsRelativeToTableLocation))
 				}
-				if catalog.RoleARN.ValueString() != "arn:aws:iam::123456789012:role/iceberg" {
-					t.Errorf("Iceberg catalog role ARN: expected 'arn:aws:iam::123456789012:role/iceberg', got '%s'", catalog.RoleARN.ValueString())
-				}
-				if catalog.AssumeRoleARNRW.ValueString() != "arn:aws:iam::123456789012:role/rw" {
-					t.Errorf("Iceberg catalog assume role RW: expected 'arn:aws:iam::123456789012:role/rw', got '%s'", catalog.AssumeRoleARNRW.ValueString())
-				}
-				if catalog.AssumeRoleARNRO.ValueString() != "arn:aws:iam::123456789012:role/ro" {
-					t.Errorf("Iceberg catalog assume role RO: expected 'arn:aws:iam::123456789012:role/ro', got '%s'", catalog.AssumeRoleARNRO.ValueString())
-				}
-
 				if model.SpecRevision.ValueInt64() != 15 {
 					t.Errorf("SpecRevision: expected 15, got %d", model.SpecRevision.ValueInt64())
 				}
@@ -1814,9 +1780,6 @@ func TestIcebergToSDK(t *testing.T) {
 					{
 						Name:                   types.StringValue("my-catalog"),
 						Type:                   types.StringValue("S3"),
-						CustomS3Bucket:         types.StringValue("my-bucket"),
-						CustomS3BucketPath:     types.StringValue("/data"),
-						AWSRegion:              types.StringValue("us-east-1"),
 						AnonymousAccessEnabled: types.BoolValue(false),
 						Maintenance: &AWSEnvIcebergCatalogMaintenanceModel{
 							Enabled: types.BoolValue(true),
@@ -1827,9 +1790,6 @@ func TestIcebergToSDK(t *testing.T) {
 								PathsRelativeToTableLocation: []types.String{types.StringValue("data/"), types.StringValue("metadata/")},
 							},
 						},
-						RoleARN:         types.StringValue("arn:aws:iam::123456789012:role/iceberg-role"),
-						AssumeRoleARNRW: types.StringValue("arn:aws:iam::123456789012:role/rw-role"),
-						AssumeRoleARNRO: types.StringValue("arn:aws:iam::123456789012:role/ro-role"),
 					},
 				},
 			},
@@ -1838,9 +1798,6 @@ func TestIcebergToSDK(t *testing.T) {
 					{
 						Name:                   &[]string{"my-catalog"}[0],
 						Type:                   sdk.IcebergCatalogTypeSpecS3,
-						CustomS3Bucket:         &[]string{"my-bucket"}[0],
-						CustomS3BucketPath:     &[]string{"/data"}[0],
-						AWSRegion:              &[]string{"us-east-1"}[0],
 						AnonymousAccessEnabled: &[]bool{false}[0],
 						Maintenance: &sdk.IcebergCatalogMaintenanceInputSpec{
 							Enabled: true,
@@ -1851,9 +1808,6 @@ func TestIcebergToSDK(t *testing.T) {
 								PathsRelativeToTableLocation: []string{"data/", "metadata/"},
 							},
 						},
-						RoleArn:         &[]string{"arn:aws:iam::123456789012:role/iceberg-role"}[0],
-						AssumeRoleArnrw: &[]string{"arn:aws:iam::123456789012:role/rw-role"}[0],
-						AssumeRoleArnro: &[]string{"arn:aws:iam::123456789012:role/ro-role"}[0],
 					},
 				},
 			},
@@ -1865,7 +1819,6 @@ func TestIcebergToSDK(t *testing.T) {
 					{
 						Type:                   types.StringValue("S3_TABLE"),
 						CustomS3TableBucketARN: types.StringValue("arn:aws:s3tables:us-east-1:123456789012:bucket/my-table-bucket"),
-						AWSRegion:              types.StringValue("us-east-1"),
 						Maintenance: &AWSEnvIcebergCatalogMaintenanceModel{
 							Enabled: types.BoolValue(false),
 						},
@@ -1877,7 +1830,6 @@ func TestIcebergToSDK(t *testing.T) {
 					{
 						Type:                   sdk.IcebergCatalogTypeSpecS3Table,
 						CustomS3TableBucketArn: &[]string{"arn:aws:s3tables:us-east-1:123456789012:bucket/my-table-bucket"}[0],
-						AWSRegion:              &[]string{"us-east-1"}[0],
 						Maintenance: &sdk.IcebergCatalogMaintenanceInputSpec{
 							Enabled: false,
 						},
@@ -1982,9 +1934,6 @@ func TestIcebergToModel(t *testing.T) {
 					{
 						Name:                   types.StringValue("production-catalog"),
 						Type:                   types.StringValue("S3"),
-						CustomS3Bucket:         types.StringValue("prod-bucket"),
-						CustomS3BucketPath:     types.StringValue("/iceberg"),
-						AWSRegion:              types.StringValue("us-west-2"),
 						AnonymousAccessEnabled: types.BoolValue(true),
 						Maintenance: &AWSEnvIcebergCatalogMaintenanceModel{
 							Enabled: types.BoolValue(true),
@@ -1995,9 +1944,6 @@ func TestIcebergToModel(t *testing.T) {
 								PathsRelativeToTableLocation: []types.String{types.StringValue("data/")},
 							},
 						},
-						RoleARN:         types.StringValue("arn:aws:iam::123456789012:role/iceberg"),
-						AssumeRoleARNRW: types.StringValue("arn:aws:iam::123456789012:role/rw"),
-						AssumeRoleARNRO: types.StringValue("arn:aws:iam::123456789012:role/ro"),
 					},
 				},
 			},
@@ -2022,7 +1968,6 @@ func TestIcebergToModel(t *testing.T) {
 					{
 						Type:                   types.StringValue("S3_TABLE"),
 						CustomS3TableBucketARN: types.StringValue("arn:aws:s3tables:us-east-1:123456789012:bucket/tables"),
-						AWSRegion:              types.StringValue("us-east-1"),
 						Maintenance: &AWSEnvIcebergCatalogMaintenanceModel{
 							Enabled: types.BoolValue(false),
 						},

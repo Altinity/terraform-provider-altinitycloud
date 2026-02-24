@@ -411,21 +411,12 @@ func getIcebergAttribute(required, optional, computed bool) rschema.SingleNested
 								),
 							},
 						},
-						"custom_s3_bucket": rschema.StringAttribute{
-							Optional:            true,
-							MarkdownDescription: common.ICEBERG_CATALOG_CUSTOM_S3_BUCKET_DESCRIPTION,
-						},
-						"custom_s3_bucket_path": rschema.StringAttribute{
-							Optional:            true,
-							MarkdownDescription: common.ICEBERG_CATALOG_CUSTOM_S3_BUCKET_PATH_DESCRIPTION,
-						},
 						"custom_s3_table_bucket_arn": rschema.StringAttribute{
 							Optional:            true,
 							MarkdownDescription: common.ICEBERG_CATALOG_CUSTOM_S3_TABLE_BUCKET_ARN_DESCRIPTION,
-						},
-						"aws_region": rschema.StringAttribute{
-							Optional:            true,
-							MarkdownDescription: common.ICEBERG_CATALOG_AWS_REGION_DESCRIPTION,
+							Validators: []validator.String{
+								modifiers.RequiredIfSiblingValue("type", "S3_TABLE"),
+							},
 						},
 						"anonymous_access_enabled": rschema.BoolAttribute{
 							Optional:            true,
@@ -462,18 +453,6 @@ func getIcebergAttribute(required, optional, computed bool) rschema.SingleNested
 									},
 								},
 							},
-						},
-						"role_arn": rschema.StringAttribute{
-							Optional:            true,
-							MarkdownDescription: common.ICEBERG_CATALOG_ROLE_ARN_DESCRIPTION,
-						},
-						"assume_role_arn_rw": rschema.StringAttribute{
-							Optional:            true,
-							MarkdownDescription: common.ICEBERG_CATALOG_ASSUME_ROLE_ARN_RW_DESCRIPTION,
-						},
-						"assume_role_arn_ro": rschema.StringAttribute{
-							Optional:            true,
-							MarkdownDescription: common.ICEBERG_CATALOG_ASSUME_ROLE_ARN_RO_DESCRIPTION,
 						},
 					},
 				},

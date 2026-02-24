@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/altinity/terraform-provider-altinitycloud/internal/provider/env_status/common"
+	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/client"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -38,7 +39,7 @@ func (d *K8SEnvStatusDataSource) Read(ctx context.Context, req datasource.ReadRe
 	envName := data.Name.ValueString()
 	apiResp, err := d.Client.GetK8SEnvStatus(ctx, envName)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read env status %s, got error: %s", envName, err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read env status %s, got error: %s", envName, client.FormatError(err, envName)))
 		return
 	}
 
@@ -87,7 +88,7 @@ tickerLoop:
 			apiResp, err := d.Client.GetK8SEnvStatus(ctx, envName)
 
 			if err != nil {
-				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read env status %s, got error: %s", envName, err))
+				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read env status %s, got error: %s", envName, client.FormatError(err, envName)))
 				return
 			}
 
