@@ -3,6 +3,9 @@ name: Sanity Tests
 # Triggers terraform sanity tests in the cloud-regression repo and
 # waits for them to finish, mirroring the result (pass/fail/cancelled).
 #
+# Sanity tests also run as a gate in release.yml (before publishing a release);
+# this workflow is for manual runs and for post-release verification.
+#
 # Requires a CLOUD_REGRESSION_PAT secret: a GitHub PAT (or fine-grained token)
 # with "actions:write" permission on the Altinity/cloud-regression repository.
 

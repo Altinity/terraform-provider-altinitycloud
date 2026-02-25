@@ -1,5 +1,9 @@
 name: Release
 
+# On tag push v*: run sanity tests first, then release. If sanity tests fail,
+# the release is not published.
+# Requires CLOUD_REGRESSION_PAT secret (same as sanity-test.yml).
+
 on:
   push:
     tags:
@@ -9,7 +13,33 @@ permissions:
   contents: write
 
 jobs:
+  sanity-tests:
+    name: Sanity tests (gate)
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Trigger and wait for sanity tests
+        uses: convictional/trigger-workflow-and-wait@v1.6.5
+        with:
+          owner: Altinity
+          repo: cloud-regression
+          github_token: ${{ secrets.CLOUD_REGRESSION_PAT }}
+          workflow_file_name: tf-release.yml
+          ref: main
+          wait_interval: 60
+          client_payload: >-
+            {
+              "use_local_provider": "true",
+              "provider_version": "",
+              "provider_ref": "${{ github.ref_name }}",
+              "job": "all"
+            }
+          propagate_failure: true
+          trigger_workflow: true
+          wait_workflow: true
+
   goreleaser:
+    needs: [sanity-tests]
     runs-on: [self-hosted, aws-altinity-inc-prod]
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
