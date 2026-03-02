@@ -37,6 +37,7 @@ type AWSEnvSpecFragment struct {
 	Backups                      *AWSEnvSpecFragment_Backups              "json:\"backups,omitempty\" graphql:\"backups\""
 	Iceberg                      *AWSEnvSpecFragment_Iceberg              "json:\"iceberg,omitempty\" graphql:\"iceberg\""
 	EksLogging                   bool                                     "json:\"eksLogging\" graphql:\"eksLogging\""
+	MetricsEndpoint              AWSEnvSpecFragment_MetricsEndpoint       "json:\"metricsEndpoint\" graphql:\"metricsEndpoint\""
 }
 
 func (t *AWSEnvSpecFragment) GetLoadBalancers() *AWSEnvSpecFragment_LoadBalancers {
@@ -159,6 +160,12 @@ func (t *AWSEnvSpecFragment) GetEksLogging() bool {
 	}
 	return t.EksLogging
 }
+func (t *AWSEnvSpecFragment) GetMetricsEndpoint() *AWSEnvSpecFragment_MetricsEndpoint {
+	if t == nil {
+		t = &AWSEnvSpecFragment{}
+	}
+	return &t.MetricsEndpoint
+}
 
 type AzureEnvSpecFragment struct {
 	LoadBalancers         AzureEnvSpecFragment_LoadBalancers         "json:\"loadBalancers\" graphql:\"loadBalancers\""
@@ -174,6 +181,7 @@ type AzureEnvSpecFragment struct {
 	TenantID              string                                     "json:\"tenantID\" graphql:\"tenantID\""
 	SubscriptionID        string                                     "json:\"subscriptionID\" graphql:\"subscriptionID\""
 	CloudConnect          bool                                       "json:\"cloudConnect\" graphql:\"cloudConnect\""
+	MetricsEndpoint       AzureEnvSpecFragment_MetricsEndpoint       "json:\"metricsEndpoint\" graphql:\"metricsEndpoint\""
 }
 
 func (t *AzureEnvSpecFragment) GetLoadBalancers() *AzureEnvSpecFragment_LoadBalancers {
@@ -254,6 +262,12 @@ func (t *AzureEnvSpecFragment) GetCloudConnect() bool {
 	}
 	return t.CloudConnect
 }
+func (t *AzureEnvSpecFragment) GetMetricsEndpoint() *AzureEnvSpecFragment_MetricsEndpoint {
+	if t == nil {
+		t = &AzureEnvSpecFragment{}
+	}
+	return &t.MetricsEndpoint
+}
 
 type GCPEnvSpecFragment struct {
 	LoadBalancers           GCPEnvSpecFragment_LoadBalancers         "json:\"loadBalancers\" graphql:\"loadBalancers\""
@@ -268,6 +282,7 @@ type GCPEnvSpecFragment struct {
 	Cidr                    string                                   "json:\"cidr\" graphql:\"cidr\""
 	GCPProjectID            string                                   "json:\"gcpProjectId\" graphql:\"gcpProjectId\""
 	CloudConnect            bool                                     "json:\"cloudConnect\" graphql:\"cloudConnect\""
+	MetricsEndpoint         GCPEnvSpecFragment_MetricsEndpoint       "json:\"metricsEndpoint\" graphql:\"metricsEndpoint\""
 }
 
 func (t *GCPEnvSpecFragment) GetLoadBalancers() *GCPEnvSpecFragment_LoadBalancers {
@@ -342,6 +357,12 @@ func (t *GCPEnvSpecFragment) GetCloudConnect() bool {
 	}
 	return t.CloudConnect
 }
+func (t *GCPEnvSpecFragment) GetMetricsEndpoint() *GCPEnvSpecFragment_MetricsEndpoint {
+	if t == nil {
+		t = &GCPEnvSpecFragment{}
+	}
+	return &t.MetricsEndpoint
+}
 
 type HCloudEnvSpecFragment struct {
 	LoadBalancers         HCloudEnvSpecFragment_LoadBalancers         "json:\"loadBalancers\" graphql:\"loadBalancers\""
@@ -354,6 +375,7 @@ type HCloudEnvSpecFragment struct {
 	Cidr                  string                                      "json:\"cidr\" graphql:\"cidr\""
 	CloudConnect          bool                                        "json:\"cloudConnect\" graphql:\"cloudConnect\""
 	WireguardPeers        []*HCloudEnvSpecFragment_WireguardPeers     "json:\"wireguardPeers\" graphql:\"wireguardPeers\""
+	MetricsEndpoint       HCloudEnvSpecFragment_MetricsEndpoint       "json:\"metricsEndpoint\" graphql:\"metricsEndpoint\""
 }
 
 func (t *HCloudEnvSpecFragment) GetLoadBalancers() *HCloudEnvSpecFragment_LoadBalancers {
@@ -415,6 +437,12 @@ func (t *HCloudEnvSpecFragment) GetWireguardPeers() []*HCloudEnvSpecFragment_Wir
 		t = &HCloudEnvSpecFragment{}
 	}
 	return t.WireguardPeers
+}
+func (t *HCloudEnvSpecFragment) GetMetricsEndpoint() *HCloudEnvSpecFragment_MetricsEndpoint {
+	if t == nil {
+		t = &HCloudEnvSpecFragment{}
+	}
+	return &t.MetricsEndpoint
 }
 
 type K8SEnvSpecFragment struct {
@@ -887,6 +915,24 @@ func (t *AWSEnvSpecFragment_Iceberg) GetCatalogs() []*AWSEnvSpecFragment_Iceberg
 	return t.Catalogs
 }
 
+type AWSEnvSpecFragment_MetricsEndpoint struct {
+	Enabled        bool     "json:\"enabled\" graphql:\"enabled\""
+	SourceIPRanges []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
+}
+
+func (t *AWSEnvSpecFragment_MetricsEndpoint) GetEnabled() bool {
+	if t == nil {
+		t = &AWSEnvSpecFragment_MetricsEndpoint{}
+	}
+	return t.Enabled
+}
+func (t *AWSEnvSpecFragment_MetricsEndpoint) GetSourceIPRanges() []string {
+	if t == nil {
+		t = &AWSEnvSpecFragment_MetricsEndpoint{}
+	}
+	return t.SourceIPRanges
+}
+
 type AzureEnvSpecFragment_LoadBalancers_Public struct {
 	Enabled        bool     "json:\"enabled\" graphql:\"enabled\""
 	SourceIPRanges []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
@@ -1048,6 +1094,24 @@ func (t *AzureEnvSpecFragment_PrivateLinkService) GetAllowedSubscriptions() []st
 	return t.AllowedSubscriptions
 }
 
+type AzureEnvSpecFragment_MetricsEndpoint struct {
+	Enabled        bool     "json:\"enabled\" graphql:\"enabled\""
+	SourceIPRanges []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
+}
+
+func (t *AzureEnvSpecFragment_MetricsEndpoint) GetEnabled() bool {
+	if t == nil {
+		t = &AzureEnvSpecFragment_MetricsEndpoint{}
+	}
+	return t.Enabled
+}
+func (t *AzureEnvSpecFragment_MetricsEndpoint) GetSourceIPRanges() []string {
+	if t == nil {
+		t = &AzureEnvSpecFragment_MetricsEndpoint{}
+	}
+	return t.SourceIPRanges
+}
+
 type GCPEnvSpecFragment_LoadBalancers_Public struct {
 	Enabled        bool     "json:\"enabled\" graphql:\"enabled\""
 	SourceIPRanges []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
@@ -1196,6 +1260,24 @@ func (t *GCPEnvSpecFragment_PeeringConnections) GetProjectID() *string {
 		t = &GCPEnvSpecFragment_PeeringConnections{}
 	}
 	return t.ProjectID
+}
+
+type GCPEnvSpecFragment_MetricsEndpoint struct {
+	Enabled        bool     "json:\"enabled\" graphql:\"enabled\""
+	SourceIPRanges []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
+}
+
+func (t *GCPEnvSpecFragment_MetricsEndpoint) GetEnabled() bool {
+	if t == nil {
+		t = &GCPEnvSpecFragment_MetricsEndpoint{}
+	}
+	return t.Enabled
+}
+func (t *GCPEnvSpecFragment_MetricsEndpoint) GetSourceIPRanges() []string {
+	if t == nil {
+		t = &GCPEnvSpecFragment_MetricsEndpoint{}
+	}
+	return t.SourceIPRanges
 }
 
 type HCloudEnvSpecFragment_LoadBalancers_Public struct {
@@ -1353,6 +1435,24 @@ func (t *HCloudEnvSpecFragment_WireguardPeers) GetPublicKey() string {
 		t = &HCloudEnvSpecFragment_WireguardPeers{}
 	}
 	return t.PublicKey
+}
+
+type HCloudEnvSpecFragment_MetricsEndpoint struct {
+	Enabled        bool     "json:\"enabled\" graphql:\"enabled\""
+	SourceIPRanges []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
+}
+
+func (t *HCloudEnvSpecFragment_MetricsEndpoint) GetEnabled() bool {
+	if t == nil {
+		t = &HCloudEnvSpecFragment_MetricsEndpoint{}
+	}
+	return t.Enabled
+}
+func (t *HCloudEnvSpecFragment_MetricsEndpoint) GetSourceIPRanges() []string {
+	if t == nil {
+		t = &HCloudEnvSpecFragment_MetricsEndpoint{}
+	}
+	return t.SourceIPRanges
 }
 
 type K8SEnvSpecFragment_LoadBalancers_Public_Annotations struct {
@@ -2098,6 +2198,24 @@ func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Iceberg) GetCatalogs() []*GetA
 	return t.Catalogs
 }
 
+type GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_MetricsEndpoint struct {
+	Enabled        bool     "json:\"enabled\" graphql:\"enabled\""
+	SourceIPRanges []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
+}
+
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_MetricsEndpoint) GetEnabled() bool {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_MetricsEndpoint{}
+	}
+	return t.Enabled
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_MetricsEndpoint) GetSourceIPRanges() []string {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_MetricsEndpoint{}
+	}
+	return t.SourceIPRanges
+}
+
 type GetAWSEnv_AWSEnv struct {
 	Name         string              "json:\"name\" graphql:\"name\""
 	Spec         *AWSEnvSpecFragment "json:\"spec\" graphql:\"spec\""
@@ -2680,6 +2798,24 @@ func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg) GetCatalogs(
 	return t.Catalogs
 }
 
+type CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_MetricsEndpoint struct {
+	Enabled        bool     "json:\"enabled\" graphql:\"enabled\""
+	SourceIPRanges []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
+}
+
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_MetricsEndpoint) GetEnabled() bool {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_MetricsEndpoint{}
+	}
+	return t.Enabled
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_MetricsEndpoint) GetSourceIPRanges() []string {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_MetricsEndpoint{}
+	}
+	return t.SourceIPRanges
+}
+
 type CreateAWSEnv_CreateAWSEnv struct {
 	MutationID   string              "json:\"mutationId\" graphql:\"mutationId\""
 	Spec         *AWSEnvSpecFragment "json:\"spec\" graphql:\"spec\""
@@ -3108,6 +3244,24 @@ func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg) GetCatalogs(
 	return t.Catalogs
 }
 
+type UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_MetricsEndpoint struct {
+	Enabled        bool     "json:\"enabled\" graphql:\"enabled\""
+	SourceIPRanges []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
+}
+
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_MetricsEndpoint) GetEnabled() bool {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_MetricsEndpoint{}
+	}
+	return t.Enabled
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_MetricsEndpoint) GetSourceIPRanges() []string {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_MetricsEndpoint{}
+	}
+	return t.SourceIPRanges
+}
+
 type UpdateAWSEnv_UpdateAWSEnv struct {
 	MutationID   string              "json:\"mutationId\" graphql:\"mutationId\""
 	Spec         *AWSEnvSpecFragment "json:\"spec\" graphql:\"spec\""
@@ -3310,6 +3464,24 @@ func (t *GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_PrivateLinkService) GetA
 		t = &GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_PrivateLinkService{}
 	}
 	return t.AllowedSubscriptions
+}
+
+type GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_MetricsEndpoint struct {
+	Enabled        bool     "json:\"enabled\" graphql:\"enabled\""
+	SourceIPRanges []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
+}
+
+func (t *GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_MetricsEndpoint) GetEnabled() bool {
+	if t == nil {
+		t = &GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_MetricsEndpoint{}
+	}
+	return t.Enabled
+}
+func (t *GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_MetricsEndpoint) GetSourceIPRanges() []string {
+	if t == nil {
+		t = &GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_MetricsEndpoint{}
+	}
+	return t.SourceIPRanges
 }
 
 type GetAzureEnv_AzureEnv struct {
@@ -3595,6 +3767,24 @@ func (t *CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_PrivateLinkServ
 	return t.AllowedSubscriptions
 }
 
+type CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_MetricsEndpoint struct {
+	Enabled        bool     "json:\"enabled\" graphql:\"enabled\""
+	SourceIPRanges []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
+}
+
+func (t *CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_MetricsEndpoint) GetEnabled() bool {
+	if t == nil {
+		t = &CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_MetricsEndpoint{}
+	}
+	return t.Enabled
+}
+func (t *CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_MetricsEndpoint) GetSourceIPRanges() []string {
+	if t == nil {
+		t = &CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_MetricsEndpoint{}
+	}
+	return t.SourceIPRanges
+}
+
 type CreateAzureEnv_CreateAzureEnv struct {
 	MutationID   string                "json:\"mutationId\" graphql:\"mutationId\""
 	Spec         *AzureEnvSpecFragment "json:\"spec\" graphql:\"spec\""
@@ -3779,6 +3969,24 @@ func (t *UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_PrivateLinkServ
 		t = &UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_PrivateLinkService{}
 	}
 	return t.AllowedSubscriptions
+}
+
+type UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_MetricsEndpoint struct {
+	Enabled        bool     "json:\"enabled\" graphql:\"enabled\""
+	SourceIPRanges []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
+}
+
+func (t *UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_MetricsEndpoint) GetEnabled() bool {
+	if t == nil {
+		t = &UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_MetricsEndpoint{}
+	}
+	return t.Enabled
+}
+func (t *UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_MetricsEndpoint) GetSourceIPRanges() []string {
+	if t == nil {
+		t = &UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_MetricsEndpoint{}
+	}
+	return t.SourceIPRanges
 }
 
 type UpdateAzureEnv_UpdateAzureEnv struct {
@@ -3972,6 +4180,24 @@ func (t *GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_PeeringConnections) GetProject
 		t = &GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_PeeringConnections{}
 	}
 	return t.ProjectID
+}
+
+type GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_MetricsEndpoint struct {
+	Enabled        bool     "json:\"enabled\" graphql:\"enabled\""
+	SourceIPRanges []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
+}
+
+func (t *GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_MetricsEndpoint) GetEnabled() bool {
+	if t == nil {
+		t = &GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_MetricsEndpoint{}
+	}
+	return t.Enabled
+}
+func (t *GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_MetricsEndpoint) GetSourceIPRanges() []string {
+	if t == nil {
+		t = &GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_MetricsEndpoint{}
+	}
+	return t.SourceIPRanges
 }
 
 type GetGCPEnv_GCPEnv struct {
@@ -4217,6 +4443,24 @@ func (t *CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_PeeringConnections) G
 	return t.ProjectID
 }
 
+type CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_MetricsEndpoint struct {
+	Enabled        bool     "json:\"enabled\" graphql:\"enabled\""
+	SourceIPRanges []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
+}
+
+func (t *CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_MetricsEndpoint) GetEnabled() bool {
+	if t == nil {
+		t = &CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_MetricsEndpoint{}
+	}
+	return t.Enabled
+}
+func (t *CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_MetricsEndpoint) GetSourceIPRanges() []string {
+	if t == nil {
+		t = &CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_MetricsEndpoint{}
+	}
+	return t.SourceIPRanges
+}
+
 type CreateGCPEnv_CreateGCPEnv struct {
 	MutationID   string              "json:\"mutationId\" graphql:\"mutationId\""
 	Spec         *GCPEnvSpecFragment "json:\"spec\" graphql:\"spec\""
@@ -4390,6 +4634,24 @@ func (t *UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_PeeringConnections) G
 		t = &UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_PeeringConnections{}
 	}
 	return t.ProjectID
+}
+
+type UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_MetricsEndpoint struct {
+	Enabled        bool     "json:\"enabled\" graphql:\"enabled\""
+	SourceIPRanges []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
+}
+
+func (t *UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_MetricsEndpoint) GetEnabled() bool {
+	if t == nil {
+		t = &UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_MetricsEndpoint{}
+	}
+	return t.Enabled
+}
+func (t *UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_MetricsEndpoint) GetSourceIPRanges() []string {
+	if t == nil {
+		t = &UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_MetricsEndpoint{}
+	}
+	return t.SourceIPRanges
 }
 
 type UpdateGCPEnv_UpdateGCPEnv struct {
@@ -4590,6 +4852,24 @@ func (t *GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_WireguardPeers) GetPu
 		t = &GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_WireguardPeers{}
 	}
 	return t.PublicKey
+}
+
+type GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_MetricsEndpoint struct {
+	Enabled        bool     "json:\"enabled\" graphql:\"enabled\""
+	SourceIPRanges []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
+}
+
+func (t *GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_MetricsEndpoint) GetEnabled() bool {
+	if t == nil {
+		t = &GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_MetricsEndpoint{}
+	}
+	return t.Enabled
+}
+func (t *GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_MetricsEndpoint) GetSourceIPRanges() []string {
+	if t == nil {
+		t = &GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_MetricsEndpoint{}
+	}
+	return t.SourceIPRanges
 }
 
 type GetHCloudEnv_HcloudEnv struct {
@@ -4842,6 +5122,24 @@ func (t *CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_WireguardPee
 	return t.PublicKey
 }
 
+type CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_MetricsEndpoint struct {
+	Enabled        bool     "json:\"enabled\" graphql:\"enabled\""
+	SourceIPRanges []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
+}
+
+func (t *CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_MetricsEndpoint) GetEnabled() bool {
+	if t == nil {
+		t = &CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_MetricsEndpoint{}
+	}
+	return t.Enabled
+}
+func (t *CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_MetricsEndpoint) GetSourceIPRanges() []string {
+	if t == nil {
+		t = &CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_MetricsEndpoint{}
+	}
+	return t.SourceIPRanges
+}
+
 type CreateHCloudEnv_CreateHCloudEnv struct {
 	MutationID   string                 "json:\"mutationId\" graphql:\"mutationId\""
 	Spec         *HCloudEnvSpecFragment "json:\"spec\" graphql:\"spec\""
@@ -5022,6 +5320,24 @@ func (t *UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_WireguardPee
 		t = &UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_WireguardPeers{}
 	}
 	return t.PublicKey
+}
+
+type UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_MetricsEndpoint struct {
+	Enabled        bool     "json:\"enabled\" graphql:\"enabled\""
+	SourceIPRanges []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
+}
+
+func (t *UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_MetricsEndpoint) GetEnabled() bool {
+	if t == nil {
+		t = &UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_MetricsEndpoint{}
+	}
+	return t.Enabled
+}
+func (t *UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_MetricsEndpoint) GetSourceIPRanges() []string {
+	if t == nil {
+		t = &UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_MetricsEndpoint{}
+	}
+	return t.SourceIPRanges
 }
 
 type UpdateHCloudEnv_UpdateHCloudEnv struct {
@@ -6617,6 +6933,10 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 		}
 	}
 	eksLogging
+	metricsEndpoint {
+		enabled
+		sourceIPRanges
+	}
 }
 `
 
@@ -6778,6 +7098,10 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 		}
 	}
 	eksLogging
+	metricsEndpoint {
+		enabled
+		sourceIPRanges
+	}
 }
 `
 
@@ -6892,6 +7216,10 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 		}
 	}
 	eksLogging
+	metricsEndpoint {
+		enabled
+		sourceIPRanges
+	}
 }
 `
 
@@ -6986,6 +7314,10 @@ fragment AzureEnvSpecFragment on AzureEnvSpec {
 	tenantID
 	subscriptionID
 	cloudConnect
+	metricsEndpoint {
+		enabled
+		sourceIPRanges
+	}
 }
 `
 
@@ -7093,6 +7425,10 @@ fragment AzureEnvSpecFragment on AzureEnvSpec {
 	tenantID
 	subscriptionID
 	cloudConnect
+	metricsEndpoint {
+		enabled
+		sourceIPRanges
+	}
 }
 `
 
@@ -7162,6 +7498,10 @@ fragment AzureEnvSpecFragment on AzureEnvSpec {
 	tenantID
 	subscriptionID
 	cloudConnect
+	metricsEndpoint {
+		enabled
+		sourceIPRanges
+	}
 }
 `
 
@@ -7253,6 +7593,10 @@ fragment GCPEnvSpecFragment on GCPEnvSpec {
 	cidr
 	gcpProjectId
 	cloudConnect
+	metricsEndpoint {
+		enabled
+		sourceIPRanges
+	}
 }
 `
 
@@ -7352,6 +7696,10 @@ fragment GCPEnvSpecFragment on GCPEnvSpec {
 	cidr
 	gcpProjectId
 	cloudConnect
+	metricsEndpoint {
+		enabled
+		sourceIPRanges
+	}
 }
 `
 
@@ -7418,6 +7766,10 @@ fragment GCPEnvSpecFragment on GCPEnvSpec {
 	cidr
 	gcpProjectId
 	cloudConnect
+	metricsEndpoint {
+		enabled
+		sourceIPRanges
+	}
 }
 `
 
@@ -7507,6 +7859,10 @@ fragment HCloudEnvSpecFragment on HCloudEnvSpec {
 		publicKey
 		allowedIPs
 		endpoint
+	}
+	metricsEndpoint {
+		enabled
+		sourceIPRanges
 	}
 }
 `
@@ -7606,6 +7962,10 @@ fragment HCloudEnvSpecFragment on HCloudEnvSpec {
 		allowedIPs
 		endpoint
 	}
+	metricsEndpoint {
+		enabled
+		sourceIPRanges
+	}
 }
 `
 
@@ -7670,6 +8030,10 @@ fragment HCloudEnvSpecFragment on HCloudEnvSpec {
 		publicKey
 		allowedIPs
 		endpoint
+	}
+	metricsEndpoint {
+		enabled
+		sourceIPRanges
 	}
 }
 `

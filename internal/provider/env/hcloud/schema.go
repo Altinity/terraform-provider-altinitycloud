@@ -37,6 +37,7 @@ func (r *HCloudEnvResource) Schema(ctx context.Context, req resource.SchemaReque
 			"node_groups":                     getNodeGroupsAttribute(true, false, false),
 			"network_zone":                    common.GetRegionAttribute(true, false, false, common.HCLOUD_NETWORK_ZONE_DESCRIPTION),
 			"wireguard_peers":                 getWireguardPeersAttribute(false, true, false),
+			"metrics_endpoint":                common.GetMetricsEndpointAttribute(false, true, false),
 			"spec_revision":                   common.SpecRevisionAttribute,
 			"force_destroy":                   common.GetForceDestroyAttribute(false, true, true),
 			"force_destroy_clusters":          common.GetForceDestroyClustersAttribute(false, true, true),
@@ -61,6 +62,7 @@ func (d *HCloudEnvDataSource) Schema(ctx context.Context, req datasource.SchemaR
 			"locations":               common.GetZonesAttribute(false, false, true, common.HCLOUD_LOCATIONS_DESCRIPTION),
 			"node_groups":             getNodeGroupsAttribute(false, false, true),
 			"network_zone":            common.GetRegionAttribute(false, false, true, common.HCLOUD_NETWORK_ZONE_DESCRIPTION),
+			"metrics_endpoint":        common.GetMetricsEndpointAttribute(false, false, true),
 			"spec_revision":           common.SpecRevisionAttribute,
 			"wireguard_peers":         getWireguardPeersAttribute(false, false, true),
 

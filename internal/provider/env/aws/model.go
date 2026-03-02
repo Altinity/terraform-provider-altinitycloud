@@ -30,6 +30,7 @@ type AWSEnvResourceModel struct {
 	ExternalBuckets              []AWSEnvExternalBucketModel     `tfsdk:"external_buckets"`
 	Backups                      *AWSEnvBackupsModel             `tfsdk:"backups"`
 	Iceberg                      *AWSEnvIcebergModel             `tfsdk:"iceberg"`
+	MetricsEndpoint              *AWSEnvMetricsEndpointModel    `tfsdk:"metrics_endpoint"`
 	EksLogging                   types.Bool                      `tfsdk:"eks_logging"`
 
 	SpecRevision                 types.Int64 `tfsdk:"spec_revision"`
@@ -156,7 +157,7 @@ func (e AWSEnvResourceModel) toSDK() (sdk.CreateAWSEnvInput, sdk.UpdateAWSEnvInp
 	cloudConnect := e.CloudConnect.ValueBool()
 
 	iceberg := icebergToSDK(e.Iceberg)
-	// metricsEndpoint := metricsEndpointToSDK(e.MetricsEndpoint)
+	metricsEndpoint := metricsEndpointToSDK(e.MetricsEndpoint)
 
 	create := sdk.CreateAWSEnvInput{
 		Name: e.Name.ValueString(),
@@ -180,7 +181,7 @@ func (e AWSEnvResourceModel) toSDK() (sdk.CreateAWSEnvInput, sdk.UpdateAWSEnvInp
 			ExternalBuckets:              externalBuckets,
 			Backups:                      backups,
 			Iceberg:                      iceberg,
-			MetricsEndpoint:              nil, // metricsEndpoint
+			MetricsEndpoint:              metricsEndpoint,
 			EksLogging:                   e.EksLogging.ValueBoolPointer(),
 		},
 	}
@@ -204,7 +205,7 @@ func (e AWSEnvResourceModel) toSDK() (sdk.CreateAWSEnvInput, sdk.UpdateAWSEnvInp
 			ExternalBuckets:       externalBuckets,
 			Backups:               backups,
 			Iceberg:               icebergUpdate,
-			MetricsEndpoint:       nil, // metricsEndpoint
+			MetricsEndpoint:       metricsEndpoint,
 			EksLogging:            e.EksLogging.ValueBoolPointer(),
 		},
 	}
@@ -272,7 +273,7 @@ func (model *AWSEnvResourceModel) toModel(env sdk.GetAWSEnv_AWSEnv) {
 	model.SpecRevision = types.Int64Value(env.SpecRevision)
 	model.CloudConnect = types.BoolValue(env.Spec.CloudConnect)
 	model.EksLogging = types.BoolValue(env.Spec.EksLogging)
-	// model.MetricsEndpoint = metricsEndpointToModel(&env.Spec.MetricsEndpoint)
+	model.MetricsEndpoint = metricsEndpointToModel(&env.Spec.MetricsEndpoint)
 }
 
 func loadBalancersToSDK(loadBalancers *LoadBalancersModel) *sdk.AWSEnvLoadBalancersSpecInput {
@@ -587,37 +588,37 @@ func icebergToModel(iceberg *sdk.AWSEnvSpecFragment_Iceberg) *AWSEnvIcebergModel
 	}
 }
 
-// func metricsEndpointToSDK(endpoint *AWSEnvMetricsEndpointModel) *sdk.MetricsEndpointSpecInput {
-// 	if endpoint == nil {
-// 		return nil
-// 	}
+func metricsEndpointToSDK(endpoint *AWSEnvMetricsEndpointModel) *sdk.MetricsEndpointSpecInput {
+	if endpoint == nil {
+		return nil
+	}
 
-// 	var sourceIPRanges []string
-// 	for _, ip := range endpoint.SourceIPRanges {
-// 		sourceIPRanges = append(sourceIPRanges, ip.ValueString())
-// 	}
+	var sourceIPRanges []string
+	for _, ip := range endpoint.SourceIPRanges {
+		sourceIPRanges = append(sourceIPRanges, ip.ValueString())
+	}
 
-// 	return &sdk.MetricsEndpointSpecInput{
-// 		Enabled:        endpoint.Enabled.ValueBoolPointer(),
-// 		SourceIPRanges: sourceIPRanges,
-// 	}
-// }
+	return &sdk.MetricsEndpointSpecInput{
+		Enabled:        endpoint.Enabled.ValueBoolPointer(),
+		SourceIPRanges: sourceIPRanges,
+	}
+}
 
-// func metricsEndpointToModel(endpoint *sdk.AWSEnvSpecFragment_MetricsEndpoint) *AWSEnvMetricsEndpointModel {
-// 	if endpoint == nil {
-// 		return nil
-// 	}
+func metricsEndpointToModel(endpoint *sdk.AWSEnvSpecFragment_MetricsEndpoint) *AWSEnvMetricsEndpointModel {
+	if endpoint == nil {
+		return nil
+	}
 
-// 	var sourceIPRanges []types.String
-// 	for _, ip := range endpoint.SourceIPRanges {
-// 		sourceIPRanges = append(sourceIPRanges, types.StringValue(ip))
-// 	}
+	var sourceIPRanges []types.String
+	for _, ip := range endpoint.SourceIPRanges {
+		sourceIPRanges = append(sourceIPRanges, types.StringValue(ip))
+	}
 
-// 	return &AWSEnvMetricsEndpointModel{
-// 		Enabled:        types.BoolValue(endpoint.Enabled),
-// 		SourceIPRanges: sourceIPRanges,
-// 	}
-// }
+	return &AWSEnvMetricsEndpointModel{
+		Enabled:        types.BoolValue(endpoint.Enabled),
+		SourceIPRanges: sourceIPRanges,
+	}
+}
 
 func reorderTags(model []common.KeyValueModel, tags []*sdk.AWSEnvSpecFragment_Tags) []*sdk.AWSEnvSpecFragment_Tags {
 	orderedTags := make([]*sdk.AWSEnvSpecFragment_Tags, 0, len(tags))

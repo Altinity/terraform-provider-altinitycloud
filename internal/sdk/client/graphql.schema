@@ -2100,7 +2100,6 @@ input MetricsEndpointSpecInput {
   """
   sourceIPRanges: [String!]
 }
-
 extend type Query {
   """
   List GCP environments.
