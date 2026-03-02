@@ -107,6 +107,13 @@ fmt:
 lint:
 	golangci-lint run
 
+.PHONY: install-hooks
+install-hooks:
+	@echo "Installing git hooks (core.hooksPath = .githooks)"
+	git config core.hooksPath .githooks
+	chmod +x .githooks/pre-commit
+	@echo "Done. Pre-commit will run golangci-lint before each commit."
+
 .PHONY: test
 test:
 	go test -v -cover ./...
@@ -120,6 +127,7 @@ help:
 	@echo "docs              - Generate provider documentation. This uses terraform-plugin-docs to create documentation for the provider."
 	@echo "fmt               - Format Terraform and Go code. This ensures that the code follows standard formatting conventions."
 	@echo "gen               - Run SDK generation, version sync, and docs generation. This is a combined command that runs sdk, sync, and docs commands."
+	@echo "install-hooks     - Install git hooks so lint runs before each commit (git config core.hooksPath .githooks)."
 	@echo "local             - Build the provider and set up the local directory for testing. This is useful for local development and testing."
 	@echo "sdk               - Re-sync the SDK client and models. This pulls the latest GraphQL schema and regenerates the client code."
 	@echo "sync              - Fetch and update the current version in the 'example' directory. This syncs the version used in examples with the latest git tag."

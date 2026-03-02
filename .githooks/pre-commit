@@ -1,0 +1,9 @@
+#!/bin/sh
+# Pre-commit hook: run lint (golangci-lint, includes gofmt check) before allowing a commit.
+# Install with: make install-hooks
+
+set -e
+
+echo "Running golangci-lint..."
+golangci-lint run
+echo "Lint passed."
