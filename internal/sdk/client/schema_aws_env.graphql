@@ -131,10 +131,7 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
     catalogs {
       name
       type
-      customS3Bucket
-      customS3BucketPath
       customS3TableBucketARN
-      awsRegion
       anonymousAccessEnabled
       maintenance {
         enabled
@@ -143,9 +140,6 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
         table
         pathsRelativeToTableLocation
       }
-      roleARN
-      assumeRoleARNRW
-      assumeRoleARNRO
     }
   }
   eksLogging
