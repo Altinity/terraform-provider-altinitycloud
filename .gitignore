@@ -21,6 +21,7 @@ website/node_modules
 *~
 .*.swp
 .idea
+.claude/
 *.iml
 *.test
 *.iml
