@@ -61,7 +61,8 @@ var knownErrors = []errorMapping{
 }
 
 // FormatError translates known GraphQL errors into user-friendly messages.
-// If the error is not recognized, it falls back to the raw error string.
+// If the error is not recognized, it falls back to a clean representation
+// of the GraphQL error messages instead of the raw JSON string.
 func FormatError(err error, resourceName string) string {
 	parsedError, parseErr := ParseError(err)
 	if parseErr != nil {
@@ -79,7 +80,48 @@ func FormatError(err error, resourceName string) string {
 		}
 	}
 
+	// Fallback: extract clean error messages from GraphQL errors
+	// and classify them based on the extension code or path context.
+	var messages []string
+	for _, gqlError := range parsedError.GraphqlErrors {
+		prefix := errorPrefix(gqlError)
+		messages = append(messages, fmt.Sprintf("%s: %s", prefix, gqlError.Message))
+	}
+	if len(messages) > 0 {
+		return strings.Join(messages, "\n")
+	}
+
 	return err.Error()
+}
+
+// errorPrefix returns a human-readable error category based on the GraphQL
+// error extensions code. When no code is present, it infers "Validation Error"
+// for mutation paths and defaults to "Error" otherwise.
+func errorPrefix(gqlError GraphQLError) string {
+	if code, ok := gqlError.Extensions["code"]; ok {
+		switch code {
+		case "NOT_FOUND":
+			return "Not Found"
+		case "CONFLICT":
+			return "Conflict"
+		case "FORBIDDEN":
+			return "Forbidden"
+		case "UNAUTHORIZED":
+			return "Unauthorized"
+		default:
+			return fmt.Sprintf("%v", code)
+		}
+	}
+
+	// No extension code: infer from mutation path (create/update/delete).
+	for _, p := range gqlError.Path {
+		lp := strings.ToLower(p)
+		if strings.HasPrefix(lp, "create") || strings.HasPrefix(lp, "update") || strings.HasPrefix(lp, "delete") {
+			return "Validation Error"
+		}
+	}
+
+	return "Error"
 }
 
 func IsActiceClustersError(err error) (bool, error) {
