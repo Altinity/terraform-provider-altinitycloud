@@ -25,6 +25,9 @@ description: |-
 ### AWS environment with VPC peering:
 {{tffile "examples/resources/altinitycloud_env_aws/peering/main.tf"}}
 
+### AWS environment with Iceberg catalogs:
+{{tffile "examples/resources/altinitycloud_env_aws/iceberg/main.tf"}}
+
 {{ .SchemaMarkdown | trimspace }}
 
 {{- if .HasImport }}
