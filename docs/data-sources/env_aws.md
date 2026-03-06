@@ -157,7 +157,7 @@ Optional:
 
 Optional:
 
-- `enabled` (Boolean) Whether maintenance is enabled (default `false`).
+- `enabled` (Boolean) Whether maintenance is enabled (default `true`).
 
 
 <a id="nestedatt--iceberg--catalogs--watches"></a>

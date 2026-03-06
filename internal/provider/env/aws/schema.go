@@ -384,6 +384,15 @@ var loadBalancerPublicDefaultObject, _ = types.ObjectValue(
 	},
 )
 
+var maintenanceDefaultObject, _ = types.ObjectValue(
+	map[string]attr.Type{
+		"enabled": types.BoolType,
+	},
+	map[string]attr.Value{
+		"enabled": types.BoolValue(true),
+	},
+)
+
 func getIcebergAttribute(required, optional, computed bool) rschema.SingleNestedAttribute {
 	return rschema.SingleNestedAttribute{
 		Optional:            optional,
@@ -429,13 +438,14 @@ func getIcebergAttribute(required, optional, computed bool) rschema.SingleNested
 						"maintenance": rschema.SingleNestedAttribute{
 							Optional:            true,
 							Computed:            true,
+							Default:             objectdefault.StaticValue(maintenanceDefaultObject),
 							MarkdownDescription: common.ICEBERG_CATALOG_MAINTENANCE_DESCRIPTION,
 							Attributes: map[string]rschema.Attribute{
 								"enabled": rschema.BoolAttribute{
 									Optional:            true,
 									Computed:            true,
 									MarkdownDescription: common.ICEBERG_CATALOG_MAINTENANCE_ENABLED_DESCRIPTION,
-									Default:             booldefault.StaticBool(false),
+									Default:             booldefault.StaticBool(true),
 								},
 							},
 						},

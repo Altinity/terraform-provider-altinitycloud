@@ -1910,9 +1910,6 @@ func TestIcebergToModel(t *testing.T) {
 					{
 						Name:                   &[]string{"production-catalog"}[0],
 						Type:                   sdk.IcebergCatalogTypeSpecS3,
-						CustomS3Bucket:         &[]string{"prod-bucket"}[0],
-						CustomS3BucketPath:     &[]string{"/iceberg"}[0],
-						AWSRegion:              &[]string{"us-west-2"}[0],
 						AnonymousAccessEnabled: &[]bool{true}[0],
 						Maintenance: sdk.AWSEnvSpecFragment_Iceberg_Catalogs_Maintenance{
 							Enabled: true,
@@ -1923,9 +1920,6 @@ func TestIcebergToModel(t *testing.T) {
 								PathsRelativeToTableLocation: []string{"data/"},
 							},
 						},
-						RoleArn:         &[]string{"arn:aws:iam::123456789012:role/iceberg"}[0],
-						AssumeRoleArnrw: &[]string{"arn:aws:iam::123456789012:role/rw"}[0],
-						AssumeRoleArnro: &[]string{"arn:aws:iam::123456789012:role/ro"}[0],
 					},
 				},
 			},
@@ -1955,7 +1949,6 @@ func TestIcebergToModel(t *testing.T) {
 					{
 						Type:                   sdk.IcebergCatalogTypeSpecS3Table,
 						CustomS3TableBucketArn: &[]string{"arn:aws:s3tables:us-east-1:123456789012:bucket/tables"}[0],
-						AWSRegion:              &[]string{"us-east-1"}[0],
 						Maintenance: sdk.AWSEnvSpecFragment_Iceberg_Catalogs_Maintenance{
 							Enabled: false,
 						},
