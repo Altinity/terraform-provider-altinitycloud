@@ -362,14 +362,14 @@ func logsToModel(logs client.K8SEnvSpecFragment_Logs) *LogsModel {
 	var model = &LogsModel{Storage: StorageModel{}}
 	if logs.Storage.S3 != nil {
 		model.Storage.S3 = &S3StorageModel{
-			BucketName: types.StringValue(*logs.Storage.S3.BucketName),
-			Region:     types.StringValue(*logs.Storage.S3.Region),
+			BucketName: types.StringPointerValue(logs.Storage.S3.BucketName),
+			Region:     types.StringPointerValue(logs.Storage.S3.Region),
 		}
 	}
 
 	if logs.Storage.Gcs != nil {
 		model.Storage.GCS = &GCSStorageModel{
-			BucketName: types.StringValue(*logs.Storage.Gcs.BucketName),
+			BucketName: types.StringPointerValue(logs.Storage.Gcs.BucketName),
 		}
 	}
 
