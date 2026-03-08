@@ -52,13 +52,17 @@ func (r *AzureEnvResource) Create(ctx context.Context, req resource.CreateReques
 		return
 	}
 
-	// Reorder node groups  and zones to respect order in the user's configuration
+	// Reorder node groups, zones and tags to respect order in the user's configuration
 	apiResp.CreateAzureEnv.Spec.NodeGroups = common.ReorderByKey(data.NodeGroups, apiResp.CreateAzureEnv.Spec.NodeGroups,
 		func(m common.NodeGroupsModel) string { return m.NodeType.ValueString() },
 		func(s *client.AzureEnvSpecFragment_NodeGroups) string { return s.NodeType },
 	)
 	apiResp.CreateAzureEnv.Spec.Zones, diags = common.ReorderList(ctx, data.Zones, apiResp.CreateAzureEnv.Spec.Zones)
 	resp.Diagnostics.Append(diags...)
+	apiResp.CreateAzureEnv.Spec.Tags = common.ReorderByKey(data.Tags, apiResp.CreateAzureEnv.Spec.Tags,
+		func(m common.KeyValueModel) string { return m.Key.ValueString() },
+		func(s *client.AzureEnvSpecFragment_Tags) string { return s.Key },
+	)
 	data.Id = data.Name
 	data.Zones, diags = common.ListToModel(apiResp.CreateAzureEnv.Spec.Zones)
 	resp.Diagnostics.Append(diags...)
@@ -95,13 +99,17 @@ func (r *AzureEnvResource) Read(ctx context.Context, req resource.ReadRequest, r
 		return
 	}
 
-	// Reorder node groups  and zones to respect order in the user's configuration
+	// Reorder node groups, zones and tags to respect order in the user's configuration
 	apiResp.AzureEnv.Spec.NodeGroups = common.ReorderByKey(data.NodeGroups, apiResp.AzureEnv.Spec.NodeGroups,
 		func(m common.NodeGroupsModel) string { return m.NodeType.ValueString() },
 		func(s *client.AzureEnvSpecFragment_NodeGroups) string { return s.NodeType },
 	)
 	apiResp.AzureEnv.Spec.Zones, diags = common.ReorderList(ctx, data.Zones, apiResp.AzureEnv.Spec.Zones)
 	resp.Diagnostics.Append(diags...)
+	apiResp.AzureEnv.Spec.Tags = common.ReorderByKey(data.Tags, apiResp.AzureEnv.Spec.Tags,
+		func(m common.KeyValueModel) string { return m.Key.ValueString() },
+		func(s *client.AzureEnvSpecFragment_Tags) string { return s.Key },
+	)
 	diags = data.toModel(*apiResp.AzureEnv)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -137,13 +145,17 @@ func (r *AzureEnvResource) Update(ctx context.Context, req resource.UpdateReques
 		return
 	}
 
-	// Reorder node groups  and zones to respect order in the user's configuration
+	// Reorder node groups, zones and tags to respect order in the user's configuration
 	apiResp.UpdateAzureEnv.Spec.NodeGroups = common.ReorderByKey(data.NodeGroups, apiResp.UpdateAzureEnv.Spec.NodeGroups,
 		func(m common.NodeGroupsModel) string { return m.NodeType.ValueString() },
 		func(s *client.AzureEnvSpecFragment_NodeGroups) string { return s.NodeType },
 	)
 	apiResp.UpdateAzureEnv.Spec.Zones, diags = common.ReorderList(ctx, data.Zones, apiResp.UpdateAzureEnv.Spec.Zones)
 	resp.Diagnostics.Append(diags...)
+	apiResp.UpdateAzureEnv.Spec.Tags = common.ReorderByKey(data.Tags, apiResp.UpdateAzureEnv.Spec.Tags,
+		func(m common.KeyValueModel) string { return m.Key.ValueString() },
+		func(s *client.AzureEnvSpecFragment_Tags) string { return s.Key },
+	)
 	data.Zones, diags = common.ListToModel(apiResp.UpdateAzureEnv.Spec.Zones)
 	resp.Diagnostics.Append(diags...)
 	data.NodeGroups, diags = nodeGroupsToModel(apiResp.UpdateAzureEnv.Spec.NodeGroups)

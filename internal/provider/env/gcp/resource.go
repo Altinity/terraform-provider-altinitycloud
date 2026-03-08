@@ -52,13 +52,17 @@ func (r *GCPEnvResource) Create(ctx context.Context, req resource.CreateRequest,
 		return
 	}
 
-	// Reorder node groups  and zones to respect order in the user's configuration
+	// Reorder node groups, zones and peering connections to respect order in the user's configuration
 	apiResp.CreateGCPEnv.Spec.NodeGroups = common.ReorderByKey(data.NodeGroups, apiResp.CreateGCPEnv.Spec.NodeGroups,
 		func(m common.NodeGroupsModel) string { return m.NodeType.ValueString() },
 		func(s *client.GCPEnvSpecFragment_NodeGroups) string { return s.NodeType },
 	)
 	apiResp.CreateGCPEnv.Spec.Zones, diags = common.ReorderList(ctx, data.Zones, apiResp.CreateGCPEnv.Spec.Zones)
 	resp.Diagnostics.Append(diags...)
+	apiResp.CreateGCPEnv.Spec.PeeringConnections = common.ReorderByKey(data.PeeringConnections, apiResp.CreateGCPEnv.Spec.PeeringConnections,
+		func(m GCPEnvPeeringConnectionModel) string { return m.NetworkName.ValueString() },
+		func(s *client.GCPEnvSpecFragment_PeeringConnections) string { return s.NetworkName },
+	)
 	data.Id = data.Name
 	data.Zones, diags = common.ListToModel(apiResp.CreateGCPEnv.Spec.Zones)
 	resp.Diagnostics.Append(diags...)
@@ -95,13 +99,17 @@ func (r *GCPEnvResource) Read(ctx context.Context, req resource.ReadRequest, res
 		return
 	}
 
-	// Reorder node groups  and zones to respect order in the user's configuration
+	// Reorder node groups, zones and peering connections to respect order in the user's configuration
 	apiResp.GCPEnv.Spec.NodeGroups = common.ReorderByKey(data.NodeGroups, apiResp.GCPEnv.Spec.NodeGroups,
 		func(m common.NodeGroupsModel) string { return m.NodeType.ValueString() },
 		func(s *client.GCPEnvSpecFragment_NodeGroups) string { return s.NodeType },
 	)
 	apiResp.GCPEnv.Spec.Zones, diags = common.ReorderList(ctx, data.Zones, apiResp.GCPEnv.Spec.Zones)
 	resp.Diagnostics.Append(diags...)
+	apiResp.GCPEnv.Spec.PeeringConnections = common.ReorderByKey(data.PeeringConnections, apiResp.GCPEnv.Spec.PeeringConnections,
+		func(m GCPEnvPeeringConnectionModel) string { return m.NetworkName.ValueString() },
+		func(s *client.GCPEnvSpecFragment_PeeringConnections) string { return s.NetworkName },
+	)
 	diags = data.toModel(*apiResp.GCPEnv)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -137,13 +145,17 @@ func (r *GCPEnvResource) Update(ctx context.Context, req resource.UpdateRequest,
 		return
 	}
 
-	// Reorder node groups  and zones to respect order in the user's configuration
+	// Reorder node groups, zones and peering connections to respect order in the user's configuration
 	apiResp.UpdateGCPEnv.Spec.NodeGroups = common.ReorderByKey(data.NodeGroups, apiResp.UpdateGCPEnv.Spec.NodeGroups,
 		func(m common.NodeGroupsModel) string { return m.NodeType.ValueString() },
 		func(s *client.GCPEnvSpecFragment_NodeGroups) string { return s.NodeType },
 	)
 	apiResp.UpdateGCPEnv.Spec.Zones, diags = common.ReorderList(ctx, data.Zones, apiResp.UpdateGCPEnv.Spec.Zones)
 	resp.Diagnostics.Append(diags...)
+	apiResp.UpdateGCPEnv.Spec.PeeringConnections = common.ReorderByKey(data.PeeringConnections, apiResp.UpdateGCPEnv.Spec.PeeringConnections,
+		func(m GCPEnvPeeringConnectionModel) string { return m.NetworkName.ValueString() },
+		func(s *client.GCPEnvSpecFragment_PeeringConnections) string { return s.NetworkName },
+	)
 	data.Zones, diags = common.ListToModel(apiResp.UpdateGCPEnv.Spec.Zones)
 	resp.Diagnostics.Append(diags...)
 	data.NodeGroups, diags = nodeGroupsToModel(apiResp.UpdateGCPEnv.Spec.NodeGroups)
