@@ -49,7 +49,10 @@ func (r *HCloudEnvResource) Create(ctx context.Context, req resource.CreateReque
 	}
 
 	// Reorder node groups  and locations to respect order in the user's configuration
-	apiResp.CreateHCloudEnv.Spec.NodeGroups = reorderNodeGroups(data.NodeGroups, apiResp.CreateHCloudEnv.Spec.NodeGroups)
+	apiResp.CreateHCloudEnv.Spec.NodeGroups = common.ReorderByKey(data.NodeGroups, apiResp.CreateHCloudEnv.Spec.NodeGroups,
+		func(m NodeGroupsModel) string { return m.NodeType.ValueString() },
+		func(s *client.HCloudEnvSpecFragment_NodeGroups) string { return s.NodeType },
+	)
 	apiResp.CreateHCloudEnv.Spec.Locations = common.ReorderList(ctx, data.Locations, apiResp.CreateHCloudEnv.Spec.Locations)
 	data.Id = data.Name
 	data.Locations = common.ListToModel(apiResp.CreateHCloudEnv.Spec.Locations)
@@ -86,7 +89,10 @@ func (r *HCloudEnvResource) Read(ctx context.Context, req resource.ReadRequest, 
 	}
 
 	// Reorder node groups  and locations to respect order in the user's configuration
-	apiResp.HcloudEnv.Spec.NodeGroups = reorderNodeGroups(data.NodeGroups, apiResp.HcloudEnv.Spec.NodeGroups)
+	apiResp.HcloudEnv.Spec.NodeGroups = common.ReorderByKey(data.NodeGroups, apiResp.HcloudEnv.Spec.NodeGroups,
+		func(m NodeGroupsModel) string { return m.NodeType.ValueString() },
+		func(s *client.HCloudEnvSpecFragment_NodeGroups) string { return s.NodeType },
+	)
 	apiResp.HcloudEnv.Spec.Locations = common.ReorderList(ctx, data.Locations, apiResp.HcloudEnv.Spec.Locations)
 	data.toModel(*apiResp.HcloudEnv)
 	data.Id = data.Name
@@ -116,7 +122,10 @@ func (r *HCloudEnvResource) Update(ctx context.Context, req resource.UpdateReque
 	}
 
 	// Reorder node groups  and locations to respect order in the user's configuration
-	apiResp.UpdateHCloudEnv.Spec.NodeGroups = reorderNodeGroups(data.NodeGroups, apiResp.UpdateHCloudEnv.Spec.NodeGroups)
+	apiResp.UpdateHCloudEnv.Spec.NodeGroups = common.ReorderByKey(data.NodeGroups, apiResp.UpdateHCloudEnv.Spec.NodeGroups,
+		func(m NodeGroupsModel) string { return m.NodeType.ValueString() },
+		func(s *client.HCloudEnvSpecFragment_NodeGroups) string { return s.NodeType },
+	)
 	apiResp.UpdateHCloudEnv.Spec.Locations = common.ReorderList(ctx, data.Locations, apiResp.UpdateHCloudEnv.Spec.Locations)
 	data.Locations = common.ListToModel(apiResp.UpdateHCloudEnv.Spec.Locations)
 	data.NodeGroups = nodeGroupsToModel(apiResp.UpdateHCloudEnv.Spec.NodeGroups)

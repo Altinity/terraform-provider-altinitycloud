@@ -27,6 +27,29 @@ type MaintenanceWindowModel struct {
 	Days          []types.String `tfsdk:"days"`
 }
 
+func ReorderByKey[M any, S any](model []M, items []S, getModelKey func(M) string, getItemKey func(S) string) []S {
+	ordered := make([]S, 0, len(items))
+	used := make(map[string]bool)
+
+	for _, m := range model {
+		for _, item := range items {
+			if getModelKey(m) == getItemKey(item) {
+				ordered = append(ordered, item)
+				used[getItemKey(item)] = true
+				break
+			}
+		}
+	}
+
+	for _, item := range items {
+		if !used[getItemKey(item)] {
+			ordered = append(ordered, item)
+		}
+	}
+
+	return ordered
+}
+
 func ReorderList(ctx context.Context, model types.List, input []string) []string {
 	orderedZones := make([]string, 0, len(input))
 	usedZones := make(map[string]bool)

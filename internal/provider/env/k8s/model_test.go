@@ -222,7 +222,10 @@ func TestReorderSelectors(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := reorderSelectors(tt.model, tt.apiSelectors)
+			result := common.ReorderByKey(tt.model, tt.apiSelectors,
+				func(m common.KeyValueModel) string { return m.Key.ValueString() },
+				func(s *client.K8SEnvSpecFragment_NodeGroups_Selector) string { return s.Key },
+			)
 
 			if len(result) != tt.expectedLength {
 				t.Errorf("Expected length %d, got %d", tt.expectedLength, len(result))
@@ -315,7 +318,10 @@ func TestReorderTolerations(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := reorderTolerations(tt.model, tt.apiTolerations)
+			result := common.ReorderByKey(tt.model, tt.apiTolerations,
+				func(m TolerationModel) string { return m.Key.ValueString() },
+				func(s *client.K8SEnvSpecFragment_NodeGroups_Tolerations) string { return s.Key },
+			)
 
 			if len(result) != tt.expectedLength {
 				t.Errorf("Expected length %d, got %d", tt.expectedLength, len(result))

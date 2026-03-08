@@ -8,6 +8,89 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
+func TestReorderByKey(t *testing.T) {
+	type item struct {
+		Key   string
+		Value string
+	}
+
+	tests := []struct {
+		name          string
+		modelKeys     []string
+		items         []item
+		expectedOrder []string
+	}{
+		{
+			name:      "Preserve model order and add new items",
+			modelKeys: []string{"b", "a"},
+			items: []item{
+				{Key: "a", Value: "1"},
+				{Key: "b", Value: "2"},
+				{Key: "c", Value: "3"},
+			},
+			expectedOrder: []string{"b", "a", "c"},
+		},
+		{
+			name:      "All items in model",
+			modelKeys: []string{"x", "y"},
+			items: []item{
+				{Key: "y", Value: "2"},
+				{Key: "x", Value: "1"},
+			},
+			expectedOrder: []string{"x", "y"},
+		},
+		{
+			name:      "Model has keys not in items",
+			modelKeys: []string{"a", "missing", "b"},
+			items: []item{
+				{Key: "b", Value: "2"},
+				{Key: "a", Value: "1"},
+			},
+			expectedOrder: []string{"a", "b"},
+		},
+		{
+			name:      "Empty model",
+			modelKeys: []string{},
+			items: []item{
+				{Key: "a", Value: "1"},
+				{Key: "b", Value: "2"},
+			},
+			expectedOrder: []string{"a", "b"},
+		},
+		{
+			name:          "Empty items",
+			modelKeys:     []string{"a"},
+			items:         []item{},
+			expectedOrder: []string{},
+		},
+		{
+			name:          "Both empty",
+			modelKeys:     []string{},
+			items:         []item{},
+			expectedOrder: []string{},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := ReorderByKey(tt.modelKeys, tt.items,
+				func(k string) string { return k },
+				func(i item) string { return i.Key },
+			)
+
+			if len(result) != len(tt.expectedOrder) {
+				t.Fatalf("Expected length %d, got %d", len(tt.expectedOrder), len(result))
+			}
+
+			for i, expected := range tt.expectedOrder {
+				if result[i].Key != expected {
+					t.Errorf("Key at position %d: expected %s, got %s", i, expected, result[i].Key)
+				}
+			}
+		})
+	}
+}
+
 func TestReorderList(t *testing.T) {
 	tests := []struct {
 		name           string

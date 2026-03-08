@@ -49,7 +49,10 @@ func (r *GCPEnvResource) Create(ctx context.Context, req resource.CreateRequest,
 	}
 
 	// Reorder node groups  and zones to respect order in the user's configuration
-	apiResp.CreateGCPEnv.Spec.NodeGroups = reorderNodeGroups(data.NodeGroups, apiResp.CreateGCPEnv.Spec.NodeGroups)
+	apiResp.CreateGCPEnv.Spec.NodeGroups = common.ReorderByKey(data.NodeGroups, apiResp.CreateGCPEnv.Spec.NodeGroups,
+		func(m common.NodeGroupsModel) string { return m.NodeType.ValueString() },
+		func(s *client.GCPEnvSpecFragment_NodeGroups) string { return s.NodeType },
+	)
 	apiResp.CreateGCPEnv.Spec.Zones = common.ReorderList(ctx, data.Zones, apiResp.CreateGCPEnv.Spec.Zones)
 	data.Id = data.Name
 	data.Zones = common.ListToModel(apiResp.CreateGCPEnv.Spec.Zones)
@@ -86,7 +89,10 @@ func (r *GCPEnvResource) Read(ctx context.Context, req resource.ReadRequest, res
 	}
 
 	// Reorder node groups  and zones to respect order in the user's configuration
-	apiResp.GCPEnv.Spec.NodeGroups = reorderNodeGroups(data.NodeGroups, apiResp.GCPEnv.Spec.NodeGroups)
+	apiResp.GCPEnv.Spec.NodeGroups = common.ReorderByKey(data.NodeGroups, apiResp.GCPEnv.Spec.NodeGroups,
+		func(m common.NodeGroupsModel) string { return m.NodeType.ValueString() },
+		func(s *client.GCPEnvSpecFragment_NodeGroups) string { return s.NodeType },
+	)
 	apiResp.GCPEnv.Spec.Zones = common.ReorderList(ctx, data.Zones, apiResp.GCPEnv.Spec.Zones)
 	data.toModel(*apiResp.GCPEnv)
 	data.Id = data.Name
@@ -116,7 +122,10 @@ func (r *GCPEnvResource) Update(ctx context.Context, req resource.UpdateRequest,
 	}
 
 	// Reorder node groups  and zones to respect order in the user's configuration
-	apiResp.UpdateGCPEnv.Spec.NodeGroups = reorderNodeGroups(data.NodeGroups, apiResp.UpdateGCPEnv.Spec.NodeGroups)
+	apiResp.UpdateGCPEnv.Spec.NodeGroups = common.ReorderByKey(data.NodeGroups, apiResp.UpdateGCPEnv.Spec.NodeGroups,
+		func(m common.NodeGroupsModel) string { return m.NodeType.ValueString() },
+		func(s *client.GCPEnvSpecFragment_NodeGroups) string { return s.NodeType },
+	)
 	apiResp.UpdateGCPEnv.Spec.Zones = common.ReorderList(ctx, data.Zones, apiResp.UpdateGCPEnv.Spec.Zones)
 	data.Zones = common.ListToModel(apiResp.UpdateGCPEnv.Spec.Zones)
 	data.NodeGroups = nodeGroupsToModel(apiResp.UpdateGCPEnv.Spec.NodeGroups)

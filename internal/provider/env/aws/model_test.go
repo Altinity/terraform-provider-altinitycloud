@@ -109,7 +109,10 @@ func TestReorderNodeGroups(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := reorderNodeGroups(tt.model, tt.apiNodeGroups)
+			result := common.ReorderByKey(tt.model, tt.apiNodeGroups,
+				func(m common.NodeGroupsModel) string { return m.NodeType.ValueString() },
+				func(s *sdk.AWSEnvSpecFragment_NodeGroups) string { return s.NodeType },
+			)
 
 			if len(result) != tt.expectedLength {
 				t.Errorf("Expected length %d, got %d", tt.expectedLength, len(result))

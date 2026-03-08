@@ -414,31 +414,6 @@ func maintenanceWindowsToModel(input []*sdk.AWSEnvSpecFragment_MaintenanceWindow
 	return maintenanceWindow
 }
 
-func reorderNodeGroups(model []common.NodeGroupsModel, nodeGroups []*sdk.AWSEnvSpecFragment_NodeGroups) []*sdk.AWSEnvSpecFragment_NodeGroups {
-	orderedNodeGroups := make([]*sdk.AWSEnvSpecFragment_NodeGroups, 0, len(nodeGroups))
-	usedNodeGroups := make(map[string]bool)
-
-	// First, add node groups that exist in the model in the correct order
-	for _, ng := range model {
-		for _, apiGroup := range nodeGroups {
-			if ng.NodeType.ValueString() == apiGroup.NodeType {
-				orderedNodeGroups = append(orderedNodeGroups, apiGroup)
-				usedNodeGroups[apiGroup.NodeType] = true
-				break
-			}
-		}
-	}
-
-	// Then, add any remaining node groups from the API that weren't in the model
-	for _, apiGroup := range nodeGroups {
-		if !usedNodeGroups[apiGroup.NodeType] {
-			orderedNodeGroups = append(orderedNodeGroups, apiGroup)
-		}
-	}
-
-	return orderedNodeGroups
-}
-
 func backupsToSDK(backups *AWSEnvBackupsModel) *sdk.AWSEnvBackupsSpecInput {
 	if backups == nil || backups.CustomBucket == nil {
 		return nil
@@ -618,29 +593,4 @@ func metricsEndpointToModel(endpoint *sdk.AWSEnvSpecFragment_MetricsEndpoint) *A
 		Enabled:        types.BoolValue(endpoint.Enabled),
 		SourceIPRanges: sourceIPRanges,
 	}
-}
-
-func reorderTags(model []common.KeyValueModel, tags []*sdk.AWSEnvSpecFragment_Tags) []*sdk.AWSEnvSpecFragment_Tags {
-	orderedTags := make([]*sdk.AWSEnvSpecFragment_Tags, 0, len(tags))
-	usedTags := make(map[string]bool)
-
-	// First, add tags that exist in the model in the correct order
-	for _, tag := range model {
-		for _, apiTag := range tags {
-			if tag.Key.ValueString() == apiTag.Key {
-				orderedTags = append(orderedTags, apiTag)
-				usedTags[apiTag.Key] = true
-				break
-			}
-		}
-	}
-
-	// Then, add any remaining tags from the API that weren't in the model
-	for _, apiTag := range tags {
-		if !usedTags[apiTag.Key] {
-			orderedTags = append(orderedTags, apiTag)
-		}
-	}
-
-	return orderedTags
 }
