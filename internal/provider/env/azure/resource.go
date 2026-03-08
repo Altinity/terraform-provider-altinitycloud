@@ -203,10 +203,8 @@ func (r *AzureEnvResource) Delete(ctx context.Context, req resource.DeleteReques
 		case <-ticker.C:
 			tflog.Trace(ctx, "checking if env was deleted", map[string]interface{}{"name": envName})
 			envStatus, err := r.Client.GetAzureEnvStatus(ctx, envName)
-			pendingMfa = !envStatus.AzureEnv.Status.PendingDelete
-
 			if err != nil {
-				notFound, err := client.IsNotFoundError(err)
+				notFound, _ := client.IsNotFoundError(err)
 				if notFound {
 					tflog.Trace(ctx, "deleted resource", map[string]interface{}{"name": envName})
 				} else {
@@ -214,6 +212,7 @@ func (r *AzureEnvResource) Delete(ctx context.Context, req resource.DeleteReques
 				}
 				return
 			}
+			pendingMfa = !envStatus.AzureEnv.Status.PendingDelete
 		}
 	}
 }
