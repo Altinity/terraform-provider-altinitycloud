@@ -39,7 +39,11 @@ func (r *K8SEnvResource) Create(ctx context.Context, req resource.CreateRequest,
 	name := data.Name.ValueString()
 	tflog.Trace(ctx, "creating resource", map[string]interface{}{"name": name})
 
-	sdkEnv, _ := data.toSDK(ctx)
+	sdkEnv, _, diags := data.toSDK(ctx)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 	apiResp, err := r.Client.CreateK8SEnv(ctx, sdkEnv)
 
 	if err != nil {
@@ -50,9 +54,14 @@ func (r *K8SEnvResource) Create(ctx context.Context, req resource.CreateRequest,
 	// Reorder node groups  and zones to respect order in the user's configuration
 	apiResp.CreateK8SEnv.Spec.NodeGroups = reorderNodeGroups(data.NodeGroups, apiResp.CreateK8SEnv.Spec.NodeGroups)
 	data.Id = data.Name
-	data.NodeGroups = nodeGroupsToModel(apiResp.CreateK8SEnv.Spec.NodeGroups)
+	data.NodeGroups, diags = nodeGroupsToModel(apiResp.CreateK8SEnv.Spec.NodeGroups)
+	resp.Diagnostics.Append(diags...)
 	data.SpecRevision = types.Int64Value(apiResp.CreateK8SEnv.SpecRevision)
-	data.toModel(data.Name.ValueString(), apiResp.CreateK8SEnv.SpecRevision, *apiResp.CreateK8SEnv.Spec)
+	diags = data.toModel(data.Name.ValueString(), apiResp.CreateK8SEnv.SpecRevision, *apiResp.CreateK8SEnv.Spec)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 
 	tflog.Trace(ctx, "created resource", map[string]interface{}{"name": name})
 	diags = resp.State.Set(ctx, &data)
@@ -85,7 +94,11 @@ func (r *K8SEnvResource) Read(ctx context.Context, req resource.ReadRequest, res
 
 	// Reorder node groups  and zones to respect order in the user's configuration
 	apiResp.K8sEnv.Spec.NodeGroups = reorderNodeGroups(data.NodeGroups, apiResp.K8sEnv.Spec.NodeGroups)
-	data.toModel(apiResp.K8sEnv.Name, apiResp.K8sEnv.SpecRevision, *apiResp.K8sEnv.Spec)
+	diags = data.toModel(apiResp.K8sEnv.Name, apiResp.K8sEnv.SpecRevision, *apiResp.K8sEnv.Spec)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 	data.Id = data.Name
 
 	diags = resp.State.Set(ctx, &data)
@@ -104,7 +117,11 @@ func (r *K8SEnvResource) Update(ctx context.Context, req resource.UpdateRequest,
 	name := data.Name.ValueString()
 	tflog.Trace(ctx, "updating resource", map[string]interface{}{"name": name})
 
-	_, sdkEnv := data.toSDK(ctx)
+	_, sdkEnv, diags := data.toSDK(ctx)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 	apiResp, err := r.Client.UpdateK8SEnv(ctx, sdkEnv)
 
 	if err != nil {
@@ -113,7 +130,8 @@ func (r *K8SEnvResource) Update(ctx context.Context, req resource.UpdateRequest,
 	}
 
 	apiResp.UpdateK8SEnv.Spec.NodeGroups = reorderNodeGroups(data.NodeGroups, apiResp.UpdateK8SEnv.Spec.NodeGroups)
-	data.NodeGroups = nodeGroupsToModel(apiResp.UpdateK8SEnv.Spec.NodeGroups)
+	data.NodeGroups, diags = nodeGroupsToModel(apiResp.UpdateK8SEnv.Spec.NodeGroups)
+	resp.Diagnostics.Append(diags...)
 	data.SpecRevision = types.Int64Value(apiResp.UpdateK8SEnv.SpecRevision)
 
 	tflog.Trace(ctx, "updated resource", map[string]interface{}{"name": name})

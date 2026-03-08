@@ -68,7 +68,11 @@ func (d *AzureEnvDataSource) Read(ctx context.Context, req datasource.ReadReques
 		return
 	}
 
-	data.toModel(*apiResp.AzureEnv)
+	diags = data.toModel(*apiResp.AzureEnv)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 	data.Id = data.Name
 
 	diags = resp.State.Set(ctx, &data)

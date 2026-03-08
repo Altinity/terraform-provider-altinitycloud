@@ -223,7 +223,10 @@ func TestReorderList(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := ReorderList(context.Background(), tt.model, tt.input)
+			result, diags := ReorderList(context.Background(), tt.model, tt.input)
+			if diags.HasError() {
+				t.Fatalf("unexpected diagnostics: %v", diags)
+			}
 
 			if len(result) != tt.expectedLength {
 				t.Errorf("Expected length %d, got %d", tt.expectedLength, len(result))

@@ -5,6 +5,7 @@ import (
 
 	common "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env/common"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/client"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -90,8 +91,11 @@ type InternalLoadBalancerModel struct {
 	Annotations    []common.KeyValueModel `tfsdk:"annotations"`
 }
 
-func (e K8SEnvResourceModel) toSDK(ctx context.Context) (client.CreateK8SEnvInput, client.UpdateK8SEnvInput) {
-	nodeGroups := nodeGroupsToSDK(ctx, e.NodeGroups)
+func (e K8SEnvResourceModel) toSDK(ctx context.Context) (client.CreateK8SEnvInput, client.UpdateK8SEnvInput, diag.Diagnostics) {
+	var allDiags diag.Diagnostics
+
+	nodeGroups, diags := nodeGroupsToSDK(ctx, e.NodeGroups)
+	allDiags.Append(diags...)
 	customNodeTypes := nodeTypesToSDK(e.CustomNodeTypes)
 	loadBalancers := loadBalancersToSDK(e.LoadBalancers)
 	logs := logsToSDK(e.Logs)
@@ -133,21 +137,27 @@ func (e K8SEnvResourceModel) toSDK(ctx context.Context) (client.CreateK8SEnvInpu
 		},
 	}
 
-	return create, update
+	return create, update, allDiags
 }
 
-func (model *K8SEnvResourceModel) toModel(name string, specRevision int64, spec client.K8SEnvSpecFragment) {
+func (model *K8SEnvResourceModel) toModel(name string, specRevision int64, spec client.K8SEnvSpecFragment) diag.Diagnostics {
+	var allDiags diag.Diagnostics
+
 	model.Name = types.StringValue(name)
 	model.CustomDomain = types.StringPointerValue(spec.CustomDomain)
 	model.LoadBalancingStrategy = types.StringValue(string(spec.LoadBalancingStrategy))
 	model.CustomNodeTypes = nodeTypesToModel(spec.CustomNodeTypes)
-	model.NodeGroups = nodeGroupsToModel(spec.NodeGroups)
+	nodeGroups, diags := nodeGroupsToModel(spec.NodeGroups)
+	allDiags.Append(diags...)
+	model.NodeGroups = nodeGroups
 	model.LoadBalancers = loadBalancersToModel(spec.LoadBalancers)
 	model.Logs = logsToModel(spec.Logs)
 	model.MaintenanceWindows = maintenanceWindowsToModel(spec.MaintenanceWindows)
 	model.Metrics = metricsToModel(spec.Metrics)
 	model.Distribution = types.StringValue(string(spec.Distribution))
 	model.SpecRevision = types.Int64Value(specRevision)
+
+	return allDiags
 }
 
 func loadBalancersToSDK(loadBalancers *LoadBalancersModel) *client.K8SEnvLoadBalancersSpecInput {
@@ -230,7 +240,8 @@ func loadBalancersToModel(loadBalancers client.K8SEnvSpecFragment_LoadBalancers)
 	return model
 }
 
-func nodeGroupsToSDK(ctx context.Context, nodeGroups []NodeGroupsModel) []*client.K8SEnvNodeGroupSpecInput {
+func nodeGroupsToSDK(ctx context.Context, nodeGroups []NodeGroupsModel) ([]*client.K8SEnvNodeGroupSpecInput, diag.Diagnostics) {
+	var allDiags diag.Diagnostics
 	var sdkNodeGroups []*client.K8SEnvNodeGroupSpecInput
 	for _, np := range nodeGroups {
 		var tolerations []*client.NodeTolerationSpecInput
@@ -253,10 +264,12 @@ func nodeGroupsToSDK(ctx context.Context, nodeGroups []NodeGroupsModel) []*clien
 		}
 
 		var reservations []client.NodeReservation
-		np.Reservations.ElementsAs(ctx, &reservations, false)
+		diags := np.Reservations.ElementsAs(ctx, &reservations, false)
+		allDiags.Append(diags...)
 
 		var zones []string
-		np.Zones.ElementsAs(ctx, &zones, false)
+		diags = np.Zones.ElementsAs(ctx, &zones, false)
+		allDiags.Append(diags...)
 
 		sdkNodeGroups = append(sdkNodeGroups, &client.K8SEnvNodeGroupSpecInput{
 			Name:            np.Name.ValueStringPointer(),
@@ -269,10 +282,11 @@ func nodeGroupsToSDK(ctx context.Context, nodeGroups []NodeGroupsModel) []*clien
 		})
 	}
 
-	return sdkNodeGroups
+	return sdkNodeGroups, allDiags
 }
 
-func nodeGroupsToModel(nodeGroups []*client.K8SEnvSpecFragment_NodeGroups) []NodeGroupsModel {
+func nodeGroupsToModel(nodeGroups []*client.K8SEnvSpecFragment_NodeGroups) ([]NodeGroupsModel, diag.Diagnostics) {
+	var allDiags diag.Diagnostics
 	var modelNodeGroups []NodeGroupsModel
 	for _, np := range nodeGroups {
 
@@ -294,18 +308,23 @@ func nodeGroupsToModel(nodeGroups []*client.K8SEnvSpecFragment_NodeGroups) []Nod
 			})
 		}
 
+		zones, diags := common.ListToModel(np.Zones)
+		allDiags.Append(diags...)
+		reservations, diags := common.ReservationsToModel(np.Reservations)
+		allDiags.Append(diags...)
+
 		modelNodeGroups = append(modelNodeGroups, NodeGroupsModel{
 			Name:            types.StringValue(np.Name),
 			NodeType:        types.StringValue(np.NodeType),
 			CapacityPerZone: types.Int64Value(np.CapacityPerZone),
-			Zones:           common.ListToModel(np.Zones),
-			Reservations:    common.ReservationsToModel(np.Reservations),
+			Zones:           zones,
+			Reservations:    reservations,
 			Tolerations:     tolerations,
 			NodeSelector:    nodeSelector,
 		})
 	}
 
-	return modelNodeGroups
+	return modelNodeGroups, allDiags
 }
 
 func nodeTypesToSDK(nodeTypes []NodeTypeModel) []*client.K8SEnvCustomNodeTypeSpecInput {

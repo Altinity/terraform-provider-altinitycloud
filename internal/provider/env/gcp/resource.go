@@ -39,7 +39,11 @@ func (r *GCPEnvResource) Create(ctx context.Context, req resource.CreateRequest,
 	name := data.Name.ValueString()
 	tflog.Trace(ctx, "creating resource", map[string]interface{}{"name": name})
 
-	sdkEnv, _ := data.toSDK(ctx)
+	sdkEnv, _, diags := data.toSDK(ctx)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 
 	apiResp, err := r.Client.CreateGCPEnv(ctx, sdkEnv)
 
@@ -53,10 +57,13 @@ func (r *GCPEnvResource) Create(ctx context.Context, req resource.CreateRequest,
 		func(m common.NodeGroupsModel) string { return m.NodeType.ValueString() },
 		func(s *client.GCPEnvSpecFragment_NodeGroups) string { return s.NodeType },
 	)
-	apiResp.CreateGCPEnv.Spec.Zones = common.ReorderList(ctx, data.Zones, apiResp.CreateGCPEnv.Spec.Zones)
+	apiResp.CreateGCPEnv.Spec.Zones, diags = common.ReorderList(ctx, data.Zones, apiResp.CreateGCPEnv.Spec.Zones)
+	resp.Diagnostics.Append(diags...)
 	data.Id = data.Name
-	data.Zones = common.ListToModel(apiResp.CreateGCPEnv.Spec.Zones)
-	data.NodeGroups = nodeGroupsToModel(apiResp.CreateGCPEnv.Spec.NodeGroups)
+	data.Zones, diags = common.ListToModel(apiResp.CreateGCPEnv.Spec.Zones)
+	resp.Diagnostics.Append(diags...)
+	data.NodeGroups, diags = nodeGroupsToModel(apiResp.CreateGCPEnv.Spec.NodeGroups)
+	resp.Diagnostics.Append(diags...)
 	data.SpecRevision = types.Int64Value(apiResp.CreateGCPEnv.SpecRevision)
 
 	tflog.Trace(ctx, "created resource", map[string]interface{}{"name": name})
@@ -93,8 +100,13 @@ func (r *GCPEnvResource) Read(ctx context.Context, req resource.ReadRequest, res
 		func(m common.NodeGroupsModel) string { return m.NodeType.ValueString() },
 		func(s *client.GCPEnvSpecFragment_NodeGroups) string { return s.NodeType },
 	)
-	apiResp.GCPEnv.Spec.Zones = common.ReorderList(ctx, data.Zones, apiResp.GCPEnv.Spec.Zones)
-	data.toModel(*apiResp.GCPEnv)
+	apiResp.GCPEnv.Spec.Zones, diags = common.ReorderList(ctx, data.Zones, apiResp.GCPEnv.Spec.Zones)
+	resp.Diagnostics.Append(diags...)
+	diags = data.toModel(*apiResp.GCPEnv)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 	data.Id = data.Name
 
 	diags = resp.State.Set(ctx, &data)
@@ -113,7 +125,11 @@ func (r *GCPEnvResource) Update(ctx context.Context, req resource.UpdateRequest,
 	name := data.Name.ValueString()
 	tflog.Trace(ctx, "updating resource", map[string]interface{}{"name": name})
 
-	_, sdkEnv := data.toSDK(ctx)
+	_, sdkEnv, diags := data.toSDK(ctx)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 	apiResp, err := r.Client.UpdateGCPEnv(ctx, sdkEnv)
 
 	if err != nil {
@@ -126,9 +142,12 @@ func (r *GCPEnvResource) Update(ctx context.Context, req resource.UpdateRequest,
 		func(m common.NodeGroupsModel) string { return m.NodeType.ValueString() },
 		func(s *client.GCPEnvSpecFragment_NodeGroups) string { return s.NodeType },
 	)
-	apiResp.UpdateGCPEnv.Spec.Zones = common.ReorderList(ctx, data.Zones, apiResp.UpdateGCPEnv.Spec.Zones)
-	data.Zones = common.ListToModel(apiResp.UpdateGCPEnv.Spec.Zones)
-	data.NodeGroups = nodeGroupsToModel(apiResp.UpdateGCPEnv.Spec.NodeGroups)
+	apiResp.UpdateGCPEnv.Spec.Zones, diags = common.ReorderList(ctx, data.Zones, apiResp.UpdateGCPEnv.Spec.Zones)
+	resp.Diagnostics.Append(diags...)
+	data.Zones, diags = common.ListToModel(apiResp.UpdateGCPEnv.Spec.Zones)
+	resp.Diagnostics.Append(diags...)
+	data.NodeGroups, diags = nodeGroupsToModel(apiResp.UpdateGCPEnv.Spec.NodeGroups)
+	resp.Diagnostics.Append(diags...)
 	data.SpecRevision = types.Int64Value(apiResp.UpdateGCPEnv.SpecRevision)
 
 	tflog.Trace(ctx, "updated resource", map[string]interface{}{"name": name})

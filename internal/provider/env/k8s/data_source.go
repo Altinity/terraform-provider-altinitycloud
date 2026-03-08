@@ -68,7 +68,11 @@ func (d *K8SEnvDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 		return
 	}
 
-	data.toModel(apiResp.K8sEnv.Name, apiResp.K8sEnv.SpecRevision, *apiResp.K8sEnv.Spec)
+	diags = data.toModel(apiResp.K8sEnv.Name, apiResp.K8sEnv.SpecRevision, *apiResp.K8sEnv.Spec)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 	data.Id = data.Name
 
 	diags = resp.State.Set(ctx, &data)

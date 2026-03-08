@@ -39,7 +39,11 @@ func (r *AzureEnvResource) Create(ctx context.Context, req resource.CreateReques
 	name := data.Name.ValueString()
 	tflog.Trace(ctx, "creating resource", map[string]interface{}{"name": name})
 
-	sdkEnv, _ := data.toSDK(ctx)
+	sdkEnv, _, diags := data.toSDK(ctx)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 
 	apiResp, err := r.Client.CreateAzureEnv(ctx, sdkEnv)
 
@@ -53,10 +57,13 @@ func (r *AzureEnvResource) Create(ctx context.Context, req resource.CreateReques
 		func(m common.NodeGroupsModel) string { return m.NodeType.ValueString() },
 		func(s *client.AzureEnvSpecFragment_NodeGroups) string { return s.NodeType },
 	)
-	apiResp.CreateAzureEnv.Spec.Zones = common.ReorderList(ctx, data.Zones, apiResp.CreateAzureEnv.Spec.Zones)
+	apiResp.CreateAzureEnv.Spec.Zones, diags = common.ReorderList(ctx, data.Zones, apiResp.CreateAzureEnv.Spec.Zones)
+	resp.Diagnostics.Append(diags...)
 	data.Id = data.Name
-	data.Zones = common.ListToModel(apiResp.CreateAzureEnv.Spec.Zones)
-	data.NodeGroups = nodeGroupsToModel(apiResp.CreateAzureEnv.Spec.NodeGroups)
+	data.Zones, diags = common.ListToModel(apiResp.CreateAzureEnv.Spec.Zones)
+	resp.Diagnostics.Append(diags...)
+	data.NodeGroups, diags = nodeGroupsToModel(apiResp.CreateAzureEnv.Spec.NodeGroups)
+	resp.Diagnostics.Append(diags...)
 	data.SpecRevision = types.Int64Value(apiResp.CreateAzureEnv.SpecRevision)
 
 	tflog.Trace(ctx, "created resource", map[string]interface{}{"name": name})
@@ -93,8 +100,13 @@ func (r *AzureEnvResource) Read(ctx context.Context, req resource.ReadRequest, r
 		func(m common.NodeGroupsModel) string { return m.NodeType.ValueString() },
 		func(s *client.AzureEnvSpecFragment_NodeGroups) string { return s.NodeType },
 	)
-	apiResp.AzureEnv.Spec.Zones = common.ReorderList(ctx, data.Zones, apiResp.AzureEnv.Spec.Zones)
-	data.toModel(*apiResp.AzureEnv)
+	apiResp.AzureEnv.Spec.Zones, diags = common.ReorderList(ctx, data.Zones, apiResp.AzureEnv.Spec.Zones)
+	resp.Diagnostics.Append(diags...)
+	diags = data.toModel(*apiResp.AzureEnv)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 	data.Id = data.Name
 
 	diags = resp.State.Set(ctx, &data)
@@ -113,7 +125,11 @@ func (r *AzureEnvResource) Update(ctx context.Context, req resource.UpdateReques
 	name := data.Name.ValueString()
 	tflog.Trace(ctx, "updating resource", map[string]interface{}{"name": name})
 
-	_, sdkEnv := data.toSDK(ctx)
+	_, sdkEnv, diags := data.toSDK(ctx)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 	apiResp, err := r.Client.UpdateAzureEnv(ctx, sdkEnv)
 
 	if err != nil {
@@ -126,9 +142,12 @@ func (r *AzureEnvResource) Update(ctx context.Context, req resource.UpdateReques
 		func(m common.NodeGroupsModel) string { return m.NodeType.ValueString() },
 		func(s *client.AzureEnvSpecFragment_NodeGroups) string { return s.NodeType },
 	)
-	apiResp.UpdateAzureEnv.Spec.Zones = common.ReorderList(ctx, data.Zones, apiResp.UpdateAzureEnv.Spec.Zones)
-	data.Zones = common.ListToModel(apiResp.UpdateAzureEnv.Spec.Zones)
-	data.NodeGroups = nodeGroupsToModel(apiResp.UpdateAzureEnv.Spec.NodeGroups)
+	apiResp.UpdateAzureEnv.Spec.Zones, diags = common.ReorderList(ctx, data.Zones, apiResp.UpdateAzureEnv.Spec.Zones)
+	resp.Diagnostics.Append(diags...)
+	data.Zones, diags = common.ListToModel(apiResp.UpdateAzureEnv.Spec.Zones)
+	resp.Diagnostics.Append(diags...)
+	data.NodeGroups, diags = nodeGroupsToModel(apiResp.UpdateAzureEnv.Spec.NodeGroups)
+	resp.Diagnostics.Append(diags...)
 	data.SpecRevision = types.Int64Value(apiResp.UpdateAzureEnv.SpecRevision)
 
 	tflog.Trace(ctx, "updated resource", map[string]interface{}{"name": name})

@@ -5,6 +5,7 @@ import (
 
 	common "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env/common"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/client"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -64,13 +65,21 @@ type MetricsEndpointModel struct {
 	SourceIPRanges []types.String `tfsdk:"source_ip_ranges"`
 }
 
-func (e HCloudEnvResourceModel) toSDK(ctx context.Context) (client.CreateHCloudEnvInput, client.UpdateHCloudEnvInput) {
+func (e HCloudEnvResourceModel) toSDK(ctx context.Context) (client.CreateHCloudEnvInput, client.UpdateHCloudEnvInput, diag.Diagnostics) {
 	var locations []string
-	e.Locations.ElementsAs(ctx, &locations, false)
-	wireguardPeers := wireguardPeersToSDK(ctx, e.WireguardPeers)
+	var allDiags diag.Diagnostics
+	diags := e.Locations.ElementsAs(ctx, &locations, false)
+	allDiags.Append(diags...)
+
+	wireguardPeers, diags := wireguardPeersToSDK(ctx, e.WireguardPeers)
+	allDiags.Append(diags...)
+
 	maintenanceWindows := common.MaintenanceWindowsToSDK(e.MaintenanceWindows)
 	LoadBalancers := loadBalancersToSDK(e.LoadBalancers)
-	nodeGroups := nodeGroupsToSDK(ctx, e.NodeGroups)
+
+	nodeGroups, diags := nodeGroupsToSDK(ctx, e.NodeGroups)
+	allDiags.Append(diags...)
+
 	loadBalancingStrategy := (*client.LoadBalancingStrategy)(e.LoadBalancingStrategy.ValueStringPointer())
 	metricsEndpoint := metricsEndpointToSDK(e.MetricsEndpoint)
 	cloudConnect := false
@@ -109,22 +118,37 @@ func (e HCloudEnvResourceModel) toSDK(ctx context.Context) (client.CreateHCloudE
 		},
 	}
 
-	return create, update
+	return create, update, allDiags
 }
 
-func (model *HCloudEnvResourceModel) toModel(env client.GetHCloudEnv_HcloudEnv) {
+func (model *HCloudEnvResourceModel) toModel(env client.GetHCloudEnv_HcloudEnv) diag.Diagnostics {
+	var allDiags diag.Diagnostics
+
 	model.Name = types.StringValue(env.Name)
 	model.NetworkZone = types.StringValue(env.Spec.NetworkZone)
 	model.CustomDomain = types.StringPointerValue(env.Spec.CustomDomain)
 	model.CIDR = types.StringValue(env.Spec.Cidr)
 	model.LoadBalancingStrategy = types.StringValue(string(env.Spec.LoadBalancingStrategy))
 	model.LoadBalancers = loadBalancersToModel(env.Spec.LoadBalancers)
-	model.NodeGroups = nodeGroupsToModel(env.Spec.NodeGroups)
+
+	nodeGroups, diags := nodeGroupsToModel(env.Spec.NodeGroups)
+	allDiags.Append(diags...)
+	model.NodeGroups = nodeGroups
+
 	model.MaintenanceWindows = maintenanceWindowsToModel(env.Spec.MaintenanceWindows)
-	model.Locations = common.ListToModel(env.Spec.Locations)
-	model.WireguardPeers = wireguardPeersToModel(env.Spec.WireguardPeers)
+
+	locations, diags := common.ListToModel(env.Spec.Locations)
+	allDiags.Append(diags...)
+	model.Locations = locations
+
+	wireguardPeers, diags := wireguardPeersToModel(env.Spec.WireguardPeers)
+	allDiags.Append(diags...)
+	model.WireguardPeers = wireguardPeers
+
 	model.MetricsEndpoint = metricsEndpointToModel(&env.Spec.MetricsEndpoint)
 	model.SpecRevision = types.Int64Value(env.SpecRevision)
+
+	return allDiags
 }
 
 func loadBalancersToSDK(loadBalancers *LoadBalancersModel) *client.HCloudEnvLoadBalancersSpecInput {
@@ -181,14 +205,17 @@ func loadBalancersToModel(loadBalancers client.HCloudEnvSpecFragment_LoadBalance
 	return model
 }
 
-func nodeGroupsToSDK(ctx context.Context, nodeGroups []NodeGroupsModel) []*client.HCloudEnvNodeGroupSpecInput {
+func nodeGroupsToSDK(ctx context.Context, nodeGroups []NodeGroupsModel) ([]*client.HCloudEnvNodeGroupSpecInput, diag.Diagnostics) {
+	var allDiags diag.Diagnostics
 	var sdkNodeGroups []*client.HCloudEnvNodeGroupSpecInput
 	for _, np := range nodeGroups {
 		var reservations []client.NodeReservation
-		np.Reservations.ElementsAs(ctx, &reservations, false)
+		diags := np.Reservations.ElementsAs(ctx, &reservations, false)
+		allDiags.Append(diags...)
 
 		var locations []string
-		np.Locations.ElementsAs(ctx, &locations, false)
+		diags = np.Locations.ElementsAs(ctx, &locations, false)
+		allDiags.Append(diags...)
 
 		sdkNodeGroups = append(sdkNodeGroups, &client.HCloudEnvNodeGroupSpecInput{
 			Name:                np.Name.ValueStringPointer(),
@@ -199,14 +226,16 @@ func nodeGroupsToSDK(ctx context.Context, nodeGroups []NodeGroupsModel) []*clien
 		})
 	}
 
-	return sdkNodeGroups
+	return sdkNodeGroups, allDiags
 }
 
-func wireguardPeersToSDK(ctx context.Context, peers []WireguardPeers) []*client.HCloudEnvWireguardPeerSpecInput {
+func wireguardPeersToSDK(ctx context.Context, peers []WireguardPeers) ([]*client.HCloudEnvWireguardPeerSpecInput, diag.Diagnostics) {
+	var allDiags diag.Diagnostics
 	var sdkPeers []*client.HCloudEnvWireguardPeerSpecInput
 	for _, p := range peers {
 		var allowedIPs []string
-		p.AllowedIPs.ElementsAs(ctx, &allowedIPs, false)
+		diags := p.AllowedIPs.ElementsAs(ctx, &allowedIPs, false)
+		allDiags.Append(diags...)
 
 		sdkPeers = append(sdkPeers, &client.HCloudEnvWireguardPeerSpecInput{
 			PublicKey:  p.PublicKey.ValueString(),
@@ -215,22 +244,28 @@ func wireguardPeersToSDK(ctx context.Context, peers []WireguardPeers) []*client.
 		})
 	}
 
-	return sdkPeers
+	return sdkPeers, allDiags
 }
 
-func nodeGroupsToModel(nodeGroups []*client.HCloudEnvSpecFragment_NodeGroups) []NodeGroupsModel {
+func nodeGroupsToModel(nodeGroups []*client.HCloudEnvSpecFragment_NodeGroups) ([]NodeGroupsModel, diag.Diagnostics) {
+	var allDiags diag.Diagnostics
 	var modelNodeGroups []NodeGroupsModel
 	for _, np := range nodeGroups {
+		locations, diags := common.ListToModel(np.Locations)
+		allDiags.Append(diags...)
+		reservations, diags := common.ReservationsToModel(np.Reservations)
+		allDiags.Append(diags...)
+
 		modelNodeGroups = append(modelNodeGroups, NodeGroupsModel{
 			Name:                types.StringValue(np.Name),
 			NodeType:            types.StringValue(np.NodeType),
-			Locations:           common.ListToModel(np.Locations),
-			Reservations:        common.ReservationsToModel(np.Reservations),
+			Locations:           locations,
+			Reservations:        reservations,
 			CapacityPerLocation: types.Int64Value(np.CapacityPerLocation),
 		})
 	}
 
-	return modelNodeGroups
+	return modelNodeGroups, allDiags
 }
 
 func maintenanceWindowsToModel(input []*client.HCloudEnvSpecFragment_MaintenanceWindows) []common.MaintenanceWindowModel {
@@ -253,17 +288,21 @@ func maintenanceWindowsToModel(input []*client.HCloudEnvSpecFragment_Maintenance
 	return maintenanceWindow
 }
 
-func wireguardPeersToModel(input []*client.HCloudEnvSpecFragment_WireguardPeers) []WireguardPeers {
+func wireguardPeersToModel(input []*client.HCloudEnvSpecFragment_WireguardPeers) ([]WireguardPeers, diag.Diagnostics) {
+	var allDiags diag.Diagnostics
 	var peers []WireguardPeers
 	for _, p := range input {
+		allowedIPs, diags := common.ListToModel(p.AllowedIPs)
+		allDiags.Append(diags...)
+
 		peers = append(peers, WireguardPeers{
 			PublicKey:  types.StringValue(p.PublicKey),
-			AllowedIPs: common.ListToModel(p.AllowedIPs),
+			AllowedIPs: allowedIPs,
 			Endpoint:   types.StringValue(p.Endpoint),
 		})
 	}
 
-	return peers
+	return peers, allDiags
 }
 
 func metricsEndpointToSDK(endpoint *MetricsEndpointModel) *client.MetricsEndpointSpecInput {

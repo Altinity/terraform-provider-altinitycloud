@@ -68,7 +68,11 @@ func (d *HCloudEnvDataSource) Read(ctx context.Context, req datasource.ReadReque
 		return
 	}
 
-	data.toModel(*apiResp.HcloudEnv)
+	diags = data.toModel(*apiResp.HcloudEnv)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 	data.Id = data.Name
 
 	diags = resp.State.Set(ctx, &data)

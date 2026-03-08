@@ -5,6 +5,7 @@ import (
 
 	common "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env/common"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/client"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -56,13 +57,16 @@ type MetricsEndpointModel struct {
 	SourceIPRanges []types.String `tfsdk:"source_ip_ranges"`
 }
 
-func (e AzureEnvResourceModel) toSDK(ctx context.Context) (client.CreateAzureEnvInput, client.UpdateAzureEnvInput) {
+func (e AzureEnvResourceModel) toSDK(ctx context.Context) (client.CreateAzureEnvInput, client.UpdateAzureEnvInput, diag.Diagnostics) {
 	var zones []string
-	e.Zones.ElementsAs(ctx, &zones, false)
+	var allDiags diag.Diagnostics
+	diags := e.Zones.ElementsAs(ctx, &zones, false)
+	allDiags.Append(diags...)
 
 	maintenanceWindows := common.MaintenanceWindowsToSDK(e.MaintenanceWindows)
 	LoadBalancers := loadBalancersToSDK(e.LoadBalancers)
-	nodeGroups := nodeGroupsToSDK(ctx, e.NodeGroups)
+	nodeGroups, diags := nodeGroupsToSDK(ctx, e.NodeGroups)
+	allDiags.Append(diags...)
 	loadBalancingStrategy := (*client.LoadBalancingStrategy)(e.LoadBalancingStrategy.ValueStringPointer())
 	metricsEndpoint := metricsEndpointToSDK(e.MetricsEndpoint)
 	cloudConnect := false
@@ -123,10 +127,11 @@ func (e AzureEnvResourceModel) toSDK(ctx context.Context) (client.CreateAzureEnv
 		},
 	}
 
-	return create, update
+	return create, update, allDiags
 }
 
-func (model *AzureEnvResourceModel) toModel(env client.GetAzureEnv_AzureEnv) {
+func (model *AzureEnvResourceModel) toModel(env client.GetAzureEnv_AzureEnv) diag.Diagnostics {
+	var allDiags diag.Diagnostics
 	model.Name = types.StringValue(env.Name)
 	model.Region = types.StringValue(env.Spec.Region)
 	model.CustomDomain = types.StringPointerValue(env.Spec.CustomDomain)
@@ -135,9 +140,17 @@ func (model *AzureEnvResourceModel) toModel(env client.GetAzureEnv_AzureEnv) {
 	model.TenantID = types.StringValue(env.Spec.TenantID)
 	model.LoadBalancingStrategy = types.StringValue(string(env.Spec.LoadBalancingStrategy))
 	model.LoadBalancers = loadBalancersToModel(env.Spec.LoadBalancers)
-	model.NodeGroups = nodeGroupsToModel(env.Spec.NodeGroups)
+
+	nodeGroups, diags := nodeGroupsToModel(env.Spec.NodeGroups)
+	allDiags.Append(diags...)
+	model.NodeGroups = nodeGroups
+
 	model.MaintenanceWindows = maintenanceWindowsToModel(env.Spec.MaintenanceWindows)
-	model.Zones = common.ListToModel(env.Spec.Zones)
+
+	zones, diags := common.ListToModel(env.Spec.Zones)
+	allDiags.Append(diags...)
+	model.Zones = zones
+
 	model.MetricsEndpoint = metricsEndpointToModel(&env.Spec.MetricsEndpoint)
 
 	var tags []common.KeyValueModel
@@ -153,6 +166,7 @@ func (model *AzureEnvResourceModel) toModel(env client.GetAzureEnv_AzureEnv) {
 	}
 	model.SpecRevision = types.Int64Value(env.SpecRevision)
 	model.Tags = tags
+	return allDiags
 }
 
 func loadBalancersToSDK(loadBalancers *LoadBalancersModel) *client.AzureEnvLoadBalancersSpecInput {
@@ -209,14 +223,17 @@ func loadBalancersToModel(loadBalancers client.AzureEnvSpecFragment_LoadBalancer
 	return model
 }
 
-func nodeGroupsToSDK(ctx context.Context, nodeGroups []common.NodeGroupsModel) []*client.AzureEnvNodeGroupSpecInput {
+func nodeGroupsToSDK(ctx context.Context, nodeGroups []common.NodeGroupsModel) ([]*client.AzureEnvNodeGroupSpecInput, diag.Diagnostics) {
+	var allDiags diag.Diagnostics
 	var sdkNodeGroups []*client.AzureEnvNodeGroupSpecInput
 	for _, np := range nodeGroups {
 		var reservations []client.NodeReservation
-		np.Reservations.ElementsAs(ctx, &reservations, false)
+		diags := np.Reservations.ElementsAs(ctx, &reservations, false)
+		allDiags.Append(diags...)
 
 		var zones []string
-		np.Zones.ElementsAs(ctx, &zones, false)
+		diags = np.Zones.ElementsAs(ctx, &zones, false)
+		allDiags.Append(diags...)
 
 		sdkNodeGroups = append(sdkNodeGroups, &client.AzureEnvNodeGroupSpecInput{
 			Name:            np.Name.ValueStringPointer(),
@@ -227,22 +244,28 @@ func nodeGroupsToSDK(ctx context.Context, nodeGroups []common.NodeGroupsModel) [
 		})
 	}
 
-	return sdkNodeGroups
+	return sdkNodeGroups, allDiags
 }
 
-func nodeGroupsToModel(nodeGroups []*client.AzureEnvSpecFragment_NodeGroups) []common.NodeGroupsModel {
+func nodeGroupsToModel(nodeGroups []*client.AzureEnvSpecFragment_NodeGroups) ([]common.NodeGroupsModel, diag.Diagnostics) {
+	var allDiags diag.Diagnostics
 	var modelNodeGroups []common.NodeGroupsModel
 	for _, np := range nodeGroups {
+		zones, diags := common.ListToModel(np.Zones)
+		allDiags.Append(diags...)
+		reservations, diags := common.ReservationsToModel(np.Reservations)
+		allDiags.Append(diags...)
+
 		modelNodeGroups = append(modelNodeGroups, common.NodeGroupsModel{
 			Name:            types.StringValue(np.Name),
 			NodeType:        types.StringValue(np.NodeType),
-			Zones:           common.ListToModel(np.Zones),
-			Reservations:    common.ReservationsToModel(np.Reservations),
+			Zones:           zones,
+			Reservations:    reservations,
 			CapacityPerZone: types.Int64Value(np.CapacityPerZone),
 		})
 	}
 
-	return modelNodeGroups
+	return modelNodeGroups, allDiags
 }
 
 func maintenanceWindowsToModel(input []*client.AzureEnvSpecFragment_MaintenanceWindows) []common.MaintenanceWindowModel {

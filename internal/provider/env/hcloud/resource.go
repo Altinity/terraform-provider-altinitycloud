@@ -39,7 +39,11 @@ func (r *HCloudEnvResource) Create(ctx context.Context, req resource.CreateReque
 	name := data.Name.ValueString()
 	tflog.Trace(ctx, "creating resource", map[string]interface{}{"name": name})
 
-	sdkEnv, _ := data.toSDK(ctx)
+	sdkEnv, _, diags := data.toSDK(ctx)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 
 	apiResp, err := r.Client.CreateHCloudEnv(ctx, sdkEnv)
 
@@ -53,10 +57,13 @@ func (r *HCloudEnvResource) Create(ctx context.Context, req resource.CreateReque
 		func(m NodeGroupsModel) string { return m.NodeType.ValueString() },
 		func(s *client.HCloudEnvSpecFragment_NodeGroups) string { return s.NodeType },
 	)
-	apiResp.CreateHCloudEnv.Spec.Locations = common.ReorderList(ctx, data.Locations, apiResp.CreateHCloudEnv.Spec.Locations)
+	apiResp.CreateHCloudEnv.Spec.Locations, diags = common.ReorderList(ctx, data.Locations, apiResp.CreateHCloudEnv.Spec.Locations)
+	resp.Diagnostics.Append(diags...)
 	data.Id = data.Name
-	data.Locations = common.ListToModel(apiResp.CreateHCloudEnv.Spec.Locations)
-	data.NodeGroups = nodeGroupsToModel(apiResp.CreateHCloudEnv.Spec.NodeGroups)
+	data.Locations, diags = common.ListToModel(apiResp.CreateHCloudEnv.Spec.Locations)
+	resp.Diagnostics.Append(diags...)
+	data.NodeGroups, diags = nodeGroupsToModel(apiResp.CreateHCloudEnv.Spec.NodeGroups)
+	resp.Diagnostics.Append(diags...)
 	data.SpecRevision = types.Int64Value(apiResp.CreateHCloudEnv.SpecRevision)
 
 	tflog.Trace(ctx, "created resource", map[string]interface{}{"name": name})
@@ -93,8 +100,13 @@ func (r *HCloudEnvResource) Read(ctx context.Context, req resource.ReadRequest, 
 		func(m NodeGroupsModel) string { return m.NodeType.ValueString() },
 		func(s *client.HCloudEnvSpecFragment_NodeGroups) string { return s.NodeType },
 	)
-	apiResp.HcloudEnv.Spec.Locations = common.ReorderList(ctx, data.Locations, apiResp.HcloudEnv.Spec.Locations)
-	data.toModel(*apiResp.HcloudEnv)
+	apiResp.HcloudEnv.Spec.Locations, diags = common.ReorderList(ctx, data.Locations, apiResp.HcloudEnv.Spec.Locations)
+	resp.Diagnostics.Append(diags...)
+	diags = data.toModel(*apiResp.HcloudEnv)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 	data.Id = data.Name
 
 	diags = resp.State.Set(ctx, &data)
@@ -113,7 +125,11 @@ func (r *HCloudEnvResource) Update(ctx context.Context, req resource.UpdateReque
 	name := data.Name.ValueString()
 	tflog.Trace(ctx, "updating resource", map[string]interface{}{"name": name})
 
-	_, sdkEnv := data.toSDK(ctx)
+	_, sdkEnv, diags := data.toSDK(ctx)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 	apiResp, err := r.Client.UpdateHCloudEnv(ctx, sdkEnv)
 
 	if err != nil {
@@ -126,9 +142,12 @@ func (r *HCloudEnvResource) Update(ctx context.Context, req resource.UpdateReque
 		func(m NodeGroupsModel) string { return m.NodeType.ValueString() },
 		func(s *client.HCloudEnvSpecFragment_NodeGroups) string { return s.NodeType },
 	)
-	apiResp.UpdateHCloudEnv.Spec.Locations = common.ReorderList(ctx, data.Locations, apiResp.UpdateHCloudEnv.Spec.Locations)
-	data.Locations = common.ListToModel(apiResp.UpdateHCloudEnv.Spec.Locations)
-	data.NodeGroups = nodeGroupsToModel(apiResp.UpdateHCloudEnv.Spec.NodeGroups)
+	apiResp.UpdateHCloudEnv.Spec.Locations, diags = common.ReorderList(ctx, data.Locations, apiResp.UpdateHCloudEnv.Spec.Locations)
+	resp.Diagnostics.Append(diags...)
+	data.Locations, diags = common.ListToModel(apiResp.UpdateHCloudEnv.Spec.Locations)
+	resp.Diagnostics.Append(diags...)
+	data.NodeGroups, diags = nodeGroupsToModel(apiResp.UpdateHCloudEnv.Spec.NodeGroups)
+	resp.Diagnostics.Append(diags...)
 	data.SpecRevision = types.Int64Value(apiResp.UpdateHCloudEnv.SpecRevision)
 
 	tflog.Trace(ctx, "updated resource", map[string]interface{}{"name": name})

@@ -5,6 +5,7 @@ import (
 
 	common "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env/common"
 	sdk "github.com/altinity/terraform-provider-altinitycloud/internal/sdk/client"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -112,9 +113,11 @@ type AWSEnvMetricsEndpointModel struct {
 	SourceIPRanges []types.String `tfsdk:"source_ip_ranges"`
 }
 
-func (e AWSEnvResourceModel) toSDK(ctx context.Context) (sdk.CreateAWSEnvInput, sdk.UpdateAWSEnvInput) {
+func (e AWSEnvResourceModel) toSDK(ctx context.Context) (sdk.CreateAWSEnvInput, sdk.UpdateAWSEnvInput, diag.Diagnostics) {
 	var zones []string
-	e.Zones.ElementsAs(ctx, &zones, false)
+	var allDiags diag.Diagnostics
+	diags := e.Zones.ElementsAs(ctx, &zones, false)
+	allDiags.Append(diags...)
 
 	var peeringConnections []*sdk.AWSEnvPeeringConnectionSpecInput
 	for _, p := range e.PeeringConnections {
@@ -152,7 +155,8 @@ func (e AWSEnvResourceModel) toSDK(ctx context.Context) (sdk.CreateAWSEnvInput, 
 	backups := backupsToSDK(e.Backups)
 	maintenanceWindows := common.MaintenanceWindowsToSDK(e.MaintenanceWindows)
 	LoadBalancers := loadBalancersToSDK(e.LoadBalancers)
-	nodeGroups := nodeGroupsToSDK(ctx, e.NodeGroups)
+	nodeGroups, diags := nodeGroupsToSDK(ctx, e.NodeGroups)
+	allDiags.Append(diags...)
 	loadBalancingStrategy := (*sdk.LoadBalancingStrategy)(e.LoadBalancingStrategy.ValueStringPointer())
 	cloudConnect := e.CloudConnect.ValueBool()
 
@@ -210,10 +214,11 @@ func (e AWSEnvResourceModel) toSDK(ctx context.Context) (sdk.CreateAWSEnvInput, 
 		},
 	}
 
-	return create, update
+	return create, update, allDiags
 }
 
-func (model *AWSEnvResourceModel) toModel(env sdk.GetAWSEnv_AWSEnv) {
+func (model *AWSEnvResourceModel) toModel(env sdk.GetAWSEnv_AWSEnv) diag.Diagnostics {
+	var allDiags diag.Diagnostics
 	model.Name = types.StringValue(env.Name)
 	model.CIDR = types.StringValue(env.Spec.Cidr)
 	model.Region = types.StringValue(env.Spec.Region)
@@ -222,9 +227,13 @@ func (model *AWSEnvResourceModel) toModel(env sdk.GetAWSEnv_AWSEnv) {
 	model.CustomDomain = types.StringPointerValue(env.Spec.CustomDomain)
 	model.LoadBalancingStrategy = types.StringValue(string(env.Spec.LoadBalancingStrategy))
 	model.LoadBalancers = loadBalancersToModel(env.Spec.LoadBalancers)
-	model.NodeGroups = nodeGroupsToModel(env.Spec.NodeGroups)
+	nodeGroups, diags := nodeGroupsToModel(env.Spec.NodeGroups)
+	allDiags.Append(diags...)
+	model.NodeGroups = nodeGroups
 	model.MaintenanceWindows = maintenanceWindowsToModel(env.Spec.MaintenanceWindows)
-	model.Zones = common.ListToModel(env.Spec.Zones)
+	zones, diags := common.ListToModel(env.Spec.Zones)
+	allDiags.Append(diags...)
+	model.Zones = zones
 	model.PermissionsBoundaryPolicyArn = types.StringPointerValue(env.Spec.PermissionsBoundaryPolicyArn)
 	model.ResourcePrefix = types.StringValue(env.Spec.ResourcePrefix)
 
@@ -274,6 +283,8 @@ func (model *AWSEnvResourceModel) toModel(env sdk.GetAWSEnv_AWSEnv) {
 	model.CloudConnect = types.BoolValue(env.Spec.CloudConnect)
 	model.EksLogging = types.BoolValue(env.Spec.EksLogging)
 	model.MetricsEndpoint = metricsEndpointToModel(&env.Spec.MetricsEndpoint)
+
+	return allDiags
 }
 
 func loadBalancersToSDK(loadBalancers *LoadBalancersModel) *sdk.AWSEnvLoadBalancersSpecInput {
@@ -358,14 +369,17 @@ func loadBalancersToModel(loadBalancers sdk.AWSEnvSpecFragment_LoadBalancers) *L
 	return model
 }
 
-func nodeGroupsToSDK(ctx context.Context, nodeGroups []common.NodeGroupsModel) []*sdk.AWSEnvNodeGroupSpecInput {
+func nodeGroupsToSDK(ctx context.Context, nodeGroups []common.NodeGroupsModel) ([]*sdk.AWSEnvNodeGroupSpecInput, diag.Diagnostics) {
+	var allDiags diag.Diagnostics
 	var sdkNodeGroups []*sdk.AWSEnvNodeGroupSpecInput
 	for _, np := range nodeGroups {
 		var reservations []sdk.NodeReservation
-		np.Reservations.ElementsAs(ctx, &reservations, false)
+		diags := np.Reservations.ElementsAs(ctx, &reservations, false)
+		allDiags.Append(diags...)
 
 		var zones []string
-		np.Zones.ElementsAs(ctx, &zones, false)
+		diags = np.Zones.ElementsAs(ctx, &zones, false)
+		allDiags.Append(diags...)
 
 		sdkNodeGroups = append(sdkNodeGroups, &sdk.AWSEnvNodeGroupSpecInput{
 			Name:            np.Name.ValueStringPointer(),
@@ -376,22 +390,28 @@ func nodeGroupsToSDK(ctx context.Context, nodeGroups []common.NodeGroupsModel) [
 		})
 	}
 
-	return sdkNodeGroups
+	return sdkNodeGroups, allDiags
 }
 
-func nodeGroupsToModel(nodeGroups []*sdk.AWSEnvSpecFragment_NodeGroups) []common.NodeGroupsModel {
+func nodeGroupsToModel(nodeGroups []*sdk.AWSEnvSpecFragment_NodeGroups) ([]common.NodeGroupsModel, diag.Diagnostics) {
+	var allDiags diag.Diagnostics
 	var modelNodeGroups []common.NodeGroupsModel
 	for _, np := range nodeGroups {
+		zones, diags := common.ListToModel(np.Zones)
+		allDiags.Append(diags...)
+		reservations, diags := common.ReservationsToModel(np.Reservations)
+		allDiags.Append(diags...)
+
 		modelNodeGroups = append(modelNodeGroups, common.NodeGroupsModel{
 			Name:            types.StringValue(np.Name),
 			NodeType:        types.StringValue(np.NodeType),
-			Zones:           common.ListToModel(np.Zones),
-			Reservations:    common.ReservationsToModel(np.Reservations),
+			Zones:           zones,
+			Reservations:    reservations,
 			CapacityPerZone: types.Int64Value(np.CapacityPerZone),
 		})
 	}
 
-	return modelNodeGroups
+	return modelNodeGroups, allDiags
 }
 
 func maintenanceWindowsToModel(input []*sdk.AWSEnvSpecFragment_MaintenanceWindows) []common.MaintenanceWindowModel {

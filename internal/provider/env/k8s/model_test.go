@@ -856,7 +856,10 @@ func TestNodeGroupsToSDK(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := nodeGroupsToSDK(context.Background(), tt.input)
+			result, diags := nodeGroupsToSDK(context.Background(), tt.input)
+			if diags.HasError() {
+				t.Fatalf("unexpected diagnostics: %v", diags)
+			}
 
 			if len(result) != len(tt.expected) {
 				t.Errorf("Expected %d node groups, got %d", len(tt.expected), len(result))
@@ -1017,7 +1020,10 @@ func TestNodeGroupsToModel(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := nodeGroupsToModel(tt.input)
+			result, diags := nodeGroupsToModel(tt.input)
+			if diags.HasError() {
+				t.Fatalf("unexpected diagnostics: %v", diags)
+			}
 
 			if len(result) != len(tt.expected) {
 				t.Errorf("Expected %d node groups, got %d", len(tt.expected), len(result))
@@ -1718,7 +1724,10 @@ func TestK8SEnvResourceModel_toSDK(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			create, update := tt.model.toSDK(context.Background())
+			create, update, diags := tt.model.toSDK(context.Background())
+			if diags.HasError() {
+				t.Fatalf("unexpected diagnostics: %v", diags)
+			}
 			tt.validate(t, create, update)
 		})
 	}
@@ -1975,7 +1984,10 @@ func TestK8SEnvResourceModel_toModel(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			model := &K8SEnvResourceModel{}
-			model.toModel(tt.envName, tt.specRevision, tt.spec)
+			diags := model.toModel(tt.envName, tt.specRevision, tt.spec)
+			if diags.HasError() {
+				t.Fatalf("unexpected diagnostics: %v", diags)
+			}
 			tt.validate(t, model)
 		})
 	}

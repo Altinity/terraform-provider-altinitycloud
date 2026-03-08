@@ -68,7 +68,11 @@ func (d *GCPEnvDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 		return
 	}
 
-	data.toModel(*apiResp.GCPEnv)
+	diags = data.toModel(*apiResp.GCPEnv)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 	data.Id = data.Name
 
 	diags = resp.State.Set(ctx, &data)

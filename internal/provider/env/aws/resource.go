@@ -39,7 +39,11 @@ func (r *AWSEnvResource) Create(ctx context.Context, req resource.CreateRequest,
 	envName := data.Name.ValueString()
 	tflog.Trace(ctx, "creating resource", map[string]interface{}{"name": envName})
 
-	sdkEnv, _ := data.toSDK(ctx)
+	sdkEnv, _, diags := data.toSDK(ctx)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 	apiResp, err := r.Client.CreateAWSEnv(ctx, sdkEnv)
 
 	if err != nil {
@@ -52,14 +56,17 @@ func (r *AWSEnvResource) Create(ctx context.Context, req resource.CreateRequest,
 		func(m common.NodeGroupsModel) string { return m.NodeType.ValueString() },
 		func(s *client.AWSEnvSpecFragment_NodeGroups) string { return s.NodeType },
 	)
-	apiResp.CreateAWSEnv.Spec.Zones = common.ReorderList(ctx, data.Zones, apiResp.CreateAWSEnv.Spec.Zones)
+	apiResp.CreateAWSEnv.Spec.Zones, diags = common.ReorderList(ctx, data.Zones, apiResp.CreateAWSEnv.Spec.Zones)
+	resp.Diagnostics.Append(diags...)
 	apiResp.CreateAWSEnv.Spec.Tags = common.ReorderByKey(data.Tags, apiResp.CreateAWSEnv.Spec.Tags,
 		func(m common.KeyValueModel) string { return m.Key.ValueString() },
 		func(s *client.AWSEnvSpecFragment_Tags) string { return s.Key },
 	)
 	data.Id = data.Name
-	data.Zones = common.ListToModel(apiResp.CreateAWSEnv.Spec.Zones)
-	data.NodeGroups = nodeGroupsToModel(apiResp.CreateAWSEnv.Spec.NodeGroups)
+	data.Zones, diags = common.ListToModel(apiResp.CreateAWSEnv.Spec.Zones)
+	resp.Diagnostics.Append(diags...)
+	data.NodeGroups, diags = nodeGroupsToModel(apiResp.CreateAWSEnv.Spec.NodeGroups)
+	resp.Diagnostics.Append(diags...)
 	data.SpecRevision = types.Int64Value(apiResp.CreateAWSEnv.SpecRevision)
 	data.ResourcePrefix = types.StringValue(apiResp.CreateAWSEnv.Spec.ResourcePrefix)
 
@@ -96,12 +103,17 @@ func (r *AWSEnvResource) Read(ctx context.Context, req resource.ReadRequest, res
 		func(m common.NodeGroupsModel) string { return m.NodeType.ValueString() },
 		func(s *client.AWSEnvSpecFragment_NodeGroups) string { return s.NodeType },
 	)
-	apiResp.AWSEnv.Spec.Zones = common.ReorderList(ctx, data.Zones, apiResp.AWSEnv.Spec.Zones)
+	apiResp.AWSEnv.Spec.Zones, diags = common.ReorderList(ctx, data.Zones, apiResp.AWSEnv.Spec.Zones)
+	resp.Diagnostics.Append(diags...)
 	apiResp.AWSEnv.Spec.Tags = common.ReorderByKey(data.Tags, apiResp.AWSEnv.Spec.Tags,
 		func(m common.KeyValueModel) string { return m.Key.ValueString() },
 		func(s *client.AWSEnvSpecFragment_Tags) string { return s.Key },
 	)
-	data.toModel(*apiResp.AWSEnv)
+	diags = data.toModel(*apiResp.AWSEnv)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 	data.Id = data.Name
 
 	diags = resp.State.Set(ctx, &data)
@@ -120,7 +132,11 @@ func (r *AWSEnvResource) Update(ctx context.Context, req resource.UpdateRequest,
 	envName := data.Name.ValueString()
 	tflog.Trace(ctx, "updating resource", map[string]interface{}{"name": envName})
 
-	_, sdkEnv := data.toSDK(ctx)
+	_, sdkEnv, diags := data.toSDK(ctx)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 	apiResp, err := r.Client.UpdateAWSEnv(ctx, sdkEnv)
 
 	if err != nil {
@@ -133,13 +149,16 @@ func (r *AWSEnvResource) Update(ctx context.Context, req resource.UpdateRequest,
 		func(m common.NodeGroupsModel) string { return m.NodeType.ValueString() },
 		func(s *client.AWSEnvSpecFragment_NodeGroups) string { return s.NodeType },
 	)
-	apiResp.UpdateAWSEnv.Spec.Zones = common.ReorderList(ctx, data.Zones, apiResp.UpdateAWSEnv.Spec.Zones)
+	apiResp.UpdateAWSEnv.Spec.Zones, diags = common.ReorderList(ctx, data.Zones, apiResp.UpdateAWSEnv.Spec.Zones)
+	resp.Diagnostics.Append(diags...)
 	apiResp.UpdateAWSEnv.Spec.Tags = common.ReorderByKey(data.Tags, apiResp.UpdateAWSEnv.Spec.Tags,
 		func(m common.KeyValueModel) string { return m.Key.ValueString() },
 		func(s *client.AWSEnvSpecFragment_Tags) string { return s.Key },
 	)
-	data.Zones = common.ListToModel(apiResp.UpdateAWSEnv.Spec.Zones)
-	data.NodeGroups = nodeGroupsToModel(apiResp.UpdateAWSEnv.Spec.NodeGroups)
+	data.Zones, diags = common.ListToModel(apiResp.UpdateAWSEnv.Spec.Zones)
+	resp.Diagnostics.Append(diags...)
+	data.NodeGroups, diags = nodeGroupsToModel(apiResp.UpdateAWSEnv.Spec.NodeGroups)
+	resp.Diagnostics.Append(diags...)
 	data.SpecRevision = types.Int64Value(apiResp.UpdateAWSEnv.SpecRevision)
 	data.ResourcePrefix = types.StringValue(apiResp.UpdateAWSEnv.Spec.ResourcePrefix)
 

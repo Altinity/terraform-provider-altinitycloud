@@ -6,6 +6,7 @@ import (
 	common "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env/common"
 
 	sdk "github.com/altinity/terraform-provider-altinitycloud/internal/sdk/client"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -58,13 +59,16 @@ type MetricsEndpointModel struct {
 	SourceIPRanges []types.String `tfsdk:"source_ip_ranges"`
 }
 
-func (e GCPEnvResourceModel) toSDK(ctx context.Context) (sdk.CreateGCPEnvInput, sdk.UpdateGCPEnvInput) {
+func (e GCPEnvResourceModel) toSDK(ctx context.Context) (sdk.CreateGCPEnvInput, sdk.UpdateGCPEnvInput, diag.Diagnostics) {
 	var zones []string
-	e.Zones.ElementsAs(ctx, &zones, false)
+	var allDiags diag.Diagnostics
+	diags := e.Zones.ElementsAs(ctx, &zones, false)
+	allDiags.Append(diags...)
 
 	maintenanceWindows := common.MaintenanceWindowsToSDK(e.MaintenanceWindows)
 	LoadBalancers := loadBalancersToSDK(e.LoadBalancers)
-	nodeGroups := nodeGroupsToSDK(ctx, e.NodeGroups)
+	nodeGroups, diags := nodeGroupsToSDK(ctx, e.NodeGroups)
+	allDiags.Append(diags...)
 	loadBalancingStrategy := (*sdk.LoadBalancingStrategy)(e.LoadBalancingStrategy.ValueStringPointer())
 	metricsEndpoint := metricsEndpointToSDK(e.MetricsEndpoint)
 	cloudConnect := false
@@ -78,7 +82,8 @@ func (e GCPEnvResourceModel) toSDK(ctx context.Context) (sdk.CreateGCPEnvInput, 
 	}
 
 	var privateServiceConsumers []string
-	e.PrivateServiceConsumers.ElementsAs(ctx, &privateServiceConsumers, false)
+	diags = e.PrivateServiceConsumers.ElementsAs(ctx, &privateServiceConsumers, false)
+	allDiags.Append(diags...)
 
 	create := sdk.CreateGCPEnvInput{
 		Name: e.Name.ValueString(),
@@ -116,10 +121,11 @@ func (e GCPEnvResourceModel) toSDK(ctx context.Context) (sdk.CreateGCPEnvInput, 
 		},
 	}
 
-	return create, update
+	return create, update, allDiags
 }
 
-func (model *GCPEnvResourceModel) toModel(env sdk.GetGCPEnv_GCPEnv) {
+func (model *GCPEnvResourceModel) toModel(env sdk.GetGCPEnv_GCPEnv) diag.Diagnostics {
+	var allDiags diag.Diagnostics
 	model.Name = types.StringValue(env.Name)
 	model.Region = types.StringValue(env.Spec.Region)
 	model.CustomDomain = types.StringPointerValue(env.Spec.CustomDomain)
@@ -127,10 +133,21 @@ func (model *GCPEnvResourceModel) toModel(env sdk.GetGCPEnv_GCPEnv) {
 	model.GCPProjectID = types.StringValue(env.Spec.GCPProjectID)
 	model.LoadBalancingStrategy = types.StringValue(string(env.Spec.LoadBalancingStrategy))
 	model.LoadBalancers = loadBalancersToModel(env.Spec.LoadBalancers)
-	model.NodeGroups = nodeGroupsToModel(env.Spec.NodeGroups)
+
+	nodeGroups, diags := nodeGroupsToModel(env.Spec.NodeGroups)
+	allDiags.Append(diags...)
+	model.NodeGroups = nodeGroups
+
 	model.MaintenanceWindows = maintenanceWindowsToModel(env.Spec.MaintenanceWindows)
-	model.Zones = common.ListToModel(env.Spec.Zones)
-	model.PrivateServiceConsumers = common.ListToModel(env.Spec.PrivateServiceConsumers)
+
+	zones, diags := common.ListToModel(env.Spec.Zones)
+	allDiags.Append(diags...)
+	model.Zones = zones
+
+	psc, diags := common.ListToModel(env.Spec.PrivateServiceConsumers)
+	allDiags.Append(diags...)
+	model.PrivateServiceConsumers = psc
+
 	model.MetricsEndpoint = metricsEndpointToModel(&env.Spec.MetricsEndpoint)
 
 	var peeringConnections []GCPEnvPeeringConnectionModel
@@ -142,6 +159,7 @@ func (model *GCPEnvResourceModel) toModel(env sdk.GetGCPEnv_GCPEnv) {
 	}
 	model.PeeringConnections = peeringConnections
 	model.SpecRevision = types.Int64Value(env.SpecRevision)
+	return allDiags
 }
 
 func loadBalancersToSDK(loadBalancers *LoadBalancersModel) *sdk.GCPEnvLoadBalancersSpecInput {
@@ -198,14 +216,17 @@ func loadBalancersToModel(loadBalancers sdk.GCPEnvSpecFragment_LoadBalancers) *L
 	return model
 }
 
-func nodeGroupsToSDK(ctx context.Context, nodeGroups []common.NodeGroupsModel) []*sdk.GCPEnvNodeGroupSpecInput {
+func nodeGroupsToSDK(ctx context.Context, nodeGroups []common.NodeGroupsModel) ([]*sdk.GCPEnvNodeGroupSpecInput, diag.Diagnostics) {
+	var allDiags diag.Diagnostics
 	var sdkNodeGroups []*sdk.GCPEnvNodeGroupSpecInput
 	for _, np := range nodeGroups {
 		var reservations []sdk.NodeReservation
-		np.Reservations.ElementsAs(ctx, &reservations, false)
+		diags := np.Reservations.ElementsAs(ctx, &reservations, false)
+		allDiags.Append(diags...)
 
 		var zones []string
-		np.Zones.ElementsAs(ctx, &zones, false)
+		diags = np.Zones.ElementsAs(ctx, &zones, false)
+		allDiags.Append(diags...)
 
 		sdkNodeGroups = append(sdkNodeGroups, &sdk.GCPEnvNodeGroupSpecInput{
 			Name:            np.Name.ValueStringPointer(),
@@ -216,22 +237,28 @@ func nodeGroupsToSDK(ctx context.Context, nodeGroups []common.NodeGroupsModel) [
 		})
 	}
 
-	return sdkNodeGroups
+	return sdkNodeGroups, allDiags
 }
 
-func nodeGroupsToModel(nodeGroups []*sdk.GCPEnvSpecFragment_NodeGroups) []common.NodeGroupsModel {
+func nodeGroupsToModel(nodeGroups []*sdk.GCPEnvSpecFragment_NodeGroups) ([]common.NodeGroupsModel, diag.Diagnostics) {
+	var allDiags diag.Diagnostics
 	var modelNodeGroups []common.NodeGroupsModel
 	for _, np := range nodeGroups {
+		zones, diags := common.ListToModel(np.Zones)
+		allDiags.Append(diags...)
+		reservations, diags := common.ReservationsToModel(np.Reservations)
+		allDiags.Append(diags...)
+
 		modelNodeGroups = append(modelNodeGroups, common.NodeGroupsModel{
 			Name:            types.StringValue(np.Name),
 			NodeType:        types.StringValue(np.NodeType),
-			Zones:           common.ListToModel(np.Zones),
-			Reservations:    common.ReservationsToModel(np.Reservations),
+			Zones:           zones,
+			Reservations:    reservations,
 			CapacityPerZone: types.Int64Value(np.CapacityPerZone),
 		})
 	}
 
-	return modelNodeGroups
+	return modelNodeGroups, allDiags
 }
 
 func maintenanceWindowsToModel(input []*sdk.GCPEnvSpecFragment_MaintenanceWindows) []common.MaintenanceWindowModel {

@@ -3,38 +3,39 @@ package env
 import (
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/client"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-framework/types/basetypes"
 )
 
-func SetToModel(input []string) types.Set {
+func SetToModel(input []string) (types.Set, diag.Diagnostics) {
 	zones := []attr.Value{}
 	for _, str := range input {
 		zones = append(zones, types.StringValue(str))
 	}
 
-	list, _ := types.SetValue(types.StringType, zones)
-	return list
+	list, diags := types.SetValue(types.StringType, zones)
+	return list, diags
 }
 
-func ListToModel(input []string) types.List {
+func ListToModel(input []string) (types.List, diag.Diagnostics) {
 	zones := []attr.Value{}
 	for _, str := range input {
 		zones = append(zones, types.StringValue(str))
 	}
 
-	list, _ := types.ListValue(types.StringType, zones)
-	return list
+	list, diags := types.ListValue(types.StringType, zones)
+	return list, diags
 }
 
-func ReservationsToModel(input []client.NodeReservation) types.Set {
+func ReservationsToModel(input []client.NodeReservation) (types.Set, diag.Diagnostics) {
 	reservations := []attr.Value{}
 	for _, reservation := range input {
 		reservations = append(reservations, types.StringValue(string(reservation)))
 	}
 
-	list, _ := types.SetValue(types.StringType, reservations)
-	return list
+	list, diags := types.SetValue(types.StringType, reservations)
+	return list, diags
 }
 
 func ListStringToSDK(input []basetypes.StringValue) []string {

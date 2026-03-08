@@ -3,6 +3,7 @@ package env
 import (
 	"context"
 
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -50,12 +51,15 @@ func ReorderByKey[M any, S any](model []M, items []S, getModelKey func(M) string
 	return ordered
 }
 
-func ReorderList(ctx context.Context, model types.List, input []string) []string {
+func ReorderList(ctx context.Context, model types.List, input []string) ([]string, diag.Diagnostics) {
 	orderedZones := make([]string, 0, len(input))
 	usedZones := make(map[string]bool)
 
 	var modelZones []string
-	model.ElementsAs(ctx, &modelZones, false)
+	diags := model.ElementsAs(ctx, &modelZones, false)
+	if diags.HasError() {
+		return nil, diags
+	}
 
 	// First, add zones that exist in the model in the correct order
 	for _, zone := range modelZones {
@@ -75,5 +79,5 @@ func ReorderList(ctx context.Context, model types.List, input []string) []string
 		}
 	}
 
-	return orderedZones
+	return orderedZones, diags
 }
