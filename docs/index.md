@@ -43,7 +43,7 @@ provider "altinitycloud" {
 
 ### Optional
 
-- `api_token` (String) Altinity.Cloud API Token.
+- `api_token` (String, Sensitive) Altinity.Cloud API Token.
 The value can be omitted if `ALTINITYCLOUD_API_TOKEN` environment variable is set.
 - `api_url` (String) Altinity.Cloud API URL. Defaults to `https://anywhere.altinity.cloud` unless `ALTINITYCLOUD_API_URL` env var is set.
 - `ca_crt` (String) CA bundle for Altinity.Cloud.
