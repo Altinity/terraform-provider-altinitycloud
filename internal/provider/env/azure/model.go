@@ -56,13 +56,13 @@ type MetricsEndpointModel struct {
 	SourceIPRanges []types.String `tfsdk:"source_ip_ranges"`
 }
 
-func (e AzureEnvResourceModel) toSDK() (client.CreateAzureEnvInput, client.UpdateAzureEnvInput) {
+func (e AzureEnvResourceModel) toSDK(ctx context.Context) (client.CreateAzureEnvInput, client.UpdateAzureEnvInput) {
 	var zones []string
-	e.Zones.ElementsAs(context.TODO(), &zones, false)
+	e.Zones.ElementsAs(ctx, &zones, false)
 
 	maintenanceWindows := common.MaintenanceWindowsToSDK(e.MaintenanceWindows)
 	LoadBalancers := loadBalancersToSDK(e.LoadBalancers)
-	nodeGroups := nodeGroupsToSDK(e.NodeGroups)
+	nodeGroups := nodeGroupsToSDK(ctx, e.NodeGroups)
 	loadBalancingStrategy := (*client.LoadBalancingStrategy)(e.LoadBalancingStrategy.ValueStringPointer())
 	metricsEndpoint := metricsEndpointToSDK(e.MetricsEndpoint)
 	cloudConnect := false
@@ -209,14 +209,14 @@ func loadBalancersToModel(loadBalancers client.AzureEnvSpecFragment_LoadBalancer
 	return model
 }
 
-func nodeGroupsToSDK(nodeGroups []common.NodeGroupsModel) []*client.AzureEnvNodeGroupSpecInput {
+func nodeGroupsToSDK(ctx context.Context, nodeGroups []common.NodeGroupsModel) []*client.AzureEnvNodeGroupSpecInput {
 	var sdkNodeGroups []*client.AzureEnvNodeGroupSpecInput
 	for _, np := range nodeGroups {
 		var reservations []client.NodeReservation
-		np.Reservations.ElementsAs(context.TODO(), &reservations, false)
+		np.Reservations.ElementsAs(ctx, &reservations, false)
 
 		var zones []string
-		np.Zones.ElementsAs(context.TODO(), &zones, false)
+		np.Zones.ElementsAs(ctx, &zones, false)
 
 		sdkNodeGroups = append(sdkNodeGroups, &client.AzureEnvNodeGroupSpecInput{
 			Name:            np.Name.ValueStringPointer(),

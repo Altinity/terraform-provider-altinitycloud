@@ -64,13 +64,13 @@ type MetricsEndpointModel struct {
 	SourceIPRanges []types.String `tfsdk:"source_ip_ranges"`
 }
 
-func (e HCloudEnvResourceModel) toSDK() (client.CreateHCloudEnvInput, client.UpdateHCloudEnvInput) {
+func (e HCloudEnvResourceModel) toSDK(ctx context.Context) (client.CreateHCloudEnvInput, client.UpdateHCloudEnvInput) {
 	var locations []string
-	e.Locations.ElementsAs(context.TODO(), &locations, false)
-	wireguardPeers := wireguardPeersToSDK(e.WireguardPeers)
+	e.Locations.ElementsAs(ctx, &locations, false)
+	wireguardPeers := wireguardPeersToSDK(ctx, e.WireguardPeers)
 	maintenanceWindows := common.MaintenanceWindowsToSDK(e.MaintenanceWindows)
 	LoadBalancers := loadBalancersToSDK(e.LoadBalancers)
-	nodeGroups := nodeGroupsToSDK(e.NodeGroups)
+	nodeGroups := nodeGroupsToSDK(ctx, e.NodeGroups)
 	loadBalancingStrategy := (*client.LoadBalancingStrategy)(e.LoadBalancingStrategy.ValueStringPointer())
 	metricsEndpoint := metricsEndpointToSDK(e.MetricsEndpoint)
 	cloudConnect := false
@@ -181,14 +181,14 @@ func loadBalancersToModel(loadBalancers client.HCloudEnvSpecFragment_LoadBalance
 	return model
 }
 
-func nodeGroupsToSDK(nodeGroups []NodeGroupsModel) []*client.HCloudEnvNodeGroupSpecInput {
+func nodeGroupsToSDK(ctx context.Context, nodeGroups []NodeGroupsModel) []*client.HCloudEnvNodeGroupSpecInput {
 	var sdkNodeGroups []*client.HCloudEnvNodeGroupSpecInput
 	for _, np := range nodeGroups {
 		var reservations []client.NodeReservation
-		np.Reservations.ElementsAs(context.TODO(), &reservations, false)
+		np.Reservations.ElementsAs(ctx, &reservations, false)
 
 		var locations []string
-		np.Locations.ElementsAs(context.TODO(), &locations, false)
+		np.Locations.ElementsAs(ctx, &locations, false)
 
 		sdkNodeGroups = append(sdkNodeGroups, &client.HCloudEnvNodeGroupSpecInput{
 			Name:                np.Name.ValueStringPointer(),
@@ -202,11 +202,11 @@ func nodeGroupsToSDK(nodeGroups []NodeGroupsModel) []*client.HCloudEnvNodeGroupS
 	return sdkNodeGroups
 }
 
-func wireguardPeersToSDK(peers []WireguardPeers) []*client.HCloudEnvWireguardPeerSpecInput {
+func wireguardPeersToSDK(ctx context.Context, peers []WireguardPeers) []*client.HCloudEnvWireguardPeerSpecInput {
 	var sdkPeers []*client.HCloudEnvWireguardPeerSpecInput
 	for _, p := range peers {
 		var allowedIPs []string
-		p.AllowedIPs.ElementsAs(context.TODO(), &allowedIPs, false)
+		p.AllowedIPs.ElementsAs(ctx, &allowedIPs, false)
 
 		sdkPeers = append(sdkPeers, &client.HCloudEnvWireguardPeerSpecInput{
 			PublicKey:  p.PublicKey.ValueString(),

@@ -90,8 +90,8 @@ type InternalLoadBalancerModel struct {
 	Annotations    []common.KeyValueModel `tfsdk:"annotations"`
 }
 
-func (e K8SEnvResourceModel) toSDK() (client.CreateK8SEnvInput, client.UpdateK8SEnvInput) {
-	nodeGroups := nodeGroupsToSDK(e.NodeGroups)
+func (e K8SEnvResourceModel) toSDK(ctx context.Context) (client.CreateK8SEnvInput, client.UpdateK8SEnvInput) {
+	nodeGroups := nodeGroupsToSDK(ctx, e.NodeGroups)
 	customNodeTypes := nodeTypesToSDK(e.CustomNodeTypes)
 	loadBalancers := loadBalancersToSDK(e.LoadBalancers)
 	logs := logsToSDK(e.Logs)
@@ -230,7 +230,7 @@ func loadBalancersToModel(loadBalancers client.K8SEnvSpecFragment_LoadBalancers)
 	return model
 }
 
-func nodeGroupsToSDK(nodeGroups []NodeGroupsModel) []*client.K8SEnvNodeGroupSpecInput {
+func nodeGroupsToSDK(ctx context.Context, nodeGroups []NodeGroupsModel) []*client.K8SEnvNodeGroupSpecInput {
 	var sdkNodeGroups []*client.K8SEnvNodeGroupSpecInput
 	for _, np := range nodeGroups {
 		var tolerations []*client.NodeTolerationSpecInput
@@ -253,10 +253,10 @@ func nodeGroupsToSDK(nodeGroups []NodeGroupsModel) []*client.K8SEnvNodeGroupSpec
 		}
 
 		var reservations []client.NodeReservation
-		np.Reservations.ElementsAs(context.TODO(), &reservations, false)
+		np.Reservations.ElementsAs(ctx, &reservations, false)
 
 		var zones []string
-		np.Zones.ElementsAs(context.TODO(), &zones, false)
+		np.Zones.ElementsAs(ctx, &zones, false)
 
 		sdkNodeGroups = append(sdkNodeGroups, &client.K8SEnvNodeGroupSpecInput{
 			Name:            np.Name.ValueStringPointer(),

@@ -850,7 +850,7 @@ func TestNodeGroupsToSDK(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := nodeGroupsToSDK(tt.input)
+			result := nodeGroupsToSDK(context.Background(), tt.input)
 
 			if len(result) != len(tt.expected) {
 				t.Errorf("Expected %d node groups, got %d", len(tt.expected), len(result))
@@ -1712,7 +1712,7 @@ func TestK8SEnvResourceModel_toSDK(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			create, update := tt.model.toSDK()
+			create, update := tt.model.toSDK(context.Background())
 			tt.validate(t, create, update)
 		})
 	}

@@ -39,7 +39,7 @@ func (r *AWSEnvResource) Create(ctx context.Context, req resource.CreateRequest,
 	envName := data.Name.ValueString()
 	tflog.Trace(ctx, "creating resource", map[string]interface{}{"name": envName})
 
-	sdkEnv, _ := data.toSDK()
+	sdkEnv, _ := data.toSDK(ctx)
 	apiResp, err := r.Client.CreateAWSEnv(ctx, sdkEnv)
 
 	if err != nil {
@@ -49,7 +49,7 @@ func (r *AWSEnvResource) Create(ctx context.Context, req resource.CreateRequest,
 
 	// Reorder node groups, zones and tags to respect order in the user's configuration
 	apiResp.CreateAWSEnv.Spec.NodeGroups = reorderNodeGroups(data.NodeGroups, apiResp.CreateAWSEnv.Spec.NodeGroups)
-	apiResp.CreateAWSEnv.Spec.Zones = common.ReorderList(data.Zones, apiResp.CreateAWSEnv.Spec.Zones)
+	apiResp.CreateAWSEnv.Spec.Zones = common.ReorderList(ctx, data.Zones, apiResp.CreateAWSEnv.Spec.Zones)
 	apiResp.CreateAWSEnv.Spec.Tags = reorderTags(data.Tags, apiResp.CreateAWSEnv.Spec.Tags)
 	data.Id = data.Name
 	data.Zones = common.ListToModel(apiResp.CreateAWSEnv.Spec.Zones)
@@ -87,7 +87,7 @@ func (r *AWSEnvResource) Read(ctx context.Context, req resource.ReadRequest, res
 
 	// Reorder node groups, zones and tags to respect order in the user's configuration
 	apiResp.AWSEnv.Spec.NodeGroups = reorderNodeGroups(data.NodeGroups, apiResp.AWSEnv.Spec.NodeGroups)
-	apiResp.AWSEnv.Spec.Zones = common.ReorderList(data.Zones, apiResp.AWSEnv.Spec.Zones)
+	apiResp.AWSEnv.Spec.Zones = common.ReorderList(ctx, data.Zones, apiResp.AWSEnv.Spec.Zones)
 	apiResp.AWSEnv.Spec.Tags = reorderTags(data.Tags, apiResp.AWSEnv.Spec.Tags)
 	data.toModel(*apiResp.AWSEnv)
 	data.Id = data.Name
@@ -108,7 +108,7 @@ func (r *AWSEnvResource) Update(ctx context.Context, req resource.UpdateRequest,
 	envName := data.Name.ValueString()
 	tflog.Trace(ctx, "updating resource", map[string]interface{}{"name": envName})
 
-	_, sdkEnv := data.toSDK()
+	_, sdkEnv := data.toSDK(ctx)
 	apiResp, err := r.Client.UpdateAWSEnv(ctx, sdkEnv)
 
 	if err != nil {
@@ -118,7 +118,7 @@ func (r *AWSEnvResource) Update(ctx context.Context, req resource.UpdateRequest,
 
 	// Reorder node groups, zones and tags to respect order in the user's configuration
 	apiResp.UpdateAWSEnv.Spec.NodeGroups = reorderNodeGroups(data.NodeGroups, apiResp.UpdateAWSEnv.Spec.NodeGroups)
-	apiResp.UpdateAWSEnv.Spec.Zones = common.ReorderList(data.Zones, apiResp.UpdateAWSEnv.Spec.Zones)
+	apiResp.UpdateAWSEnv.Spec.Zones = common.ReorderList(ctx, data.Zones, apiResp.UpdateAWSEnv.Spec.Zones)
 	apiResp.UpdateAWSEnv.Spec.Tags = reorderTags(data.Tags, apiResp.UpdateAWSEnv.Spec.Tags)
 	data.Zones = common.ListToModel(apiResp.UpdateAWSEnv.Spec.Zones)
 	data.NodeGroups = nodeGroupsToModel(apiResp.UpdateAWSEnv.Spec.NodeGroups)

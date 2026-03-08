@@ -27,12 +27,12 @@ type MaintenanceWindowModel struct {
 	Days          []types.String `tfsdk:"days"`
 }
 
-func ReorderList(model types.List, input []string) []string {
+func ReorderList(ctx context.Context, model types.List, input []string) []string {
 	orderedZones := make([]string, 0, len(input))
 	usedZones := make(map[string]bool)
 
 	var modelZones []string
-	model.ElementsAs(context.TODO(), &modelZones, false)
+	model.ElementsAs(ctx, &modelZones, false)
 
 	// First, add zones that exist in the model in the correct order
 	for _, zone := range modelZones {

@@ -1,6 +1,7 @@
 package env
 
 import (
+	"context"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -139,7 +140,7 @@ func TestReorderList(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := ReorderList(tt.model, tt.input)
+			result := ReorderList(context.Background(), tt.model, tt.input)
 
 			if len(result) != tt.expectedLength {
 				t.Errorf("Expected length %d, got %d", tt.expectedLength, len(result))

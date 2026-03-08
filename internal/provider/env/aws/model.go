@@ -112,9 +112,9 @@ type AWSEnvMetricsEndpointModel struct {
 	SourceIPRanges []types.String `tfsdk:"source_ip_ranges"`
 }
 
-func (e AWSEnvResourceModel) toSDK() (sdk.CreateAWSEnvInput, sdk.UpdateAWSEnvInput) {
+func (e AWSEnvResourceModel) toSDK(ctx context.Context) (sdk.CreateAWSEnvInput, sdk.UpdateAWSEnvInput) {
 	var zones []string
-	e.Zones.ElementsAs(context.TODO(), &zones, false)
+	e.Zones.ElementsAs(ctx, &zones, false)
 
 	var peeringConnections []*sdk.AWSEnvPeeringConnectionSpecInput
 	for _, p := range e.PeeringConnections {
@@ -152,7 +152,7 @@ func (e AWSEnvResourceModel) toSDK() (sdk.CreateAWSEnvInput, sdk.UpdateAWSEnvInp
 	backups := backupsToSDK(e.Backups)
 	maintenanceWindows := common.MaintenanceWindowsToSDK(e.MaintenanceWindows)
 	LoadBalancers := loadBalancersToSDK(e.LoadBalancers)
-	nodeGroups := nodeGroupsToSDK(e.NodeGroups)
+	nodeGroups := nodeGroupsToSDK(ctx, e.NodeGroups)
 	loadBalancingStrategy := (*sdk.LoadBalancingStrategy)(e.LoadBalancingStrategy.ValueStringPointer())
 	cloudConnect := e.CloudConnect.ValueBool()
 
@@ -358,14 +358,14 @@ func loadBalancersToModel(loadBalancers sdk.AWSEnvSpecFragment_LoadBalancers) *L
 	return model
 }
 
-func nodeGroupsToSDK(nodeGroups []common.NodeGroupsModel) []*sdk.AWSEnvNodeGroupSpecInput {
+func nodeGroupsToSDK(ctx context.Context, nodeGroups []common.NodeGroupsModel) []*sdk.AWSEnvNodeGroupSpecInput {
 	var sdkNodeGroups []*sdk.AWSEnvNodeGroupSpecInput
 	for _, np := range nodeGroups {
 		var reservations []sdk.NodeReservation
-		np.Reservations.ElementsAs(context.TODO(), &reservations, false)
+		np.Reservations.ElementsAs(ctx, &reservations, false)
 
 		var zones []string
-		np.Zones.ElementsAs(context.TODO(), &zones, false)
+		np.Zones.ElementsAs(ctx, &zones, false)
 
 		sdkNodeGroups = append(sdkNodeGroups, &sdk.AWSEnvNodeGroupSpecInput{
 			Name:            np.Name.ValueStringPointer(),

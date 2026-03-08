@@ -58,13 +58,13 @@ type MetricsEndpointModel struct {
 	SourceIPRanges []types.String `tfsdk:"source_ip_ranges"`
 }
 
-func (e GCPEnvResourceModel) toSDK() (sdk.CreateGCPEnvInput, sdk.UpdateGCPEnvInput) {
+func (e GCPEnvResourceModel) toSDK(ctx context.Context) (sdk.CreateGCPEnvInput, sdk.UpdateGCPEnvInput) {
 	var zones []string
-	e.Zones.ElementsAs(context.TODO(), &zones, false)
+	e.Zones.ElementsAs(ctx, &zones, false)
 
 	maintenanceWindows := common.MaintenanceWindowsToSDK(e.MaintenanceWindows)
 	LoadBalancers := loadBalancersToSDK(e.LoadBalancers)
-	nodeGroups := nodeGroupsToSDK(e.NodeGroups)
+	nodeGroups := nodeGroupsToSDK(ctx, e.NodeGroups)
 	loadBalancingStrategy := (*sdk.LoadBalancingStrategy)(e.LoadBalancingStrategy.ValueStringPointer())
 	metricsEndpoint := metricsEndpointToSDK(e.MetricsEndpoint)
 	cloudConnect := false
@@ -78,7 +78,7 @@ func (e GCPEnvResourceModel) toSDK() (sdk.CreateGCPEnvInput, sdk.UpdateGCPEnvInp
 	}
 
 	var privateServiceConsumers []string
-	e.PrivateServiceConsumers.ElementsAs(context.TODO(), &privateServiceConsumers, false)
+	e.PrivateServiceConsumers.ElementsAs(ctx, &privateServiceConsumers, false)
 
 	create := sdk.CreateGCPEnvInput{
 		Name: e.Name.ValueString(),
@@ -198,14 +198,14 @@ func loadBalancersToModel(loadBalancers sdk.GCPEnvSpecFragment_LoadBalancers) *L
 	return model
 }
 
-func nodeGroupsToSDK(nodeGroups []common.NodeGroupsModel) []*sdk.GCPEnvNodeGroupSpecInput {
+func nodeGroupsToSDK(ctx context.Context, nodeGroups []common.NodeGroupsModel) []*sdk.GCPEnvNodeGroupSpecInput {
 	var sdkNodeGroups []*sdk.GCPEnvNodeGroupSpecInput
 	for _, np := range nodeGroups {
 		var reservations []sdk.NodeReservation
-		np.Reservations.ElementsAs(context.TODO(), &reservations, false)
+		np.Reservations.ElementsAs(ctx, &reservations, false)
 
 		var zones []string
-		np.Zones.ElementsAs(context.TODO(), &zones, false)
+		np.Zones.ElementsAs(ctx, &zones, false)
 
 		sdkNodeGroups = append(sdkNodeGroups, &sdk.GCPEnvNodeGroupSpecInput{
 			Name:            np.Name.ValueStringPointer(),

@@ -39,7 +39,7 @@ func (r *GCPEnvResource) Create(ctx context.Context, req resource.CreateRequest,
 	name := data.Name.ValueString()
 	tflog.Trace(ctx, "creating resource", map[string]interface{}{"name": name})
 
-	sdkEnv, _ := data.toSDK()
+	sdkEnv, _ := data.toSDK(ctx)
 
 	apiResp, err := r.Client.CreateGCPEnv(ctx, sdkEnv)
 
@@ -50,7 +50,7 @@ func (r *GCPEnvResource) Create(ctx context.Context, req resource.CreateRequest,
 
 	// Reorder node groups  and zones to respect order in the user's configuration
 	apiResp.CreateGCPEnv.Spec.NodeGroups = reorderNodeGroups(data.NodeGroups, apiResp.CreateGCPEnv.Spec.NodeGroups)
-	apiResp.CreateGCPEnv.Spec.Zones = common.ReorderList(data.Zones, apiResp.CreateGCPEnv.Spec.Zones)
+	apiResp.CreateGCPEnv.Spec.Zones = common.ReorderList(ctx, data.Zones, apiResp.CreateGCPEnv.Spec.Zones)
 	data.Id = data.Name
 	data.Zones = common.ListToModel(apiResp.CreateGCPEnv.Spec.Zones)
 	data.NodeGroups = nodeGroupsToModel(apiResp.CreateGCPEnv.Spec.NodeGroups)
@@ -87,7 +87,7 @@ func (r *GCPEnvResource) Read(ctx context.Context, req resource.ReadRequest, res
 
 	// Reorder node groups  and zones to respect order in the user's configuration
 	apiResp.GCPEnv.Spec.NodeGroups = reorderNodeGroups(data.NodeGroups, apiResp.GCPEnv.Spec.NodeGroups)
-	apiResp.GCPEnv.Spec.Zones = common.ReorderList(data.Zones, apiResp.GCPEnv.Spec.Zones)
+	apiResp.GCPEnv.Spec.Zones = common.ReorderList(ctx, data.Zones, apiResp.GCPEnv.Spec.Zones)
 	data.toModel(*apiResp.GCPEnv)
 	data.Id = data.Name
 
@@ -107,7 +107,7 @@ func (r *GCPEnvResource) Update(ctx context.Context, req resource.UpdateRequest,
 	name := data.Name.ValueString()
 	tflog.Trace(ctx, "updating resource", map[string]interface{}{"name": name})
 
-	_, sdkEnv := data.toSDK()
+	_, sdkEnv := data.toSDK(ctx)
 	apiResp, err := r.Client.UpdateGCPEnv(ctx, sdkEnv)
 
 	if err != nil {
@@ -117,7 +117,7 @@ func (r *GCPEnvResource) Update(ctx context.Context, req resource.UpdateRequest,
 
 	// Reorder node groups  and zones to respect order in the user's configuration
 	apiResp.UpdateGCPEnv.Spec.NodeGroups = reorderNodeGroups(data.NodeGroups, apiResp.UpdateGCPEnv.Spec.NodeGroups)
-	apiResp.UpdateGCPEnv.Spec.Zones = common.ReorderList(data.Zones, apiResp.UpdateGCPEnv.Spec.Zones)
+	apiResp.UpdateGCPEnv.Spec.Zones = common.ReorderList(ctx, data.Zones, apiResp.UpdateGCPEnv.Spec.Zones)
 	data.Zones = common.ListToModel(apiResp.UpdateGCPEnv.Spec.Zones)
 	data.NodeGroups = nodeGroupsToModel(apiResp.UpdateGCPEnv.Spec.NodeGroups)
 	data.SpecRevision = types.Int64Value(apiResp.UpdateGCPEnv.SpecRevision)

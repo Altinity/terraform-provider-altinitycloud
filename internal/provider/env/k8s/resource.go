@@ -39,7 +39,7 @@ func (r *K8SEnvResource) Create(ctx context.Context, req resource.CreateRequest,
 	name := data.Name.ValueString()
 	tflog.Trace(ctx, "creating resource", map[string]interface{}{"name": name})
 
-	sdkEnv, _ := data.toSDK()
+	sdkEnv, _ := data.toSDK(ctx)
 	apiResp, err := r.Client.CreateK8SEnv(ctx, sdkEnv)
 
 	if err != nil {
@@ -104,7 +104,7 @@ func (r *K8SEnvResource) Update(ctx context.Context, req resource.UpdateRequest,
 	name := data.Name.ValueString()
 	tflog.Trace(ctx, "updating resource", map[string]interface{}{"name": name})
 
-	_, sdkEnv := data.toSDK()
+	_, sdkEnv := data.toSDK(ctx)
 	apiResp, err := r.Client.UpdateK8SEnv(ctx, sdkEnv)
 
 	if err != nil {
