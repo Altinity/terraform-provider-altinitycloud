@@ -54,9 +54,9 @@ type NodeGroupsModel struct {
 }
 
 type WireguardPeers struct {
-	publicKey  types.String `tfsdk:"public_key"`
-	allowedIPs types.List   `tfsdk:"allowed_ips"`
-	endpoint   types.String `tfsdk:"endpoint"`
+	PublicKey  types.String `tfsdk:"public_key"`
+	AllowedIPs types.List   `tfsdk:"allowed_ips"`
+	Endpoint   types.String `tfsdk:"endpoint"`
 }
 
 type MetricsEndpointModel struct {
@@ -206,12 +206,12 @@ func wireguardPeersToSDK(peers []WireguardPeers) []*client.HCloudEnvWireguardPee
 	var sdkPeers []*client.HCloudEnvWireguardPeerSpecInput
 	for _, p := range peers {
 		var allowedIPs []string
-		p.allowedIPs.ElementsAs(context.TODO(), &allowedIPs, false)
+		p.AllowedIPs.ElementsAs(context.TODO(), &allowedIPs, false)
 
 		sdkPeers = append(sdkPeers, &client.HCloudEnvWireguardPeerSpecInput{
-			PublicKey:  p.publicKey.ValueString(),
+			PublicKey:  p.PublicKey.ValueString(),
 			AllowedIPs: allowedIPs,
-			Endpoint:   p.endpoint.ValueString(),
+			Endpoint:   p.Endpoint.ValueString(),
 		})
 	}
 
@@ -257,9 +257,9 @@ func wireguardPeersToModel(input []*client.HCloudEnvSpecFragment_WireguardPeers)
 	var peers []WireguardPeers
 	for _, p := range input {
 		peers = append(peers, WireguardPeers{
-			publicKey:  types.StringValue(p.PublicKey),
-			allowedIPs: common.ListToModel(p.AllowedIPs),
-			endpoint:   types.StringValue(p.Endpoint),
+			PublicKey:  types.StringValue(p.PublicKey),
+			AllowedIPs: common.ListToModel(p.AllowedIPs),
+			Endpoint:   types.StringValue(p.Endpoint),
 		})
 	}
 

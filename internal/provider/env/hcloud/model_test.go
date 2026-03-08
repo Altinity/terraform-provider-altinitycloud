@@ -717,14 +717,14 @@ func TestWireguardPeersToSDK(t *testing.T) {
 			name: "Multiple wireguard peers",
 			input: []WireguardPeers{
 				{
-					publicKey:  types.StringValue("publickey1=="),
-					allowedIPs: types.ListValueMust(types.StringType, []attr.Value{types.StringValue("10.0.1.0/24"), types.StringValue("10.0.2.0/24")}),
-					endpoint:   types.StringValue("1.2.3.4:51820"),
+					PublicKey:  types.StringValue("publickey1=="),
+					AllowedIPs: types.ListValueMust(types.StringType, []attr.Value{types.StringValue("10.0.1.0/24"), types.StringValue("10.0.2.0/24")}),
+					Endpoint:   types.StringValue("1.2.3.4:51820"),
 				},
 				{
-					publicKey:  types.StringValue("publickey2=="),
-					allowedIPs: types.ListValueMust(types.StringType, []attr.Value{types.StringValue("10.0.3.0/24")}),
-					endpoint:   types.StringValue("5.6.7.8:51820"),
+					PublicKey:  types.StringValue("publickey2=="),
+					AllowedIPs: types.ListValueMust(types.StringType, []attr.Value{types.StringValue("10.0.3.0/24")}),
+					Endpoint:   types.StringValue("5.6.7.8:51820"),
 				},
 			},
 			expected: []struct {
@@ -757,9 +757,9 @@ func TestWireguardPeersToSDK(t *testing.T) {
 			name: "Single wireguard peer",
 			input: []WireguardPeers{
 				{
-					publicKey:  types.StringValue("singlekey=="),
-					allowedIPs: types.ListValueMust(types.StringType, []attr.Value{types.StringValue("192.168.1.0/24")}),
-					endpoint:   types.StringValue("192.168.1.1:51820"),
+					PublicKey:  types.StringValue("singlekey=="),
+					AllowedIPs: types.ListValueMust(types.StringType, []attr.Value{types.StringValue("192.168.1.0/24")}),
+					Endpoint:   types.StringValue("192.168.1.1:51820"),
 				},
 			},
 			expected: []struct {
@@ -883,15 +883,15 @@ func TestWireguardPeersToModel(t *testing.T) {
 			}
 
 			for i, expected := range tt.expected {
-				if result[i].publicKey.ValueString() != expected.publicKey {
-					t.Errorf("Peer %d PublicKey: expected '%s', got '%s'", i, expected.publicKey, result[i].publicKey.ValueString())
+				if result[i].PublicKey.ValueString() != expected.publicKey {
+					t.Errorf("Peer %d PublicKey: expected '%s', got '%s'", i, expected.publicKey, result[i].PublicKey.ValueString())
 				}
-				if result[i].endpoint.ValueString() != expected.endpoint {
-					t.Errorf("Peer %d Endpoint: expected '%s', got '%s'", i, expected.endpoint, result[i].endpoint.ValueString())
+				if result[i].Endpoint.ValueString() != expected.endpoint {
+					t.Errorf("Peer %d Endpoint: expected '%s', got '%s'", i, expected.endpoint, result[i].Endpoint.ValueString())
 				}
 
 				var allowedIPs []string
-				result[i].allowedIPs.ElementsAs(context.TODO(), &allowedIPs, false)
+				result[i].AllowedIPs.ElementsAs(context.TODO(), &allowedIPs, false)
 				if len(allowedIPs) != expected.allowedIPCount {
 					t.Errorf("Peer %d AllowedIPs count: expected %d, got %d", i, expected.allowedIPCount, len(allowedIPs))
 				}
@@ -1068,9 +1068,9 @@ func TestHCloudEnvResourceModel_toSDK(t *testing.T) {
 				},
 				WireguardPeers: []WireguardPeers{
 					{
-						publicKey:  types.StringValue("wireguard-key=="),
-						allowedIPs: types.ListValueMust(types.StringType, []attr.Value{types.StringValue("10.0.100.0/24")}),
-						endpoint:   types.StringValue("1.2.3.4:51820"),
+						PublicKey:  types.StringValue("wireguard-key=="),
+						AllowedIPs: types.ListValueMust(types.StringType, []attr.Value{types.StringValue("10.0.100.0/24")}),
+						Endpoint:   types.StringValue("1.2.3.4:51820"),
 					},
 				},
 				MetricsEndpoint: &MetricsEndpointModel{
@@ -1295,8 +1295,8 @@ func TestHCloudEnvResourceModel_toModel(t *testing.T) {
 				if len(model.WireguardPeers) != 1 {
 					t.Errorf("WireguardPeers count: expected 1, got %d", len(model.WireguardPeers))
 				}
-				if model.WireguardPeers[0].publicKey.ValueString() != "wireguard-key-123==" {
-					t.Errorf("Wireguard peer public key: expected 'wireguard-key-123==', got '%s'", model.WireguardPeers[0].publicKey.ValueString())
+				if model.WireguardPeers[0].PublicKey.ValueString() != "wireguard-key-123==" {
+					t.Errorf("Wireguard peer public key: expected 'wireguard-key-123==', got '%s'", model.WireguardPeers[0].PublicKey.ValueString())
 				}
 
 				if model.MetricsEndpoint == nil {
