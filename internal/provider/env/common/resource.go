@@ -11,7 +11,13 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
+
+// StatusCheckFunc checks if the env is still being deleted.
+// Returns (pendingDelete bool, err error).
+// err should be the raw SDK error (not-found handling is done by the caller).
+type StatusCheckFunc func(ctx context.Context, name string) (bool, error)
 
 var MFATimeout = 5 * time.Minute
 var DeleteTimeout = 60 * time.Minute
@@ -64,6 +70,42 @@ func (r *EnvResourceBase) ModifyPlan(ctx context.Context, req resource.ModifyPla
 
 		if skipDeprovision.ValueBool() {
 			resp.Diagnostics.AddAttributeWarning(path.Root("skip_deprovision_on_destroy"), "Skip Deprovision on Destroy", "This resource is using the 'skip_deprovision_on_destroy'.\nUse this with precaution as it will delete the environment without deleting any of your cloud resources.")
+		}
+	}
+}
+
+func WaitForDeletion(ctx context.Context, resp *resource.DeleteResponse, envName string, pendingMfa bool, checkStatus StatusCheckFunc) {
+	mfaTimeout := time.After(MFATimeout)
+	deleteTimeout := time.After(DeleteTimeout)
+	ticker := time.NewTicker(DeletePollInterval)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ctx.Done():
+			resp.Diagnostics.AddError("Context Cancelled", "The context was cancelled, stopping env deletion.")
+			return
+		case <-mfaTimeout:
+			if pendingMfa {
+				resp.Diagnostics.AddError("MFA Timeout", "Timeout reached while waiting for MFA to be confirmed.\nPlease check your MFA device, confirm deletion and run `terraform destroy` again.")
+				return
+			}
+		case <-deleteTimeout:
+			resp.Diagnostics.AddError("Timeout", "Timeout reached while waiting for env to be deleted.")
+			return
+		case <-ticker.C:
+			tflog.Trace(ctx, "checking if env was deleted", map[string]interface{}{"name": envName})
+			pendingDelete, err := checkStatus(ctx, envName)
+			if err != nil {
+				notFound, _ := client.IsNotFoundError(err)
+				if notFound {
+					tflog.Trace(ctx, "deleted resource", map[string]interface{}{"name": envName})
+				} else {
+					resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read env %s, got error: %s", envName, err))
+				}
+				return
+			}
+			pendingMfa = !pendingDelete
 		}
 	}
 }

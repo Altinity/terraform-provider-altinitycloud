@@ -3,7 +3,6 @@ package env
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
@@ -180,39 +179,13 @@ func (r *HCloudEnvResource) Delete(ctx context.Context, req resource.DeleteReque
 		return
 	}
 
-	// Polling to wait for deletion to complete
-	pendingMfa := apiResp.DeleteHCloudEnv.PendingMfa
-	mfaTimeout := time.After(common.MFATimeout)
-	deleteTimeout := time.After(common.DeleteTimeout)
-	ticker := time.NewTicker(common.DeletePollInterval)
-	defer ticker.Stop()
-
-	for {
-		select {
-		case <-ctx.Done():
-			resp.Diagnostics.AddError("Context Cancelled", "The context was cancelled, stopping env deletion.")
-			return
-		case <-mfaTimeout:
-			if pendingMfa {
-				resp.Diagnostics.AddError("MFA Timeout", "Timeout reached while waiting for MFA to be confirmed.\nPlease check your MFA device, confirm deletion and run `terraform destroy` again.")
-				return
-			}
-		case <-deleteTimeout:
-			resp.Diagnostics.AddError("Timeout", "Timeout reached while waiting for env to be deleted.")
-			return
-		case <-ticker.C:
-			tflog.Trace(ctx, "checking if env was deleted", map[string]interface{}{"name": envName})
-			envStatus, err := r.Client.GetHCloudEnvStatus(ctx, envName)
+	common.WaitForDeletion(ctx, resp, envName, apiResp.DeleteHCloudEnv.PendingMfa,
+		func(ctx context.Context, name string) (bool, error) {
+			status, err := r.Client.GetHCloudEnvStatus(ctx, name)
 			if err != nil {
-				notFound, _ := client.IsNotFoundError(err)
-				if notFound {
-					tflog.Trace(ctx, "deleted resource", map[string]interface{}{"name": envName})
-				} else {
-					resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read env %s, got error: %s", envName, err))
-				}
-				return
+				return false, err
 			}
-			pendingMfa = !envStatus.HcloudEnv.Status.PendingDelete
-		}
-	}
+			return status.HcloudEnv.Status.PendingDelete, nil
+		},
+	)
 }
