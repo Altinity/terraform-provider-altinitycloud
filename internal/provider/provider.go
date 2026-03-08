@@ -77,7 +77,8 @@ func (p *altinityCloudProvider) Schema(ctx context.Context, req provider.SchemaR
 				MarkdownDescription: fmt.Sprintf("Altinity.Cloud API Token.\n"+
 					"The value can be omitted if `%s` environment variable is set. ",
 					ENV_VAR_API_TOKEN),
-				Optional: true,
+				Optional:  true,
+				Sensitive: true,
 			},
 		},
 	}
