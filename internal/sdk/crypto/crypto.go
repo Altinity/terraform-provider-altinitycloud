@@ -62,7 +62,6 @@ func (c *Crypto) Decrypt(pkPem string, value string) (string, error) {
 	block, _ := pem.Decode([]byte(pkPem))
 	pk, err := x509.ParsePKCS1PrivateKey(block.Bytes)
 	if err != nil {
-		fmt.Print("ACA")
 		return "", err
 	}
 	parts := strings.SplitN(value, ".", 2)
@@ -72,7 +71,6 @@ func (c *Crypto) Decrypt(pkPem string, value string) (string, error) {
 	hash := sha256.New()
 	enc, err := hex.DecodeString(parts[1])
 	if err != nil {
-		fmt.Print("ACA2")
 		return "", err
 	}
 	cleartext, err := rsa.DecryptOAEP(hash, rand.Reader, pk, enc, nil)
