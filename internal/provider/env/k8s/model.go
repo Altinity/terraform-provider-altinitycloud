@@ -369,7 +369,7 @@ func logsToModel(logs client.K8SEnvSpecFragment_Logs) *LogsModel {
 
 	if logs.Storage.Gcs != nil {
 		model.Storage.GCS = &GCSStorageModel{
-			BucketName: types.StringValue(*logs.Storage.S3.BucketName),
+			BucketName: types.StringValue(*logs.Storage.Gcs.BucketName),
 		}
 	}
 
