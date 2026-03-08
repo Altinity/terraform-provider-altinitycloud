@@ -52,6 +52,10 @@ func ReorderByKey[M any, S any](model []M, items []S, getModelKey func(M) string
 }
 
 func ReorderList(ctx context.Context, model types.List, input []string) ([]string, diag.Diagnostics) {
+	if model.IsUnknown() || model.IsNull() {
+		return input, nil
+	}
+
 	orderedZones := make([]string, 0, len(input))
 	usedZones := make(map[string]bool)
 

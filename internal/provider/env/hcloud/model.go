@@ -68,8 +68,10 @@ type MetricsEndpointModel struct {
 func (e HCloudEnvResourceModel) toSDK(ctx context.Context) (client.CreateHCloudEnvInput, client.UpdateHCloudEnvInput, diag.Diagnostics) {
 	var locations []string
 	var allDiags diag.Diagnostics
-	diags := e.Locations.ElementsAs(ctx, &locations, false)
-	allDiags.Append(diags...)
+	if !e.Locations.IsUnknown() && !e.Locations.IsNull() {
+		diags := e.Locations.ElementsAs(ctx, &locations, false)
+		allDiags.Append(diags...)
+	}
 
 	wireguardPeers, diags := wireguardPeersToSDK(ctx, e.WireguardPeers)
 	allDiags.Append(diags...)
@@ -214,8 +216,10 @@ func nodeGroupsToSDK(ctx context.Context, nodeGroups []NodeGroupsModel) ([]*clie
 		allDiags.Append(diags...)
 
 		var locations []string
-		diags = np.Locations.ElementsAs(ctx, &locations, false)
-		allDiags.Append(diags...)
+		if !np.Locations.IsUnknown() && !np.Locations.IsNull() {
+			diags = np.Locations.ElementsAs(ctx, &locations, false)
+			allDiags.Append(diags...)
+		}
 
 		sdkNodeGroups = append(sdkNodeGroups, &client.HCloudEnvNodeGroupSpecInput{
 			Name:                np.Name.ValueStringPointer(),
@@ -234,8 +238,10 @@ func wireguardPeersToSDK(ctx context.Context, peers []WireguardPeers) ([]*client
 	var sdkPeers []*client.HCloudEnvWireguardPeerSpecInput
 	for _, p := range peers {
 		var allowedIPs []string
-		diags := p.AllowedIPs.ElementsAs(ctx, &allowedIPs, false)
-		allDiags.Append(diags...)
+		if !p.AllowedIPs.IsUnknown() && !p.AllowedIPs.IsNull() {
+			diags := p.AllowedIPs.ElementsAs(ctx, &allowedIPs, false)
+			allDiags.Append(diags...)
+		}
 
 		sdkPeers = append(sdkPeers, &client.HCloudEnvWireguardPeerSpecInput{
 			PublicKey:  p.PublicKey.ValueString(),

@@ -116,8 +116,10 @@ type AWSEnvMetricsEndpointModel struct {
 func (e AWSEnvResourceModel) toSDK(ctx context.Context) (sdk.CreateAWSEnvInput, sdk.UpdateAWSEnvInput, diag.Diagnostics) {
 	var zones []string
 	var allDiags diag.Diagnostics
-	diags := e.Zones.ElementsAs(ctx, &zones, false)
-	allDiags.Append(diags...)
+	if !e.Zones.IsUnknown() && !e.Zones.IsNull() {
+		diags := e.Zones.ElementsAs(ctx, &zones, false)
+		allDiags.Append(diags...)
+	}
 
 	var peeringConnections []*sdk.AWSEnvPeeringConnectionSpecInput
 	for _, p := range e.PeeringConnections {
@@ -378,8 +380,10 @@ func nodeGroupsToSDK(ctx context.Context, nodeGroups []common.NodeGroupsModel) (
 		allDiags.Append(diags...)
 
 		var zones []string
-		diags = np.Zones.ElementsAs(ctx, &zones, false)
-		allDiags.Append(diags...)
+		if !np.Zones.IsUnknown() && !np.Zones.IsNull() {
+			diags = np.Zones.ElementsAs(ctx, &zones, false)
+			allDiags.Append(diags...)
+		}
 
 		sdkNodeGroups = append(sdkNodeGroups, &sdk.AWSEnvNodeGroupSpecInput{
 			Name:            np.Name.ValueStringPointer(),

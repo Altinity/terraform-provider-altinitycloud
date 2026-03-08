@@ -62,8 +62,10 @@ type MetricsEndpointModel struct {
 func (e GCPEnvResourceModel) toSDK(ctx context.Context) (sdk.CreateGCPEnvInput, sdk.UpdateGCPEnvInput, diag.Diagnostics) {
 	var zones []string
 	var allDiags diag.Diagnostics
-	diags := e.Zones.ElementsAs(ctx, &zones, false)
-	allDiags.Append(diags...)
+	if !e.Zones.IsUnknown() && !e.Zones.IsNull() {
+		diags := e.Zones.ElementsAs(ctx, &zones, false)
+		allDiags.Append(diags...)
+	}
 
 	maintenanceWindows := common.MaintenanceWindowsToSDK(e.MaintenanceWindows)
 	LoadBalancers := loadBalancersToSDK(e.LoadBalancers)
@@ -82,8 +84,10 @@ func (e GCPEnvResourceModel) toSDK(ctx context.Context) (sdk.CreateGCPEnvInput, 
 	}
 
 	var privateServiceConsumers []string
-	diags = e.PrivateServiceConsumers.ElementsAs(ctx, &privateServiceConsumers, false)
-	allDiags.Append(diags...)
+	if !e.PrivateServiceConsumers.IsUnknown() && !e.PrivateServiceConsumers.IsNull() {
+		diags := e.PrivateServiceConsumers.ElementsAs(ctx, &privateServiceConsumers, false)
+		allDiags.Append(diags...)
+	}
 
 	create := sdk.CreateGCPEnvInput{
 		Name: e.Name.ValueString(),
@@ -225,8 +229,10 @@ func nodeGroupsToSDK(ctx context.Context, nodeGroups []common.NodeGroupsModel) (
 		allDiags.Append(diags...)
 
 		var zones []string
-		diags = np.Zones.ElementsAs(ctx, &zones, false)
-		allDiags.Append(diags...)
+		if !np.Zones.IsUnknown() && !np.Zones.IsNull() {
+			diags = np.Zones.ElementsAs(ctx, &zones, false)
+			allDiags.Append(diags...)
+		}
 
 		sdkNodeGroups = append(sdkNodeGroups, &sdk.GCPEnvNodeGroupSpecInput{
 			Name:            np.Name.ValueStringPointer(),

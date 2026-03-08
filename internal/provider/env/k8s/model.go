@@ -268,8 +268,10 @@ func nodeGroupsToSDK(ctx context.Context, nodeGroups []NodeGroupsModel) ([]*clie
 		allDiags.Append(diags...)
 
 		var zones []string
-		diags = np.Zones.ElementsAs(ctx, &zones, false)
-		allDiags.Append(diags...)
+		if !np.Zones.IsUnknown() && !np.Zones.IsNull() {
+			diags = np.Zones.ElementsAs(ctx, &zones, false)
+			allDiags.Append(diags...)
+		}
 
 		sdkNodeGroups = append(sdkNodeGroups, &client.K8SEnvNodeGroupSpecInput{
 			Name:            np.Name.ValueStringPointer(),
