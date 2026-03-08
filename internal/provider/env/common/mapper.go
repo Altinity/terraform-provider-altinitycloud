@@ -28,12 +28,12 @@ func ListToModel(input []string) types.List {
 }
 
 func ReservationsToModel(input []client.NodeReservation) types.Set {
-	zones := []attr.Value{}
+	reservations := []attr.Value{}
 	for _, reservation := range input {
-		zones = append(zones, types.StringValue(string(reservation)))
+		reservations = append(reservations, types.StringValue(string(reservation)))
 	}
 
-	list, _ := types.SetValue(types.StringType, zones)
+	list, _ := types.SetValue(types.StringType, reservations)
 	return list
 }
 

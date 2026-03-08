@@ -182,9 +182,9 @@ func (r *HCloudEnvResource) Delete(ctx context.Context, req resource.DeleteReque
 
 	// Polling to wait for deletion to complete
 	pendingMfa := apiResp.DeleteHCloudEnv.PendingMfa
-	mfaTimeout := time.After(common.MFA_TIMEOUT)
-	deleteTimeout := time.After(common.DELETE_TIMEOUT)
-	ticker := time.NewTicker(common.DELETE_POLL_INTERVAL)
+	mfaTimeout := time.After(common.MFATimeout)
+	deleteTimeout := time.After(common.DeleteTimeout)
+	ticker := time.NewTicker(common.DeletePollInterval)
 	defer ticker.Stop()
 
 	for {

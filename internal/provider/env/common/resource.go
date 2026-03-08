@@ -13,9 +13,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-var MFA_TIMEOUT = time.Duration(5) * time.Minute
-var DELETE_TIMEOUT = time.Duration(60) * time.Minute
-var DELETE_POLL_INTERVAL = 30 * time.Second
+var MFATimeout = 5 * time.Minute
+var DeleteTimeout = 60 * time.Minute
+var DeletePollInterval = 30 * time.Second
 
 type EnvResourceBase struct {
 	Client *client.Client

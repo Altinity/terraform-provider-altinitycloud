@@ -20,8 +20,8 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-var CIDR_REGEX = regexp.MustCompile(`^([0-9]{1,3}\.){3}[0-9]{1,3}\/[0-9]{1,2}$`)
-var DOMAIN_REGEX = regexp.MustCompile("^[a-z0-9][a-z0-9-]{0,63}([.][a-z0-9][a-z0-9-]{0,63})+$")
+var CIDRRegex = regexp.MustCompile(`^([0-9]{1,3}\.){3}[0-9]{1,3}\/[0-9]{1,2}$`)
+var DomainRegex = regexp.MustCompile("^[a-z0-9][a-z0-9-]{0,63}([.][a-z0-9][a-z0-9-]{0,63})+$")
 
 func GetCommonCustomDomainAttribute(required, optional, computed bool) rschema.StringAttribute {
 	return GetCustomDomainAttribute(required, optional, computed, CUSTOM_DOMAIN_DESCRIPTION)
@@ -35,7 +35,7 @@ func GetCustomDomainAttribute(required, optional, computed bool, description str
 		MarkdownDescription: description,
 		Validators: []validator.String{
 			stringvalidator.RegexMatches(
-				DOMAIN_REGEX,
+				DomainRegex,
 				"invalid domain format",
 			),
 		},
@@ -110,7 +110,7 @@ func GetCIDRAttribute(required, optional, computed bool) rschema.StringAttribute
 		MarkdownDescription: CIDR_DESCRIPTION,
 		Validators: []validator.String{
 			stringvalidator.RegexMatches(
-				CIDR_REGEX,
+				CIDRRegex,
 				"invalid CIDR format ([IP Address]/[Prefix Length])",
 			),
 		},
@@ -289,7 +289,7 @@ func GetMetricsEndpointAttribute(required, optional, computed bool) rschema.Sing
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 					listvalidator.ValueStringsAre(
-						stringvalidator.RegexMatches(CIDR_REGEX, "invalid CIDR (expecting something like 1.2.3.4/32)"),
+						stringvalidator.RegexMatches(CIDRRegex, "invalid CIDR (expecting something like 1.2.3.4/32)"),
 					),
 				},
 			},
@@ -330,7 +330,7 @@ var SourceIPRangesAttribute = rschema.ListAttribute{
 	Validators: []validator.List{
 		listvalidator.SizeAtLeast(1),
 		listvalidator.ValueStringsAre(
-			stringvalidator.RegexMatches(CIDR_REGEX, "invalid CIDR (expecting something like 1.2.3.4/32)"),
+			stringvalidator.RegexMatches(CIDRRegex, "invalid CIDR (expecting something like 1.2.3.4/32)"),
 		),
 	},
 }

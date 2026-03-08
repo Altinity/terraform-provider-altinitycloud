@@ -176,9 +176,9 @@ func (r *K8SEnvResource) Delete(ctx context.Context, req resource.DeleteRequest,
 
 	// Polling to wait for deletion to complete
 	pendingMfa := apiResp.DeleteK8SEnv.PendingMfa
-	mfaTimeout := time.After(common.MFA_TIMEOUT)
-	deleteTimeout := time.After(common.DELETE_TIMEOUT)
-	ticker := time.NewTicker(common.DELETE_POLL_INTERVAL)
+	mfaTimeout := time.After(common.MFATimeout)
+	deleteTimeout := time.After(common.DeleteTimeout)
+	ticker := time.NewTicker(common.DeletePollInterval)
 	defer ticker.Stop()
 
 	for {
