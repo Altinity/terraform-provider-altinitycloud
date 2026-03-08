@@ -165,7 +165,7 @@ func (r *K8SEnvResource) Delete(ctx context.Context, req resource.DeleteRequest,
 
 	if err != nil {
 		errMessage := fmt.Sprintf("Unable to delete env %s, got error: %s", envName, err)
-		activeClustes, _ := client.IsActiceClustersError(err)
+		activeClustes, _ := client.IsActiveClustersError(err)
 		if activeClustes {
 			errMessage = fmt.Sprintf("Unable to delete env %s, it has active ClickHouse/Zookeeper clusters (use force_destroy_clusters=true to force delete them)", envName)
 		}

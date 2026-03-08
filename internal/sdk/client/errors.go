@@ -124,7 +124,7 @@ func errorPrefix(gqlError GraphQLError) string {
 	return "Error"
 }
 
-func IsActiceClustersError(err error) (bool, error) {
+func IsActiveClustersError(err error) (bool, error) {
 	parsedError, parseErr := ParseError(err)
 	if parseErr != nil {
 		return false, parseErr
