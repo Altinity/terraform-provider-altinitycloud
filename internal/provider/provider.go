@@ -118,6 +118,7 @@ func (p *altinityCloudProvider) Configure(ctx context.Context, req provider.Conf
 			fmt.Sprintf("%s environment variable or \"api_token\" provider attribute required.\n"+
 				"See https://github.com/altinity/terraform-provider-altinitycloud for details.", ENV_VAR_API_TOKEN),
 		)
+		return
 	}
 
 	var rootCAs *x509.CertPool
