@@ -6,7 +6,7 @@ require (
 	github.com/Yamashou/gqlgenc v0.33.0
 	github.com/hashicorp/terraform-plugin-docs v0.24.0
 	github.com/hashicorp/terraform-plugin-framework v1.18.0
-	github.com/hashicorp/terraform-plugin-go v0.30.0
+	github.com/hashicorp/terraform-plugin-go v0.31.0
 	github.com/hashicorp/terraform-plugin-log v0.10.0
 	golang.org/x/net v0.48.0 // indirect
 )
