@@ -19,6 +19,7 @@ func (r *K8SEnvStatusDataSource) Schema(ctx context.Context, req datasource.Sche
 			"pending_delete":                 common.PendingDeleteAttribute,
 			"applied_spec_revision":          common.AppliedSpecRevisionAttribute,
 			"wait_for_applied_spec_revision": common.WaitForAppliedSpecRevisionAttribute,
+			"verbose":                        common.VerboseAttribute,
 		},
 	}
 }

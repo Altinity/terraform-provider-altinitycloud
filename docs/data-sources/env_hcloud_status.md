@@ -73,6 +73,7 @@ data "altinitycloud_env_hcloud_status" "current" {
 
 ### Optional
 
+- `verbose` (Boolean) When enabled, prints real-time provisioning progress to the terminal (default `true`). Disable in CI/CD or non-interactive environments.
 - `wait_for_applied_spec_revision` (Number) Use this attribute to wait for the environment to be fully provisioned. It will long pull environment status until it matches the applied spec revision.
 
 ### Read-Only

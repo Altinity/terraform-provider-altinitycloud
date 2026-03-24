@@ -19,6 +19,7 @@ func (r *AzureEnvStatusDataSource) Schema(ctx context.Context, req datasource.Sc
 			"pending_delete":                 common.PendingDeleteAttribute,
 			"applied_spec_revision":          common.AppliedSpecRevisionAttribute,
 			"wait_for_applied_spec_revision": common.WaitForAppliedSpecRevisionAttribute,
+			"verbose":                        common.VerboseAttribute,
 
 			"load_balancers": schema.SingleNestedAttribute{
 				Required:            false,

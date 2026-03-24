@@ -287,3 +287,6 @@ const METRICS_ENDPOINT_SOURCE_IP_RANGES_DESCRIPTION = "IP addresses/blocks to al
 
 // EKS Logging descriptions.
 const EKS_LOGGING_DESCRIPTION = "Enable/Disable EKS control plane logging to CloudWatch (default `false`)."
+
+// Status verbose descriptions.
+const VERBOSE_DESCRIPTION = "When enabled, prints real-time provisioning progress to the terminal (default `true`). Disable in CI/CD or non-interactive environments."

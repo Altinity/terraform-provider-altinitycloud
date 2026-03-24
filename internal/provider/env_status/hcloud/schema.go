@@ -19,6 +19,7 @@ func (r *HCloudEnvStatusDataSource) Schema(ctx context.Context, req datasource.S
 			"pending_delete":                 common.PendingDeleteAttribute,
 			"applied_spec_revision":          common.AppliedSpecRevisionAttribute,
 			"wait_for_applied_spec_revision": common.WaitForAppliedSpecRevisionAttribute,
+			"verbose":                        common.VerboseAttribute,
 		},
 	}
 }

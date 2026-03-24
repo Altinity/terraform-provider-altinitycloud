@@ -10,6 +10,7 @@ type GCPEnvStatusModel struct {
 	Name                       types.String `tfsdk:"name"`
 	WaitForAppliedSpecRevision types.Int64  `tfsdk:"wait_for_applied_spec_revision"`
 	AppliedSpecRevision        types.Int64  `tfsdk:"applied_spec_revision"`
+	Verbose                    types.Bool   `tfsdk:"verbose"`
 	PendingDelete              types.Bool   `tfsdk:"pending_delete"`
 }
 

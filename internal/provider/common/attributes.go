@@ -302,6 +302,13 @@ var WaitForAppliedSpecRevisionAttribute = rschema.Int64Attribute{
 	MarkdownDescription: STATUS_WAIT_FOR_APPLIED_SPEC_REVISION_DESCRIPTION,
 }
 
+var VerboseAttribute = rschema.BoolAttribute{
+	Optional:            true,
+	Computed:            true,
+	MarkdownDescription: VERBOSE_DESCRIPTION,
+	Default:             booldefault.StaticBool(true),
+}
+
 var AppliedSpecRevisionAttribute = rschema.Int64Attribute{
 	Computed:            true,
 	MarkdownDescription: STATUS_APPLIED_SPEC_REVISION_DESCRIPTION,
