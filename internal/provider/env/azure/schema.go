@@ -34,6 +34,7 @@ func (r *AzureEnvResource) Schema(ctx context.Context, req resource.SchemaReques
 			"region":                          common.GetRegionAttribute(true, false, false, common.AZURE_REGION_DESCRIPTION),
 			"tenant_id":                       getAzureTenantIDAttribute(true, false, false),
 			"subscription_id":                 getAzureSubscriptionIDAttribute(true, false, false),
+			"resource_group":                  getAzureResourceGroupAttribute(false, true, true),
 			"tags":                            getTagsAttribute(false, true, false),
 			"private_link_service":            getPrivateLinkServiceAttribute(false, true, true),
 			"metrics_endpoint":                common.GetMetricsEndpointAttribute(false, true, false),
@@ -62,6 +63,7 @@ func (d *AzureEnvDataSource) Schema(ctx context.Context, req datasource.SchemaRe
 			"region":                  common.GetRegionAttribute(false, false, true, common.AZURE_REGION_DESCRIPTION),
 			"tenant_id":               getAzureTenantIDAttribute(false, false, true),
 			"subscription_id":         getAzureSubscriptionIDAttribute(false, false, true),
+			"resource_group":          getAzureResourceGroupAttribute(false, false, true),
 			"tags":                    getTagsAttribute(false, false, true),
 			"private_link_service":    getPrivateLinkServiceAttribute(false, false, true),
 			"metrics_endpoint":        common.GetMetricsEndpointAttribute(false, false, true),
@@ -138,6 +140,18 @@ func getAzureSubscriptionIDAttribute(required, optional, computed bool) rschema.
 		MarkdownDescription: common.AZURE_SUBSCRIPTION_ID_DESCRIPTION,
 		PlanModifiers: []planmodifier.String{
 			modifiers.ImmutableString("subscription_id"),
+		},
+	}
+}
+
+func getAzureResourceGroupAttribute(required, optional, computed bool) rschema.StringAttribute {
+	return rschema.StringAttribute{
+		Optional:            optional,
+		Required:            required,
+		Computed:            computed,
+		MarkdownDescription: common.AZURE_RESOURCE_GROUP_DESCRIPTION,
+		PlanModifiers: []planmodifier.String{
+			modifiers.ImmutableString("resource_group"),
 		},
 	}
 }

@@ -94,6 +94,7 @@ fragment AzureEnvSpecFragment on AzureEnvSpec {
   cidr
   tenantID
   subscriptionID
+  resourceGroup
   cloudConnect
   metricsEndpoint {
     enabled
