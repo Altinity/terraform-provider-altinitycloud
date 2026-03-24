@@ -123,6 +123,7 @@ data "altinitycloud_env_hcloud_status" "this" {
 - `maintenance_windows` (Attributes List) List of maintenance windows during which automatic maintenance is permitted. By default updates are applied as soon as they are available. (see [below for nested schema](#nestedatt--maintenance_windows))
 - `metrics_endpoint` (Attributes) Metrics endpoint configuration. (see [below for nested schema](#nestedatt--metrics_endpoint))
 - `skip_deprovision_on_destroy` (Boolean) Set to `true` will delete without waiting for environment deprovisioning. Use this with precaution, it may end up with dangling resources in your cloud provider (default `false`).
+- `timeouts` (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
 - `wireguard_peers` (Attributes List) HCloud Wireguard peer configuration. (see [below for nested schema](#nestedatt--wireguard_peers))
 
 ### Read-Only
@@ -208,6 +209,14 @@ Optional:
 
 - `enabled` (Boolean) Set to `true` if metrics endpoint is enabled, `false` otherwise (default `false`).
 - `source_ip_ranges` (List of String) IP addresses/blocks to allow traffic from when metrics endpoint is enabled.
+
+
+<a id="nestedblock--timeouts"></a>
+### Nested Schema for `timeouts`
+
+Optional:
+
+- `delete` (String) A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours). Setting a timeout for a Delete operation is only applicable if changes are saved into state before the destroy operation occurs.
 
 
 <a id="nestedatt--wireguard_peers"></a>

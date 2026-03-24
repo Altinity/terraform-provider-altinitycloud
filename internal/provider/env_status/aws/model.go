@@ -2,6 +2,7 @@ package env_status
 
 import (
 	sdk "github.com/altinity/terraform-provider-altinitycloud/internal/sdk/client"
+	"github.com/hashicorp/terraform-plugin-framework-timeouts/datasource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -15,6 +16,7 @@ type AWSEnvStatusModel struct {
 	PeeringConnections         []AWSEnvPeeringConnectionStatus `tfsdk:"peering_connections"`
 	PendingDelete              types.Bool                      `tfsdk:"pending_delete"`
 	AWSResources               []AWSResourceStatus             `tfsdk:"aws_resources"`
+	Timeouts                   timeouts.Value                  `tfsdk:"timeouts"`
 }
 
 type AWSEnvLoadBalancersStatus struct {

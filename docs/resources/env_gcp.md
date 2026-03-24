@@ -136,6 +136,7 @@ data "altinitycloud_env_gcp_status" "this" {
 - `peering_connections` (Attributes List) Network peering configuration. (see [below for nested schema](#nestedatt--peering_connections))
 - `private_service_consumers` (List of String) List of project IDs representing the network's private service consumers.
 - `skip_deprovision_on_destroy` (Boolean) Set to `true` will delete without waiting for environment deprovisioning. Use this with precaution, it may end up with dangling resources in your cloud provider (default `false`).
+- `timeouts` (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
 - `zones` (List of String) Explicit list of GCP zones. At least 2 required.
 		Examples:
 		- ["us-west1-a", "us-west1-b"]
@@ -235,6 +236,14 @@ Required:
 Optional:
 
 - `project_id` (String) Target network's project ID.
+
+
+<a id="nestedblock--timeouts"></a>
+### Nested Schema for `timeouts`
+
+Optional:
+
+- `delete` (String) A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours). Setting a timeout for a Delete operation is only applicable if changes are saved into state before the destroy operation occurs.
 
 ### GCP environment with Network peering:
 ```terraform
@@ -377,6 +386,7 @@ data "altinitycloud_env_gcp_status" "this" {
 - `peering_connections` (Attributes List) Network peering configuration. (see [below for nested schema](#nestedatt--peering_connections))
 - `private_service_consumers` (List of String) List of project IDs representing the network's private service consumers.
 - `skip_deprovision_on_destroy` (Boolean) Set to `true` will delete without waiting for environment deprovisioning. Use this with precaution, it may end up with dangling resources in your cloud provider (default `false`).
+- `timeouts` (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
 - `zones` (List of String) Explicit list of GCP zones. At least 2 required.
 		Examples:
 		- ["us-west1-a", "us-west1-b"]
@@ -476,6 +486,14 @@ Required:
 Optional:
 
 - `project_id` (String) Target network's project ID.
+
+
+<a id="nestedblock--timeouts"></a>
+### Nested Schema for `timeouts`
+
+Optional:
+
+- `delete` (String) A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours). Setting a timeout for a Delete operation is only applicable if changes are saved into state before the destroy operation occurs.
 ## Import
 
 Import is supported using the following syntax:

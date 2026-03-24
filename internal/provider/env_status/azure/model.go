@@ -2,6 +2,7 @@ package env_status
 
 import (
 	sdk "github.com/altinity/terraform-provider-altinitycloud/internal/sdk/client"
+	"github.com/hashicorp/terraform-plugin-framework-timeouts/datasource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -13,6 +14,7 @@ type AzureEnvStatusModel struct {
 	Verbose                    types.Bool                   `tfsdk:"verbose"`
 	PendingDelete              types.Bool                   `tfsdk:"pending_delete"`
 	LoadBalancers              *AzureEnvLoadBalancersStatus `tfsdk:"load_balancers"`
+	Timeouts                   timeouts.Value               `tfsdk:"timeouts"`
 }
 
 type AzureEnvLoadBalancersStatus struct {
