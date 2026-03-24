@@ -74,9 +74,15 @@ func (r *EnvResourceBase) ModifyPlan(ctx context.Context, req resource.ModifyPla
 	}
 }
 
-func WaitForDeletion(ctx context.Context, resp *resource.DeleteResponse, envName string, pendingMfa bool, checkStatus StatusCheckFunc) {
-	mfaTimeout := time.After(MFATimeout)
-	deleteTimeout := time.After(DeleteTimeout)
+func WaitForDeletion(ctx context.Context, resp *resource.DeleteResponse, envName string, pendingMfa bool, checkStatus StatusCheckFunc, deleteTimeout time.Duration, mfaTimeout time.Duration) {
+	if deleteTimeout == 0 {
+		deleteTimeout = DeleteTimeout
+	}
+	if mfaTimeout == 0 {
+		mfaTimeout = MFATimeout
+	}
+	mfaTimer := time.After(mfaTimeout)
+	deleteTimer := time.After(deleteTimeout)
 	ticker := time.NewTicker(DeletePollInterval)
 	defer ticker.Stop()
 
@@ -85,12 +91,12 @@ func WaitForDeletion(ctx context.Context, resp *resource.DeleteResponse, envName
 		case <-ctx.Done():
 			resp.Diagnostics.AddError("Context Cancelled", "The context was cancelled, stopping env deletion.")
 			return
-		case <-mfaTimeout:
+		case <-mfaTimer:
 			if pendingMfa {
 				resp.Diagnostics.AddError("MFA Timeout", "Timeout reached while waiting for MFA to be confirmed.\nPlease check your MFA device, confirm deletion and run `terraform destroy` again.")
 				return
 			}
-		case <-deleteTimeout:
+		case <-deleteTimer:
 			resp.Diagnostics.AddError("Timeout", "Timeout reached while waiting for env to be deleted.")
 			return
 		case <-ticker.C:
