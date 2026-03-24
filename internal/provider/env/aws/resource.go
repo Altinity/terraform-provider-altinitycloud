@@ -219,6 +219,12 @@ func (r *AWSEnvResource) Delete(ctx context.Context, req resource.DeleteRequest,
 		return
 	}
 
+	deleteTimeout, diags := data.Timeouts.Delete(ctx, common.DeleteTimeout)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	common.WaitForDeletion(ctx, resp, envName, apiResp.DeleteAWSEnv.PendingMfa,
 		func(ctx context.Context, name string) (bool, error) {
 			status, err := r.Client.GetAWSEnvStatus(ctx, name)
@@ -227,5 +233,7 @@ func (r *AWSEnvResource) Delete(ctx context.Context, req resource.DeleteRequest,
 			}
 			return status.AWSEnv.Status.PendingDelete, nil
 		},
+		deleteTimeout,
+		common.MFATimeout,
 	)
 }

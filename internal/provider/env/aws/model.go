@@ -5,6 +5,7 @@ import (
 
 	common "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env/common"
 	sdk "github.com/altinity/terraform-provider-altinitycloud/internal/sdk/client"
+	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
@@ -34,11 +35,12 @@ type AWSEnvResourceModel struct {
 	MetricsEndpoint              *AWSEnvMetricsEndpointModel     `tfsdk:"metrics_endpoint"`
 	EksLogging                   types.Bool                      `tfsdk:"eks_logging"`
 
-	SpecRevision                 types.Int64 `tfsdk:"spec_revision"`
-	ForceDestroy                 types.Bool  `tfsdk:"force_destroy"`
-	ForceDestroyClusters         types.Bool  `tfsdk:"force_destroy_clusters"`
-	SkipDeprovisionOnDestroy     types.Bool  `tfsdk:"skip_deprovision_on_destroy"`
-	AllowDeleteWhileDisconnected types.Bool  `tfsdk:"allow_delete_while_disconnected"`
+	SpecRevision                 types.Int64    `tfsdk:"spec_revision"`
+	ForceDestroy                 types.Bool     `tfsdk:"force_destroy"`
+	ForceDestroyClusters         types.Bool     `tfsdk:"force_destroy_clusters"`
+	SkipDeprovisionOnDestroy     types.Bool     `tfsdk:"skip_deprovision_on_destroy"`
+	AllowDeleteWhileDisconnected types.Bool     `tfsdk:"allow_delete_while_disconnected"`
+	Timeouts                     timeouts.Value `tfsdk:"timeouts"`
 }
 
 type LoadBalancersModel struct {
