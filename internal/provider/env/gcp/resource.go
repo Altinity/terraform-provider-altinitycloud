@@ -3,7 +3,9 @@ package env
 import (
 	"context"
 	"fmt"
+	"strings"
 
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
 	common "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env/common"
@@ -14,6 +16,7 @@ import (
 
 var _ resource.Resource = &GCPEnvResource{}
 var _ resource.ResourceWithImportState = &GCPEnvResource{}
+var _ resource.ResourceWithValidateConfig = &GCPEnvResource{}
 
 func NewGCPEnvResource() resource.Resource {
 	return &GCPEnvResource{}
@@ -236,4 +239,32 @@ func (r *GCPEnvResource) Delete(ctx context.Context, req resource.DeleteRequest,
 		deleteTimeout,
 		common.MFATimeout,
 	)
+}
+
+func (r *GCPEnvResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	var data GCPEnvResourceModel
+	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Validate that zones match the region prefix (e.g. region "us-central1" → zones "us-central1-a", "us-central1-b").
+	if !data.Region.IsNull() && !data.Region.IsUnknown() && !data.Zones.IsNull() && !data.Zones.IsUnknown() {
+		region := data.Region.ValueString()
+		var zones []string
+		resp.Diagnostics.Append(data.Zones.ElementsAs(ctx, &zones, false)...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+		for i, zone := range zones {
+			if !strings.HasPrefix(zone, region) {
+				resp.Diagnostics.AddAttributeError(
+					path.Root("zones").AtListIndex(i),
+					"Invalid Zone",
+					fmt.Sprintf("Zone %q is not valid for region %q. GCP zones must start with the region name (e.g. %s-a, %s-b).",
+						zone, region, region, region),
+				)
+			}
+		}
+	}
 }

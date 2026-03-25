@@ -3,7 +3,9 @@ package env
 import (
 	"context"
 	"fmt"
+	"strings"
 
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
 	common "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env/common"
@@ -14,6 +16,7 @@ import (
 
 var _ resource.Resource = &AWSEnvResource{}
 var _ resource.ResourceWithImportState = &AWSEnvResource{}
+var _ resource.ResourceWithValidateConfig = &AWSEnvResource{}
 
 func NewAWSEnvResource() resource.Resource {
 	return &AWSEnvResource{}
@@ -236,4 +239,32 @@ func (r *AWSEnvResource) Delete(ctx context.Context, req resource.DeleteRequest,
 		deleteTimeout,
 		common.MFATimeout,
 	)
+}
+
+func (r *AWSEnvResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	var data AWSEnvResourceModel
+	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Validate that zones match the region prefix (e.g. region "us-east-1" → zones "us-east-1a", "us-east-1b").
+	if !data.Region.IsNull() && !data.Region.IsUnknown() && !data.Zones.IsNull() && !data.Zones.IsUnknown() {
+		region := data.Region.ValueString()
+		var zones []string
+		resp.Diagnostics.Append(data.Zones.ElementsAs(ctx, &zones, false)...)
+		if resp.Diagnostics.HasError() {
+			return
+		}
+		for i, zone := range zones {
+			if !strings.HasPrefix(zone, region) {
+				resp.Diagnostics.AddAttributeError(
+					path.Root("zones").AtListIndex(i),
+					"Invalid Zone",
+					fmt.Sprintf("Zone %q is not valid for region %q. AWS zones must start with the region name (e.g. %sa, %sb).",
+						zone, region, region, region),
+				)
+			}
+		}
+	}
 }

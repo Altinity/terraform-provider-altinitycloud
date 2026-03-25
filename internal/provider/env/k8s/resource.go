@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	common "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env/common"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/client"
@@ -14,6 +15,7 @@ import (
 
 var _ resource.Resource = &K8SEnvResource{}
 var _ resource.ResourceWithImportState = &K8SEnvResource{}
+var _ resource.ResourceWithValidateConfig = &K8SEnvResource{}
 
 func NewK8SEnvResource() resource.Resource {
 	return &K8SEnvResource{}
@@ -208,4 +210,21 @@ func (r *K8SEnvResource) Delete(ctx context.Context, req resource.DeleteRequest,
 		deleteTimeout,
 		common.MFATimeout,
 	)
+}
+
+func (r *K8SEnvResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	var data K8SEnvResourceModel
+	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	// Validate that logs.storage.s3 and logs.storage.gcs are mutually exclusive.
+	if data.Logs != nil && data.Logs.Storage.S3 != nil && data.Logs.Storage.GCS != nil {
+		resp.Diagnostics.AddAttributeError(
+			path.Root("logs").AtName("storage"),
+			"Conflicting Storage Configuration",
+			"Only one of logs.storage.s3 or logs.storage.gcs can be configured, not both.",
+		)
+	}
 }
