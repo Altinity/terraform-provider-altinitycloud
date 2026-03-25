@@ -27,6 +27,17 @@ func TestAccAltinityCloudEnvAWS_Basic(t *testing.T) {
 					resource.TestCheckResourceAttr(FILE_NAME, "name", resourceEnvName),
 				),
 			},
+			{
+				ResourceName:      FILE_NAME,
+				ImportState:       true,
+				ImportStateVerify: true,
+				ImportStateVerifyIgnore: []string{
+					"force_destroy",
+					"force_destroy_clusters",
+					"skip_deprovision_on_destroy",
+					"allow_delete_while_disconnected",
+				},
+			},
 		},
 	})
 }
