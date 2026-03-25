@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
+	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/retry"
 )
 
 // StatusCheckFunc checks if the env is still being deleted.
@@ -81,37 +82,37 @@ func WaitForDeletion(ctx context.Context, resp *resource.DeleteResponse, envName
 	if mfaTimeout == 0 {
 		mfaTimeout = MFATimeout
 	}
-	mfaTimer := time.After(mfaTimeout)
-	deleteTimer := time.After(deleteTimeout)
-	ticker := time.NewTicker(DeletePollInterval)
-	defer ticker.Stop()
 
-	for {
-		select {
-		case <-ctx.Done():
-			resp.Diagnostics.AddError("Context Cancelled", "The context was cancelled, stopping env deletion.")
-			return
-		case <-mfaTimer:
-			if pendingMfa {
-				resp.Diagnostics.AddError("MFA Timeout", "Timeout reached while waiting for MFA to be confirmed.\nPlease check your MFA device, confirm deletion and run `terraform destroy` again.")
-				return
-			}
-		case <-deleteTimer:
-			resp.Diagnostics.AddError("Timeout", "Timeout reached while waiting for env to be deleted.")
-			return
-		case <-ticker.C:
-			tflog.Trace(ctx, "checking if env was deleted", map[string]interface{}{"name": envName})
+	mfaStart := time.Now()
+	stateConf := &retry.StateChangeConf{
+		Pending: []string{"PENDING_MFA", "DELETING"},
+		Target:  []string{"DELETED"},
+		Refresh: func() (interface{}, string, error) {
 			pendingDelete, err := checkStatus(ctx, envName)
 			if err != nil {
 				notFound, _ := client.IsNotFoundError(err)
 				if notFound {
 					tflog.Trace(ctx, "deleted resource", map[string]interface{}{"name": envName})
-				} else {
-					resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read env %s, got error: %s", envName, err))
+					return nil, "DELETED", nil
 				}
-				return
+				return nil, "", err
 			}
-			pendingMfa = !pendingDelete
-		}
+
+			if !pendingDelete {
+				if pendingMfa && time.Since(mfaStart) > mfaTimeout {
+					return nil, "", fmt.Errorf("timeout reached while waiting for MFA to be confirmed.\nPlease check your MFA device, confirm deletion and run `terraform destroy` again")
+				}
+				return nil, "PENDING_MFA", nil
+			}
+
+			return nil, "DELETING", nil
+		},
+		Timeout:      deleteTimeout,
+		PollInterval: DeletePollInterval,
+	}
+
+	_, err := stateConf.WaitForStateContext(ctx)
+	if err != nil {
+		resp.Diagnostics.AddError("Delete Error", fmt.Sprintf("Error waiting for env %s to be deleted: %s", envName, err))
 	}
 }

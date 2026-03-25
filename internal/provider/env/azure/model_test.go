@@ -349,6 +349,14 @@ func TestLoadBalancersToSDK(t *testing.T) {
 				},
 			},
 		},
+		{
+			name:  "Both public and internal nil",
+			input: &LoadBalancersModel{},
+			expected: &client.AzureEnvLoadBalancersSpecInput{
+				Public:   nil,
+				Internal: nil,
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -566,6 +574,56 @@ func TestNodeGroupsToSDK(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "Node group with null zones",
+			input: []common.NodeGroupsModel{
+				{
+					Name:            types.StringValue("system-null-zones"),
+					NodeType:        types.StringValue("system"),
+					CapacityPerZone: types.Int64Value(3),
+					Zones:           types.ListNull(types.StringType),
+					Reservations:    types.SetValueMust(types.ObjectType{}, []attr.Value{}),
+				},
+			},
+			expected: []struct {
+				name            string
+				nodeType        string
+				capacityPerZone int64
+				zonesCount      int
+			}{
+				{
+					name:            "system-null-zones",
+					nodeType:        "system",
+					capacityPerZone: 3,
+					zonesCount:      0,
+				},
+			},
+		},
+		{
+			name: "Node group with reservations",
+			input: []common.NodeGroupsModel{
+				{
+					Name:            types.StringValue("reserved-group"),
+					NodeType:        types.StringValue("system"),
+					CapacityPerZone: types.Int64Value(4),
+					Zones:           types.ListValueMust(types.StringType, []attr.Value{types.StringValue("eastus-1")}),
+					Reservations:    types.SetValueMust(types.StringType, []attr.Value{types.StringValue("CLICKHOUSE"), types.StringValue("ZOOKEEPER")}),
+				},
+			},
+			expected: []struct {
+				name            string
+				nodeType        string
+				capacityPerZone int64
+				zonesCount      int
+			}{
+				{
+					name:            "reserved-group",
+					nodeType:        "system",
+					capacityPerZone: 4,
+					zonesCount:      1,
+				},
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -679,6 +737,31 @@ func TestNodeGroupsToModel(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "Node group with reservations populated",
+			input: []*client.AzureEnvSpecFragment_NodeGroups{
+				{
+					Name:            "reserved-group",
+					NodeType:        "system",
+					CapacityPerZone: 5,
+					Zones:           []string{"eastus-1"},
+					Reservations:    []client.NodeReservation{client.NodeReservationClickhouse, client.NodeReservationZookeeper, client.NodeReservationSystem},
+				},
+			},
+			expected: []struct {
+				name            string
+				nodeType        string
+				capacityPerZone int64
+				zonesCount      int
+			}{
+				{
+					name:            "reserved-group",
+					nodeType:        "system",
+					capacityPerZone: 5,
+					zonesCount:      1,
+				},
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -714,6 +797,44 @@ func TestNodeGroupsToModel(t *testing.T) {
 	}
 }
 
+func TestNodeGroupsToModel_Reservations(t *testing.T) {
+	input := []*client.AzureEnvSpecFragment_NodeGroups{
+		{
+			Name:            "reserved-group",
+			NodeType:        "system",
+			CapacityPerZone: 5,
+			Zones:           []string{"eastus-1"},
+			Reservations:    []client.NodeReservation{client.NodeReservationClickhouse, client.NodeReservationZookeeper},
+		},
+	}
+
+	result, diags := nodeGroupsToModel(input)
+	if diags.HasError() {
+		t.Fatalf("unexpected diagnostics: %v", diags)
+	}
+
+	if len(result) != 1 {
+		t.Fatalf("Expected 1 node group, got %d", len(result))
+	}
+
+	var reservations []string
+	result[0].Reservations.ElementsAs(context.TODO(), &reservations, false)
+	if len(reservations) != 2 {
+		t.Fatalf("Expected 2 reservations, got %d", len(reservations))
+	}
+
+	reservationSet := make(map[string]bool)
+	for _, r := range reservations {
+		reservationSet[r] = true
+	}
+	if !reservationSet["CLICKHOUSE"] {
+		t.Errorf("Expected reservation 'CLICKHOUSE' to be present")
+	}
+	if !reservationSet["ZOOKEEPER"] {
+		t.Errorf("Expected reservation 'ZOOKEEPER' to be present")
+	}
+}
+
 func TestMetricsEndpointToSDK(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -744,6 +865,17 @@ func TestMetricsEndpointToSDK(t *testing.T) {
 			},
 			expected: &client.MetricsEndpointSpecInput{
 				Enabled:        &[]bool{false}[0],
+				SourceIPRanges: nil,
+			},
+		},
+		{
+			name: "Metrics endpoint with nil source IP ranges",
+			input: &MetricsEndpointModel{
+				Enabled:        types.BoolValue(true),
+				SourceIPRanges: nil,
+			},
+			expected: &client.MetricsEndpointSpecInput{
+				Enabled:        &[]bool{true}[0],
 				SourceIPRanges: nil,
 			},
 		},
@@ -936,6 +1068,12 @@ func TestAzureEnvResourceModel_toSDK(t *testing.T) {
 				if *create.Spec.MetricsEndpoint.Enabled != true {
 					t.Errorf("Create MetricsEndpoint enabled: expected true, got %v", *create.Spec.MetricsEndpoint.Enabled)
 				}
+				if create.Spec.LoadBalancingStrategy == nil {
+					t.Fatal("Create LoadBalancingStrategy should not be nil")
+				}
+				if *create.Spec.LoadBalancingStrategy != client.LoadBalancingStrategy("round_robin") {
+					t.Errorf("Create LoadBalancingStrategy: expected 'round_robin', got '%s'", *create.Spec.LoadBalancingStrategy)
+				}
 
 				if update.Name != "test-azure-env" {
 					t.Errorf("Update name: expected 'test-azure-env', got '%s'", update.Name)
@@ -945,6 +1083,12 @@ func TestAzureEnvResourceModel_toSDK(t *testing.T) {
 				}
 				if *update.Spec.CustomDomain != "custom.azure.example.com" {
 					t.Errorf("Update custom domain: expected 'custom.azure.example.com', got '%s'", *update.Spec.CustomDomain)
+				}
+				if update.Spec.LoadBalancingStrategy == nil {
+					t.Fatal("Update LoadBalancingStrategy should not be nil")
+				}
+				if *update.Spec.LoadBalancingStrategy != client.LoadBalancingStrategy("round_robin") {
+					t.Errorf("Update LoadBalancingStrategy: expected 'round_robin', got '%s'", *update.Spec.LoadBalancingStrategy)
 				}
 			},
 		},
@@ -1031,7 +1175,8 @@ func TestAzureEnvResourceModel_toModel(t *testing.T) {
 		{
 			name: "Complete SDK response with all fields",
 			input: client.GetAzureEnv_AzureEnv{
-				Name: "test-azure-environment",
+				Name:         "test-azure-environment",
+				SpecRevision: 42,
 				Spec: &client.AzureEnvSpecFragment{
 					Cidr:                  "10.0.0.0/16",
 					Region:                "East US",
@@ -1117,6 +1262,10 @@ func TestAzureEnvResourceModel_toModel(t *testing.T) {
 					t.Errorf("LoadBalancingStrategy: expected 'ROUND_ROBIN', got '%s'", model.LoadBalancingStrategy.ValueString())
 				}
 
+				if model.SpecRevision.ValueInt64() != 42 {
+					t.Errorf("SpecRevision: expected 42, got %d", model.SpecRevision.ValueInt64())
+				}
+
 				var zones []string
 				model.Zones.ElementsAs(context.TODO(), &zones, false)
 				if len(zones) != 3 {
@@ -1136,12 +1285,18 @@ func TestAzureEnvResourceModel_toModel(t *testing.T) {
 				if model.MaintenanceWindows[0].Name.ValueString() != "weekly-maintenance" {
 					t.Errorf("Maintenance window name: expected 'weekly-maintenance', got '%s'", model.MaintenanceWindows[0].Name.ValueString())
 				}
+				if !model.MaintenanceWindows[0].Enabled.ValueBool() {
+					t.Errorf("Maintenance window enabled: expected true, got %v", model.MaintenanceWindows[0].Enabled.ValueBool())
+				}
 
 				if len(model.Tags) != 2 {
 					t.Errorf("Tags count: expected 2, got %d", len(model.Tags))
 				}
 				if model.Tags[0].Key.ValueString() != "Environment" {
 					t.Errorf("First tag key: expected 'Environment', got '%s'", model.Tags[0].Key.ValueString())
+				}
+				if model.Tags[0].Value.ValueString() != "production" {
+					t.Errorf("First tag value: expected 'production', got '%s'", model.Tags[0].Value.ValueString())
 				}
 
 				if model.LoadBalancers == nil {
@@ -1159,6 +1314,15 @@ func TestAzureEnvResourceModel_toModel(t *testing.T) {
 				}
 				if len(model.PrivateLinkService.AllowedSubscriptions) != 3 {
 					t.Errorf("PrivateLinkService allowed subscriptions count: expected 3, got %d", len(model.PrivateLinkService.AllowedSubscriptions))
+				}
+				if model.PrivateLinkService.AllowedSubscriptions[0].ValueString() != "sub-123" {
+					t.Errorf("PrivateLinkService first subscription: expected 'sub-123', got '%s'", model.PrivateLinkService.AllowedSubscriptions[0].ValueString())
+				}
+				if model.PrivateLinkService.AllowedSubscriptions[1].ValueString() != "sub-456" {
+					t.Errorf("PrivateLinkService second subscription: expected 'sub-456', got '%s'", model.PrivateLinkService.AllowedSubscriptions[1].ValueString())
+				}
+				if model.PrivateLinkService.AllowedSubscriptions[2].ValueString() != "sub-789" {
+					t.Errorf("PrivateLinkService third subscription: expected 'sub-789', got '%s'", model.PrivateLinkService.AllowedSubscriptions[2].ValueString())
 				}
 
 				if model.MetricsEndpoint == nil {

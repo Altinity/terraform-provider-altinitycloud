@@ -349,6 +349,14 @@ func TestLoadBalancersToSDK(t *testing.T) {
 				},
 			},
 		},
+		{
+			name:  "Both public and internal nil",
+			input: &LoadBalancersModel{},
+			expected: &sdk.GCPEnvLoadBalancersSpecInput{
+				Public:   nil,
+				Internal: nil,
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -566,6 +574,56 @@ func TestNodeGroupsToSDK(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "Node group with null zones",
+			input: []common.NodeGroupsModel{
+				{
+					Name:            types.StringValue("null-zones-group"),
+					NodeType:        types.StringValue("system"),
+					CapacityPerZone: types.Int64Value(1),
+					Zones:           types.ListNull(types.StringType),
+					Reservations:    types.SetValueMust(types.StringType, []attr.Value{}),
+				},
+			},
+			expected: []struct {
+				name            string
+				nodeType        string
+				capacityPerZone int64
+				zonesCount      int
+			}{
+				{
+					name:            "null-zones-group",
+					nodeType:        "system",
+					capacityPerZone: 1,
+					zonesCount:      0,
+				},
+			},
+		},
+		{
+			name: "Node group with reservations populated",
+			input: []common.NodeGroupsModel{
+				{
+					Name:            types.StringValue("reserved-group"),
+					NodeType:        types.StringValue("user"),
+					CapacityPerZone: types.Int64Value(3),
+					Zones:           types.ListValueMust(types.StringType, []attr.Value{types.StringValue("us-central1-a")}),
+					Reservations:    types.SetValueMust(types.StringType, []attr.Value{types.StringValue("CLICKHOUSE")}),
+				},
+			},
+			expected: []struct {
+				name            string
+				nodeType        string
+				capacityPerZone int64
+				zonesCount      int
+			}{
+				{
+					name:            "reserved-group",
+					nodeType:        "user",
+					capacityPerZone: 3,
+					zonesCount:      1,
+				},
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -603,10 +661,11 @@ func TestNodeGroupsToModel(t *testing.T) {
 		name     string
 		input    []*sdk.GCPEnvSpecFragment_NodeGroups
 		expected []struct {
-			name            string
-			nodeType        string
-			capacityPerZone int64
-			zonesCount      int
+			name              string
+			nodeType          string
+			capacityPerZone   int64
+			zonesCount        int
+			reservationsCount int
 		}
 	}{
 		{
@@ -626,10 +685,11 @@ func TestNodeGroupsToModel(t *testing.T) {
 				},
 			},
 			expected: []struct {
-				name            string
-				nodeType        string
-				capacityPerZone int64
-				zonesCount      int
+				name              string
+				nodeType          string
+				capacityPerZone   int64
+				zonesCount        int
+				reservationsCount int
 			}{
 				{
 					name:            "system-group",
@@ -649,10 +709,11 @@ func TestNodeGroupsToModel(t *testing.T) {
 			name:  "Empty input",
 			input: []*sdk.GCPEnvSpecFragment_NodeGroups{},
 			expected: []struct {
-				name            string
-				nodeType        string
-				capacityPerZone int64
-				zonesCount      int
+				name              string
+				nodeType          string
+				capacityPerZone   int64
+				zonesCount        int
+				reservationsCount int
 			}{},
 		},
 		{
@@ -666,16 +727,44 @@ func TestNodeGroupsToModel(t *testing.T) {
 				},
 			},
 			expected: []struct {
-				name            string
-				nodeType        string
-				capacityPerZone int64
-				zonesCount      int
+				name              string
+				nodeType          string
+				capacityPerZone   int64
+				zonesCount        int
+				reservationsCount int
 			}{
 				{
 					name:            "logging",
 					nodeType:        "logging",
 					capacityPerZone: 2,
 					zonesCount:      2,
+				},
+			},
+		},
+		{
+			name: "Node group with reservations populated",
+			input: []*sdk.GCPEnvSpecFragment_NodeGroups{
+				{
+					Name:            "reserved-group",
+					NodeType:        "user",
+					CapacityPerZone: 4,
+					Zones:           []string{"us-central1-a"},
+					Reservations:    []sdk.NodeReservation{sdk.NodeReservationClickhouse, sdk.NodeReservationZookeeper},
+				},
+			},
+			expected: []struct {
+				name              string
+				nodeType          string
+				capacityPerZone   int64
+				zonesCount        int
+				reservationsCount int
+			}{
+				{
+					name:              "reserved-group",
+					nodeType:          "user",
+					capacityPerZone:   4,
+					zonesCount:        1,
+					reservationsCount: 2,
 				},
 			},
 		},
@@ -708,6 +797,14 @@ func TestNodeGroupsToModel(t *testing.T) {
 				result[i].Zones.ElementsAs(context.TODO(), &zones, false)
 				if len(zones) != expected.zonesCount {
 					t.Errorf("Node group %d Zones count: expected %d, got %d", i, expected.zonesCount, len(zones))
+				}
+
+				if expected.reservationsCount > 0 {
+					var reservations []string
+					result[i].Reservations.ElementsAs(context.TODO(), &reservations, false)
+					if len(reservations) != expected.reservationsCount {
+						t.Errorf("Node group %d Reservations count: expected %d, got %d", i, expected.reservationsCount, len(reservations))
+					}
 				}
 			}
 		})
@@ -744,6 +841,17 @@ func TestMetricsEndpointToSDK(t *testing.T) {
 			},
 			expected: &sdk.MetricsEndpointSpecInput{
 				Enabled:        &[]bool{false}[0],
+				SourceIPRanges: nil,
+			},
+		},
+		{
+			name: "Metrics endpoint enabled with nil source IP ranges",
+			input: &MetricsEndpointModel{
+				Enabled:        types.BoolValue(true),
+				SourceIPRanges: nil,
+			},
+			expected: &sdk.MetricsEndpointSpecInput{
+				Enabled:        &[]bool{true}[0],
 				SourceIPRanges: nil,
 			},
 		},
@@ -930,6 +1038,12 @@ func TestGCPEnvResourceModel_toSDK(t *testing.T) {
 				if *create.Spec.MetricsEndpoint.Enabled != true {
 					t.Errorf("Create MetricsEndpoint enabled: expected true, got %v", *create.Spec.MetricsEndpoint.Enabled)
 				}
+				if create.Spec.LoadBalancingStrategy == nil {
+					t.Fatal("Create LoadBalancingStrategy should not be nil")
+				}
+				if *create.Spec.LoadBalancingStrategy != sdk.LoadBalancingStrategy("round_robin") {
+					t.Errorf("Create LoadBalancingStrategy: expected 'round_robin', got '%s'", *create.Spec.LoadBalancingStrategy)
+				}
 
 				if update.Name != "test-gcp-env" {
 					t.Errorf("Update name: expected 'test-gcp-env', got '%s'", update.Name)
@@ -939,6 +1053,12 @@ func TestGCPEnvResourceModel_toSDK(t *testing.T) {
 				}
 				if *update.Spec.CustomDomain != "custom.gcp.example.com" {
 					t.Errorf("Update custom domain: expected 'custom.gcp.example.com', got '%s'", *update.Spec.CustomDomain)
+				}
+				if update.Spec.LoadBalancingStrategy == nil {
+					t.Fatal("Update LoadBalancingStrategy should not be nil")
+				}
+				if *update.Spec.LoadBalancingStrategy != sdk.LoadBalancingStrategy("round_robin") {
+					t.Errorf("Update LoadBalancingStrategy: expected 'round_robin', got '%s'", *update.Spec.LoadBalancingStrategy)
 				}
 			},
 		},
@@ -1025,7 +1145,8 @@ func TestGCPEnvResourceModel_toModel(t *testing.T) {
 		{
 			name: "Complete SDK response with all fields",
 			input: sdk.GetGCPEnv_GCPEnv{
-				Name: "test-gcp-environment",
+				Name:         "test-gcp-environment",
+				SpecRevision: 42,
 				Spec: &sdk.GCPEnvSpecFragment{
 					Cidr:                  "10.0.0.0/16",
 					Region:                "us-central1",
@@ -1152,6 +1273,22 @@ func TestGCPEnvResourceModel_toModel(t *testing.T) {
 				}
 				if len(model.MetricsEndpoint.SourceIPRanges) != 2 {
 					t.Errorf("MetricsEndpoint source IP ranges: expected 2, got %d", len(model.MetricsEndpoint.SourceIPRanges))
+				}
+
+				if model.SpecRevision.ValueInt64() != 42 {
+					t.Errorf("SpecRevision: expected 42, got %d", model.SpecRevision.ValueInt64())
+				}
+
+				if !model.MaintenanceWindows[0].Enabled.ValueBool() {
+					t.Errorf("MaintenanceWindows[0].Enabled: expected true, got %v", model.MaintenanceWindows[0].Enabled.ValueBool())
+				}
+
+				if model.PeeringConnections[0].ProjectID.ValueString() != "peer-project-123" {
+					t.Errorf("PeeringConnections[0].ProjectID: expected 'peer-project-123', got '%s'", model.PeeringConnections[0].ProjectID.ValueString())
+				}
+
+				if model.LoadBalancingStrategy.ValueString() != "ROUND_ROBIN" {
+					t.Errorf("LoadBalancingStrategy: expected 'ROUND_ROBIN', got '%s'", model.LoadBalancingStrategy.ValueString())
 				}
 			},
 		},

@@ -311,6 +311,7 @@ func TestLoadBalancersToSDK(t *testing.T) {
 					SourceIPRanges:                   []types.String{types.StringValue("10.0.0.0/8")},
 					CrossZone:                        types.BoolValue(true),
 					EndpointServiceAllowedPrincipals: []types.String{types.StringValue("arn:aws:iam::123456789012:root")},
+					EndpointServiceSupportedRegions:  []types.String{types.StringValue("us-east-1"), types.StringValue("us-west-2")},
 				},
 			},
 			expected: &sdk.AWSEnvLoadBalancersSpecInput{
@@ -324,6 +325,7 @@ func TestLoadBalancersToSDK(t *testing.T) {
 					SourceIPRanges:                   []string{"10.0.0.0/8"},
 					CrossZone:                        &[]bool{true}[0],
 					EndpointServiceAllowedPrincipals: []string{"arn:aws:iam::123456789012:root"},
+					EndpointServiceSupportedRegions:  []string{"us-east-1", "us-west-2"},
 				},
 			},
 		},
@@ -341,6 +343,17 @@ func TestLoadBalancersToSDK(t *testing.T) {
 					SourceIPRanges: []string{},
 					CrossZone:      &[]bool{true}[0],
 				},
+			},
+		},
+		{
+			name: "Both public and internal nil",
+			input: &LoadBalancersModel{
+				Public:   nil,
+				Internal: nil,
+			},
+			expected: &sdk.AWSEnvLoadBalancersSpecInput{
+				Public:   nil,
+				Internal: nil,
 			},
 		},
 		{
@@ -398,6 +411,12 @@ func TestLoadBalancersToSDK(t *testing.T) {
 					if *tt.expected.Internal.CrossZone != *result.Internal.CrossZone {
 						t.Errorf("Internal CrossZone mismatch: expected %v, got %v", *tt.expected.Internal.CrossZone, *result.Internal.CrossZone)
 					}
+					if len(tt.expected.Internal.EndpointServiceAllowedPrincipals) != len(result.Internal.EndpointServiceAllowedPrincipals) {
+						t.Errorf("Internal AllowedPrincipals count: expected %d, got %d", len(tt.expected.Internal.EndpointServiceAllowedPrincipals), len(result.Internal.EndpointServiceAllowedPrincipals))
+					}
+					if len(tt.expected.Internal.EndpointServiceSupportedRegions) != len(result.Internal.EndpointServiceSupportedRegions) {
+						t.Errorf("Internal SupportedRegions count: expected %d, got %d", len(tt.expected.Internal.EndpointServiceSupportedRegions), len(result.Internal.EndpointServiceSupportedRegions))
+					}
 				}
 			}
 		})
@@ -409,13 +428,14 @@ func TestLoadBalancersToModel(t *testing.T) {
 		name     string
 		input    sdk.AWSEnvSpecFragment_LoadBalancers
 		expected struct {
-			publicEnabled           bool
-			publicCrossZone         bool
-			publicSourceIPCount     int
-			internalEnabled         bool
-			internalCrossZone       bool
-			internalSourceIPCount   int
-			endpointPrincipalsCount int
+			publicEnabled                 bool
+			publicCrossZone               bool
+			publicSourceIPCount           int
+			internalEnabled               bool
+			internalCrossZone             bool
+			internalSourceIPCount         int
+			endpointPrincipalsCount       int
+			endpointSupportedRegionsCount int
 		}
 	}{
 		{
@@ -431,24 +451,27 @@ func TestLoadBalancersToModel(t *testing.T) {
 					SourceIPRanges:                   []string{"10.0.0.0/8"},
 					CrossZone:                        true,
 					EndpointServiceAllowedPrincipals: []string{"arn:aws:iam::123456789012:root", "arn:aws:iam::987654321098:root"},
+					EndpointServiceSupportedRegions:  []string{"us-east-1", "eu-west-1"},
 				},
 			},
 			expected: struct {
-				publicEnabled           bool
-				publicCrossZone         bool
-				publicSourceIPCount     int
-				internalEnabled         bool
-				internalCrossZone       bool
-				internalSourceIPCount   int
-				endpointPrincipalsCount int
+				publicEnabled                 bool
+				publicCrossZone               bool
+				publicSourceIPCount           int
+				internalEnabled               bool
+				internalCrossZone             bool
+				internalSourceIPCount         int
+				endpointPrincipalsCount       int
+				endpointSupportedRegionsCount int
 			}{
-				publicEnabled:           true,
-				publicCrossZone:         false,
-				publicSourceIPCount:     2,
-				internalEnabled:         true,
-				internalCrossZone:       true,
-				internalSourceIPCount:   1,
-				endpointPrincipalsCount: 2,
+				publicEnabled:                 true,
+				publicCrossZone:               false,
+				publicSourceIPCount:           2,
+				internalEnabled:               true,
+				internalCrossZone:             true,
+				internalSourceIPCount:         1,
+				endpointPrincipalsCount:       2,
+				endpointSupportedRegionsCount: 2,
 			},
 		},
 		{
@@ -464,24 +487,27 @@ func TestLoadBalancersToModel(t *testing.T) {
 					SourceIPRanges:                   []string{},
 					CrossZone:                        false,
 					EndpointServiceAllowedPrincipals: []string{},
+					EndpointServiceSupportedRegions:  []string{},
 				},
 			},
 			expected: struct {
-				publicEnabled           bool
-				publicCrossZone         bool
-				publicSourceIPCount     int
-				internalEnabled         bool
-				internalCrossZone       bool
-				internalSourceIPCount   int
-				endpointPrincipalsCount int
+				publicEnabled                 bool
+				publicCrossZone               bool
+				publicSourceIPCount           int
+				internalEnabled               bool
+				internalCrossZone             bool
+				internalSourceIPCount         int
+				endpointPrincipalsCount       int
+				endpointSupportedRegionsCount int
 			}{
-				publicEnabled:           false,
-				publicCrossZone:         true,
-				publicSourceIPCount:     0,
-				internalEnabled:         false,
-				internalCrossZone:       false,
-				internalSourceIPCount:   0,
-				endpointPrincipalsCount: 0,
+				publicEnabled:                 false,
+				publicCrossZone:               true,
+				publicSourceIPCount:           0,
+				internalEnabled:               false,
+				internalCrossZone:             false,
+				internalSourceIPCount:         0,
+				endpointPrincipalsCount:       0,
+				endpointSupportedRegionsCount: 0,
 			},
 		},
 	}
@@ -525,6 +551,9 @@ func TestLoadBalancersToModel(t *testing.T) {
 			if len(result.Internal.EndpointServiceAllowedPrincipals) != tt.expected.endpointPrincipalsCount {
 				t.Errorf("EndpointServiceAllowedPrincipals count: expected %d, got %d", tt.expected.endpointPrincipalsCount, len(result.Internal.EndpointServiceAllowedPrincipals))
 			}
+			if len(result.Internal.EndpointServiceSupportedRegions) != tt.expected.endpointSupportedRegionsCount {
+				t.Errorf("EndpointServiceSupportedRegions count: expected %d, got %d", tt.expected.endpointSupportedRegionsCount, len(result.Internal.EndpointServiceSupportedRegions))
+			}
 		})
 	}
 }
@@ -534,10 +563,11 @@ func TestNodeGroupsToSDK(t *testing.T) {
 		name     string
 		input    []common.NodeGroupsModel
 		expected []struct {
-			name            string
-			nodeType        string
-			capacityPerZone int64
-			zonesCount      int
+			name              string
+			nodeType          string
+			capacityPerZone   int64
+			zonesCount        int
+			reservationsCount int
 		}
 	}{
 		{
@@ -548,33 +578,36 @@ func TestNodeGroupsToSDK(t *testing.T) {
 					NodeType:        types.StringValue("system"),
 					CapacityPerZone: types.Int64Value(2),
 					Zones:           types.ListValueMust(types.StringType, []attr.Value{types.StringValue("us-east-1a"), types.StringValue("us-east-1b")}),
-					Reservations:    types.SetValueMust(types.ObjectType{}, []attr.Value{}),
+					Reservations:    types.SetValueMust(types.StringType, []attr.Value{}),
 				},
 				{
 					Name:            types.StringValue("user-group"),
 					NodeType:        types.StringValue("user"),
 					CapacityPerZone: types.Int64Value(5),
 					Zones:           types.ListValueMust(types.StringType, []attr.Value{types.StringValue("us-east-1c")}),
-					Reservations:    types.SetValueMust(types.ObjectType{}, []attr.Value{}),
+					Reservations:    types.SetValueMust(types.StringType, []attr.Value{}),
 				},
 			},
 			expected: []struct {
-				name            string
-				nodeType        string
-				capacityPerZone int64
-				zonesCount      int
+				name              string
+				nodeType          string
+				capacityPerZone   int64
+				zonesCount        int
+				reservationsCount int
 			}{
 				{
-					name:            "system-group",
-					nodeType:        "system",
-					capacityPerZone: 2,
-					zonesCount:      2,
+					name:              "system-group",
+					nodeType:          "system",
+					capacityPerZone:   2,
+					zonesCount:        2,
+					reservationsCount: 0,
 				},
 				{
-					name:            "user-group",
-					nodeType:        "user",
-					capacityPerZone: 5,
-					zonesCount:      1,
+					name:              "user-group",
+					nodeType:          "user",
+					capacityPerZone:   5,
+					zonesCount:        1,
+					reservationsCount: 0,
 				},
 			},
 		},
@@ -582,10 +615,11 @@ func TestNodeGroupsToSDK(t *testing.T) {
 			name:  "Empty input",
 			input: []common.NodeGroupsModel{},
 			expected: []struct {
-				name            string
-				nodeType        string
-				capacityPerZone int64
-				zonesCount      int
+				name              string
+				nodeType          string
+				capacityPerZone   int64
+				zonesCount        int
+				reservationsCount int
 			}{},
 		},
 		{
@@ -596,20 +630,76 @@ func TestNodeGroupsToSDK(t *testing.T) {
 					NodeType:        types.StringValue("monitoring"),
 					CapacityPerZone: types.Int64Value(1),
 					Zones:           types.ListValueMust(types.StringType, []attr.Value{types.StringValue("us-east-1a")}),
-					Reservations:    types.SetValueMust(types.ObjectType{}, []attr.Value{}),
+					Reservations:    types.SetValueMust(types.StringType, []attr.Value{}),
 				},
 			},
 			expected: []struct {
-				name            string
-				nodeType        string
-				capacityPerZone int64
-				zonesCount      int
+				name              string
+				nodeType          string
+				capacityPerZone   int64
+				zonesCount        int
+				reservationsCount int
 			}{
 				{
-					name:            "monitoring",
-					nodeType:        "monitoring",
-					capacityPerZone: 1,
-					zonesCount:      1,
+					name:              "monitoring",
+					nodeType:          "monitoring",
+					capacityPerZone:   1,
+					zonesCount:        1,
+					reservationsCount: 0,
+				},
+			},
+		},
+		{
+			name: "Node group with null zones",
+			input: []common.NodeGroupsModel{
+				{
+					Name:            types.StringValue("system-null-zones"),
+					NodeType:        types.StringValue("system"),
+					CapacityPerZone: types.Int64Value(1),
+					Zones:           types.ListNull(types.StringType),
+					Reservations:    types.SetValueMust(types.StringType, []attr.Value{}),
+				},
+			},
+			expected: []struct {
+				name              string
+				nodeType          string
+				capacityPerZone   int64
+				zonesCount        int
+				reservationsCount int
+			}{
+				{
+					name:              "system-null-zones",
+					nodeType:          "system",
+					capacityPerZone:   1,
+					zonesCount:        0,
+					reservationsCount: 0,
+				},
+			},
+		},
+		{
+			name: "Node group with reservations",
+			input: []common.NodeGroupsModel{
+				{
+					Name:            types.StringValue("reserved-group"),
+					NodeType:        types.StringValue("system"),
+					CapacityPerZone: types.Int64Value(3),
+					Zones:           types.ListValueMust(types.StringType, []attr.Value{types.StringValue("us-east-1a")}),
+					Reservations:    types.SetValueMust(types.StringType, []attr.Value{types.StringValue("CLICKHOUSE"), types.StringValue("ZOOKEEPER")}),
+				},
+			},
+			expected: []struct {
+				name              string
+				nodeType          string
+				capacityPerZone   int64
+				zonesCount        int
+				reservationsCount int
+			}{
+				{
+					name:              "reserved-group",
+					nodeType:          "system",
+					capacityPerZone:   3,
+					zonesCount:        1,
+					reservationsCount: 2,
 				},
 			},
 		},
@@ -640,6 +730,9 @@ func TestNodeGroupsToSDK(t *testing.T) {
 				if len(result[i].Zones) != expected.zonesCount {
 					t.Errorf("Node group %d Zones count: expected %d, got %d", i, expected.zonesCount, len(result[i].Zones))
 				}
+				if len(result[i].Reservations) != expected.reservationsCount {
+					t.Errorf("Node group %d Reservations count: expected %d, got %d", i, expected.reservationsCount, len(result[i].Reservations))
+				}
 			}
 		})
 	}
@@ -650,10 +743,11 @@ func TestNodeGroupsToModel(t *testing.T) {
 		name     string
 		input    []*sdk.AWSEnvSpecFragment_NodeGroups
 		expected []struct {
-			name            string
-			nodeType        string
-			capacityPerZone int64
-			zonesCount      int
+			name              string
+			nodeType          string
+			capacityPerZone   int64
+			zonesCount        int
+			reservationsCount int
 		}
 	}{
 		{
@@ -673,22 +767,25 @@ func TestNodeGroupsToModel(t *testing.T) {
 				},
 			},
 			expected: []struct {
-				name            string
-				nodeType        string
-				capacityPerZone int64
-				zonesCount      int
+				name              string
+				nodeType          string
+				capacityPerZone   int64
+				zonesCount        int
+				reservationsCount int
 			}{
 				{
-					name:            "system-group",
-					nodeType:        "system",
-					capacityPerZone: 3,
-					zonesCount:      3,
+					name:              "system-group",
+					nodeType:          "system",
+					capacityPerZone:   3,
+					zonesCount:        3,
+					reservationsCount: 0,
 				},
 				{
-					name:            "user-group",
-					nodeType:        "user",
-					capacityPerZone: 10,
-					zonesCount:      1,
+					name:              "user-group",
+					nodeType:          "user",
+					capacityPerZone:   10,
+					zonesCount:        1,
+					reservationsCount: 0,
 				},
 			},
 		},
@@ -696,10 +793,11 @@ func TestNodeGroupsToModel(t *testing.T) {
 			name:  "Empty input",
 			input: []*sdk.AWSEnvSpecFragment_NodeGroups{},
 			expected: []struct {
-				name            string
-				nodeType        string
-				capacityPerZone int64
-				zonesCount      int
+				name              string
+				nodeType          string
+				capacityPerZone   int64
+				zonesCount        int
+				reservationsCount int
 			}{},
 		},
 		{
@@ -713,16 +811,45 @@ func TestNodeGroupsToModel(t *testing.T) {
 				},
 			},
 			expected: []struct {
-				name            string
-				nodeType        string
-				capacityPerZone int64
-				zonesCount      int
+				name              string
+				nodeType          string
+				capacityPerZone   int64
+				zonesCount        int
+				reservationsCount int
 			}{
 				{
-					name:            "logging",
-					nodeType:        "logging",
-					capacityPerZone: 2,
-					zonesCount:      2,
+					name:              "logging",
+					nodeType:          "logging",
+					capacityPerZone:   2,
+					zonesCount:        2,
+					reservationsCount: 0,
+				},
+			},
+		},
+		{
+			name: "Node groups with reservations",
+			input: []*sdk.AWSEnvSpecFragment_NodeGroups{
+				{
+					Name:            "reserved-group",
+					NodeType:        "system",
+					CapacityPerZone: 2,
+					Zones:           []string{"us-east-1a"},
+					Reservations:    []sdk.NodeReservation{sdk.NodeReservationClickhouse, sdk.NodeReservationZookeeper},
+				},
+			},
+			expected: []struct {
+				name              string
+				nodeType          string
+				capacityPerZone   int64
+				zonesCount        int
+				reservationsCount int
+			}{
+				{
+					name:              "reserved-group",
+					nodeType:          "system",
+					capacityPerZone:   2,
+					zonesCount:        1,
+					reservationsCount: 2,
 				},
 			},
 		},
@@ -755,6 +882,12 @@ func TestNodeGroupsToModel(t *testing.T) {
 				result[i].Zones.ElementsAs(context.TODO(), &zones, false)
 				if len(zones) != expected.zonesCount {
 					t.Errorf("Node group %d Zones count: expected %d, got %d", i, expected.zonesCount, len(zones))
+				}
+
+				var reservations []string
+				result[i].Reservations.ElementsAs(context.TODO(), &reservations, false)
+				if len(reservations) != expected.reservationsCount {
+					t.Errorf("Node group %d Reservations count: expected %d, got %d", i, expected.reservationsCount, len(reservations))
 				}
 			}
 		})
@@ -878,6 +1011,14 @@ func TestAWSEnvResourceModel_toSDK(t *testing.T) {
 				}
 				if *update.Spec.CustomDomain != "custom.example.com" {
 					t.Errorf("Update custom domain: expected 'custom.example.com', got '%s'", *update.Spec.CustomDomain)
+				}
+
+				// Validate LoadBalancingStrategy
+				if create.Spec.LoadBalancingStrategy == nil || string(*create.Spec.LoadBalancingStrategy) != "round_robin" {
+					t.Errorf("Create LoadBalancingStrategy: expected 'round_robin', got '%v'", create.Spec.LoadBalancingStrategy)
+				}
+				if update.Spec.LoadBalancingStrategy == nil || string(*update.Spec.LoadBalancingStrategy) != "round_robin" {
+					t.Errorf("Update LoadBalancingStrategy: expected 'round_robin', got '%v'", update.Spec.LoadBalancingStrategy)
 				}
 			},
 		},
@@ -1307,6 +1448,52 @@ func TestAWSEnvResourceModel_toModel(t *testing.T) {
 				}
 				if !model.LoadBalancers.Public.Enabled.ValueBool() {
 					t.Errorf("Public load balancer enabled: expected true, got %v", model.LoadBalancers.Public.Enabled.ValueBool())
+				}
+
+				// Validate Endpoints[0].PrivateDNS
+				if len(model.Endpoints) > 0 {
+					if model.Endpoints[0].Alias.ValueString() != "s3-endpoint" {
+						t.Errorf("Endpoint alias: expected 's3-endpoint', got '%s'", model.Endpoints[0].Alias.ValueString())
+					}
+					if !model.Endpoints[0].PrivateDNS.ValueBool() {
+						t.Errorf("Endpoint PrivateDNS: expected true, got %v", model.Endpoints[0].PrivateDNS.ValueBool())
+					}
+				}
+
+				// Validate PeeringConnections optional fields
+				if len(model.PeeringConnections) > 0 {
+					if model.PeeringConnections[0].AWSAccountID.ValueString() != "987654321098" {
+						t.Errorf("PeeringConnection AWSAccountID: expected '987654321098', got '%s'", model.PeeringConnections[0].AWSAccountID.ValueString())
+					}
+					if model.PeeringConnections[0].VpcRegion.ValueString() != "us-west-2" {
+						t.Errorf("PeeringConnection VpcRegion: expected 'us-west-2', got '%s'", model.PeeringConnections[0].VpcRegion.ValueString())
+					}
+				}
+
+				// Validate Tags values (not just count)
+				if len(model.Tags) > 0 {
+					if model.Tags[0].Value.ValueString() != "production" {
+						t.Errorf("First tag value: expected 'production', got '%s'", model.Tags[0].Value.ValueString())
+					}
+				}
+
+				// Validate LoadBalancers Internal details
+				if model.LoadBalancers != nil && model.LoadBalancers.Internal != nil {
+					if len(model.LoadBalancers.Internal.EndpointServiceAllowedPrincipals) != 1 {
+						t.Errorf("Internal EndpointServiceAllowedPrincipals count: expected 1, got %d", len(model.LoadBalancers.Internal.EndpointServiceAllowedPrincipals))
+					}
+					if len(model.LoadBalancers.Internal.EndpointServiceAllowedPrincipals) > 0 {
+						if model.LoadBalancers.Internal.EndpointServiceAllowedPrincipals[0].ValueString() != "arn:aws:iam::123456789012:root" {
+							t.Errorf("Internal AllowedPrincipals[0]: expected 'arn:aws:iam::123456789012:root', got '%s'", model.LoadBalancers.Internal.EndpointServiceAllowedPrincipals[0].ValueString())
+						}
+					}
+				}
+
+				// Validate MaintenanceWindows.Enabled
+				if len(model.MaintenanceWindows) > 0 {
+					if !model.MaintenanceWindows[0].Enabled.ValueBool() {
+						t.Errorf("MaintenanceWindow Enabled: expected true, got %v", model.MaintenanceWindows[0].Enabled.ValueBool())
+					}
 				}
 			},
 		},
@@ -2140,6 +2327,151 @@ func TestMetricsEndpointToModel(t *testing.T) {
 					for i, expected := range tt.expected.SourceIPRanges {
 						if expected.ValueString() != result.SourceIPRanges[i].ValueString() {
 							t.Errorf("SourceIPRanges[%d] mismatch: expected '%s', got '%s'", i, expected.ValueString(), result.SourceIPRanges[i].ValueString())
+						}
+					}
+				}
+			}
+		})
+	}
+}
+
+func TestIcebergToUpdateSDK(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    *AWSEnvIcebergModel
+		expected *sdk.IcebergUpdateInputSpec
+	}{
+		{
+			name:     "Nil input",
+			input:    nil,
+			expected: nil,
+		},
+		{
+			name: "Complete iceberg config with S3 catalog",
+			input: &AWSEnvIcebergModel{
+				Catalogs: []AWSEnvIcebergCatalogModel{
+					{
+						Name:                   types.StringValue("my-catalog"),
+						Type:                   types.StringValue("S3"),
+						AnonymousAccessEnabled: types.BoolValue(false),
+						Maintenance: &AWSEnvIcebergCatalogMaintenanceModel{
+							Enabled: types.BoolValue(true),
+						},
+						Watches: []AWSEnvIcebergCatalogWatchModel{
+							{
+								Table:                        types.StringValue("my_table"),
+								PathsRelativeToTableLocation: []types.String{types.StringValue("data/"), types.StringValue("metadata/")},
+							},
+						},
+					},
+				},
+			},
+			expected: &sdk.IcebergUpdateInputSpec{
+				Catalogs: []*sdk.IcebergCatalogInputSpec{
+					{
+						Name:                   &[]string{"my-catalog"}[0],
+						Type:                   sdk.IcebergCatalogTypeSpecS3,
+						AnonymousAccessEnabled: &[]bool{false}[0],
+						Maintenance: &sdk.IcebergCatalogMaintenanceInputSpec{
+							Enabled: true,
+						},
+						Watches: []*sdk.IcebergCatalogWatchInputSpec{
+							{
+								Table:                        "my_table",
+								PathsRelativeToTableLocation: []string{"data/", "metadata/"},
+							},
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "Iceberg config with S3_TABLE catalog",
+			input: &AWSEnvIcebergModel{
+				Catalogs: []AWSEnvIcebergCatalogModel{
+					{
+						Type:                   types.StringValue("S3_TABLE"),
+						CustomS3TableBucketARN: types.StringValue("arn:aws:s3tables:us-east-1:123456789012:bucket/my-table-bucket"),
+						Maintenance: &AWSEnvIcebergCatalogMaintenanceModel{
+							Enabled: types.BoolValue(false),
+						},
+					},
+				},
+			},
+			expected: &sdk.IcebergUpdateInputSpec{
+				Catalogs: []*sdk.IcebergCatalogInputSpec{
+					{
+						Type:                   sdk.IcebergCatalogTypeSpecS3Table,
+						CustomS3TableBucketArn: &[]string{"arn:aws:s3tables:us-east-1:123456789012:bucket/my-table-bucket"}[0],
+						Maintenance: &sdk.IcebergCatalogMaintenanceInputSpec{
+							Enabled: false,
+						},
+					},
+				},
+			},
+		},
+		{
+			name: "Iceberg config with empty catalogs",
+			input: &AWSEnvIcebergModel{
+				Catalogs: []AWSEnvIcebergCatalogModel{},
+			},
+			expected: &sdk.IcebergUpdateInputSpec{
+				Catalogs: nil,
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := icebergToUpdateSDK(tt.input)
+
+			if (tt.expected == nil) != (result == nil) {
+				t.Errorf("Expected nil: %v, got nil: %v", tt.expected == nil, result == nil)
+				return
+			}
+
+			if tt.expected != nil && result != nil {
+				if len(tt.expected.Catalogs) != len(result.Catalogs) {
+					t.Errorf("Catalogs count mismatch: expected %d, got %d", len(tt.expected.Catalogs), len(result.Catalogs))
+					return
+				}
+
+				for i, expectedCatalog := range tt.expected.Catalogs {
+					resultCatalog := result.Catalogs[i]
+
+					if expectedCatalog.Type != resultCatalog.Type {
+						t.Errorf("Catalog %d type mismatch: expected '%s', got '%s'", i, expectedCatalog.Type, resultCatalog.Type)
+					}
+
+					if (expectedCatalog.Name == nil) != (resultCatalog.Name == nil) {
+						t.Errorf("Catalog %d Name presence mismatch", i)
+					} else if expectedCatalog.Name != nil && *expectedCatalog.Name != *resultCatalog.Name {
+						t.Errorf("Catalog %d name mismatch: expected '%s', got '%s'", i, *expectedCatalog.Name, *resultCatalog.Name)
+					}
+
+					if (expectedCatalog.AnonymousAccessEnabled == nil) != (resultCatalog.AnonymousAccessEnabled == nil) {
+						t.Errorf("Catalog %d AnonymousAccessEnabled presence mismatch", i)
+					} else if expectedCatalog.AnonymousAccessEnabled != nil && *expectedCatalog.AnonymousAccessEnabled != *resultCatalog.AnonymousAccessEnabled {
+						t.Errorf("Catalog %d AnonymousAccessEnabled mismatch: expected %v, got %v", i, *expectedCatalog.AnonymousAccessEnabled, *resultCatalog.AnonymousAccessEnabled)
+					}
+
+					if expectedCatalog.Maintenance != nil && resultCatalog.Maintenance != nil {
+						if expectedCatalog.Maintenance.Enabled != resultCatalog.Maintenance.Enabled {
+							t.Errorf("Catalog %d maintenance enabled mismatch: expected %v, got %v", i, expectedCatalog.Maintenance.Enabled, resultCatalog.Maintenance.Enabled)
+						}
+					}
+
+					if len(expectedCatalog.Watches) != len(resultCatalog.Watches) {
+						t.Errorf("Catalog %d watches count mismatch: expected %d, got %d", i, len(expectedCatalog.Watches), len(resultCatalog.Watches))
+					}
+					for j, expectedWatch := range expectedCatalog.Watches {
+						if j < len(resultCatalog.Watches) {
+							if expectedWatch.Table != resultCatalog.Watches[j].Table {
+								t.Errorf("Catalog %d watch %d table mismatch: expected '%s', got '%s'", i, j, expectedWatch.Table, resultCatalog.Watches[j].Table)
+							}
+							if len(expectedWatch.PathsRelativeToTableLocation) != len(resultCatalog.Watches[j].PathsRelativeToTableLocation) {
+								t.Errorf("Catalog %d watch %d paths count mismatch: expected %d, got %d", i, j, len(expectedWatch.PathsRelativeToTableLocation), len(resultCatalog.Watches[j].PathsRelativeToTableLocation))
+							}
 						}
 					}
 				}

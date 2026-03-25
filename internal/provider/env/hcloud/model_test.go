@@ -348,6 +348,14 @@ func TestLoadBalancersToSDK(t *testing.T) {
 				},
 			},
 		},
+		{
+			name:  "Both public and internal nil",
+			input: &LoadBalancersModel{},
+			expected: &client.HCloudEnvLoadBalancersSpecInput{
+				Public:   nil,
+				Internal: nil,
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -594,6 +602,68 @@ func TestNodeGroupsToSDK(t *testing.T) {
 			}
 		})
 	}
+
+	t.Run("Node group with null name", func(t *testing.T) {
+		input := []NodeGroupsModel{
+			{
+				Name:                types.StringNull(),
+				NodeType:            types.StringValue("system"),
+				CapacityPerLocation: types.Int64Value(1),
+				Locations:           types.ListValueMust(types.StringType, []attr.Value{types.StringValue("nbg1")}),
+				Reservations:        types.SetValueMust(types.StringType, []attr.Value{}),
+			},
+		}
+
+		result, diags := nodeGroupsToSDK(context.Background(), input)
+		if diags.HasError() {
+			t.Fatalf("unexpected diagnostics: %v", diags)
+		}
+
+		if len(result) != 1 {
+			t.Fatalf("Expected 1 node group, got %d", len(result))
+		}
+		if result[0].Name != nil {
+			t.Errorf("Expected nil Name for null input, got '%s'", *result[0].Name)
+		}
+		if result[0].NodeType != "system" {
+			t.Errorf("NodeType: expected 'system', got '%s'", result[0].NodeType)
+		}
+	})
+
+	t.Run("Node group with reservations populated", func(t *testing.T) {
+		input := []NodeGroupsModel{
+			{
+				Name:                types.StringValue("reserved-group"),
+				NodeType:            types.StringValue("system"),
+				CapacityPerLocation: types.Int64Value(3),
+				Locations:           types.ListValueMust(types.StringType, []attr.Value{types.StringValue("nbg1")}),
+				Reservations:        types.SetValueMust(types.StringType, []attr.Value{types.StringValue("CLICKHOUSE"), types.StringValue("ZOOKEEPER")}),
+			},
+		}
+
+		result, diags := nodeGroupsToSDK(context.Background(), input)
+		if diags.HasError() {
+			t.Fatalf("unexpected diagnostics: %v", diags)
+		}
+
+		if len(result) != 1 {
+			t.Fatalf("Expected 1 node group, got %d", len(result))
+		}
+		if len(result[0].Reservations) != 2 {
+			t.Errorf("Reservations count: expected 2, got %d", len(result[0].Reservations))
+		}
+
+		reservationSet := make(map[client.NodeReservation]bool)
+		for _, r := range result[0].Reservations {
+			reservationSet[r] = true
+		}
+		if !reservationSet[client.NodeReservationClickhouse] {
+			t.Errorf("Expected CLICKHOUSE reservation to be present")
+		}
+		if !reservationSet[client.NodeReservationZookeeper] {
+			t.Errorf("Expected ZOOKEEPER reservation to be present")
+		}
+	})
 }
 
 func TestNodeGroupsToModel(t *testing.T) {
@@ -710,6 +780,50 @@ func TestNodeGroupsToModel(t *testing.T) {
 			}
 		})
 	}
+
+	t.Run("Node group with reservations populated", func(t *testing.T) {
+		input := []*client.HCloudEnvSpecFragment_NodeGroups{
+			{
+				Name:                "reserved-group",
+				NodeType:            "system",
+				CapacityPerLocation: 2,
+				Locations:           []string{"nbg1"},
+				Reservations:        []client.NodeReservation{client.NodeReservationClickhouse, client.NodeReservationZookeeper, client.NodeReservationSystem},
+			},
+		}
+
+		result, diags := nodeGroupsToModel(input)
+		if diags.HasError() {
+			t.Fatalf("unexpected diagnostics: %v", diags)
+		}
+
+		if len(result) != 1 {
+			t.Fatalf("Expected 1 node group, got %d", len(result))
+		}
+		if result[0].Name.ValueString() != "reserved-group" {
+			t.Errorf("Name: expected 'reserved-group', got '%s'", result[0].Name.ValueString())
+		}
+
+		var reservations []string
+		result[0].Reservations.ElementsAs(context.TODO(), &reservations, false)
+		if len(reservations) != 3 {
+			t.Errorf("Reservations count: expected 3, got %d", len(reservations))
+		}
+
+		reservationSet := make(map[string]bool)
+		for _, r := range reservations {
+			reservationSet[r] = true
+		}
+		if !reservationSet["CLICKHOUSE"] {
+			t.Errorf("Expected CLICKHOUSE reservation to be present")
+		}
+		if !reservationSet["ZOOKEEPER"] {
+			t.Errorf("Expected ZOOKEEPER reservation to be present")
+		}
+		if !reservationSet["SYSTEM"] {
+			t.Errorf("Expected SYSTEM reservation to be present")
+		}
+	})
 }
 
 func TestWireguardPeersToSDK(t *testing.T) {
@@ -780,6 +894,27 @@ func TestWireguardPeersToSDK(t *testing.T) {
 					publicKey:      "singlekey==",
 					allowedIPCount: 1,
 					endpoint:       "192.168.1.1:51820",
+				},
+			},
+		},
+		{
+			name: "Wireguard peer with null AllowedIPs",
+			input: []WireguardPeers{
+				{
+					PublicKey:  types.StringValue("nullkey=="),
+					AllowedIPs: types.ListNull(types.StringType),
+					Endpoint:   types.StringValue("10.0.0.1:51820"),
+				},
+			},
+			expected: []struct {
+				publicKey      string
+				allowedIPCount int
+				endpoint       string
+			}{
+				{
+					publicKey:      "nullkey==",
+					allowedIPCount: 0,
+					endpoint:       "10.0.0.1:51820",
 				},
 			},
 		},
@@ -945,6 +1080,17 @@ func TestMetricsEndpointToSDK(t *testing.T) {
 			},
 			expected: &client.MetricsEndpointSpecInput{
 				Enabled:        &[]bool{false}[0],
+				SourceIPRanges: nil,
+			},
+		},
+		{
+			name: "Metrics endpoint with nil source IP ranges",
+			input: &MetricsEndpointModel{
+				Enabled:        types.BoolValue(true),
+				SourceIPRanges: nil,
+			},
+			expected: &client.MetricsEndpointSpecInput{
+				Enabled:        &[]bool{true}[0],
 				SourceIPRanges: nil,
 			},
 		},
@@ -1127,6 +1273,12 @@ func TestHCloudEnvResourceModel_toSDK(t *testing.T) {
 				if *create.Spec.MetricsEndpoint.Enabled != true {
 					t.Errorf("Create MetricsEndpoint enabled: expected true, got %v", *create.Spec.MetricsEndpoint.Enabled)
 				}
+				if create.Spec.LoadBalancingStrategy == nil {
+					t.Fatal("Create LoadBalancingStrategy should not be nil")
+				}
+				if string(*create.Spec.LoadBalancingStrategy) != "round_robin" {
+					t.Errorf("Create LoadBalancingStrategy: expected 'round_robin', got '%s'", *create.Spec.LoadBalancingStrategy)
+				}
 
 				if update.Name != "test-hcloud-env" {
 					t.Errorf("Update name: expected 'test-hcloud-env', got '%s'", update.Name)
@@ -1136,6 +1288,12 @@ func TestHCloudEnvResourceModel_toSDK(t *testing.T) {
 				}
 				if *update.Spec.CustomDomain != "custom.hcloud.example.com" {
 					t.Errorf("Update custom domain: expected 'custom.hcloud.example.com', got '%s'", *update.Spec.CustomDomain)
+				}
+				if update.Spec.LoadBalancingStrategy == nil {
+					t.Fatal("Update LoadBalancingStrategy should not be nil")
+				}
+				if string(*update.Spec.LoadBalancingStrategy) != "round_robin" {
+					t.Errorf("Update LoadBalancingStrategy: expected 'round_robin', got '%s'", *update.Spec.LoadBalancingStrategy)
 				}
 			},
 		},
@@ -1218,7 +1376,8 @@ func TestHCloudEnvResourceModel_toModel(t *testing.T) {
 		{
 			name: "Complete SDK response with all fields",
 			input: client.GetHCloudEnv_HcloudEnv{
-				Name: "test-hcloud-environment",
+				Name:         "test-hcloud-environment",
+				SpecRevision: 42,
 				Spec: &client.HCloudEnvSpecFragment{
 					Cidr:                  "10.0.0.0/16",
 					NetworkZone:           "eu-central",
@@ -1325,6 +1484,18 @@ func TestHCloudEnvResourceModel_toModel(t *testing.T) {
 				}
 				if len(model.MetricsEndpoint.SourceIPRanges) != 2 {
 					t.Errorf("MetricsEndpoint source IP ranges: expected 2, got %d", len(model.MetricsEndpoint.SourceIPRanges))
+				}
+
+				if model.SpecRevision.ValueInt64() != 42 {
+					t.Errorf("SpecRevision: expected 42, got %d", model.SpecRevision.ValueInt64())
+				}
+
+				if !model.MaintenanceWindows[0].Enabled.ValueBool() {
+					t.Errorf("MaintenanceWindows[0].Enabled: expected true, got %v", model.MaintenanceWindows[0].Enabled.ValueBool())
+				}
+
+				if model.LoadBalancingStrategy.ValueString() != "ROUND_ROBIN" {
+					t.Errorf("LoadBalancingStrategy: expected 'ROUND_ROBIN', got '%s'", model.LoadBalancingStrategy.ValueString())
 				}
 
 				if model.LoadBalancers == nil {

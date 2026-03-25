@@ -559,6 +559,14 @@ func TestLoadBalancersToSDK(t *testing.T) {
 				},
 			},
 		},
+		{
+			name:  "Both public and internal nil",
+			input: &LoadBalancersModel{},
+			expected: &client.K8SEnvLoadBalancersSpecInput{
+				Public:   nil,
+				Internal: nil,
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -728,12 +736,13 @@ func TestNodeGroupsToSDK(t *testing.T) {
 		name     string
 		input    []NodeGroupsModel
 		expected []struct {
-			name             string
-			nodeType         string
-			capacityPerZone  int64
-			zonesCount       int
-			tolerationsCount int
-			selectorCount    int
+			name              string
+			nodeType          string
+			capacityPerZone   int64
+			zonesCount        int
+			tolerationsCount  int
+			selectorCount     int
+			reservationsCount int
 		}
 	}{
 		{
@@ -768,28 +777,31 @@ func TestNodeGroupsToSDK(t *testing.T) {
 				},
 			},
 			expected: []struct {
-				name             string
-				nodeType         string
-				capacityPerZone  int64
-				zonesCount       int
-				tolerationsCount int
-				selectorCount    int
+				name              string
+				nodeType          string
+				capacityPerZone   int64
+				zonesCount        int
+				tolerationsCount  int
+				selectorCount     int
+				reservationsCount int
 			}{
 				{
-					name:             "system-group",
-					nodeType:         "system",
-					capacityPerZone:  2,
-					zonesCount:       2,
-					tolerationsCount: 1,
-					selectorCount:    1,
+					name:              "system-group",
+					nodeType:          "system",
+					capacityPerZone:   2,
+					zonesCount:        2,
+					tolerationsCount:  1,
+					selectorCount:     1,
+					reservationsCount: 0,
 				},
 				{
-					name:             "user-group",
-					nodeType:         "user",
-					capacityPerZone:  5,
-					zonesCount:       1,
-					tolerationsCount: 0,
-					selectorCount:    0,
+					name:              "user-group",
+					nodeType:          "user",
+					capacityPerZone:   5,
+					zonesCount:        1,
+					tolerationsCount:  0,
+					selectorCount:     0,
+					reservationsCount: 0,
 				},
 			},
 		},
@@ -797,12 +809,13 @@ func TestNodeGroupsToSDK(t *testing.T) {
 			name:  "Empty input",
 			input: []NodeGroupsModel{},
 			expected: []struct {
-				name             string
-				nodeType         string
-				capacityPerZone  int64
-				zonesCount       int
-				tolerationsCount int
-				selectorCount    int
+				name              string
+				nodeType          string
+				capacityPerZone   int64
+				zonesCount        int
+				tolerationsCount  int
+				selectorCount     int
+				reservationsCount int
 			}{},
 		},
 		{
@@ -835,20 +848,124 @@ func TestNodeGroupsToSDK(t *testing.T) {
 				},
 			},
 			expected: []struct {
-				name             string
-				nodeType         string
-				capacityPerZone  int64
-				zonesCount       int
-				tolerationsCount int
-				selectorCount    int
+				name              string
+				nodeType          string
+				capacityPerZone   int64
+				zonesCount        int
+				tolerationsCount  int
+				selectorCount     int
+				reservationsCount int
 			}{
 				{
-					name:             "monitoring",
-					nodeType:         "monitoring",
-					capacityPerZone:  1,
-					zonesCount:       1,
-					tolerationsCount: 2,
-					selectorCount:    2,
+					name:              "monitoring",
+					nodeType:          "monitoring",
+					capacityPerZone:   1,
+					zonesCount:        1,
+					tolerationsCount:  2,
+					selectorCount:     2,
+					reservationsCount: 0,
+				},
+			},
+		},
+		{
+			name: "Node group with null zones",
+			input: []NodeGroupsModel{
+				{
+					Name:            types.StringValue("null-zones-group"),
+					NodeType:        types.StringValue("system"),
+					CapacityPerZone: types.Int64Value(1),
+					Zones:           types.ListNull(types.StringType),
+					Reservations:    types.SetValueMust(types.StringType, []attr.Value{}),
+					Tolerations:     []TolerationModel{},
+					NodeSelector:    []common.KeyValueModel{},
+				},
+			},
+			expected: []struct {
+				name              string
+				nodeType          string
+				capacityPerZone   int64
+				zonesCount        int
+				tolerationsCount  int
+				selectorCount     int
+				reservationsCount int
+			}{
+				{
+					name:              "null-zones-group",
+					nodeType:          "system",
+					capacityPerZone:   1,
+					zonesCount:        0,
+					tolerationsCount:  0,
+					selectorCount:     0,
+					reservationsCount: 0,
+				},
+			},
+		},
+		{
+			name: "Node group with empty name",
+			input: []NodeGroupsModel{
+				{
+					Name:            types.StringValue(""),
+					NodeType:        types.StringValue("user"),
+					CapacityPerZone: types.Int64Value(3),
+					Zones:           types.ListValueMust(types.StringType, []attr.Value{types.StringValue("eu-west-1a")}),
+					Reservations:    types.SetValueMust(types.StringType, []attr.Value{}),
+					Tolerations:     []TolerationModel{},
+					NodeSelector:    []common.KeyValueModel{},
+				},
+			},
+			expected: []struct {
+				name              string
+				nodeType          string
+				capacityPerZone   int64
+				zonesCount        int
+				tolerationsCount  int
+				selectorCount     int
+				reservationsCount int
+			}{
+				{
+					name:              "",
+					nodeType:          "user",
+					capacityPerZone:   3,
+					zonesCount:        1,
+					tolerationsCount:  0,
+					selectorCount:     0,
+					reservationsCount: 0,
+				},
+			},
+		},
+		{
+			name: "Node group with reservations populated",
+			input: []NodeGroupsModel{
+				{
+					Name:            types.StringValue("reserved-group"),
+					NodeType:        types.StringValue("system"),
+					CapacityPerZone: types.Int64Value(4),
+					Zones:           types.ListValueMust(types.StringType, []attr.Value{types.StringValue("us-west-2a")}),
+					Reservations: types.SetValueMust(types.StringType, []attr.Value{
+						types.StringValue(string(client.NodeReservationClickhouse)),
+						types.StringValue(string(client.NodeReservationZookeeper)),
+					}),
+					Tolerations:  []TolerationModel{},
+					NodeSelector: []common.KeyValueModel{},
+				},
+			},
+			expected: []struct {
+				name              string
+				nodeType          string
+				capacityPerZone   int64
+				zonesCount        int
+				tolerationsCount  int
+				selectorCount     int
+				reservationsCount int
+			}{
+				{
+					name:              "reserved-group",
+					nodeType:          "system",
+					capacityPerZone:   4,
+					zonesCount:        1,
+					tolerationsCount:  0,
+					selectorCount:     0,
+					reservationsCount: 2,
 				},
 			},
 		},
@@ -885,6 +1002,9 @@ func TestNodeGroupsToSDK(t *testing.T) {
 				if len(result[i].Selector) != expected.selectorCount {
 					t.Errorf("Node group %d Selector count: expected %d, got %d", i, expected.selectorCount, len(result[i].Selector))
 				}
+				if len(result[i].Reservations) != expected.reservationsCount {
+					t.Errorf("Node group %d Reservations count: expected %d, got %d", i, expected.reservationsCount, len(result[i].Reservations))
+				}
 			}
 		})
 	}
@@ -895,12 +1015,13 @@ func TestNodeGroupsToModel(t *testing.T) {
 		name     string
 		input    []*client.K8SEnvSpecFragment_NodeGroups
 		expected []struct {
-			name             string
-			nodeType         string
-			capacityPerZone  int64
-			zonesCount       int
-			tolerationsCount int
-			selectorCount    int
+			name              string
+			nodeType          string
+			capacityPerZone   int64
+			zonesCount        int
+			tolerationsCount  int
+			selectorCount     int
+			reservationsCount int
 		}
 	}{
 		{
@@ -922,6 +1043,7 @@ func TestNodeGroupsToModel(t *testing.T) {
 					Selector: []*client.K8SEnvSpecFragment_NodeGroups_Selector{
 						{Key: "node-type", Value: "system"},
 					},
+					Reservations: []client.NodeReservation{},
 				},
 				{
 					Name:            "user-group",
@@ -930,31 +1052,35 @@ func TestNodeGroupsToModel(t *testing.T) {
 					Zones:           []string{"us-west-1a"},
 					Tolerations:     []*client.K8SEnvSpecFragment_NodeGroups_Tolerations{},
 					Selector:        []*client.K8SEnvSpecFragment_NodeGroups_Selector{},
+					Reservations:    []client.NodeReservation{},
 				},
 			},
 			expected: []struct {
-				name             string
-				nodeType         string
-				capacityPerZone  int64
-				zonesCount       int
-				tolerationsCount int
-				selectorCount    int
+				name              string
+				nodeType          string
+				capacityPerZone   int64
+				zonesCount        int
+				tolerationsCount  int
+				selectorCount     int
+				reservationsCount int
 			}{
 				{
-					name:             "system-group",
-					nodeType:         "system",
-					capacityPerZone:  3,
-					zonesCount:       3,
-					tolerationsCount: 1,
-					selectorCount:    1,
+					name:              "system-group",
+					nodeType:          "system",
+					capacityPerZone:   3,
+					zonesCount:        3,
+					tolerationsCount:  1,
+					selectorCount:     1,
+					reservationsCount: 0,
 				},
 				{
-					name:             "user-group",
-					nodeType:         "user",
-					capacityPerZone:  10,
-					zonesCount:       1,
-					tolerationsCount: 0,
-					selectorCount:    0,
+					name:              "user-group",
+					nodeType:          "user",
+					capacityPerZone:   10,
+					zonesCount:        1,
+					tolerationsCount:  0,
+					selectorCount:     0,
+					reservationsCount: 0,
 				},
 			},
 		},
@@ -962,12 +1088,13 @@ func TestNodeGroupsToModel(t *testing.T) {
 			name:  "Empty input",
 			input: []*client.K8SEnvSpecFragment_NodeGroups{},
 			expected: []struct {
-				name             string
-				nodeType         string
-				capacityPerZone  int64
-				zonesCount       int
-				tolerationsCount int
-				selectorCount    int
+				name              string
+				nodeType          string
+				capacityPerZone   int64
+				zonesCount        int
+				tolerationsCount  int
+				selectorCount     int
+				reservationsCount int
 			}{},
 		},
 		{
@@ -996,23 +1123,63 @@ func TestNodeGroupsToModel(t *testing.T) {
 						{Key: "workload", Value: "logging"},
 						{Key: "tier", Value: "infrastructure"},
 					},
+					Reservations: []client.NodeReservation{},
 				},
 			},
 			expected: []struct {
-				name             string
-				nodeType         string
-				capacityPerZone  int64
-				zonesCount       int
-				tolerationsCount int
-				selectorCount    int
+				name              string
+				nodeType          string
+				capacityPerZone   int64
+				zonesCount        int
+				tolerationsCount  int
+				selectorCount     int
+				reservationsCount int
 			}{
 				{
-					name:             "logging",
-					nodeType:         "logging",
-					capacityPerZone:  2,
-					zonesCount:       2,
-					tolerationsCount: 2,
-					selectorCount:    2,
+					name:              "logging",
+					nodeType:          "logging",
+					capacityPerZone:   2,
+					zonesCount:        2,
+					tolerationsCount:  2,
+					selectorCount:     2,
+					reservationsCount: 0,
+				},
+			},
+		},
+		{
+			name: "Node group with reservations populated",
+			input: []*client.K8SEnvSpecFragment_NodeGroups{
+				{
+					Name:            "reserved-group",
+					NodeType:        "system",
+					CapacityPerZone: 3,
+					Zones:           []string{"us-west-2a"},
+					Tolerations:     []*client.K8SEnvSpecFragment_NodeGroups_Tolerations{},
+					Selector:        []*client.K8SEnvSpecFragment_NodeGroups_Selector{},
+					Reservations: []client.NodeReservation{
+						client.NodeReservationClickhouse,
+						client.NodeReservationZookeeper,
+						client.NodeReservationSystem,
+					},
+				},
+			},
+			expected: []struct {
+				name              string
+				nodeType          string
+				capacityPerZone   int64
+				zonesCount        int
+				tolerationsCount  int
+				selectorCount     int
+				reservationsCount int
+			}{
+				{
+					name:              "reserved-group",
+					nodeType:          "system",
+					capacityPerZone:   3,
+					zonesCount:        1,
+					tolerationsCount:  0,
+					selectorCount:     0,
+					reservationsCount: 3,
 				},
 			},
 		},
@@ -1053,6 +1220,13 @@ func TestNodeGroupsToModel(t *testing.T) {
 				}
 				if len(result[i].NodeSelector) != expected.selectorCount {
 					t.Errorf("Node group %d NodeSelector count: expected %d, got %d", i, expected.selectorCount, len(result[i].NodeSelector))
+				}
+
+				// Check reservations count by converting Set to slice
+				var reservations []string
+				result[i].Reservations.ElementsAs(context.TODO(), &reservations, false)
+				if len(reservations) != expected.reservationsCount {
+					t.Errorf("Node group %d Reservations count: expected %d, got %d", i, expected.reservationsCount, len(reservations))
 				}
 			}
 		})
@@ -1297,6 +1471,46 @@ func TestLogsToSDK(t *testing.T) {
 					Gcs: &client.K8SEnvSpecLogsStorageGCSSpecInput{
 						BucketName: &[]string{"my-gcs-logs-bucket"}[0],
 					},
+				},
+			},
+		},
+		{
+			name: "S3 nil and GCS populated",
+			input: &LogsModel{
+				Storage: StorageModel{
+					S3: nil,
+					GCS: &GCSStorageModel{
+						BucketName: types.StringValue("gcs-only-bucket"),
+					},
+				},
+			},
+			expected: &client.K8SEnvLogsSpecInput{
+				Storage: &client.K8SEnvSpecLogsStorageSpecInput{
+					S3: nil,
+					Gcs: &client.K8SEnvSpecLogsStorageGCSSpecInput{
+						BucketName: &[]string{"gcs-only-bucket"}[0],
+					},
+				},
+			},
+		},
+		{
+			name: "GCS nil and S3 populated",
+			input: &LogsModel{
+				Storage: StorageModel{
+					S3: &S3StorageModel{
+						BucketName: types.StringValue("s3-only-bucket"),
+						Region:     types.StringValue("ap-southeast-1"),
+					},
+					GCS: nil,
+				},
+			},
+			expected: &client.K8SEnvLogsSpecInput{
+				Storage: &client.K8SEnvSpecLogsStorageSpecInput{
+					S3: &client.K8SEnvSpecLogsStorageS3SpecInput{
+						BucketName: &[]string{"s3-only-bucket"}[0],
+						Region:     &[]string{"ap-southeast-1"}[0],
+					},
+					Gcs: nil,
 				},
 			},
 		},
@@ -1872,6 +2086,11 @@ func TestK8SEnvResourceModel_toModel(t *testing.T) {
 				}
 				if model.MaintenanceWindows[0].Name.ValueString() != "weekly-maintenance" {
 					t.Errorf("Maintenance window name: expected 'weekly-maintenance', got '%s'", model.MaintenanceWindows[0].Name.ValueString())
+				}
+
+				// Check spec revision
+				if model.SpecRevision.ValueInt64() != 1 {
+					t.Errorf("SpecRevision: expected 1, got %d", model.SpecRevision.ValueInt64())
 				}
 
 				// Check load balancers
