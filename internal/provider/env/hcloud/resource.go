@@ -207,6 +207,12 @@ func (r *HCloudEnvResource) Delete(ctx context.Context, req resource.DeleteReque
 		return
 	}
 
+	deleteTimeout, diags := data.Timeouts.Delete(ctx, common.DeleteTimeout)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	common.WaitForDeletion(ctx, resp, envName, apiResp.DeleteHCloudEnv.PendingMfa,
 		func(ctx context.Context, name string) (bool, error) {
 			status, err := r.Client.GetHCloudEnvStatus(ctx, name)
@@ -215,5 +221,7 @@ func (r *HCloudEnvResource) Delete(ctx context.Context, req resource.DeleteReque
 			}
 			return status.HcloudEnv.Status.PendingDelete, nil
 		},
+		deleteTimeout,
+		common.MFATimeout,
 	)
 }

@@ -58,7 +58,7 @@ type PollFunc func(ctx context.Context, envName string) (*PollResult, error)
 // WaitForSpecRevision polls the environment status until the applied spec revision
 // matches the target revision. It handles TTY output, DISCONNECTED errors, and timeouts.
 // Returns true if the target revision was reached, false otherwise (errors added to diags).
-func WaitForSpecRevision(ctx context.Context, envName string, targetRevision int64, verbose bool, poll PollFunc, diags *diag.Diagnostics) bool {
+func WaitForSpecRevision(ctx context.Context, envName string, targetRevision int64, verbose bool, poll PollFunc, diags *diag.Diagnostics, readTimeout time.Duration) bool {
 	var tty *ttyWriter
 	if verbose {
 		tty = newTTYWriter()
@@ -68,8 +68,12 @@ func WaitForSpecRevision(ctx context.Context, envName string, targetRevision int
 		}
 	}
 
+	if readTimeout == 0 {
+		readTimeout = MATCH_SPEC_TIMEOUT
+	}
+
 	start := time.Now()
-	timeout := time.After(MATCH_SPEC_TIMEOUT)
+	timeout := time.After(readTimeout)
 	ticker := time.NewTicker(MATCH_SPEC_POLL_INTERVAL)
 	defer ticker.Stop()
 

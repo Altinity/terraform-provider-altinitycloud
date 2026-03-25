@@ -6,6 +6,7 @@ import (
 	"github.com/MakeNowJust/heredoc/v2"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/provider/common"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/provider/modifiers"
+	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
@@ -43,6 +44,11 @@ func (r *HCloudEnvResource) Schema(ctx context.Context, req resource.SchemaReque
 			"force_destroy_clusters":          common.GetForceDestroyClustersAttribute(false, true, true),
 			"skip_deprovision_on_destroy":     common.GetSkipProvisioningOnDestroyAttribute(false, true, true),
 			"allow_delete_while_disconnected": common.GetAllowDeleteWhileDisconnectedAttribute(false, true, true),
+		},
+		Blocks: map[string]rschema.Block{
+			"timeouts": timeouts.Block(ctx, timeouts.Opts{
+				Delete: true,
+			}),
 		},
 	}
 }

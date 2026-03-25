@@ -63,6 +63,7 @@ data "altinitycloud_env_aws_status" "current" {
 
 ### Optional
 
+- `timeouts` (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
 - `verbose` (Boolean) When enabled, prints real-time provisioning progress to the terminal (default `true`). Disable in CI/CD or non-interactive environments.
 - `wait_for_applied_spec_revision` (Number) Use this attribute to wait for the environment to be fully provisioned. It will long pull environment status until it matches the applied spec revision.
 
@@ -74,6 +75,14 @@ data "altinitycloud_env_aws_status" "current" {
 - `load_balancers` (Attributes) Status of internal load balancer. (see [below for nested schema](#nestedatt--load_balancers))
 - `peering_connections` (Attributes List) AWS environment VPC peering configuration. (see [below for nested schema](#nestedatt--peering_connections))
 - `pending_delete` (Boolean) `true` indicates that environment is pending deletion
+
+<a id="nestedblock--timeouts"></a>
+### Nested Schema for `timeouts`
+
+Optional:
+
+- `read` (String) A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours).
+
 
 <a id="nestedatt--aws_resources"></a>
 ### Nested Schema for `aws_resources`

@@ -191,6 +191,12 @@ func (r *K8SEnvResource) Delete(ctx context.Context, req resource.DeleteRequest,
 		return
 	}
 
+	deleteTimeout, diags := data.Timeouts.Delete(ctx, common.DeleteTimeout)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	common.WaitForDeletion(ctx, resp, envName, apiResp.DeleteK8SEnv.PendingMfa,
 		func(ctx context.Context, name string) (bool, error) {
 			status, err := r.Client.GetK8SEnvStatus(ctx, name)
@@ -199,5 +205,7 @@ func (r *K8SEnvResource) Delete(ctx context.Context, req resource.DeleteRequest,
 			}
 			return status.K8sEnv.Status.PendingDelete, nil
 		},
+		deleteTimeout,
+		common.MFATimeout,
 	)
 }

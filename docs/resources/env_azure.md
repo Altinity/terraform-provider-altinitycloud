@@ -129,6 +129,7 @@ data "altinitycloud_env_azure_status" "this" {
 - `private_link_service` (Attributes) Azure Private Link service configuration. (see [below for nested schema](#nestedatt--private_link_service))
 - `skip_deprovision_on_destroy` (Boolean) Set to `true` will delete without waiting for environment deprovisioning. Use this with precaution, it may end up with dangling resources in your cloud provider (default `false`).
 - `tags` (Attributes List) Tags to apply to Azure resources. (see [below for nested schema](#nestedatt--tags))
+- `timeouts` (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
 - `zones` (List of String) Explicit list of Azure availability zones. At least 2 required.
 
 		Examples:
@@ -234,6 +235,14 @@ Required:
 
 - `key` (String) Name of the key
 - `value` (String) Value of the key
+
+
+<a id="nestedblock--timeouts"></a>
+### Nested Schema for `timeouts`
+
+Optional:
+
+- `delete` (String) A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours). Setting a timeout for a Delete operation is only applicable if changes are saved into state before the destroy operation occurs.
 ## Import
 
 Import is supported using the following syntax:

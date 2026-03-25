@@ -5,6 +5,7 @@ import (
 
 	"github.com/MakeNowJust/heredoc/v2"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/provider/common"
+	"github.com/hashicorp/terraform-plugin-framework-timeouts/datasource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
 )
@@ -20,6 +21,9 @@ func (r *HCloudEnvStatusDataSource) Schema(ctx context.Context, req datasource.S
 			"applied_spec_revision":          common.AppliedSpecRevisionAttribute,
 			"wait_for_applied_spec_revision": common.WaitForAppliedSpecRevisionAttribute,
 			"verbose":                        common.VerboseAttribute,
+		},
+		Blocks: map[string]schema.Block{
+			"timeouts": timeouts.Block(ctx),
 		},
 	}
 }

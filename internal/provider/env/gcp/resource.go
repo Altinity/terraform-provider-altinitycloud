@@ -219,6 +219,12 @@ func (r *GCPEnvResource) Delete(ctx context.Context, req resource.DeleteRequest,
 		return
 	}
 
+	deleteTimeout, diags := data.Timeouts.Delete(ctx, common.DeleteTimeout)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	common.WaitForDeletion(ctx, resp, envName, apiResp.DeleteGCPEnv.PendingMfa,
 		func(ctx context.Context, name string) (bool, error) {
 			status, err := r.Client.GetGCPEnvStatus(ctx, name)
@@ -227,5 +233,7 @@ func (r *GCPEnvResource) Delete(ctx context.Context, req resource.DeleteRequest,
 			}
 			return status.GCPEnv.Status.PendingDelete, nil
 		},
+		deleteTimeout,
+		common.MFATimeout,
 	)
 }

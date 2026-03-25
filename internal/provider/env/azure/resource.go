@@ -219,6 +219,12 @@ func (r *AzureEnvResource) Delete(ctx context.Context, req resource.DeleteReques
 		return
 	}
 
+	deleteTimeout, diags := data.Timeouts.Delete(ctx, common.DeleteTimeout)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	common.WaitForDeletion(ctx, resp, envName, apiResp.DeleteAzureEnv.PendingMfa,
 		func(ctx context.Context, name string) (bool, error) {
 			status, err := r.Client.GetAzureEnvStatus(ctx, name)
@@ -227,5 +233,7 @@ func (r *AzureEnvResource) Delete(ctx context.Context, req resource.DeleteReques
 			}
 			return status.AzureEnv.Status.PendingDelete, nil
 		},
+		deleteTimeout,
+		common.MFATimeout,
 	)
 }
