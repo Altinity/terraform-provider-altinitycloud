@@ -62,6 +62,10 @@ func (r *AWSEnvResource) Create(ctx context.Context, req resource.CreateRequest,
 		func(m common.KeyValueModel) string { return m.Key.ValueString() },
 		func(s *client.AWSEnvSpecFragment_Tags) string { return s.Key },
 	)
+	apiResp.CreateAWSEnv.Spec.PeeringConnections = common.ReorderByKey(data.PeeringConnections, apiResp.CreateAWSEnv.Spec.PeeringConnections,
+		func(m AWSEnvPeeringConnectionModel) string { return m.VpcID.ValueString() },
+		func(s *client.AWSEnvSpecFragment_PeeringConnections) string { return s.VpcID },
+	)
 	data.Id = data.Name
 	data.Zones, diags = common.ListToModel(apiResp.CreateAWSEnv.Spec.Zones)
 	resp.Diagnostics.Append(diags...)
@@ -109,6 +113,10 @@ func (r *AWSEnvResource) Read(ctx context.Context, req resource.ReadRequest, res
 		func(m common.KeyValueModel) string { return m.Key.ValueString() },
 		func(s *client.AWSEnvSpecFragment_Tags) string { return s.Key },
 	)
+	apiResp.AWSEnv.Spec.PeeringConnections = common.ReorderByKey(data.PeeringConnections, apiResp.AWSEnv.Spec.PeeringConnections,
+		func(m AWSEnvPeeringConnectionModel) string { return m.VpcID.ValueString() },
+		func(s *client.AWSEnvSpecFragment_PeeringConnections) string { return s.VpcID },
+	)
 	diags = data.toModel(*apiResp.AWSEnv)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -154,6 +162,10 @@ func (r *AWSEnvResource) Update(ctx context.Context, req resource.UpdateRequest,
 	apiResp.UpdateAWSEnv.Spec.Tags = common.ReorderByKey(data.Tags, apiResp.UpdateAWSEnv.Spec.Tags,
 		func(m common.KeyValueModel) string { return m.Key.ValueString() },
 		func(s *client.AWSEnvSpecFragment_Tags) string { return s.Key },
+	)
+	apiResp.UpdateAWSEnv.Spec.PeeringConnections = common.ReorderByKey(data.PeeringConnections, apiResp.UpdateAWSEnv.Spec.PeeringConnections,
+		func(m AWSEnvPeeringConnectionModel) string { return m.VpcID.ValueString() },
+		func(s *client.AWSEnvSpecFragment_PeeringConnections) string { return s.VpcID },
 	)
 	data.Zones, diags = common.ListToModel(apiResp.UpdateAWSEnv.Spec.Zones)
 	resp.Diagnostics.Append(diags...)

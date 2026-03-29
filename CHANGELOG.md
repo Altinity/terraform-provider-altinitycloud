@@ -27,6 +27,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Prevent nil dereference in delete polling loop [87e4dd5](https://github.com/Altinity/terraform-provider-altinitycloud/commit/87e4dd5).
 - Use correct GCS bucket name in K8S `logsToModel` [11a923d](https://github.com/Altinity/terraform-provider-altinitycloud/commit/11a923d).
 - Fix typo in `IsActiveClustersError` function name [b1a6695](https://github.com/Altinity/terraform-provider-altinitycloud/commit/b1a6695).
+- Use `FormatDeleteError` helper instead of duplicated inline delete error logic [b18b8d2](https://github.com/Altinity/terraform-provider-altinitycloud/commit/b18b8d2).
+- Guard `Reservations.ElementsAs` against null/unknown values in all env providers [a723ce5](https://github.com/Altinity/terraform-provider-altinitycloud/commit/a723ce5).
+- Add missing `peering_connections` reordering in AWS env resource [3803b15](https://github.com/Altinity/terraform-provider-altinitycloud/commit/3803b15).
 
 ### Changed
 - Bump Go to `1.25.4` [55091d0](https://github.com/Altinity/terraform-provider-altinitycloud/commit/55091d0).
