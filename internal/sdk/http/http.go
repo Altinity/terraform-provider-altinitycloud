@@ -2,10 +2,40 @@ package http
 
 import (
 	"context"
+	"crypto/tls"
+	"crypto/x509"
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 )
+
+// NewClient creates an *http.Client that clones http.DefaultTransport settings
+// and applies the given TLS configuration. This avoids duplicating transport
+// setup across provider, auth, and crypto packages.
+func NewClient(rootCAs *x509.CertPool, certs ...tls.Certificate) (*http.Client, error) {
+	defaultTransport, ok := http.DefaultTransport.(*http.Transport)
+	if !ok {
+		return nil, fmt.Errorf("failed to get default HTTP transport")
+	}
+
+	return &http.Client{
+		Transport: &http.Transport{
+			Proxy:                 defaultTransport.Proxy,
+			DialContext:           defaultTransport.DialContext,
+			ForceAttemptHTTP2:     defaultTransport.ForceAttemptHTTP2,
+			MaxIdleConns:          defaultTransport.MaxIdleConns,
+			IdleConnTimeout:       defaultTransport.IdleConnTimeout,
+			TLSHandshakeTimeout:   defaultTransport.TLSHandshakeTimeout,
+			ExpectContinueTimeout: defaultTransport.ExpectContinueTimeout,
+			TLSClientConfig: &tls.Config{
+				RootCAs:      rootCAs,
+				Certificates: certs,
+			},
+		},
+		Timeout: time.Minute,
+	}, nil
+}
 
 func Do(
 	ctx context.Context,

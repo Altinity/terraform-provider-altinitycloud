@@ -6,12 +6,10 @@ import (
 	"crypto"
 	"crypto/rand"
 	"crypto/rsa"
-	"crypto/tls"
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"fmt"
 	"net/http"
-	"time"
 
 	sdkCrypto "github.com/altinity/terraform-provider-altinitycloud/internal/sdk/crypto"
 	sdkHttp "github.com/altinity/terraform-provider-altinitycloud/internal/sdk/http"
@@ -53,25 +51,9 @@ func (a *Auth) GenerateCertificate(ctx context.Context, envName string) (string,
 }
 
 func (a *Auth) signCertificateRequest(ctx context.Context, csrPEM []byte) ([]byte, error) {
-	defaultTransport, ok := http.DefaultTransport.(*http.Transport)
-	if !ok {
-		return nil, fmt.Errorf("failed to get default HTTP transport")
-	}
-
-	httpClient := &http.Client{
-		Transport: &http.Transport{
-			Proxy:                 defaultTransport.Proxy,
-			DialContext:           defaultTransport.DialContext,
-			ForceAttemptHTTP2:     defaultTransport.ForceAttemptHTTP2,
-			MaxIdleConns:          defaultTransport.MaxIdleConns,
-			IdleConnTimeout:       defaultTransport.IdleConnTimeout,
-			TLSHandshakeTimeout:   defaultTransport.TLSHandshakeTimeout,
-			ExpectContinueTimeout: defaultTransport.ExpectContinueTimeout,
-			TLSClientConfig: &tls.Config{
-				RootCAs: a.RootCAs,
-			},
-		},
-		Timeout: time.Minute,
+	httpClient, err := sdkHttp.NewClient(a.RootCAs)
+	if err != nil {
+		return nil, err
 	}
 	url := fmt.Sprintf("%s/sign", a.URL)
 	headers := map[string]string{}

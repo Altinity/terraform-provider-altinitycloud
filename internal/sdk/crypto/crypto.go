@@ -13,7 +13,6 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
-	"time"
 
 	sdkHttp "github.com/altinity/terraform-provider-altinitycloud/internal/sdk/http"
 )
@@ -81,28 +80,9 @@ func (c *Crypto) Decrypt(pkPem string, value string) (string, error) {
 }
 
 func (c *Crypto) fetchPublicKey(ctx context.Context, tlsCert tls.Certificate) (pem []byte, err error) {
-	defaultTransport, ok := http.DefaultTransport.(*http.Transport)
-	if !ok {
-		return nil, fmt.Errorf("failed to get default HTTP transport")
-	}
-
-	httpClient := &http.Client{
-		Transport: &http.Transport{
-			Proxy:                 defaultTransport.Proxy,
-			DialContext:           defaultTransport.DialContext,
-			ForceAttemptHTTP2:     defaultTransport.ForceAttemptHTTP2,
-			MaxIdleConns:          defaultTransport.MaxIdleConns,
-			IdleConnTimeout:       defaultTransport.IdleConnTimeout,
-			TLSHandshakeTimeout:   defaultTransport.TLSHandshakeTimeout,
-			ExpectContinueTimeout: defaultTransport.ExpectContinueTimeout,
-			TLSClientConfig: &tls.Config{
-				RootCAs: c.RootCAs,
-				Certificates: []tls.Certificate{
-					tlsCert,
-				},
-			},
-		},
-		Timeout: time.Minute,
+	httpClient, err := sdkHttp.NewClient(c.RootCAs, tlsCert)
+	if err != nil {
+		return nil, err
 	}
 	url := fmt.Sprintf("%s/key", c.URL)
 	body, err := sdkHttp.Do(ctx, httpClient, http.MethodGet, url, nil, nil)

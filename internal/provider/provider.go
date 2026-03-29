@@ -2,14 +2,11 @@ package provider
 
 import (
 	"context"
-	"crypto/tls"
 	"crypto/x509"
 	"errors"
 	"fmt"
-	"net/http"
 	"os"
 	"runtime"
-	"time"
 
 	env_aws "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env/aws"
 	env_azure "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env/azure"
@@ -26,6 +23,7 @@ import (
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/auth"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/client"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/crypto"
+	sdkHttp "github.com/altinity/terraform-provider-altinitycloud/internal/sdk/http"
 
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -130,31 +128,17 @@ func (p *altinityCloudProvider) Configure(ctx context.Context, req provider.Conf
 		}
 	}
 
-	defaultTransport, ok := http.DefaultTransport.(*http.Transport)
-	if !ok {
+	httpClient, err := sdkHttp.NewClient(rootCAs)
+	if err != nil {
 		resp.Diagnostics.AddError(
 			"Failed to configure HTTP client",
-			"Unable to get default HTTP transport",
+			err.Error(),
 		)
 		return
 	}
 
 	client := client.NewClient(
-		&http.Client{
-			Transport: &http.Transport{
-				Proxy:                 defaultTransport.Proxy,
-				DialContext:           defaultTransport.DialContext,
-				ForceAttemptHTTP2:     defaultTransport.ForceAttemptHTTP2,
-				MaxIdleConns:          defaultTransport.MaxIdleConns,
-				IdleConnTimeout:       defaultTransport.IdleConnTimeout,
-				TLSHandshakeTimeout:   defaultTransport.TLSHandshakeTimeout,
-				ExpectContinueTimeout: defaultTransport.ExpectContinueTimeout,
-				TLSClientConfig: &tls.Config{
-					RootCAs: rootCAs,
-				},
-			},
-			Timeout: time.Second * 60,
-		},
+		httpClient,
 		apiUrl+GRAPHQL_API_PATH,
 		nil,
 		client.WithBearerAuthorization(ctx, apiToken),
