@@ -4,6 +4,44 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.5.2...v0.6.0)
+### Added
+- User-configurable delete timeouts for all environment resources [#220](https://github.com/Altinity/terraform-provider-altinitycloud/pull/220).
+- Real-time TTY progress output for env status polling [9b506d3](https://github.com/Altinity/terraform-provider-altinitycloud/commit/9b506d3).
+- Support `metrics_endpoint` in all BYOC environments [5737183](https://github.com/Altinity/terraform-provider-altinitycloud/commit/5737183).
+- Improved validation error messages [be3e2e4](https://github.com/Altinity/terraform-provider-altinitycloud/commit/be3e2e4).
+- Friendly error wrapper for API responses [e629745](https://github.com/Altinity/terraform-provider-altinitycloud/commit/e629745).
+- Dynamic validation for `custom_s3_table_bucket_arn` [0640870](https://github.com/Altinity/terraform-provider-altinitycloud/commit/0640870).
+- Sanity test workflow triggered on release [#205](https://github.com/Altinity/terraform-provider-altinitycloud/pull/205).
+- Unit tests for plan modifiers, validators, and delete helpers [46e687b](https://github.com/Altinity/terraform-provider-altinitycloud/commit/46e687b).
+- Import state verification to env acceptance tests [c28b390](https://github.com/Altinity/terraform-provider-altinitycloud/commit/c28b390).
+
+### Fixed
+- Guard `ElementsAs` calls against unknown/null values in list/set fields [b7a6abf](https://github.com/Altinity/terraform-provider-altinitycloud/commit/b7a6abf).
+- Add missing reordering for GCP peering connections and Azure tags [5c210e6](https://github.com/Altinity/terraform-provider-altinitycloud/commit/5c210e6).
+- Correct expected type in Configure error messages [217a50b](https://github.com/Altinity/terraform-provider-altinitycloud/commit/217a50b).
+- Prevent nil dereference in K8S logs using `StringPointerValue` [ea9070d](https://github.com/Altinity/terraform-provider-altinitycloud/commit/ea9070d).
+- Export `WireguardPeers` struct fields for tfsdk reflection [f80e043](https://github.com/Altinity/terraform-provider-altinitycloud/commit/f80e043).
+- Return early when `api_token` is empty [30a8191](https://github.com/Altinity/terraform-provider-altinitycloud/commit/30a8191).
+- Mark `api_token` as sensitive [55c748e](https://github.com/Altinity/terraform-provider-altinitycloud/commit/55c748e).
+- Prevent nil dereference in delete polling loop [87e4dd5](https://github.com/Altinity/terraform-provider-altinitycloud/commit/87e4dd5).
+- Use correct GCS bucket name in K8S `logsToModel` [11a923d](https://github.com/Altinity/terraform-provider-altinitycloud/commit/11a923d).
+- Fix typo in `IsActiveClustersError` function name [b1a6695](https://github.com/Altinity/terraform-provider-altinitycloud/commit/b1a6695).
+
+### Changed
+- Bump Go to `1.25.4` [55091d0](https://github.com/Altinity/terraform-provider-altinitycloud/commit/55091d0).
+- Extract shared HTTP client factory to `sdk/http.NewClient` [6f02f44](https://github.com/Altinity/terraform-provider-altinitycloud/commit/6f02f44).
+- Propagate `context.Context` and `diag.Diagnostics` instead of discarding them [cb513ae](https://github.com/Altinity/terraform-provider-altinitycloud/commit/cb513ae).
+- Unify duplicated reorder functions with generic `ReorderByKey` [e11b6e5](https://github.com/Altinity/terraform-provider-altinitycloud/commit/e11b6e5).
+- Extract delete polling loop to common `WaitForDeletion` function [b11881d](https://github.com/Altinity/terraform-provider-altinitycloud/commit/b11881d).
+- Simplify AWS iceberg schema [#210](https://github.com/Altinity/terraform-provider-altinitycloud/pull/210).
+- Bump github.com/hashicorp/terraform-plugin-framework to `1.19.0` [#211](https://github.com/Altinity/terraform-provider-altinitycloud/pull/211).
+- Bump github.com/hashicorp/terraform-plugin-go [#207](https://github.com/Altinity/terraform-provider-altinitycloud/pull/207).
+- Bump github.com/cloudflare/circl to `1.6.3` [#216](https://github.com/Altinity/terraform-provider-altinitycloud/pull/216).
+- Bump google.golang.org/grpc to `1.79.3` [#215](https://github.com/Altinity/terraform-provider-altinitycloud/pull/215).
+- Bump actions/setup-go to `6.3.0` [#208](https://github.com/Altinity/terraform-provider-altinitycloud/pull/208).
+- Bump goreleaser/goreleaser-action to `7.0.0` [#206](https://github.com/Altinity/terraform-provider-altinitycloud/pull/206).
+
 ## [0.5.2](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.5.1...v0.5.2)
 ### Fixed
 - Revert `metricsEndpoint` from SDK until API is fully deployed [25d6200](https://github.com/Altinity/terraform-provider-altinitycloud/commit/25d6200).
