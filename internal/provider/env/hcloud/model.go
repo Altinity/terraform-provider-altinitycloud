@@ -214,12 +214,14 @@ func nodeGroupsToSDK(ctx context.Context, nodeGroups []NodeGroupsModel) ([]*clie
 	var sdkNodeGroups []*client.HCloudEnvNodeGroupSpecInput
 	for _, np := range nodeGroups {
 		var reservations []client.NodeReservation
-		diags := np.Reservations.ElementsAs(ctx, &reservations, false)
-		allDiags.Append(diags...)
+		if !np.Reservations.IsUnknown() && !np.Reservations.IsNull() {
+			diags := np.Reservations.ElementsAs(ctx, &reservations, false)
+			allDiags.Append(diags...)
+		}
 
 		var locations []string
 		if !np.Locations.IsUnknown() && !np.Locations.IsNull() {
-			diags = np.Locations.ElementsAs(ctx, &locations, false)
+			diags := np.Locations.ElementsAs(ctx, &locations, false)
 			allDiags.Append(diags...)
 		}
 

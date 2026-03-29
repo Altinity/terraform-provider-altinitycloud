@@ -378,12 +378,14 @@ func nodeGroupsToSDK(ctx context.Context, nodeGroups []common.NodeGroupsModel) (
 	var sdkNodeGroups []*sdk.AWSEnvNodeGroupSpecInput
 	for _, np := range nodeGroups {
 		var reservations []sdk.NodeReservation
-		diags := np.Reservations.ElementsAs(ctx, &reservations, false)
-		allDiags.Append(diags...)
+		if !np.Reservations.IsUnknown() && !np.Reservations.IsNull() {
+			diags := np.Reservations.ElementsAs(ctx, &reservations, false)
+			allDiags.Append(diags...)
+		}
 
 		var zones []string
 		if !np.Zones.IsUnknown() && !np.Zones.IsNull() {
-			diags = np.Zones.ElementsAs(ctx, &zones, false)
+			diags := np.Zones.ElementsAs(ctx, &zones, false)
 			allDiags.Append(diags...)
 		}
 
