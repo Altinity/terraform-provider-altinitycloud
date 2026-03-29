@@ -209,13 +209,7 @@ func (r *GCPEnvResource) Delete(ctx context.Context, req resource.DeleteRequest,
 	})
 
 	if err != nil {
-		errMessage := fmt.Sprintf("Unable to delete env %s, got error: %s", envName, err)
-		activeClustes, _ := client.IsActiveClustersError(err)
-		if activeClustes {
-			errMessage = fmt.Sprintf("Unable to delete env %s, it has active ClickHouse/Zookeeper clusters (use force_destroy_clusters=true to force delete them)", envName)
-		}
-
-		resp.Diagnostics.AddError("Client Error", errMessage)
+		resp.Diagnostics.AddError("Client Error", common.FormatDeleteError(envName, err))
 		return
 	}
 
