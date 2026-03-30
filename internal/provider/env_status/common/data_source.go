@@ -17,7 +17,8 @@ var MATCH_SPEC_TIMEOUT = time.Duration(60) * time.Minute
 var MATCH_SPEC_POLL_INTERVAL = 30 * time.Second
 
 type EnvStatusDataSourceBase struct {
-	Client *client.Client
+	Client   *client.Client
+	TypeName string
 }
 
 func (d *EnvStatusDataSourceBase) Configure(ctx context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
@@ -58,17 +59,19 @@ type PollFunc func(ctx context.Context, envName string) (*PollResult, error)
 // WaitForSpecRevision polls the environment status until the applied spec revision
 // matches the target revision. It handles TTY output, DISCONNECTED errors, and timeouts.
 // Returns true if the target revision was reached, false otherwise (errors added to diags).
-func WaitForSpecRevision(ctx context.Context, envName string, targetRevision int64, verbose bool, poll PollFunc, diags *diag.Diagnostics, readTimeout time.Duration) bool {
+func WaitForSpecRevision(ctx context.Context, envName string, typeName string, targetRevision int64, verbose bool, poll PollFunc, diags *diag.Diagnostics, readTimeout time.Duration) bool {
 	if readTimeout == 0 {
 		readTimeout = MATCH_SPEC_TIMEOUT
 	}
+
+	prefix := fmt.Sprintf("data.%s", typeName)
 
 	var tty *ttyWriter
 	if verbose {
 		tty = newTTYWriter()
 		if tty != nil {
 			defer tty.Close()
-			tty.printf("[altinitycloud] Waiting for %q to reach spec revision %d...\n", envName, targetRevision)
+			tty.printf("%s: waiting for %q to be ready...\n", prefix, envName)
 		}
 	}
 
@@ -89,16 +92,27 @@ func WaitForSpecRevision(ctx context.Context, envName string, targetRevision int
 			elapsed := time.Since(start).Round(time.Second)
 
 			if len(result.Errors) > 0 {
-				if len(result.Errors) == 1 && result.Errors[0].Code == "DISCONNECTED" {
+				var nonDisconnected []EnvError
+				for _, e := range result.Errors {
+					if e.Code == "DISCONNECTED" {
+						if tty != nil {
+							tty.printf("%s: %s (expected during provisioning)\n",
+								prefix, e.Message)
+						}
+						continue
+					}
+					nonDisconnected = append(nonDisconnected, e)
+				}
+
+				if len(nonDisconnected) == 0 {
 					if tty != nil {
-						tty.printf("[altinitycloud] [%s] %s: revision %d/%d, connecting...\n",
-							elapsed, envName, result.AppliedSpecRevision, targetRevision)
+						tty.printf("%s: [%s] connecting...\n", prefix, elapsed)
 					}
 					return result, "CONNECTING", nil
 				}
 
 				var errorDetails string
-				for _, e := range result.Errors {
+				for _, e := range nonDisconnected {
 					errorDetails += fmt.Sprintf("%s: %s\n", e.Code, e.Message)
 				}
 				return nil, "", fmt.Errorf("environment %s has provisioning errors:\n%s", envName, errorDetails)
@@ -106,15 +120,13 @@ func WaitForSpecRevision(ctx context.Context, envName string, targetRevision int
 
 			if result.AppliedSpecRevision >= targetRevision {
 				if tty != nil {
-					tty.printf("[altinitycloud] [%s] %s: revision %d/%d, ready!\n",
-						elapsed, envName, result.AppliedSpecRevision, targetRevision)
+					tty.printf("%s: [%s] ready!\n", prefix, elapsed)
 				}
 				return result, "READY", nil
 			}
 
 			if tty != nil {
-				tty.printf("[altinitycloud] [%s] %s: revision %d/%d, waiting...\n",
-					elapsed, envName, result.AppliedSpecRevision, targetRevision)
+				tty.printf("%s: [%s] waiting...\n", prefix, elapsed)
 			}
 			return result, "WAITING", nil
 		},

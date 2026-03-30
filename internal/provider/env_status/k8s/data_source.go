@@ -23,6 +23,7 @@ type K8SEnvStatusDataSource struct {
 
 func (d *K8SEnvStatusDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_env_k8s_status"
+	d.TypeName = resp.TypeName
 }
 
 func (d *K8SEnvStatusDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
@@ -84,7 +85,7 @@ func (d *K8SEnvStatusDataSource) Read(ctx context.Context, req datasource.ReadRe
 		return
 	}
 
-	if !common.WaitForSpecRevision(ctx, envName, waitForAppliedSpecRevision, data.Verbose.ValueBool(), poll, &resp.Diagnostics, readTimeout) {
+	if !common.WaitForSpecRevision(ctx, envName, d.TypeName, waitForAppliedSpecRevision, data.Verbose.ValueBool(), poll, &resp.Diagnostics, readTimeout) {
 		return
 	}
 

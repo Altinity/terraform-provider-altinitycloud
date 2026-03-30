@@ -23,6 +23,7 @@ type GCPEnvStatusDataSource struct {
 
 func (d *GCPEnvStatusDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_env_gcp_status"
+	d.TypeName = resp.TypeName
 }
 
 func (d *GCPEnvStatusDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
@@ -84,7 +85,7 @@ func (d *GCPEnvStatusDataSource) Read(ctx context.Context, req datasource.ReadRe
 		return
 	}
 
-	if !common.WaitForSpecRevision(ctx, envName, waitForAppliedSpecRevision, data.Verbose.ValueBool(), poll, &resp.Diagnostics, readTimeout) {
+	if !common.WaitForSpecRevision(ctx, envName, d.TypeName, waitForAppliedSpecRevision, data.Verbose.ValueBool(), poll, &resp.Diagnostics, readTimeout) {
 		return
 	}
 
