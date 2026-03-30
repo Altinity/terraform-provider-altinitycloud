@@ -102,10 +102,10 @@ func WaitForDeletion(ctx context.Context, resp *resource.DeleteResponse, envName
 				if pendingMfa && time.Since(mfaStart) > mfaTimeout {
 					return nil, "", fmt.Errorf("timeout reached while waiting for MFA to be confirmed.\nPlease check your MFA device, confirm deletion and run `terraform destroy` again")
 				}
-				return nil, "PENDING_MFA", nil
+				return envName, "PENDING_MFA", nil
 			}
 
-			return nil, "DELETING", nil
+			return envName, "DELETING", nil
 		},
 		Timeout:      deleteTimeout,
 		PollInterval: DeletePollInterval,
