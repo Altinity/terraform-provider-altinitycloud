@@ -130,9 +130,11 @@ func (r *K8SEnvResource) Update(ctx context.Context, req resource.UpdateRequest,
 	}
 
 	apiResp.UpdateK8SEnv.Spec.NodeGroups = reorderNodeGroups(data.NodeGroups, apiResp.UpdateK8SEnv.Spec.NodeGroups)
-	data.NodeGroups, diags = nodeGroupsToModel(apiResp.UpdateK8SEnv.Spec.NodeGroups)
+	diags = data.toModel(name, apiResp.UpdateK8SEnv.SpecRevision, *apiResp.UpdateK8SEnv.Spec)
 	resp.Diagnostics.Append(diags...)
-	data.SpecRevision = types.Int64Value(apiResp.UpdateK8SEnv.SpecRevision)
+	if resp.Diagnostics.HasError() {
+		return
+	}
 
 	tflog.Trace(ctx, "updated resource", map[string]interface{}{"name": name})
 	diags = resp.State.Set(ctx, &data)
