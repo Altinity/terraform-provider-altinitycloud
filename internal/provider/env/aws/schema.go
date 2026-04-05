@@ -225,6 +225,9 @@ func getCloudConnectAttribute(required, optional, computed bool) rschema.BoolAtt
 		Computed:            computed,
 		MarkdownDescription: common.CLOUD_CONNECT_DESCRIPTION,
 		Default:             booldefault.StaticBool(true),
+		PlanModifiers: []planmodifier.Bool{
+			modifiers.ImmutableBool("cloud_connect"),
+		},
 	}
 }
 
@@ -244,6 +247,9 @@ func getNATAttribute(required, optional, computed bool) rschema.BoolAttribute {
 		Computed:            computed,
 		MarkdownDescription: common.NAT_DESCRIPTION,
 		Default:             booldefault.StaticBool(false),
+		PlanModifiers: []planmodifier.Bool{
+			modifiers.ImmutableBool("nat"),
+		},
 	}
 }
 
