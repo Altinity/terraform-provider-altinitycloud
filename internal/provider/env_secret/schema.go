@@ -25,6 +25,7 @@ func (r *SecretResource) Schema(ctx context.Context, req resource.SchemaRequest,
 			},
 			"value": schema.StringAttribute{
 				Required:            true,
+				Sensitive:           true,
 				MarkdownDescription: "The value to be encrypted.",
 				Validators: []validator.String{
 					stringvalidator.LengthAtLeast(1),
