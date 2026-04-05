@@ -93,13 +93,17 @@ func WaitForDeletion(ctx context.Context, resp *resource.DeleteResponse, envName
 				notFound, _ := client.IsNotFoundError(err)
 				if notFound {
 					tflog.Trace(ctx, "deleted resource", map[string]interface{}{"name": envName})
-					return nil, "DELETED", nil
+					return envName, "DELETED", nil
 				}
 				return nil, "", err
 			}
 
 			if !pendingDelete {
-				if pendingMfa && time.Since(mfaStart) > mfaTimeout {
+				if !pendingMfa {
+					tflog.Trace(ctx, "deleted resource (pendingDelete cleared)", map[string]interface{}{"name": envName})
+					return envName, "DELETED", nil
+				}
+				if time.Since(mfaStart) > mfaTimeout {
 					return nil, "", fmt.Errorf("timeout reached while waiting for MFA to be confirmed.\nPlease check your MFA device, confirm deletion and run `terraform destroy` again")
 				}
 				return envName, "PENDING_MFA", nil
