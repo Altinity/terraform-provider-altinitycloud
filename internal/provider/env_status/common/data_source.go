@@ -94,7 +94,7 @@ func WaitForSpecRevision(ctx context.Context, envName string, typeName string, t
 			if len(result.Errors) > 0 {
 				var nonDisconnected []EnvError
 				for _, e := range result.Errors {
-					if e.Code == "DISCONNECTED" {
+					if e.Code == "DISCONNECTED" || e.Code == "K8S_DISCONNECTED" {
 						if tty != nil {
 							tty.printf("%s: %s (expected during provisioning)\n",
 								prefix, e.Message)

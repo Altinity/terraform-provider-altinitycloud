@@ -19,7 +19,7 @@ func ValidateForceDestroy(envName string, forceDestroy bool) diag.Diagnostics {
 // HasBlockingDisconnectedError checks if any status error is DISCONNECTED and the flags don't allow proceeding.
 func HasBlockingDisconnectedError(errorCodes []client.EnvStatusErrorCode, skipDeprovision, allowDeleteWhileDisconnected bool) bool {
 	for _, code := range errorCodes {
-		if code == client.EnvStatusErrorCodeDisconnected && !skipDeprovision && !allowDeleteWhileDisconnected {
+		if (code == client.EnvStatusErrorCodeDisconnected || code == client.EnvStatusErrorCodeK8sDisconnected) && !skipDeprovision && !allowDeleteWhileDisconnected {
 			return true
 		}
 	}

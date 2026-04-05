@@ -76,6 +76,24 @@ func TestHasBlockingDisconnectedError(t *testing.T) {
 			allowDeleteWhileDisconnected: true,
 			expected:                     false,
 		},
+		"k8s_disconnected + both flags false (blocked)": {
+			errorCodes:                   []client.EnvStatusErrorCode{client.EnvStatusErrorCodeK8sDisconnected},
+			skipDeprovision:              false,
+			allowDeleteWhileDisconnected: false,
+			expected:                     true,
+		},
+		"k8s_disconnected + skip_deprovision=true (allowed)": {
+			errorCodes:                   []client.EnvStatusErrorCode{client.EnvStatusErrorCodeK8sDisconnected},
+			skipDeprovision:              true,
+			allowDeleteWhileDisconnected: false,
+			expected:                     false,
+		},
+		"k8s_disconnected + allow_delete=true (allowed)": {
+			errorCodes:                   []client.EnvStatusErrorCode{client.EnvStatusErrorCodeK8sDisconnected},
+			skipDeprovision:              false,
+			allowDeleteWhileDisconnected: true,
+			expected:                     false,
+		},
 		"non-disconnected error (allowed)": {
 			errorCodes:                   []client.EnvStatusErrorCode{client.EnvStatusErrorCodeInternal},
 			skipDeprovision:              false,
