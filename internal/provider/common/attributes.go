@@ -6,6 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
 
 	"github.com/altinity/terraform-provider-altinitycloud/internal/provider/modifiers"
+	"github.com/altinity/terraform-provider-altinitycloud/internal/provider/validators"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/client"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
@@ -20,7 +21,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-var CIDRRegex = regexp.MustCompile(`^([0-9]{1,3}\.){3}[0-9]{1,3}\/[0-9]{1,2}$`)
 var DomainRegex = regexp.MustCompile("^[a-z0-9][a-z0-9-]{0,63}([.][a-z0-9][a-z0-9-]{0,63})+$")
 
 func GetCommonCustomDomainAttribute(required, optional, computed bool) rschema.StringAttribute {
@@ -109,10 +109,7 @@ func GetCIDRAttribute(required, optional, computed bool) rschema.StringAttribute
 		Computed:            computed,
 		MarkdownDescription: CIDR_DESCRIPTION,
 		Validators: []validator.String{
-			stringvalidator.RegexMatches(
-				CIDRRegex,
-				"invalid CIDR format ([IP Address]/[Prefix Length])",
-			),
+			validators.CIDRWithMaxPrefix(21),
 		},
 		PlanModifiers: []planmodifier.String{
 			modifiers.ImmutableString("cidr"),
@@ -289,7 +286,7 @@ func GetMetricsEndpointAttribute(required, optional, computed bool) rschema.Sing
 				Validators: []validator.List{
 					listvalidator.SizeAtLeast(1),
 					listvalidator.ValueStringsAre(
-						stringvalidator.RegexMatches(CIDRRegex, "invalid CIDR (expecting something like 1.2.3.4/32)"),
+						validators.CIDR(),
 					),
 				},
 			},
@@ -337,7 +334,7 @@ var SourceIPRangesAttribute = rschema.ListAttribute{
 	Validators: []validator.List{
 		listvalidator.SizeAtLeast(1),
 		listvalidator.ValueStringsAre(
-			stringvalidator.RegexMatches(CIDRRegex, "invalid CIDR (expecting something like 1.2.3.4/32)"),
+			validators.CIDR(),
 		),
 	},
 }
