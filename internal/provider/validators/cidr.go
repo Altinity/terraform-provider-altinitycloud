@@ -9,7 +9,8 @@ import (
 )
 
 type cidrValidator struct {
-	maxPrefix int
+	maxPrefix      int
+	requirePrivate bool
 }
 
 // CIDR returns a validator that checks the value is a valid CIDR using net.ParseCIDR.
@@ -24,11 +25,32 @@ func CIDRWithMaxPrefix(maxPrefix int) validator.String {
 	return &cidrValidator{maxPrefix: maxPrefix}
 }
 
-func (v *cidrValidator) Description(_ context.Context) string {
-	if v.maxPrefix > 0 {
-		return fmt.Sprintf("must be a valid CIDR with at most /%d prefix", v.maxPrefix)
+// PrivateCIDRWithMaxPrefix returns a validator that checks the value is a valid CIDR,
+// that the prefix length is at most maxPrefix, and that the IP is in a private
+// RFC 1918 range (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16).
+func PrivateCIDRWithMaxPrefix(maxPrefix int) validator.String {
+	return &cidrValidator{maxPrefix: maxPrefix, requirePrivate: true}
+}
+
+var rfc1918Networks = func() []*net.IPNet {
+	cidrs := []string{"10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"}
+	nets := make([]*net.IPNet, len(cidrs))
+	for i, c := range cidrs {
+		_, n, _ := net.ParseCIDR(c)
+		nets[i] = n
 	}
-	return "must be a valid CIDR"
+	return nets
+}()
+
+func (v *cidrValidator) Description(_ context.Context) string {
+	switch {
+	case v.requirePrivate && v.maxPrefix > 0:
+		return fmt.Sprintf("must be a valid RFC 1918 private CIDR with at most /%d prefix", v.maxPrefix)
+	case v.maxPrefix > 0:
+		return fmt.Sprintf("must be a valid CIDR with at most /%d prefix", v.maxPrefix)
+	default:
+		return "must be a valid CIDR"
+	}
 }
 
 func (v *cidrValidator) MarkdownDescription(ctx context.Context) string {
@@ -59,6 +81,25 @@ func (v *cidrValidator) ValidateString(_ context.Context, req validator.StringRe
 				req.Path,
 				"Invalid CIDR",
 				fmt.Sprintf("%q has a /%d prefix, at least /%d is required.", value, prefix, v.maxPrefix),
+			)
+			return
+		}
+	}
+
+	if v.requirePrivate {
+		ip := cidr.IP
+		private := false
+		for _, n := range rfc1918Networks {
+			if n.Contains(ip) {
+				private = true
+				break
+			}
+		}
+		if !private {
+			resp.Diagnostics.AddAttributeError(
+				req.Path,
+				"Invalid CIDR",
+				fmt.Sprintf("%q is not in a private RFC 1918 range (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16).", value),
 			)
 		}
 	}

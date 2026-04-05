@@ -102,6 +102,55 @@ func TestCIDRWithMaxPrefixValidator(t *testing.T) {
 	}
 }
 
+func TestPrivateCIDRWithMaxPrefixValidator(t *testing.T) {
+	t.Parallel()
+
+	tests := map[string]struct {
+		value     string
+		expectErr bool
+	}{
+		"10.x private /21 (ok)": {
+			value: "10.136.0.0/21", expectErr: false,
+		},
+		"172.16.x private /21 (ok)": {
+			value: "172.20.0.0/21", expectErr: false,
+		},
+		"192.168.x private /21 (ok)": {
+			value: "192.168.0.0/21", expectErr: false,
+		},
+		"public IP rejected": {
+			value: "8.8.8.0/21", expectErr: true,
+		},
+		"100.64.x not RFC 1918": {
+			value: "100.64.0.0/21", expectErr: true,
+		},
+		"172.32.x outside /12 range": {
+			value: "172.32.0.0/21", expectErr: true,
+		},
+		"prefix too small still rejected": {
+			value: "10.0.0.0/24", expectErr: true,
+		},
+	}
+
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			req := validator.StringRequest{
+				Path:        path.Root("test"),
+				ConfigValue: types.StringValue(tc.value),
+			}
+			resp := &validator.StringResponse{}
+			PrivateCIDRWithMaxPrefix(21).ValidateString(context.Background(), req, resp)
+			if tc.expectErr && !resp.Diagnostics.HasError() {
+				t.Error("expected error, got none")
+			}
+			if !tc.expectErr && resp.Diagnostics.HasError() {
+				t.Errorf("unexpected error: %s", resp.Diagnostics.Errors())
+			}
+		})
+	}
+}
+
 func TestCIDRValidator_NullAndUnknown(t *testing.T) {
 	t.Parallel()
 

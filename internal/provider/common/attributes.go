@@ -109,7 +109,7 @@ func GetCIDRAttribute(required, optional, computed bool) rschema.StringAttribute
 		Computed:            computed,
 		MarkdownDescription: CIDR_DESCRIPTION,
 		Validators: []validator.String{
-			validators.CIDRWithMaxPrefix(21),
+			validators.PrivateCIDRWithMaxPrefix(21),
 		},
 		PlanModifiers: []planmodifier.String{
 			modifiers.ImmutableString("cidr"),
