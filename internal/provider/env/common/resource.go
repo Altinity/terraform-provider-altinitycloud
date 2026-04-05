@@ -56,6 +56,8 @@ func (r *EnvResourceBase) ImportState(ctx context.Context, req resource.ImportSt
 	resp.Diagnostics.Append(diags...)
 	diags = resp.State.SetAttribute(ctx, path.Root("skip_deprovision_on_destroy"), false)
 	resp.Diagnostics.Append(diags...)
+	diags = resp.State.SetAttribute(ctx, path.Root("allow_delete_while_disconnected"), false)
+	resp.Diagnostics.Append(diags...)
 
 	if resp.Diagnostics.HasError() {
 		return

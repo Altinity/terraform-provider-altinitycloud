@@ -35,7 +35,6 @@ func TestAccAltinityCloudEnvAzure_Basic(t *testing.T) {
 					"force_destroy",
 					"force_destroy_clusters",
 					"skip_deprovision_on_destroy",
-					"allow_delete_while_disconnected",
 				},
 			},
 		},
