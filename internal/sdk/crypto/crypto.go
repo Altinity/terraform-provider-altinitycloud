@@ -35,7 +35,7 @@ func (c *Crypto) Encrypt(pem string, value string) (string, error) {
 		return "", err
 	}
 	if len(split) != 2 {
-		return "", fmt.Errorf("malformed %s: expected 2 PEMs, instead got %d", pem, len(split))
+		return "", fmt.Errorf("malformed PEM: expected 2 blocks (certificate + key), instead got %d", len(split))
 	}
 	tlsCert, err := x509KeyPairWithLeaf(split[0], split[1])
 	if err != nil {
@@ -43,7 +43,7 @@ func (c *Crypto) Encrypt(pem string, value string) (string, error) {
 	}
 	res, err := c.fetchPublicKey(context.Background(), tlsCert)
 	if err != nil {
-		return string(split[0]) + string(split[1]), err
+		return "", err
 	}
 	key, err := ParseRSAPublicKey(res)
 	if err != nil {
