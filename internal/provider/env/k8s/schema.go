@@ -93,6 +93,9 @@ func getDistributionAttribute(required, optional, computed bool) rschema.StringA
 				string(client.K8SDistributionGke)}...,
 			),
 		},
+		PlanModifiers: []planmodifier.String{
+			modifiers.ImmutableString("distribution"),
+		},
 	}
 }
 
