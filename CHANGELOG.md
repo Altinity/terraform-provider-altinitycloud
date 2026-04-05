@@ -17,6 +17,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Import state verification to env acceptance tests [c28b390](https://github.com/Altinity/terraform-provider-altinitycloud/commit/c28b390).
 
 ### Fixed
+- Mark `env_secret` value attribute as sensitive [7821136](https://github.com/Altinity/terraform-provider-altinitycloud/commit/7821136).
+- Handle `K8S_DISCONNECTED` status in wait loop and delete checks [df3d8c9](https://github.com/Altinity/terraform-provider-altinitycloud/commit/df3d8c9).
+- Replace regex CIDR validation with `net.ParseCIDR` and /21 check [a9f7728](https://github.com/Altinity/terraform-provider-altinitycloud/commit/a9f7728).
+- Remove broken import support from `env_secret` and `env_certificate` [16d1134](https://github.com/Altinity/terraform-provider-altinitycloud/commit/16d1134).
+- Prevent `WaitForDeletion` from hanging when no MFA and no pendingDelete [742c245](https://github.com/Altinity/terraform-provider-altinitycloud/commit/742c245).
+- Remove PEM content from error messages in `crypto.Encrypt` [096069a](https://github.com/Altinity/terraform-provider-altinitycloud/commit/096069a).
+- Add immutable plan modifiers to `nat` and `cloud_connect` in AWS [163a776](https://github.com/Altinity/terraform-provider-altinitycloud/commit/163a776).
+- Add immutable plan modifier to K8S `distribution` attribute [bdea43f](https://github.com/Altinity/terraform-provider-altinitycloud/commit/bdea43f).
+- Call `toModel()` in K8S Update to sync full state from API [4e35941](https://github.com/Altinity/terraform-provider-altinitycloud/commit/4e35941).
+- Add `allow_delete_while_disconnected` to ImportState [290924e](https://github.com/Altinity/terraform-provider-altinitycloud/commit/290924e).
+- Add RFC 1918 private range validation to VPC CIDR [f13db1a](https://github.com/Altinity/terraform-provider-altinitycloud/commit/f13db1a).
 - Guard `ElementsAs` calls against unknown/null values in list/set fields [b7a6abf](https://github.com/Altinity/terraform-provider-altinitycloud/commit/b7a6abf).
 - Add missing reordering for GCP peering connections and Azure tags [5c210e6](https://github.com/Altinity/terraform-provider-altinitycloud/commit/5c210e6).
 - Correct expected type in Configure error messages [217a50b](https://github.com/Altinity/terraform-provider-altinitycloud/commit/217a50b).

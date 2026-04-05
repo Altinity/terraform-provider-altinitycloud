@@ -507,7 +507,6 @@ Required:
 Optional:
 
 - `anonymous_access_enabled` (Boolean) Whether anonymous access is enabled (default `false`).
-- `custom_s3_table_bucket_arn` (String) ARN of the S3 Tables bucket.
 - `maintenance` (Attributes) Maintenance configuration for the catalog. (see [below for nested schema](#nestedatt--iceberg--catalogs--maintenance))
 - `name` (String) Catalog name. Empty name represents the default catalog.
 - `watches` (Attributes List) Table watch configurations. (see [below for nested schema](#nestedatt--iceberg--catalogs--watches))

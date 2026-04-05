@@ -33,7 +33,7 @@ resource "altinitycloud_env_secret" "this" {
 ### Required
 
 - `pem` (String, Sensitive) The Altinity.Cloud PEM certificate required to encrypt the value.
-- `value` (String) The value to be encrypted.
+- `value` (String, Sensitive) The value to be encrypted.
 
 ### Read-Only
 
