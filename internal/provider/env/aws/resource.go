@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
+	support "github.com/altinity/terraform-provider-altinitycloud/internal/provider/common"
 	common "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env/common"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/client"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -47,7 +48,7 @@ func (r *AWSEnvResource) Create(ctx context.Context, req resource.CreateRequest,
 	apiResp, err := r.Client.CreateAWSEnv(ctx, sdkEnv)
 
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create env %s, got error: %s", envName, client.FormatError(err, envName)))
+		resp.Diagnostics.AddError("Client Error", support.FormatClientError(fmt.Sprintf("Unable to create env %s, got error: %s", envName, client.FormatError(err, envName))))
 		return
 	}
 
@@ -97,7 +98,7 @@ func (r *AWSEnvResource) Read(ctx context.Context, req resource.ReadRequest, res
 			tflog.Trace(ctx, "removing resource from state", map[string]interface{}{"name": envName})
 			resp.State.RemoveResource(ctx)
 		} else {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read env %s, got error: %s", envName, client.FormatError(err, envName)))
+			resp.Diagnostics.AddError("Client Error", support.FormatClientError(fmt.Sprintf("Unable to read env %s, got error: %s", envName, client.FormatError(err, envName))))
 		}
 		return
 	}
@@ -148,7 +149,7 @@ func (r *AWSEnvResource) Update(ctx context.Context, req resource.UpdateRequest,
 	apiResp, err := r.Client.UpdateAWSEnv(ctx, sdkEnv)
 
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update env %s, got error: %s", envName, client.FormatError(err, envName)))
+		resp.Diagnostics.AddError("Client Error", support.FormatClientError(fmt.Sprintf("Unable to update env %s, got error: %s", envName, client.FormatError(err, envName))))
 		return
 	}
 
@@ -200,7 +201,7 @@ func (r *AWSEnvResource) Delete(ctx context.Context, req resource.DeleteRequest,
 		if notFound {
 			tflog.Trace(ctx, "deleted resource", map[string]interface{}{"name": envName})
 		} else {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read env status  %s, got error: %s", envName, err))
+			resp.Diagnostics.AddError("Client Error", support.FormatClientError(fmt.Sprintf("Unable to read env status  %s, got error: %s", envName, err)))
 		}
 		return
 	}
@@ -208,7 +209,7 @@ func (r *AWSEnvResource) Delete(ctx context.Context, req resource.DeleteRequest,
 	if len(envStatus.AWSEnv.Status.Errors) > 0 {
 		for _, err := range envStatus.AWSEnv.Status.Errors {
 			if (err.Code == "DISCONNECTED" || err.Code == "K8S_DISCONNECTED") && !data.SkipDeprovisionOnDestroy.ValueBool() && !data.AllowDeleteWhileDisconnected.ValueBool() {
-				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to start env %s, environment is DISCONNECTED.\nCheck environment's `cloudconnect` or use `allow_delete_while_disconnected=true` to continue with the delete operation.", envName))
+				resp.Diagnostics.AddError("Client Error", support.FormatClientError(fmt.Sprintf("Unable to start env %s, environment is DISCONNECTED.\nCheck environment's `cloudconnect` or use `allow_delete_while_disconnected=true` to continue with the delete operation.", envName)))
 				return
 			}
 		}
@@ -221,7 +222,7 @@ func (r *AWSEnvResource) Delete(ctx context.Context, req resource.DeleteRequest,
 	})
 
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", common.FormatDeleteError(envName, err))
+		resp.Diagnostics.AddError("Client Error", support.FormatClientError(common.FormatDeleteError(envName, err)))
 		return
 	}
 

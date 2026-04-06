@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	support "github.com/altinity/terraform-provider-altinitycloud/internal/provider/common"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/client"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -59,12 +60,12 @@ func (d *AzureEnvDataSource) Read(ctx context.Context, req datasource.ReadReques
 	envName := data.Name.ValueString()
 	apiResp, err := d.client.GetAzureEnv(ctx, envName)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read env %s, got error: %s", envName, client.FormatError(err, envName)))
+		resp.Diagnostics.AddError("Client Error", support.FormatClientError(fmt.Sprintf("Unable to read env %s, got error: %s", envName, client.FormatError(err, envName))))
 		return
 	}
 
 	if apiResp.AzureEnv == nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Environment %s was not found", envName))
+		resp.Diagnostics.AddError("Client Error", support.FormatClientError(fmt.Sprintf("Environment %s was not found", envName)))
 		return
 	}
 
