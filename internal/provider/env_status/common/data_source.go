@@ -17,8 +17,7 @@ var MATCH_SPEC_TIMEOUT = time.Duration(60) * time.Minute
 var MATCH_SPEC_POLL_INTERVAL = 30 * time.Second
 
 type EnvStatusDataSourceBase struct {
-	Client   *client.Client
-	TypeName string
+	Client *client.Client
 }
 
 func (d *EnvStatusDataSourceBase) Configure(ctx context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
@@ -59,12 +58,12 @@ type PollFunc func(ctx context.Context, envName string) (*PollResult, error)
 // WaitForSpecRevision polls the environment status until the applied spec revision
 // matches the target revision. It handles TTY output, DISCONNECTED errors, and timeouts.
 // Returns true if the target revision was reached, false otherwise (errors added to diags).
-func WaitForSpecRevision(ctx context.Context, envName string, typeName string, targetRevision int64, verbose bool, poll PollFunc, diags *diag.Diagnostics, readTimeout time.Duration) bool {
+func WaitForSpecRevision(ctx context.Context, envName string, targetRevision int64, verbose bool, poll PollFunc, diags *diag.Diagnostics, readTimeout time.Duration) bool {
 	if readTimeout == 0 {
 		readTimeout = MATCH_SPEC_TIMEOUT
 	}
 
-	prefix := fmt.Sprintf("data.%s", typeName)
+	prefix := envName
 
 	var tty *ttyWriter
 	if verbose {

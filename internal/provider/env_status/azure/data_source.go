@@ -23,7 +23,6 @@ type AzureEnvStatusDataSource struct {
 
 func (d *AzureEnvStatusDataSource) Metadata(ctx context.Context, req datasource.MetadataRequest, resp *datasource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_env_azure_status"
-	d.TypeName = resp.TypeName
 }
 
 func (d *AzureEnvStatusDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
@@ -85,7 +84,7 @@ func (d *AzureEnvStatusDataSource) Read(ctx context.Context, req datasource.Read
 		return
 	}
 
-	if !common.WaitForSpecRevision(ctx, envName, d.TypeName, waitForAppliedSpecRevision, data.Verbose.ValueBool(), poll, &resp.Diagnostics, readTimeout) {
+	if !common.WaitForSpecRevision(ctx, envName, waitForAppliedSpecRevision, data.Verbose.ValueBool(), poll, &resp.Diagnostics, readTimeout) {
 		return
 	}
 
