@@ -16,6 +16,22 @@ func ValidateForceDestroy(envName string, forceDestroy bool) diag.Diagnostics {
 	return diags
 }
 
+// ValidateDisconnected checks if the environment is DISCONNECTED and returns
+// differentiated error messages based on whether the env was ever provisioned.
+func ValidateDisconnected(envName string, errorCode string, appliedSpecRevision int64, skipDeprovision, allowDeleteDisconnected bool) diag.Diagnostics {
+	var diags diag.Diagnostics
+	if (errorCode == "DISCONNECTED" || errorCode == "K8S_DISCONNECTED") && !skipDeprovision && !allowDeleteDisconnected {
+		msg := fmt.Sprintf("Unable to delete env %s, environment is DISCONNECTED.\n", envName)
+		if appliedSpecRevision == 0 {
+			msg += "The environment was never fully provisioned. Use `skip_deprovision_on_destroy=true` together with `allow_delete_while_disconnected=true` to clean up."
+		} else {
+			msg += "Check environment's `cloudconnect` or use `allow_delete_while_disconnected=true` to continue with the delete operation."
+		}
+		diags.AddError("Client Error", msg)
+	}
+	return diags
+}
+
 // FormatDeleteError returns a user-friendly error message for delete failures.
 func FormatDeleteError(envName string, err error) string {
 	activeClusters, _ := client.IsActiveClustersError(err)

@@ -94,10 +94,14 @@ func WaitForSpecRevision(ctx context.Context, envName string, targetRevision int
 				var nonDisconnected []EnvError
 				for _, e := range result.Errors {
 					if e.Code == "DISCONNECTED" || e.Code == "K8S_DISCONNECTED" {
-						if tty != nil {
-							tty.printf("%s: %s (expected during provisioning)\n",
-								prefix, e.Message)
+						if result.AppliedSpecRevision == 0 {
+							if tty != nil {
+								tty.printf("%s: [%s] waiting for initial connection (not yet provisioned)...\n",
+									prefix, elapsed)
+							}
+							continue
 						}
+						nonDisconnected = append(nonDisconnected, e)
 						continue
 					}
 					nonDisconnected = append(nonDisconnected, e)

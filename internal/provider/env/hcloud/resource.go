@@ -183,8 +183,14 @@ func (r *HCloudEnvResource) Delete(ctx context.Context, req resource.DeleteReque
 
 	if len(envStatus.HcloudEnv.Status.Errors) > 0 {
 		for _, err := range envStatus.HcloudEnv.Status.Errors {
-			if (err.Code == "DISCONNECTED" || err.Code == "K8S_DISCONNECTED") && !data.SkipDeprovisionOnDestroy.ValueBool() && !data.AllowDeleteWhileDisconnected.ValueBool() {
-				resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to start env %s, environment is DISCONNECTED.\nCheck environment's `cloudconnect` or use `allow_delete_while_disconnected=true` to continue with the delete operation.", envName))
+			resp.Diagnostics.Append(common.ValidateDisconnected(
+				envName,
+				string(err.Code),
+				envStatus.HcloudEnv.Status.AppliedSpecRevision,
+				data.SkipDeprovisionOnDestroy.ValueBool(),
+				data.AllowDeleteWhileDisconnected.ValueBool(),
+			)...)
+			if resp.Diagnostics.HasError() {
 				return
 			}
 		}
