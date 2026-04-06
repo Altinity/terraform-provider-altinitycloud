@@ -165,8 +165,8 @@ func (r *HCloudEnvResource) Delete(ctx context.Context, req resource.DeleteReque
 	}
 
 	envName := data.Name.ValueString()
-	if !data.ForceDestroy.ValueBool() {
-		resp.Diagnostics.AddError("Env Locked", fmt.Sprintf("env %s is protected for deletion, set `force_destroy` property to `true` and run `terraform apply` to unlock it", envName))
+	resp.Diagnostics.Append(common.ValidateForceDestroy(envName, data.ForceDestroy.ValueBool())...)
+	if resp.Diagnostics.HasError() {
 		return
 	}
 
