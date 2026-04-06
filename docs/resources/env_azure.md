@@ -243,6 +243,33 @@ Required:
 Optional:
 
 - `delete` (String) A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours). Setting a timeout for a Delete operation is only applicable if changes are saved into state before the destroy operation occurs.
+
+## Deprovision / Destroy
+
+By default, environments are protected against accidental deletion. The following attributes control the destroy behavior:
+
+- **`force_destroy`** - Must be set to `true` and applied **before** running `terraform destroy`. Acts as a safety lock to prevent accidental deletion. Without a successful `terraform apply` after setting this flag, `terraform destroy` will fail.
+
+- **`force_destroy_clusters`** - Set to `true` to automatically delete all provisioned clusters during the environment deletion. By default, `terraform destroy` will fail if there are active clusters in the environment.
+
+- **`skip_deprovision_on_destroy`** - Set to `true` to skip the cloud resource cleanup and delete the environment record immediately. Common use cases: when the environment was created with an immutable misconfiguration (e.g., wrong region or CIDR) and no cloud infrastructure was actually provisioned, or when you prefer to manually clean up the cloud resources created by the environment (not recommended). **Use with caution**: if cloud resources were provisioned, they will be left behind (VNets, subnets, etc.) and must be cleaned up manually.
+
+- **`allow_delete_while_disconnected`** - Set to `true` to allow deletion when the environment is in a `DISCONNECTED` state. This is commonly needed together with `skip_deprovision_on_destroy` when no infrastructure was created due to a configuration error (e.g., Azure subscription mismatch). In that scenario the environment never connects, and without this flag the destroy will always time out.
+
+### Typical destroy workflow
+
+1. Set `force_destroy = true` (and optionally `force_destroy_clusters = true`) in your configuration.
+2. Run `terraform apply` to update the state.
+3. Run `terraform destroy`.
+
+```hcl
+resource "altinitycloud_env_azure" "this" {
+  # ... other configuration ...
+
+  force_destroy          = true
+  force_destroy_clusters = true
+}
+```
 ## Import
 
 Import is supported using the following syntax:

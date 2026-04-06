@@ -28,6 +28,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Guard `ElementsAs` calls against null/unknown values in list/set fields [b7a6abf](https://github.com/Altinity/terraform-provider-altinitycloud/commit/b7a6abf), [a723ce5](https://github.com/Altinity/terraform-provider-altinitycloud/commit/a723ce5).
 
 ### Changed
+- Rename `inmutable` -> `immutable` plan modifiers and remove unused `required_if_sibling_value` validator [aae1481](https://github.com/Altinity/terraform-provider-altinitycloud/commit/aae1481).
+- Extract `ValidateForceDestroy` helper and use `FormatError` in delete flow [e390fa0](https://github.com/Altinity/terraform-provider-altinitycloud/commit/e390fa0).
 - Improved validation and error messages across all resources and data sources [be3e2e4](https://github.com/Altinity/terraform-provider-altinitycloud/commit/be3e2e4), [e629745](https://github.com/Altinity/terraform-provider-altinitycloud/commit/e629745).
 - Simplify AWS iceberg schema [#210](https://github.com/Altinity/terraform-provider-altinitycloud/pull/210).
 - Bump Go to `1.25.4` [55091d0](https://github.com/Altinity/terraform-provider-altinitycloud/commit/55091d0).
