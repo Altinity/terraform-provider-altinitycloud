@@ -101,13 +101,58 @@ resource "altinitycloud_env_aws" "example" {
 
 ## Troubleshooting
 
-- **Authentication errors:** Ensure your API token is valid and has proper permissions. Check the `ALTINITYCLOUD_API_TOKEN` environment variable.
-- **Environment provisioning fails:** Use the corresponding status data source to wait for provisioning completion and get detailed error information.
-- **Resource dependencies:** Always use status data sources to ensure proper resource ordering and error detection.
+### Invalid or missing API token
 
-### Need Help?
+```
+Missing Altinity.Cloud API Token
+ALTINITYCLOUD_API_TOKEN environment variable or "api_token" provider attribute required.
+```
 
-If you encounter issues not covered above, please [create an issue](https://github.com/altinity/terraform-provider-altinitycloud/issues/new) with detailed information about your problem.
+Make sure you have set the `ALTINITYCLOUD_API_TOKEN` environment variable or the `api_token` provider attribute. If the token is set but you get an `invalid API token` error, generate a new one from [ACM](https://acm.altinity.cloud/) under "My Account" > "Anywhere API Access".
+
+### Immutable attribute modified
+
+```
+Immutable Attribute
+{attribute_name} is immutable and cannot be modified after creation.
+```
+
+Some attributes like `name`, `region`, and `cidr` cannot be changed after the environment is created. To change them, you need to destroy the environment and create a new one.
+
+### Environment provisioning errors
+
+During provisioning, the environment status may report errors like:
+
+- **`DISCONNECTED`** / **`K8S_DISCONNECTED`** — The environment is not connected to Altinity.Cloud. Verify that the cloud connect setup was completed correctly.
+- **`CLOUD_PROVIDER_ACCESS_DENIED`** — The credentials or permissions provided to Altinity.Cloud are insufficient. Check IAM roles, service accounts, or service principals depending on your cloud provider.
+- **`CLOUD_PROVIDER_QUOTA_EXCEEDED`** — Your cloud provider account has reached a resource quota limit. Request a quota increase from your cloud provider.
+- **`CLOUD_PROVIDER_RESOURCE_NOT_FOUND`** / **`GCP_PROJECT_NOT_FOUND`** — A referenced cloud resource (e.g., project, subscription, account) does not exist. Verify the resource identifiers in your configuration.
+
+These errors are visible in the `altinitycloud_env_*_status` data source and in the [ACM](https://acm.altinity.cloud/) UI.
+
+### MFA timeout during destroy
+
+```
+timeout reached while waiting for MFA to be confirmed.
+Please check your MFA device, confirm deletion and run `terraform destroy` again
+```
+
+If your organization has MFA enabled, environment deletion requires manual approval. After running `terraform destroy`, confirm the deletion on your MFA device within 5 minutes. If the timeout is reached, simply run `terraform destroy` again.
+
+### Destroying an environment
+
+Environment deletion is protected by default and requires specific flags to be set before running `terraform destroy`. Common issues include: the environment being locked (`force_destroy`), having active clusters (`force_destroy_clusters`), or being disconnected (`allow_delete_while_disconnected`).
+
+See the **Deprovision / Destroy** section in each environment resource documentation for detailed instructions.
+
+## Support
+
+If you need help, reach out to us via Slack:
+
+- **Enterprise customers**: Use your organization's dedicated Altinity Slack channel.
+- **Community**: Join the [AltinityDB workspace](https://altinitydbworkspace.slack.com/) and post in the **#terraform** channel.
+
+You can also [create an issue](https://github.com/altinity/terraform-provider-altinitycloud/issues/new) on GitHub.
 
 ## Contributing
 
