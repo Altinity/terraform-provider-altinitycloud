@@ -2019,8 +2019,7 @@ func TestIcebergToSDK(t *testing.T) {
 			input: &AWSEnvIcebergModel{
 				Catalogs: []AWSEnvIcebergCatalogModel{
 					{
-						Type:                   types.StringValue("S3_TABLE"),
-						CustomS3TableBucketARN: types.StringValue("arn:aws:s3tables:us-east-1:123456789012:bucket/my-table-bucket"),
+						Type: types.StringValue("S3_TABLE"),
 						Maintenance: &AWSEnvIcebergCatalogMaintenanceModel{
 							Enabled: types.BoolValue(false),
 						},
@@ -2030,8 +2029,7 @@ func TestIcebergToSDK(t *testing.T) {
 			expected: &sdk.IcebergInputSpec{
 				Catalogs: []*sdk.IcebergCatalogInputSpec{
 					{
-						Type:                   sdk.IcebergCatalogTypeSpecS3Table,
-						CustomS3TableBucketArn: &[]string{"arn:aws:s3tables:us-east-1:123456789012:bucket/my-table-bucket"}[0],
+						Type: sdk.IcebergCatalogTypeSpecS3Table,
 						Maintenance: &sdk.IcebergCatalogMaintenanceInputSpec{
 							Enabled: false,
 						},
@@ -2149,8 +2147,7 @@ func TestIcebergToModel(t *testing.T) {
 			input: &sdk.AWSEnvSpecFragment_Iceberg{
 				Catalogs: []*sdk.AWSEnvSpecFragment_Iceberg_Catalogs{
 					{
-						Type:                   sdk.IcebergCatalogTypeSpecS3Table,
-						CustomS3TableBucketArn: &[]string{"arn:aws:s3tables:us-east-1:123456789012:bucket/tables"}[0],
+						Type: sdk.IcebergCatalogTypeSpecS3Table,
 						Maintenance: sdk.AWSEnvSpecFragment_Iceberg_Catalogs_Maintenance{
 							Enabled: false,
 						},
@@ -2161,8 +2158,7 @@ func TestIcebergToModel(t *testing.T) {
 			expected: &AWSEnvIcebergModel{
 				Catalogs: []AWSEnvIcebergCatalogModel{
 					{
-						Type:                   types.StringValue("S3_TABLE"),
-						CustomS3TableBucketARN: types.StringValue("arn:aws:s3tables:us-east-1:123456789012:bucket/tables"),
+						Type: types.StringValue("S3_TABLE"),
 						Maintenance: &AWSEnvIcebergCatalogMaintenanceModel{
 							Enabled: types.BoolValue(false),
 						},
@@ -2390,8 +2386,7 @@ func TestIcebergToUpdateSDK(t *testing.T) {
 			input: &AWSEnvIcebergModel{
 				Catalogs: []AWSEnvIcebergCatalogModel{
 					{
-						Type:                   types.StringValue("S3_TABLE"),
-						CustomS3TableBucketARN: types.StringValue("arn:aws:s3tables:us-east-1:123456789012:bucket/my-table-bucket"),
+						Type: types.StringValue("S3_TABLE"),
 						Maintenance: &AWSEnvIcebergCatalogMaintenanceModel{
 							Enabled: types.BoolValue(false),
 						},
@@ -2401,8 +2396,7 @@ func TestIcebergToUpdateSDK(t *testing.T) {
 			expected: &sdk.IcebergUpdateInputSpec{
 				Catalogs: []*sdk.IcebergCatalogInputSpec{
 					{
-						Type:                   sdk.IcebergCatalogTypeSpecS3Table,
-						CustomS3TableBucketArn: &[]string{"arn:aws:s3tables:us-east-1:123456789012:bucket/my-table-bucket"}[0],
+						Type: sdk.IcebergCatalogTypeSpecS3Table,
 						Maintenance: &sdk.IcebergCatalogMaintenanceInputSpec{
 							Enabled: false,
 						},

@@ -95,7 +95,6 @@ type AWSEnvIcebergModel struct {
 type AWSEnvIcebergCatalogModel struct {
 	Name                   types.String                          `tfsdk:"name"`
 	Type                   types.String                          `tfsdk:"type"`
-	CustomS3TableBucketARN types.String                          `tfsdk:"custom_s3_table_bucket_arn"`
 	AnonymousAccessEnabled types.Bool                            `tfsdk:"anonymous_access_enabled"`
 	Maintenance            *AWSEnvIcebergCatalogMaintenanceModel `tfsdk:"maintenance"`
 	Watches                []AWSEnvIcebergCatalogWatchModel      `tfsdk:"watches"`
@@ -480,7 +479,6 @@ func icebergToSDK(iceberg *AWSEnvIcebergModel) *sdk.IcebergInputSpec {
 		catalog := &sdk.IcebergCatalogInputSpec{
 			Name:                   c.Name.ValueStringPointer(),
 			Type:                   sdk.IcebergCatalogTypeSpec(c.Type.ValueString()),
-			CustomS3TableBucketArn: c.CustomS3TableBucketARN.ValueStringPointer(),
 			AnonymousAccessEnabled: c.AnonymousAccessEnabled.ValueBoolPointer(),
 		}
 
@@ -521,7 +519,6 @@ func icebergToUpdateSDK(iceberg *AWSEnvIcebergModel) *sdk.IcebergUpdateInputSpec
 		catalog := &sdk.IcebergCatalogInputSpec{
 			Name:                   c.Name.ValueStringPointer(),
 			Type:                   sdk.IcebergCatalogTypeSpec(c.Type.ValueString()),
-			CustomS3TableBucketArn: c.CustomS3TableBucketARN.ValueStringPointer(),
 			AnonymousAccessEnabled: c.AnonymousAccessEnabled.ValueBoolPointer(),
 		}
 
@@ -562,7 +559,6 @@ func icebergToModel(iceberg *sdk.AWSEnvSpecFragment_Iceberg) *AWSEnvIcebergModel
 		catalog := AWSEnvIcebergCatalogModel{
 			Name:                   types.StringPointerValue(c.Name),
 			Type:                   types.StringValue(string(c.Type)),
-			CustomS3TableBucketARN: types.StringPointerValue(c.CustomS3TableBucketArn),
 			AnonymousAccessEnabled: types.BoolPointerValue(c.AnonymousAccessEnabled),
 		}
 
