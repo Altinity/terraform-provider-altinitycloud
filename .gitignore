@@ -27,6 +27,7 @@ website/node_modules
 *.iml
 local
 local-*
+*.local
 
 website/vendor
 

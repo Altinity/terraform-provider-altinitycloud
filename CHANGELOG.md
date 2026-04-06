@@ -6,49 +6,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.6.0](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.5.2...v0.6.0)
 ### Added
+- Documentation: "Deprovision / Destroy" section in all environment resources, "Troubleshooting" and "Support" sections in provider index [35663a9](https://github.com/Altinity/terraform-provider-altinitycloud/commit/35663a9).
 - User-configurable delete timeouts for all environment resources [#220](https://github.com/Altinity/terraform-provider-altinitycloud/pull/220).
 - Real-time TTY progress output for env status polling [9b506d3](https://github.com/Altinity/terraform-provider-altinitycloud/commit/9b506d3).
 - Support `metrics_endpoint` in all BYOC environments [5737183](https://github.com/Altinity/terraform-provider-altinitycloud/commit/5737183).
-- Improved validation error messages [be3e2e4](https://github.com/Altinity/terraform-provider-altinitycloud/commit/be3e2e4).
-- Friendly error wrapper for API responses [e629745](https://github.com/Altinity/terraform-provider-altinitycloud/commit/e629745).
-- Dynamic validation for `custom_s3_table_bucket_arn` [0640870](https://github.com/Altinity/terraform-provider-altinitycloud/commit/0640870).
+- Immutable plan modifiers for `nat`, `cloud_connect` (AWS) and `distribution` (K8S) attributes [163a776](https://github.com/Altinity/terraform-provider-altinitycloud/commit/163a776), [bdea43f](https://github.com/Altinity/terraform-provider-altinitycloud/commit/bdea43f).
+- RFC 1918 private range validation for VPC CIDR [a9f7728](https://github.com/Altinity/terraform-provider-altinitycloud/commit/a9f7728), [f13db1a](https://github.com/Altinity/terraform-provider-altinitycloud/commit/f13db1a).
 - Sanity test workflow triggered on release [#205](https://github.com/Altinity/terraform-provider-altinitycloud/pull/205).
-- Unit tests for plan modifiers, validators, and delete helpers [46e687b](https://github.com/Altinity/terraform-provider-altinitycloud/commit/46e687b).
-- Import state verification to env acceptance tests [c28b390](https://github.com/Altinity/terraform-provider-altinitycloud/commit/c28b390).
 
 ### Fixed
-- Mark `env_secret` value attribute as sensitive [7821136](https://github.com/Altinity/terraform-provider-altinitycloud/commit/7821136).
+- Mark `env_secret` value and `api_token` as sensitive [7821136](https://github.com/Altinity/terraform-provider-altinitycloud/commit/7821136), [55c748e](https://github.com/Altinity/terraform-provider-altinitycloud/commit/55c748e).
 - Handle `K8S_DISCONNECTED` status in wait loop and delete checks [df3d8c9](https://github.com/Altinity/terraform-provider-altinitycloud/commit/df3d8c9).
-- Replace regex CIDR validation with `net.ParseCIDR` and /21 check [a9f7728](https://github.com/Altinity/terraform-provider-altinitycloud/commit/a9f7728).
 - Remove broken import support from `env_secret` and `env_certificate` [16d1134](https://github.com/Altinity/terraform-provider-altinitycloud/commit/16d1134).
 - Prevent `WaitForDeletion` from hanging when no MFA and no pendingDelete [742c245](https://github.com/Altinity/terraform-provider-altinitycloud/commit/742c245).
 - Remove PEM content from error messages in `crypto.Encrypt` [096069a](https://github.com/Altinity/terraform-provider-altinitycloud/commit/096069a).
-- Add immutable plan modifiers to `nat` and `cloud_connect` in AWS [163a776](https://github.com/Altinity/terraform-provider-altinitycloud/commit/163a776).
-- Add immutable plan modifier to K8S `distribution` attribute [bdea43f](https://github.com/Altinity/terraform-provider-altinitycloud/commit/bdea43f).
-- Call `toModel()` in K8S Update to sync full state from API [4e35941](https://github.com/Altinity/terraform-provider-altinitycloud/commit/4e35941).
+- Sync full state from API in K8S Update [4e35941](https://github.com/Altinity/terraform-provider-altinitycloud/commit/4e35941).
 - Add `allow_delete_while_disconnected` to ImportState [290924e](https://github.com/Altinity/terraform-provider-altinitycloud/commit/290924e).
-- Add RFC 1918 private range validation to VPC CIDR [f13db1a](https://github.com/Altinity/terraform-provider-altinitycloud/commit/f13db1a).
-- Guard `ElementsAs` calls against unknown/null values in list/set fields [b7a6abf](https://github.com/Altinity/terraform-provider-altinitycloud/commit/b7a6abf).
-- Add missing reordering for GCP peering connections and Azure tags [5c210e6](https://github.com/Altinity/terraform-provider-altinitycloud/commit/5c210e6).
-- Correct expected type in Configure error messages [217a50b](https://github.com/Altinity/terraform-provider-altinitycloud/commit/217a50b).
+- Use correct GCS bucket name in K8S `logsToModel` [11a923d](https://github.com/Altinity/terraform-provider-altinitycloud/commit/11a923d).
 - Prevent nil dereference in K8S logs using `StringPointerValue` [ea9070d](https://github.com/Altinity/terraform-provider-altinitycloud/commit/ea9070d).
 - Export `WireguardPeers` struct fields for tfsdk reflection [f80e043](https://github.com/Altinity/terraform-provider-altinitycloud/commit/f80e043).
-- Return early when `api_token` is empty [30a8191](https://github.com/Altinity/terraform-provider-altinitycloud/commit/30a8191).
-- Mark `api_token` as sensitive [55c748e](https://github.com/Altinity/terraform-provider-altinitycloud/commit/55c748e).
-- Prevent nil dereference in delete polling loop [87e4dd5](https://github.com/Altinity/terraform-provider-altinitycloud/commit/87e4dd5).
-- Use correct GCS bucket name in K8S `logsToModel` [11a923d](https://github.com/Altinity/terraform-provider-altinitycloud/commit/11a923d).
-- Fix typo in `IsActiveClustersError` function name [b1a6695](https://github.com/Altinity/terraform-provider-altinitycloud/commit/b1a6695).
-- Use `FormatDeleteError` helper instead of duplicated inline delete error logic [b18b8d2](https://github.com/Altinity/terraform-provider-altinitycloud/commit/b18b8d2).
-- Guard `Reservations.ElementsAs` against null/unknown values in all env providers [a723ce5](https://github.com/Altinity/terraform-provider-altinitycloud/commit/a723ce5).
-- Add missing `peering_connections` reordering in AWS env resource [3803b15](https://github.com/Altinity/terraform-provider-altinitycloud/commit/3803b15).
+- Guard `ElementsAs` calls against null/unknown values in list/set fields [b7a6abf](https://github.com/Altinity/terraform-provider-altinitycloud/commit/b7a6abf), [a723ce5](https://github.com/Altinity/terraform-provider-altinitycloud/commit/a723ce5).
 
 ### Changed
-- Bump Go to `1.25.4` [55091d0](https://github.com/Altinity/terraform-provider-altinitycloud/commit/55091d0).
-- Extract shared HTTP client factory to `sdk/http.NewClient` [6f02f44](https://github.com/Altinity/terraform-provider-altinitycloud/commit/6f02f44).
-- Propagate `context.Context` and `diag.Diagnostics` instead of discarding them [cb513ae](https://github.com/Altinity/terraform-provider-altinitycloud/commit/cb513ae).
-- Unify duplicated reorder functions with generic `ReorderByKey` [e11b6e5](https://github.com/Altinity/terraform-provider-altinitycloud/commit/e11b6e5).
-- Extract delete polling loop to common `WaitForDeletion` function [b11881d](https://github.com/Altinity/terraform-provider-altinitycloud/commit/b11881d).
+- Improved validation and error messages across all resources and data sources [be3e2e4](https://github.com/Altinity/terraform-provider-altinitycloud/commit/be3e2e4), [e629745](https://github.com/Altinity/terraform-provider-altinitycloud/commit/e629745).
 - Simplify AWS iceberg schema [#210](https://github.com/Altinity/terraform-provider-altinitycloud/pull/210).
+- Bump Go to `1.25.4` [55091d0](https://github.com/Altinity/terraform-provider-altinitycloud/commit/55091d0).
 - Bump github.com/hashicorp/terraform-plugin-framework to `1.19.0` [#211](https://github.com/Altinity/terraform-provider-altinitycloud/pull/211).
 - Bump github.com/hashicorp/terraform-plugin-go [#207](https://github.com/Altinity/terraform-provider-altinitycloud/pull/207).
 - Bump github.com/cloudflare/circl to `1.6.3` [#216](https://github.com/Altinity/terraform-provider-altinitycloud/pull/216).
@@ -58,11 +40,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.5.2](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.5.1...v0.5.2)
 ### Fixed
-- Revert `metricsEndpoint` from SDK until API is fully deployed [25d6200](https://github.com/Altinity/terraform-provider-altinitycloud/commit/25d6200).
+- Revert `metricsEndpoint` from SDK until is fully supported by the API [25d6200](https://github.com/Altinity/terraform-provider-altinitycloud/commit/25d6200).
 
 ## [0.5.1](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.5.0...v0.5.1)
 ### Fixed
-- Revert support `metrics_endpoint` until API is fully deployed [20fea37](https://github.com/Altinity/terraform-provider-altinitycloud/commit/20fea37).
+- Revert support `metrics_endpoint` from schema until is fully supported by the API [20fea37](https://github.com/Altinity/terraform-provider-altinitycloud/commit/20fea37).
 
 ## [0.5.0](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.4.27...v0.5.0)
 ### Added
