@@ -59,7 +59,7 @@ func (d *K8SEnvDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	envName := data.Name.ValueString()
 	apiResp, err := d.client.GetK8SEnv(ctx, envName)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read env %s, got error: %s", envName, err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read env %s, got error: %s", envName, client.FormatError(err, envName)))
 		return
 	}
 

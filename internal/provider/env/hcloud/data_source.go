@@ -59,7 +59,7 @@ func (d *HCloudEnvDataSource) Read(ctx context.Context, req datasource.ReadReque
 	envName := data.Name.ValueString()
 	apiResp, err := d.client.GetHCloudEnv(ctx, envName)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read env %s, got error: %s", envName, err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read env %s, got error: %s", envName, client.FormatError(err, envName)))
 		return
 	}
 

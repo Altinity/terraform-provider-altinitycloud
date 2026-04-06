@@ -59,7 +59,7 @@ func (d *AzureEnvDataSource) Read(ctx context.Context, req datasource.ReadReques
 	envName := data.Name.ValueString()
 	apiResp, err := d.client.GetAzureEnv(ctx, envName)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read env %s, got error: %s", envName, err))
+		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read env %s, got error: %s", envName, client.FormatError(err, envName)))
 		return
 	}
 
