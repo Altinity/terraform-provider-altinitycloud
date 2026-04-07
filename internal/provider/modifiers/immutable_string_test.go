@@ -60,14 +60,14 @@ func TestImmutableString_PlanModifyString(t *testing.T) {
 			},
 			expectErr: true,
 		},
-		"config null (computed field) skips check": {
+		"config null with value change errors": {
 			req: planmodifier.StringRequest{
 				StateValue:  types.StringValue("us-east-1"),
 				PlanValue:   types.StringValue("different-value"),
 				ConfigValue: types.StringNull(),
 				Plan:        nonNullPlan,
 			},
-			expectErr: false,
+			expectErr: true,
 		},
 	}
 

@@ -31,10 +31,6 @@ func (m immutableBoolModifier) PlanModifyBool(ctx context.Context, req planmodif
 		return
 	}
 
-	if req.ConfigValue.IsNull() {
-		return
-	}
-
 	if req.StateValue.ValueBool() != req.PlanValue.ValueBool() {
 		resp.Diagnostics.AddAttributeError(path.Root(m.AttributeName), "Immutable Attribute", fmt.Sprintf("%s is immutable and cannot be modified after creation.", m.AttributeName))
 		return
