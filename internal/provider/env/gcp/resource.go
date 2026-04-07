@@ -188,7 +188,7 @@ func (r *GCPEnvResource) Delete(ctx context.Context, req resource.DeleteRequest,
 		if notFound {
 			tflog.Trace(ctx, "deleted resource", map[string]interface{}{"name": envName})
 		} else {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read env status  %s, got error: %s", envName, err))
+			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read env status %s, got error: %s", envName, err))
 		}
 		return
 	}
