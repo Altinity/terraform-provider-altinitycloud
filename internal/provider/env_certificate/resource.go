@@ -74,11 +74,6 @@ func (r *CertificateResource) Read(ctx context.Context, req resource.ReadRequest
 
 	diags := req.State.Get(ctx, &data)
 	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	resp.Diagnostics.Append(diags...)
 }
 
 func (r *CertificateResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {

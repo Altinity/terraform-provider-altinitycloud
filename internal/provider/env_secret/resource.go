@@ -75,11 +75,6 @@ func (r *SecretResource) Read(ctx context.Context, req resource.ReadRequest, res
 
 	diags := req.State.Get(ctx, &data)
 	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
-	resp.Diagnostics.Append(diags...)
 }
 
 func (r *SecretResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
