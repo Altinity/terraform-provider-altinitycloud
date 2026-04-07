@@ -59,11 +59,17 @@ func (c *Crypto) Encrypt(pem string, value string) (string, error) {
 
 func (c *Crypto) Decrypt(pkPem string, value string) (string, error) {
 	block, _ := pem.Decode([]byte(pkPem))
+	if block == nil {
+		return "", fmt.Errorf("failed to decode PEM block from private key")
+	}
 	pk, err := x509.ParsePKCS1PrivateKey(block.Bytes)
 	if err != nil {
 		return "", err
 	}
 	parts := strings.SplitN(value, ".", 2)
+	if len(parts) != 2 {
+		return "", fmt.Errorf("malformed encrypted value: expected format \"fingerprint.ciphertext\"")
+	}
 	if parts[0] != fingerprint(&pk.PublicKey) {
 		return "", fmt.Errorf("token encrypted with unknown key: %s", parts[0])
 	}
