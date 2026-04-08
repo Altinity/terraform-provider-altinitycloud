@@ -965,6 +965,8 @@ type CreateGCPEnvSpecInput struct {
 	PrivateServiceConsumers []string `json:"privateServiceConsumers,omitempty"`
 	// List of private service connections.
 	PrivateServiceConnections []*GCPEnvPrivateServiceConnectionSpecInput `json:"privateServiceConnections,omitempty"`
+	// Tags to apply to GCP resources.
+	Tags []*KeyValueInput `json:"tags,omitempty"`
 	// Metrics endpoint configuration.
 	MetricsEndpoint *MetricsEndpointSpecInput `json:"metricsEndpoint,omitempty"`
 }
@@ -1452,6 +1454,8 @@ type GCPEnvSpec struct {
 	PrivateServiceConsumers []string `json:"privateServiceConsumers"`
 	// List of private service connections.
 	PrivateServiceConnections []*GCPEnvPrivateServiceConnectionSpec `json:"privateServiceConnections"`
+	// Tags to apply to GCP resources.
+	Tags []*KeyValue `json:"tags"`
 	// Metrics endpoint configuration.
 	MetricsEndpoint *MetricsEndpointSpec `json:"metricsEndpoint"`
 }
@@ -2317,6 +2321,8 @@ type UpdateGCPEnvSpecInput struct {
 	PrivateServiceConsumers []string `json:"privateServiceConsumers,omitempty"`
 	// List of private service connections.
 	PrivateServiceConnections []*GCPEnvPrivateServiceConnectionSpecInput `json:"privateServiceConnections,omitempty"`
+	// Tags to apply to GCP resources.
+	Tags []*KeyValueInput `json:"tags,omitempty"`
 	// Metrics endpoint configuration.
 	MetricsEndpoint *MetricsEndpointSpecInput `json:"metricsEndpoint,omitempty"`
 }
