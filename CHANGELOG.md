@@ -15,7 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Sanity test workflow triggered on release [#205](https://github.com/Altinity/terraform-provider-altinitycloud/pull/205).
 
 ### Fixed
-- Use `appliedSpecRevision` to distinguish expected DISCONNECTED (never provisioned) from real disconnection errors in status wait loop and delete flow.
+- Prevent immutable modifier bypass when Optional field removed from config [948f086](https://github.com/Altinity/terraform-provider-altinitycloud/commit/948f086).
+- Prevent nil pointer and index panics in `Decrypt()` [1979daa](https://github.com/Altinity/terraform-provider-altinitycloud/commit/1979daa).
+- Use `appliedSpecRevision` to distinguish expected DISCONNECTED (never provisioned) from real disconnection errors in status wait loop and delete flow [416c882](https://github.com/Altinity/terraform-provider-altinitycloud/commit/416c882).
 - Mark `env_secret` value and `api_token` as sensitive [7821136](https://github.com/Altinity/terraform-provider-altinitycloud/commit/7821136), [55c748e](https://github.com/Altinity/terraform-provider-altinitycloud/commit/55c748e).
 - Handle `K8S_DISCONNECTED` status in wait loop and delete checks [df3d8c9](https://github.com/Altinity/terraform-provider-altinitycloud/commit/df3d8c9).
 - Remove broken import support from `env_secret` and `env_certificate` [16d1134](https://github.com/Altinity/terraform-provider-altinitycloud/commit/16d1134).

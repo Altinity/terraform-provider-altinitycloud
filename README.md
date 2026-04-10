@@ -34,7 +34,7 @@ terraform {
   required_providers {
     altinitycloud = {
       source  = "altinity/altinitycloud"
-      version = "~> 0.4.0"
+      version = "~> 0.6.0"
     }
   }
 }
@@ -101,13 +101,15 @@ resource "altinitycloud_env_aws" "example" {
 
 ## Troubleshooting
 
-- **Authentication errors:** Ensure your API token is valid and has proper permissions. Check the `ALTINITYCLOUD_API_TOKEN` environment variable.
-- **Environment provisioning fails:** Use the corresponding status data source to wait for provisioning completion and get detailed error information.
-- **Resource dependencies:** Always use status data sources to ensure proper resource ordering and error detection.
+For common issues and solutions (authentication errors, immutable attributes, provisioning errors, MFA timeouts, and environment deletion), see the [Troubleshooting](https://registry.terraform.io/providers/altinity/altinitycloud/latest/docs#troubleshooting) section in the provider documentation.
 
-### Need Help?
+## Support
 
-If you encounter issues not covered above, please [create an issue](https://github.com/altinity/terraform-provider-altinitycloud/issues/new) with detailed information about your problem.
+If you need help, reach out to us via Slack:
+
+- **Enterprise customers**: Use your organization's dedicated Altinity Slack channel.
+- **Community**: Join the [AltinityDB workspace](https://altinitydbworkspace.slack.com/) and post in the **#terraform** channel.
+- **GitHub Issues**: [Open an issue](https://github.com/altinity/terraform-provider-altinitycloud/issues/new) to report bugs or request features.
 
 ## Contributing
 
