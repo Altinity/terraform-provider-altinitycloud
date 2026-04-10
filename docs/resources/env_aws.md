@@ -11,6 +11,10 @@ description: |-
 
 Bring Your Own Cloud (BYOC) AWS environment resource.
 
+### Cloud Connect Module
+
+AWS environments require the [terraform-altinitycloud-connect-aws](https://github.com/altinity/terraform-altinitycloud-connect-aws) module to establish connectivity between your AWS account and Altinity.Cloud. This module provisions the necessary IAM roles, policies, and networking resources that allow Altinity.Cloud to manage infrastructure in your account. Add `depends_on` to the environment resource to ensure proper ordering during creation and destruction.
+
 ## Example Usage
 
 ### AWS environment with Public Load Balancer:

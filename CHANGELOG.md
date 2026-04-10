@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.6.0](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.5.2...v0.6.0)
 ### Added
+- Documentation: "Asynchronous Provisioning" section in provider index, "Cloud Connect" sections in all environment resource docs, and clarify expected DISCONNECTED status during first provisioning.
 - Documentation: "Deprovision / Destroy" section in all environment resources, "Troubleshooting" and "Support" sections in provider index [35663a9](https://github.com/Altinity/terraform-provider-altinitycloud/commit/35663a9).
 - User-configurable delete timeouts for all environment resources [#220](https://github.com/Altinity/terraform-provider-altinitycloud/pull/220).
 - Real-time TTY progress output for env status polling [9b506d3](https://github.com/Altinity/terraform-provider-altinitycloud/commit/9b506d3).
@@ -29,8 +30,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Prevent nil dereference in K8S logs using `StringPointerValue` [ea9070d](https://github.com/Altinity/terraform-provider-altinitycloud/commit/ea9070d).
 - Export `WireguardPeers` struct fields for tfsdk reflection [f80e043](https://github.com/Altinity/terraform-provider-altinitycloud/commit/f80e043).
 - Guard `ElementsAs` calls against null/unknown values in list/set fields [b7a6abf](https://github.com/Altinity/terraform-provider-altinitycloud/commit/b7a6abf), [a723ce5](https://github.com/Altinity/terraform-provider-altinitycloud/commit/a723ce5).
-- Remove `custom_s3_table_bucket_arn` from AWS iceberg example (attribute removed in schema simplification).
-- Fix GCP peering example: `load_balancers.private` -> `internal`, `peering_connections` from object to list.
+- Remove `custom_s3_table_bucket_arn` from AWS iceberg example (attribute removed in schema simplification) [c6bebf7](https://github.com/Altinity/terraform-provider-altinitycloud/commit/c6bebf7).
+- Fix GCP peering example: `load_balancers.private` -> `internal`, `peering_connections` from object to list [c6bebf7](https://github.com/Altinity/terraform-provider-altinitycloud/commit/c6bebf7).
+- Fix Azure status data source example using AWS resources instead of Azure.
+- Fix HCloud status data source example referencing GCP resources instead of HCloud.
 
 ### Changed
 - Rename `inmutable` -> `immutable` plan modifiers and remove unused `required_if_sibling_value` validator [aae1481](https://github.com/Altinity/terraform-provider-altinitycloud/commit/aae1481).

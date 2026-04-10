@@ -11,6 +11,10 @@ description: |-
 
 {{ .Description | trimspace }}
 
+### Cloud Connect Setup
+
+Azure environments require the Altinity.Cloud service principal to have `Owner` role access on your Azure subscription. The examples below use the `azuread_service_principal` and `azurerm_role_assignment` resources to look up the Altinity.Cloud service principal and grant the required permissions.
+
 ## Example Usage
 
 ### Azure environment with public Load Balancer:

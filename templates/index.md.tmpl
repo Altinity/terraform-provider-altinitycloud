@@ -29,7 +29,7 @@ To use this provider you'll need to obtain Altinity.Cloud API Token:
 
 There are 2 types of environments supported by [Altinity.Cloud Anywhere](https://altinity.cloud/):
 - BYOC: Bring Your Own Cloud,
-  where you connect your AWS/GCP/Azure account/project to Altinity.Cloud & everything (networking stack, compute, etc)
+  where you connect your *AWS/GCP/Azure/HCloud* account/project to Altinity.Cloud & everything (networking stack, compute, etc)
   is provisioned/managed inside your cloud account/project.
 - BYOK: Bring Your Own Kubernetes,
   where you connect a Kubernetes cluster. Altinity.Cloud manages the ClickHouse clusters, while you manage the rest.
@@ -46,6 +46,12 @@ See
   on how to create Bring Your Own Cloud (BYOC) HCloud environment.
 - [`altinitycloud_env_k8s` resource examples](resources/env_k8s#example-usage)
   on how to create Bring Your Own Kubernetes (BYOK) environment.
+
+### Asynchronous Provisioning
+
+Environment provisioning is **asynchronous**. When Terraform creates an environment resource, the API accepts the specification and returns immediately — the actual cloud infrastructure is provisioned in the background. This means `terraform apply` may succeed while the environment is still being set up.
+
+To detect provisioning failures, always use the corresponding `altinitycloud_env_*_status` data source after the environment resource. This data source waits until the environment is fully reconciled and surfaces any errors. Without it, Terraform cannot report provisioning problems.
 
 ## Troubleshooting
 
@@ -71,7 +77,7 @@ Some attributes like `name`, `region`, and `cidr` cannot be changed after the en
 
 During provisioning, the environment status may report errors like:
 
-- **`DISCONNECTED`** / **`K8S_DISCONNECTED`** — The environment is not connected to Altinity.Cloud. Verify that the cloud connect setup was completed correctly.
+- **`DISCONNECTED`** / **`K8S_DISCONNECTED`** — This status is **expected** during the first provisioning of a new environment while the cloud connect setup is being established. If it persists after provisioning completes, verify that the cloud connect setup was completed correctly.
 - **`CLOUD_PROVIDER_ACCESS_DENIED`** — The credentials or permissions provided to Altinity.Cloud are insufficient. Check IAM roles, service accounts, or service principals depending on your cloud provider.
 - **`CLOUD_PROVIDER_QUOTA_EXCEEDED`** — Your cloud provider account has reached a resource quota limit. Request a quota increase from your cloud provider.
 - **`CLOUD_PROVIDER_RESOURCE_NOT_FOUND`** / **`GCP_PROJECT_NOT_FOUND`** — A referenced cloud resource (e.g., project, subscription, account) does not exist. Verify the resource identifiers in your configuration.

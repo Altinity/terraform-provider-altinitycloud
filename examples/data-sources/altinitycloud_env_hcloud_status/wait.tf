@@ -31,6 +31,6 @@ resource "altinitycloud_env_hcloud" "this" {
 }
 
 data "altinitycloud_env_hcloud_status" "current" {
-  name                           = altinitycloud_env_gcp.this.name
-  wait_for_applied_spec_revision = altinitycloud_env_gcp.this.spec_revision
+  name                           = altinitycloud_env_hcloud.this.name
+  wait_for_applied_spec_revision = altinitycloud_env_hcloud.this.spec_revision
 }
