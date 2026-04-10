@@ -1,4 +1,6 @@
 name: Sanity Tests
+permissions:
+  contents: read
 
 # Triggers terraform sanity tests in the cloud-regression repo and
 # waits for them to finish, mirroring the result (pass/fail/cancelled).
