@@ -13,7 +13,7 @@ Bring Your Own Kubernetes (BYOK) environment resource.
 
 ### Cloud Connect Module
 
-Kubernetes environments require the [terraform-altinitycloud-connect](https://github.com/altinity/terraform-altinitycloud-connect) module to install the Altinity.Cloud agent in your cluster. This module deploys the necessary components that allow Altinity.Cloud to manage ClickHouse clusters inside your Kubernetes cluster. Set `cloud_connect = true` on the environment resource and add `depends_on` to ensure proper ordering during creation and destruction.
+Kubernetes environments require the [terraform-altinitycloud-connect](https://github.com/altinity/terraform-altinitycloud-connect) module to install the Altinity.Cloud agent in your cluster. This module deploys the necessary components that allow Altinity.Cloud to manage ClickHouse clusters inside your Kubernetes cluster. Add `depends_on` to the environment resource to ensure proper ordering during creation and destruction.
 
 ## Example Usage
 

@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.6.0](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.5.2...v0.6.0)
 ### Added
-- Documentation: "Asynchronous Provisioning" section in provider index, "Cloud Connect" sections in all environment resource docs, and clarify expected DISCONNECTED status during first provisioning.
+- Documentation: "Asynchronous Provisioning" section in provider index, "Cloud Connect" sections in all environment resource docs, and clarify expected DISCONNECTED status during first provisioning [52bf7bb](https://github.com/Altinity/terraform-provider-altinitycloud/commit/52bf7bb).
 - Documentation: "Deprovision / Destroy" section in all environment resources, "Troubleshooting" and "Support" sections in provider index [35663a9](https://github.com/Altinity/terraform-provider-altinitycloud/commit/35663a9).
 - User-configurable delete timeouts for all environment resources [#220](https://github.com/Altinity/terraform-provider-altinitycloud/pull/220).
 - Real-time TTY progress output for env status polling [9b506d3](https://github.com/Altinity/terraform-provider-altinitycloud/commit/9b506d3).
