@@ -32,6 +32,11 @@ func (m immutableStringModifier) PlanModifyString(ctx context.Context, req planm
 		return
 	}
 
+	if req.PlanValue.IsUnknown() {
+		resp.PlanValue = req.StateValue
+		return
+	}
+
 	if req.StateValue.ValueString() != req.PlanValue.ValueString() {
 		resp.Diagnostics.AddAttributeError(path.Root(m.AttributeName), "Immutable Attribute", fmt.Sprintf("%s is immutable and cannot be modified after creation.", m.AttributeName))
 		return
