@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-go/tftypes"
 )
 
-func TestImmutableString_PlanModifyString(t *testing.T) {
+func TestImmutableBool_PlanModifyBool(t *testing.T) {
 	t.Parallel()
 
 	nonNullPlan := tfsdk.Plan{
@@ -21,72 +21,72 @@ func TestImmutableString_PlanModifyString(t *testing.T) {
 	}
 
 	tests := map[string]struct {
-		req             planmodifier.StringRequest
+		req             planmodifier.BoolRequest
 		expectErr       bool
-		expectPlanValue *types.String
+		expectPlanValue *types.Bool
 	}{
 		"create (state null) allows any value": {
-			req: planmodifier.StringRequest{
-				StateValue:  types.StringNull(),
-				PlanValue:   types.StringValue("us-east-1"),
-				ConfigValue: types.StringValue("us-east-1"),
+			req: planmodifier.BoolRequest{
+				StateValue:  types.BoolNull(),
+				PlanValue:   types.BoolValue(true),
+				ConfigValue: types.BoolValue(true),
 				Plan:        nonNullPlan,
 			},
 			expectErr: false,
 		},
 		"destroy (plan null) allows deletion": {
-			req: planmodifier.StringRequest{
-				StateValue:  types.StringValue("us-east-1"),
-				PlanValue:   types.StringNull(),
-				ConfigValue: types.StringNull(),
+			req: planmodifier.BoolRequest{
+				StateValue:  types.BoolValue(true),
+				PlanValue:   types.BoolNull(),
+				ConfigValue: types.BoolNull(),
 				Plan:        nullPlan,
 			},
 			expectErr: false,
 		},
 		"no change passes": {
-			req: planmodifier.StringRequest{
-				StateValue:  types.StringValue("us-east-1"),
-				PlanValue:   types.StringValue("us-east-1"),
-				ConfigValue: types.StringValue("us-east-1"),
+			req: planmodifier.BoolRequest{
+				StateValue:  types.BoolValue(true),
+				PlanValue:   types.BoolValue(true),
+				ConfigValue: types.BoolValue(true),
 				Plan:        nonNullPlan,
 			},
 			expectErr: false,
 		},
 		"value changed errors": {
-			req: planmodifier.StringRequest{
-				StateValue:  types.StringValue("us-east-1"),
-				PlanValue:   types.StringValue("us-west-2"),
-				ConfigValue: types.StringValue("us-west-2"),
+			req: planmodifier.BoolRequest{
+				StateValue:  types.BoolValue(true),
+				PlanValue:   types.BoolValue(false),
+				ConfigValue: types.BoolValue(false),
 				Plan:        nonNullPlan,
 			},
 			expectErr: true,
 		},
 		"config null with value change errors": {
-			req: planmodifier.StringRequest{
-				StateValue:  types.StringValue("us-east-1"),
-				PlanValue:   types.StringValue("different-value"),
-				ConfigValue: types.StringNull(),
+			req: planmodifier.BoolRequest{
+				StateValue:  types.BoolValue(true),
+				PlanValue:   types.BoolValue(false),
+				ConfigValue: types.BoolNull(),
 				Plan:        nonNullPlan,
 			},
 			expectErr: true,
 		},
 		"plan unknown preserves state": {
-			req: planmodifier.StringRequest{
-				StateValue:  types.StringValue("us-east-1"),
-				PlanValue:   types.StringUnknown(),
-				ConfigValue: types.StringNull(),
+			req: planmodifier.BoolRequest{
+				StateValue:  types.BoolValue(true),
+				PlanValue:   types.BoolUnknown(),
+				ConfigValue: types.BoolNull(),
 				Plan:        nonNullPlan,
 			},
 			expectErr:       false,
-			expectPlanValue: ptr(types.StringValue("us-east-1")),
+			expectPlanValue: boolPtr(types.BoolValue(true)),
 		},
 	}
 
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
-			resp := &planmodifier.StringResponse{PlanValue: tc.req.PlanValue}
-			ImmutableString("region").PlanModifyString(context.Background(), tc.req, resp)
+			resp := &planmodifier.BoolResponse{PlanValue: tc.req.PlanValue}
+			ImmutableBool("internal").PlanModifyBool(context.Background(), tc.req, resp)
 
 			if tc.expectErr && !resp.Diagnostics.HasError() {
 				t.Error("expected error diagnostic, got none")
@@ -101,4 +101,4 @@ func TestImmutableString_PlanModifyString(t *testing.T) {
 	}
 }
 
-func ptr[T any](v T) *T { return &v }
+func boolPtr(v types.Bool) *types.Bool { return &v }
