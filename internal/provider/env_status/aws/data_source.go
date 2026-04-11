@@ -49,7 +49,7 @@ func (d *AWSEnvStatusDataSource) Read(ctx context.Context, req datasource.ReadRe
 
 	waitForAppliedSpecRevision := data.WaitForAppliedSpecRevision.ValueInt64()
 	if waitForAppliedSpecRevision == 0 || apiResp.AWSEnv.Status.AppliedSpecRevision >= waitForAppliedSpecRevision {
-		tflog.Trace(ctx, "env status matchs spec", map[string]interface{}{"name": envName})
+		tflog.Trace(ctx, "env status matches spec", map[string]interface{}{"name": envName})
 		data.toModel(*apiResp.AWSEnv)
 		data.Id = data.Name
 

@@ -91,7 +91,7 @@ func WaitForSpecRevision(ctx context.Context, envName string, targetRevision int
 			elapsed := time.Since(start).Round(time.Second)
 
 			if len(result.Errors) > 0 {
-				var nonDisconnected []EnvError
+				var blockingErrors []EnvError
 				for _, e := range result.Errors {
 					if e.Code == "DISCONNECTED" || e.Code == "K8S_DISCONNECTED" {
 						if result.AppliedSpecRevision == 0 {
@@ -101,13 +101,13 @@ func WaitForSpecRevision(ctx context.Context, envName string, targetRevision int
 							}
 							continue
 						}
-						nonDisconnected = append(nonDisconnected, e)
+						blockingErrors = append(blockingErrors, e)
 						continue
 					}
-					nonDisconnected = append(nonDisconnected, e)
+					blockingErrors = append(blockingErrors, e)
 				}
 
-				if len(nonDisconnected) == 0 {
+				if len(blockingErrors) == 0 {
 					if tty != nil {
 						tty.printf("%s: [%s] connecting...\n", prefix, elapsed)
 					}
@@ -115,7 +115,7 @@ func WaitForSpecRevision(ctx context.Context, envName string, targetRevision int
 				}
 
 				var errorDetails string
-				for _, e := range nonDisconnected {
+				for _, e := range blockingErrors {
 					errorDetails += fmt.Sprintf("%s: %s\n", e.Code, e.Message)
 				}
 				return nil, "", fmt.Errorf("environment %s has provisioning errors:\n%s", envName, errorDetails)
