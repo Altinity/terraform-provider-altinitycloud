@@ -81,7 +81,7 @@ data "altinitycloud_env_hcloud_status" "this" {
 		Examples:
 		- "10.136.0.0/21"
 		- "172.20.0.0/21"
-- `hcloud_token_enc` (String) HCloud token (stored encrypted)
+- `hcloud_token_enc` (String, Sensitive) HCloud token (stored encrypted)
 - `name` (String) A globally-unique environment identifier. **[IMMUTABLE]**
 
 		- All environment names must start with your account name as prefix.

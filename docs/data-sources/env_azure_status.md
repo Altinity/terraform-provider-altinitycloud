@@ -64,7 +64,7 @@ data "altinitycloud_env_azure_status" "current" {
 
 - `applied_spec_revision` (Number) Applied spec revision
 - `id` (String) ID of the environment (automatically generated based on the name)
-- `load_balancers` (Attributes) Status of internal load balancer. (see [below for nested schema](#nestedatt--load_balancers))
+- `load_balancers` (Attributes) Load balancer status information. (see [below for nested schema](#nestedatt--load_balancers))
 - `pending_delete` (Boolean) `true` indicates that environment is pending deletion
 
 <a id="nestedblock--timeouts"></a>

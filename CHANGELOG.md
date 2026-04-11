@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.1](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.6.0...v0.6.1)
+### Fixed
+- Fix typo "matchs" -> "matches" in AWS env status log [cddaae2](https://github.com/Altinity/terraform-provider-altinitycloud/commit/cddaae2).
+- Rename misleading `nonDisconnected` variable to `blockingErrors` in env status wait loop [cddaae2](https://github.com/Altinity/terraform-provider-altinitycloud/commit/cddaae2).
+- Fix nil pointer dereference in `IsNotFoundError` and `IsActiveClustersError` when called with nil error [34cdbd6](https://github.com/Altinity/terraform-provider-altinitycloud/commit/34cdbd6).
+- Add unit tests for `IsNotFoundError` and `IsActiveClustersError` [34cdbd6](https://github.com/Altinity/terraform-provider-altinitycloud/commit/34cdbd6).
+- Fix swapped load balancer description constants in docs [4ff8839](https://github.com/Altinity/terraform-provider-altinitycloud/commit/4ff8839).
+- Remove double space in delete status error message [c35554d](https://github.com/Altinity/terraform-provider-altinitycloud/commit/c35554d).
+- Mark `hcloud_token_enc` as Sensitive [7391dd2](https://github.com/Altinity/terraform-provider-altinitycloud/commit/7391dd2).
+- Use datasource schema types for `peering_connections` in AWS env status [98c90ba](https://github.com/Altinity/terraform-provider-altinitycloud/commit/98c90ba).
+- Fail hard on invalid `ca_crt` instead of falling back to system CAs [a0fb131](https://github.com/Altinity/terraform-provider-altinitycloud/commit/a0fb131).
+- Remove duplicate diagnostics append in Certificate and Secret Read [2f688cc](https://github.com/Altinity/terraform-provider-altinitycloud/commit/2f688cc).
+- Handle unknown plan values in immutable modifiers [ff2fc90](https://github.com/Altinity/terraform-provider-altinitycloud/commit/ff2fc90).
+
 ## [0.6.0](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.5.2...v0.6.0)
 ### Added
 - Documentation: "Asynchronous Provisioning" section in provider index, "Cloud Connect" sections in all environment resource docs, and clarify expected DISCONNECTED status during first provisioning [52bf7bb](https://github.com/Altinity/terraform-provider-altinitycloud/commit/52bf7bb).
