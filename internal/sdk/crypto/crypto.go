@@ -96,7 +96,7 @@ func (c *Crypto) fetchPublicKey(ctx context.Context, tlsCert tls.Certificate) (p
 		return nil, err
 	}
 	if _, err := DecodeRSAPublicKey(body); err != nil {
-		return nil, fmt.Errorf("GET %s: parse body %q: %v", url, string(body), err)
+		return nil, fmt.Errorf("GET %s: parse body: %w (response: %s)", sdkHttp.SanitizeRequestURL(url), err, sdkHttp.PreviewBodyForError(body))
 	}
 	return body, nil
 }
