@@ -97,7 +97,14 @@ func WaitForDeletion(ctx context.Context, resp *resource.DeleteResponse, envName
 					tflog.Trace(ctx, "deleted resource", map[string]interface{}{"name": envName})
 					return envName, "DELETED", nil
 				}
-				return nil, "", err
+				// StateChangeConf aborts on any non-nil error from Refresh. Treat other
+				// errors (e.g. transient 5xx/network) as still deleting so polling
+				// continues until deleteTimeout or the resource is gone.
+				tflog.Trace(ctx, "error while polling deletion status; will retry", map[string]interface{}{
+					"name":  envName,
+					"error": err.Error(),
+				})
+				return envName, "DELETING", nil
 			}
 
 			if !pendingDelete {

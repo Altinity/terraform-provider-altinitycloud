@@ -139,3 +139,32 @@ func TestWaitForDeletion_NonNotFoundError(t *testing.T) {
 		t.Error("expected error, got none")
 	}
 }
+
+func TestWaitForDeletion_TransientErrorThenDeleted(t *testing.T) {
+	t.Parallel()
+	origInterval := DeletePollInterval
+	DeletePollInterval = 50 * time.Millisecond
+	defer func() { DeletePollInterval = origInterval }()
+
+	var calls atomic.Int32
+	resp := &resource.DeleteResponse{}
+	check := func(ctx context.Context, name string) (bool, error) {
+		n := calls.Add(1)
+		if n == 1 {
+			return true, fmt.Errorf("HTTP 503 Service Unavailable")
+		}
+		if n == 2 {
+			return true, nil
+		}
+		return false, notFoundErr()
+	}
+
+	WaitForDeletion(context.Background(), resp, "test-env", false, check, 5*time.Second, 1*time.Second)
+
+	if resp.Diagnostics.HasError() {
+		t.Errorf("unexpected error: %s", resp.Diagnostics.Errors())
+	}
+	if calls.Load() < 3 {
+		t.Errorf("expected status check to run until not-found after 503, got %d calls", calls.Load())
+	}
+}
