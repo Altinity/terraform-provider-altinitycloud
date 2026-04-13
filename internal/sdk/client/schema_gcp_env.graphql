@@ -87,6 +87,10 @@ fragment GCPEnvSpecFragment on GCPEnvSpec {
   cidr
   gcpProjectId
   cloudConnect
+  tags {
+    key
+    value
+  }
   metricsEndpoint {
     enabled
     sourceIPRanges

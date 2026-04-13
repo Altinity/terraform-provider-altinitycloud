@@ -282,6 +282,7 @@ type GCPEnvSpecFragment struct {
 	Cidr                    string                                   "json:\"cidr\" graphql:\"cidr\""
 	GCPProjectID            string                                   "json:\"gcpProjectId\" graphql:\"gcpProjectId\""
 	CloudConnect            bool                                     "json:\"cloudConnect\" graphql:\"cloudConnect\""
+	Tags                    []*GCPEnvSpecFragment_Tags               "json:\"tags\" graphql:\"tags\""
 	MetricsEndpoint         GCPEnvSpecFragment_MetricsEndpoint       "json:\"metricsEndpoint\" graphql:\"metricsEndpoint\""
 }
 
@@ -356,6 +357,12 @@ func (t *GCPEnvSpecFragment) GetCloudConnect() bool {
 		t = &GCPEnvSpecFragment{}
 	}
 	return t.CloudConnect
+}
+func (t *GCPEnvSpecFragment) GetTags() []*GCPEnvSpecFragment_Tags {
+	if t == nil {
+		t = &GCPEnvSpecFragment{}
+	}
+	return t.Tags
 }
 func (t *GCPEnvSpecFragment) GetMetricsEndpoint() *GCPEnvSpecFragment_MetricsEndpoint {
 	if t == nil {
@@ -1218,6 +1225,24 @@ func (t *GCPEnvSpecFragment_PeeringConnections) GetProjectID() *string {
 		t = &GCPEnvSpecFragment_PeeringConnections{}
 	}
 	return t.ProjectID
+}
+
+type GCPEnvSpecFragment_Tags struct {
+	Key   string "json:\"key\" graphql:\"key\""
+	Value string "json:\"value\" graphql:\"value\""
+}
+
+func (t *GCPEnvSpecFragment_Tags) GetKey() string {
+	if t == nil {
+		t = &GCPEnvSpecFragment_Tags{}
+	}
+	return t.Key
+}
+func (t *GCPEnvSpecFragment_Tags) GetValue() string {
+	if t == nil {
+		t = &GCPEnvSpecFragment_Tags{}
+	}
+	return t.Value
 }
 
 type GCPEnvSpecFragment_MetricsEndpoint struct {
