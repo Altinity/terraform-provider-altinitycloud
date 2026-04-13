@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	support "github.com/altinity/terraform-provider-altinitycloud/internal/provider/common"
+	clientsupport "github.com/altinity/terraform-provider-altinitycloud/internal/provider/common"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/client"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -60,12 +60,12 @@ func (d *K8SEnvDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	envName := data.Name.ValueString()
 	apiResp, err := d.client.GetK8SEnv(ctx, envName)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", support.FormatClientError(fmt.Sprintf("Unable to read env %s, got error: %s", envName, client.FormatError(err, envName))))
+		clientsupport.AddClientError(&resp.Diagnostics, fmt.Sprintf("Unable to read env %s, got error: %s", envName, client.FormatError(err, envName)))
 		return
 	}
 
 	if apiResp.K8sEnv == nil {
-		resp.Diagnostics.AddError("Client Error", support.FormatClientError(fmt.Sprintf("Environment %s was not found", envName)))
+		clientsupport.AddClientError(&resp.Diagnostics, fmt.Sprintf("Environment %s was not found", envName))
 		return
 	}
 

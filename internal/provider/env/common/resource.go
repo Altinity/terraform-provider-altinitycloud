@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	clientsupport "github.com/altinity/terraform-provider-altinitycloud/internal/provider/common"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/auth"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/client"
@@ -126,6 +127,6 @@ func WaitForDeletion(ctx context.Context, resp *resource.DeleteResponse, envName
 
 	_, err := stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		resp.Diagnostics.AddError("Delete Error", fmt.Sprintf("Error waiting for env %s to be deleted: %s", envName, err))
+		clientsupport.AddSupportError(&resp.Diagnostics, "Delete Error", fmt.Sprintf("Error waiting for env %s to be deleted: %s", envName, err))
 	}
 }

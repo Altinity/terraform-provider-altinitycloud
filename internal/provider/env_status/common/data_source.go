@@ -6,6 +6,7 @@ import (
 	"os"
 	"time"
 
+	clientsupport "github.com/altinity/terraform-provider-altinitycloud/internal/provider/common"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/client"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -139,7 +140,7 @@ func WaitForSpecRevision(ctx context.Context, envName string, targetRevision int
 
 	_, err := stateConf.WaitForStateContext(ctx)
 	if err != nil {
-		diags.AddError("Status Error", fmt.Sprintf("Error waiting for env status %s: %s", envName, err))
+		clientsupport.AddSupportError(diags, "Status Error", fmt.Sprintf("Error waiting for env status %s: %s", envName, err))
 		return false
 	}
 	return true

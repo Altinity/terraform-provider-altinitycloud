@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	support "github.com/altinity/terraform-provider-altinitycloud/internal/provider/common"
+	clientsupport "github.com/altinity/terraform-provider-altinitycloud/internal/provider/common"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/provider/env_status/common"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/client"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -39,12 +39,12 @@ func (d *HCloudEnvStatusDataSource) Read(ctx context.Context, req datasource.Rea
 	envName := data.Name.ValueString()
 	apiResp, err := d.Client.GetHCloudEnvStatus(ctx, envName)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", support.FormatClientError(fmt.Sprintf("Unable to read env status %s, got error: %s", envName, client.FormatError(err, envName))))
+		clientsupport.AddClientError(&resp.Diagnostics, fmt.Sprintf("Unable to read env status %s, got error: %s", envName, client.FormatError(err, envName)))
 		return
 	}
 
 	if apiResp.HcloudEnv == nil {
-		resp.Diagnostics.AddError("Client Error", support.FormatClientError(fmt.Sprintf("Environment %s was not found", envName)))
+		clientsupport.AddClientError(&resp.Diagnostics, fmt.Sprintf("Environment %s was not found", envName))
 		return
 	}
 
@@ -91,7 +91,7 @@ func (d *HCloudEnvStatusDataSource) Read(ctx context.Context, req datasource.Rea
 
 	apiResp, err = d.Client.GetHCloudEnvStatus(ctx, envName)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", support.FormatClientError(fmt.Sprintf("Unable to read env status %s, got error: %s", envName, client.FormatError(err, envName))))
+		clientsupport.AddClientError(&resp.Diagnostics, fmt.Sprintf("Unable to read env status %s, got error: %s", envName, client.FormatError(err, envName)))
 		return
 	}
 
