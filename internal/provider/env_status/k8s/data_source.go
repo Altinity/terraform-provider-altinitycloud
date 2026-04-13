@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	clientsupport "github.com/altinity/terraform-provider-altinitycloud/internal/provider/common"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/provider/env_status/common"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/client"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -38,12 +39,12 @@ func (d *K8SEnvStatusDataSource) Read(ctx context.Context, req datasource.ReadRe
 	envName := data.Name.ValueString()
 	apiResp, err := d.Client.GetK8SEnvStatus(ctx, envName)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read env status %s, got error: %s", envName, client.FormatError(err, envName)))
+		clientsupport.AddClientError(&resp.Diagnostics, fmt.Sprintf("Unable to read env status %s, got error: %s", envName, client.FormatError(err, envName)))
 		return
 	}
 
 	if apiResp.K8sEnv == nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Environment %s was not found", envName))
+		clientsupport.AddClientError(&resp.Diagnostics, fmt.Sprintf("Environment %s was not found", envName))
 		return
 	}
 
@@ -90,7 +91,7 @@ func (d *K8SEnvStatusDataSource) Read(ctx context.Context, req datasource.ReadRe
 
 	apiResp, err = d.Client.GetK8SEnvStatus(ctx, envName)
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read env status %s, got error: %s", envName, client.FormatError(err, envName)))
+		clientsupport.AddClientError(&resp.Diagnostics, fmt.Sprintf("Unable to read env status %s, got error: %s", envName, client.FormatError(err, envName)))
 		return
 	}
 

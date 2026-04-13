@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	clientsupport "github.com/altinity/terraform-provider-altinitycloud/internal/provider/common"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/client"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/crypto"
@@ -60,7 +61,7 @@ func (r *SecretResource) Create(ctx context.Context, req resource.CreateRequest,
 	secretValue, err := r.crypto.Encrypt(data.PEM.ValueString(), data.Value.ValueString())
 
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable encrypt, got error: %s", err))
+		clientsupport.AddClientError(&resp.Diagnostics, fmt.Sprintf("Unable encrypt, got error: %s", err))
 		return
 	}
 	data.SecretValue = types.StringValue(secretValue)
@@ -90,7 +91,7 @@ func (r *SecretResource) Update(ctx context.Context, req resource.UpdateRequest,
 
 	secretValue, err := r.crypto.Encrypt(data.PEM.ValueString(), data.Value.ValueString())
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable generate secret, got error: %s", err))
+		clientsupport.AddClientError(&resp.Diagnostics, fmt.Sprintf("Unable generate secret, got error: %s", err))
 		return
 	}
 	data.SecretValue = types.StringValue(secretValue)

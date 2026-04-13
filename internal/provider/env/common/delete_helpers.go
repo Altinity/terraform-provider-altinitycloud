@@ -3,6 +3,7 @@ package env
 import (
 	"fmt"
 
+	clientsupport "github.com/altinity/terraform-provider-altinitycloud/internal/provider/common"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/client"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 )
@@ -27,7 +28,7 @@ func ValidateDisconnected(envName string, errorCode string, appliedSpecRevision 
 		} else {
 			msg += "Check environment's `cloudconnect` or use `allow_delete_while_disconnected=true` to continue with the delete operation."
 		}
-		diags.AddError("Client Error", msg)
+		clientsupport.AddClientError(&diags, msg)
 	}
 	return diags
 }

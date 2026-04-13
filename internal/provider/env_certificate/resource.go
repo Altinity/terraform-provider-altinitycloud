@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	clientsupport "github.com/altinity/terraform-provider-altinitycloud/internal/provider/common"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/auth"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/client"
@@ -59,7 +60,7 @@ func (r *CertificateResource) Create(ctx context.Context, req resource.CreateReq
 	tflog.Trace(ctx, "creating resource")
 	crt, key, err := r.auth.GenerateCertificate(ctx, data.EnvironmentName.ValueString())
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable generate certificate, got error: %s", err))
+		clientsupport.AddClientError(&resp.Diagnostics, fmt.Sprintf("Unable generate certificate, got error: %s", err))
 		return
 	}
 	data.PEM = types.StringValue(crt + "\n" + key)
@@ -89,7 +90,7 @@ func (r *CertificateResource) Update(ctx context.Context, req resource.UpdateReq
 
 	crt, key, err := r.auth.GenerateCertificate(ctx, data.EnvironmentName.ValueString())
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable generate certificate, got error: %s", err))
+		clientsupport.AddClientError(&resp.Diagnostics, fmt.Sprintf("Unable generate certificate, got error: %s", err))
 		return
 	}
 	data.PEM = types.StringValue(crt + "\n" + key)

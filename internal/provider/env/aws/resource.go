@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-framework/types"
 
+	clientsupport "github.com/altinity/terraform-provider-altinitycloud/internal/provider/common"
 	common "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env/common"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/client"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -47,7 +48,7 @@ func (r *AWSEnvResource) Create(ctx context.Context, req resource.CreateRequest,
 	apiResp, err := r.Client.CreateAWSEnv(ctx, sdkEnv)
 
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create env %s, got error: %s", envName, client.FormatError(err, envName)))
+		clientsupport.AddClientError(&resp.Diagnostics, fmt.Sprintf("Unable to create env %s, got error: %s", envName, client.FormatError(err, envName)))
 		return
 	}
 
@@ -97,7 +98,7 @@ func (r *AWSEnvResource) Read(ctx context.Context, req resource.ReadRequest, res
 			tflog.Trace(ctx, "removing resource from state", map[string]interface{}{"name": envName})
 			resp.State.RemoveResource(ctx)
 		} else {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read env %s, got error: %s", envName, client.FormatError(err, envName)))
+			clientsupport.AddClientError(&resp.Diagnostics, fmt.Sprintf("Unable to read env %s, got error: %s", envName, client.FormatError(err, envName)))
 		}
 		return
 	}
@@ -148,7 +149,7 @@ func (r *AWSEnvResource) Update(ctx context.Context, req resource.UpdateRequest,
 	apiResp, err := r.Client.UpdateAWSEnv(ctx, sdkEnv)
 
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to update env %s, got error: %s", envName, client.FormatError(err, envName)))
+		clientsupport.AddClientError(&resp.Diagnostics, fmt.Sprintf("Unable to update env %s, got error: %s", envName, client.FormatError(err, envName)))
 		return
 	}
 
@@ -200,7 +201,7 @@ func (r *AWSEnvResource) Delete(ctx context.Context, req resource.DeleteRequest,
 		if notFound {
 			tflog.Trace(ctx, "deleted resource", map[string]interface{}{"name": envName})
 		} else {
-			resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to read env status %s, got error: %s", envName, err))
+			clientsupport.AddClientError(&resp.Diagnostics, fmt.Sprintf("Unable to read env status %s, got error: %s", envName, err))
 		}
 		return
 	}
@@ -227,7 +228,7 @@ func (r *AWSEnvResource) Delete(ctx context.Context, req resource.DeleteRequest,
 	})
 
 	if err != nil {
-		resp.Diagnostics.AddError("Client Error", common.FormatDeleteError(envName, err))
+		clientsupport.AddClientError(&resp.Diagnostics, common.FormatDeleteError(envName, err))
 		return
 	}
 
