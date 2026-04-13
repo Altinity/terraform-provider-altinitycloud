@@ -71,7 +71,7 @@ func (a *Auth) signCertificateRequest(ctx context.Context, csrPEM []byte) ([]byt
 		return nil, err
 	}
 	if _, err := sdkCrypto.DecodeCertificate(body); err != nil {
-		return nil, fmt.Errorf("POST %s: parse body %q: %v", url, string(body), err)
+		return nil, fmt.Errorf("POST %s: parse body: %w (response: %s)", sdkHttp.SanitizeRequestURL(url), err, sdkHttp.PreviewBodyForError(body))
 	}
 	return body, nil
 }

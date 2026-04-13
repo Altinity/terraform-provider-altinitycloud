@@ -9,6 +9,10 @@ description: |-
 
 Bring Your Own Cloud (BYOC) GCP environment resource.
 
+### Cloud Connect Setup
+
+GCP environments require a dedicated Google Cloud project with the appropriate IAM roles granted to Altinity.Cloud. The examples below use the `google_project` and `google_project_iam_member` resources to create the project and assign the required roles. For a full list of required roles, see the example configurations.
+
 ## Example Usage
 
 ### GCP environment with public Load Balancer:
@@ -299,7 +303,7 @@ resource "altinitycloud_env_gcp" "this" {
   cidr           = "10.67.0.0/21"
 
   load_balancers = {
-    private = {
+    internal = {
       enabled = true
     }
   }
@@ -317,10 +321,12 @@ resource "altinitycloud_env_gcp" "this" {
     }
   ]
 
-  peering_connections = {
-    project_id   = "peering-project-id"  # Replace with actual peering project ID
-    network_name = "peering-network-name"  # Replace with actual peering network name
-  }
+  peering_connections = [
+    {
+      project_id   = "peering-project-id"
+      network_name = "peering-network-name"
+    }
+  ]
 }
 
 // ⚠️ Environment provisioning is asynchronous.

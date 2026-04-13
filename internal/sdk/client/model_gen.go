@@ -957,6 +957,8 @@ type CreateGCPEnvSpecInput struct {
 	//
 	// Immutable.
 	CloudConnect *bool `json:"cloudConnect,omitempty"`
+	// Labels to apply to GCP resources.
+	Labels []*KeyValueInput `json:"labels,omitempty"`
 	// Network peering configuration.
 	PeeringConnections []*GCPEnvPeeringConnectionSpecInput `json:"peeringConnections,omitempty"`
 	// List of project IDs + connection limits [projectID=connectionLimit] representing the network's private service consumers. Connection limits are optional, will be set to 1 if not specified.
@@ -1444,6 +1446,8 @@ type GCPEnvSpec struct {
 	// True indicates that cloud resources are to be managed via altinity/cloud-connect.
 	// False means direct management.
 	CloudConnect bool `json:"cloudConnect"`
+	// Labels to apply to GCP resources.
+	Labels []*KeyValue `json:"labels"`
 	// List of network peering configurations.
 	PeeringConnections []*GCPEnvPeeringConnectionSpec `json:"peeringConnections"`
 	// List of project IDs + connection limits [projectID=connectionLimit] representing the network's private service consumers. Connection limits are optional, will be set to 1 if not specified.
@@ -2319,6 +2323,8 @@ type UpdateGCPEnvSpecInput struct {
 	PrivateServiceConnections []*GCPEnvPrivateServiceConnectionSpecInput `json:"privateServiceConnections,omitempty"`
 	// Metrics endpoint configuration.
 	MetricsEndpoint *MetricsEndpointSpecInput `json:"metricsEndpoint,omitempty"`
+	// Labels to apply to GCP resources.
+	Labels []*KeyValueInput `json:"labels,omitempty"`
 }
 
 // HCloud environment update request input.
@@ -2512,6 +2518,7 @@ const (
 	EnvStatusErrorCodeCloudProviderAccessDenied     EnvStatusErrorCode = "CLOUD_PROVIDER_ACCESS_DENIED"
 	EnvStatusErrorCodeCloudProviderQuotaExceeded    EnvStatusErrorCode = "CLOUD_PROVIDER_QUOTA_EXCEEDED"
 	EnvStatusErrorCodeCloudProviderResourceNotFound EnvStatusErrorCode = "CLOUD_PROVIDER_RESOURCE_NOT_FOUND"
+	EnvStatusErrorCodeCloudProviderBadRequest       EnvStatusErrorCode = "CLOUD_PROVIDER_BAD_REQUEST"
 	EnvStatusErrorCodeGCPProjectNotFound            EnvStatusErrorCode = "GCP_PROJECT_NOT_FOUND"
 	EnvStatusErrorCodeK8sDisconnected               EnvStatusErrorCode = "K8S_DISCONNECTED"
 )
@@ -2522,13 +2529,14 @@ var AllEnvStatusErrorCode = []EnvStatusErrorCode{
 	EnvStatusErrorCodeCloudProviderAccessDenied,
 	EnvStatusErrorCodeCloudProviderQuotaExceeded,
 	EnvStatusErrorCodeCloudProviderResourceNotFound,
+	EnvStatusErrorCodeCloudProviderBadRequest,
 	EnvStatusErrorCodeGCPProjectNotFound,
 	EnvStatusErrorCodeK8sDisconnected,
 }
 
 func (e EnvStatusErrorCode) IsValid() bool {
 	switch e {
-	case EnvStatusErrorCodeInternal, EnvStatusErrorCodeDisconnected, EnvStatusErrorCodeCloudProviderAccessDenied, EnvStatusErrorCodeCloudProviderQuotaExceeded, EnvStatusErrorCodeCloudProviderResourceNotFound, EnvStatusErrorCodeGCPProjectNotFound, EnvStatusErrorCodeK8sDisconnected:
+	case EnvStatusErrorCodeInternal, EnvStatusErrorCodeDisconnected, EnvStatusErrorCodeCloudProviderAccessDenied, EnvStatusErrorCodeCloudProviderQuotaExceeded, EnvStatusErrorCodeCloudProviderResourceNotFound, EnvStatusErrorCodeCloudProviderBadRequest, EnvStatusErrorCodeGCPProjectNotFound, EnvStatusErrorCodeK8sDisconnected:
 		return true
 	}
 	return false

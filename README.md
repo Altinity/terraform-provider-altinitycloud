@@ -34,7 +34,7 @@ terraform {
   required_providers {
     altinitycloud = {
       source  = "altinity/altinitycloud"
-      version = "~> 0.4.0"
+      version = "~> 0.6.1"
     }
   }
 }
@@ -101,6 +101,8 @@ resource "altinitycloud_env_aws" "example" {
 
 ## Troubleshooting
 
+Additional troubleshooting material is also published in the [provider documentation](https://registry.terraform.io/providers/altinity/altinitycloud/latest/docs#troubleshooting) on the Terraform Registry.
+
 ### Invalid or missing API token
 
 ```
@@ -151,8 +153,7 @@ If you need help, reach out to us via Slack:
 
 - **Enterprise customers**: Use your organization's dedicated Altinity Slack channel.
 - **Community**: Join the [AltinityDB workspace](https://altinitydbworkspace.slack.com/) and post in the **#terraform** channel.
-
-You can also [create an issue](https://github.com/altinity/terraform-provider-altinitycloud/issues/new) on GitHub.
+- **GitHub Issues**: [Open an issue](https://github.com/altinity/terraform-provider-altinitycloud/issues/new) to report bugs or request features.
 
 ## Contributing
 

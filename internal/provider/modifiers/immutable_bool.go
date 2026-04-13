@@ -31,7 +31,8 @@ func (m immutableBoolModifier) PlanModifyBool(ctx context.Context, req planmodif
 		return
 	}
 
-	if req.ConfigValue.IsNull() {
+	if req.PlanValue.IsUnknown() {
+		resp.PlanValue = req.StateValue
 		return
 	}
 

@@ -42,9 +42,8 @@ resource "altinitycloud_env_aws" "this" {
         type = "S3"
       },
       {
-        type                      = "S3_TABLE"
-        custom_s3_table_bucket_arn = "arn:aws:s3tables:us-east-1:123456789012:bucket/my-table-bucket"
-        anonymous_access_enabled  = true
+        type                     = "S3_TABLE"
+        anonymous_access_enabled = true
         maintenance = {
           enabled = true
         }

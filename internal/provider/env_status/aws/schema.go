@@ -8,7 +8,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/datasource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/datasource/schema"
-	rschema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
 )
 
 func (r *AWSEnvStatusDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
@@ -45,41 +44,55 @@ func (r *AWSEnvStatusDataSource) Schema(ctx context.Context, req datasource.Sche
 					},
 				},
 			},
-			"peering_connections": rschema.ListNestedAttribute{
-				NestedObject: rschema.NestedAttributeObject{
-					Attributes: map[string]rschema.Attribute{
-						"id": rschema.StringAttribute{
-							Optional:            true,
+			"peering_connections": schema.ListNestedAttribute{
+				Required:            false,
+				Optional:            false,
+				Computed:            true,
+				MarkdownDescription: common.PEERING_CONNECTION_DESCRIPTION,
+				NestedObject: schema.NestedAttributeObject{
+					Attributes: map[string]schema.Attribute{
+						"id": schema.StringAttribute{
+							Required:            false,
+							Optional:            false,
+							Computed:            true,
 							MarkdownDescription: common.PEERING_CONNECTION_ID_DESCRIPTION,
 						},
-						"vpc_id": rschema.StringAttribute{
-							Required:            true,
+						"vpc_id": schema.StringAttribute{
+							Required:            false,
+							Optional:            false,
+							Computed:            true,
 							MarkdownDescription: common.PEERING_CONNECTION_VPC_ID_DESCRIPTION,
 						},
 					},
 				},
-				Computed:            true,
-				MarkdownDescription: common.PEERING_CONNECTION_DESCRIPTION,
 			},
 			"aws_resources": schema.ListNestedAttribute{
+				Required:            false,
+				Optional:            false,
+				Computed:            true,
+				MarkdownDescription: common.AWS_RESOURCES_DESCRIPTION,
 				NestedObject: schema.NestedAttributeObject{
 					Attributes: map[string]schema.Attribute{
 						"id": schema.StringAttribute{
+							Required:            false,
+							Optional:            false,
 							Computed:            true,
 							MarkdownDescription: common.AWS_RESOURCES_ID_DESCRIPTION,
 						},
 						"arn": schema.StringAttribute{
+							Required:            false,
+							Optional:            false,
 							Computed:            true,
 							MarkdownDescription: common.AWS_RESOURCES_ARN_DESCRIPTION,
 						},
 						"name": schema.StringAttribute{
+							Required:            false,
+							Optional:            false,
 							Computed:            true,
 							MarkdownDescription: common.AWS_RESOURCES_NAME_DESCRIPTION,
 						},
 					},
 				},
-				Computed:            true,
-				MarkdownDescription: common.AWS_RESOURCES_DESCRIPTION,
 			},
 		},
 		Blocks: map[string]schema.Block{

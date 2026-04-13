@@ -50,7 +50,7 @@ resource "altinitycloud_env_gcp" "this" {
   cidr           = "10.67.0.0/21"
 
   load_balancers = {
-    private = {
+    internal = {
       enabled = true
     }
   }
@@ -68,10 +68,12 @@ resource "altinitycloud_env_gcp" "this" {
     }
   ]
 
-  peering_connections = {
-    project_id   = "peering-project-id"  # Replace with actual peering project ID
-    network_name = "peering-network-name"  # Replace with actual peering network name
-  }
+  peering_connections = [
+    {
+      project_id   = "peering-project-id"
+      network_name = "peering-network-name"
+    }
+  ]
 }
 
 // ⚠️ Environment provisioning is asynchronous.

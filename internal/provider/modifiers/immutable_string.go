@@ -32,8 +32,8 @@ func (m immutableStringModifier) PlanModifyString(ctx context.Context, req planm
 		return
 	}
 
-	// Skip check if the property is not present in the current configuration
-	if req.ConfigValue.IsNull() {
+	if req.PlanValue.IsUnknown() {
+		resp.PlanValue = req.StateValue
 		return
 	}
 

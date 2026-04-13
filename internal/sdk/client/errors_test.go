@@ -58,3 +58,94 @@ func TestFormatError_QueryPathFallback(t *testing.T) {
 		t.Errorf("got: %s, want: %s", got, want)
 	}
 }
+
+func TestIsNotFoundError_True(t *testing.T) {
+	rawErr := errors.New(`{"networkErrors":null,"graphqlErrors":[{"message":"env not found","path":["getAWSEnv"],"extensions":{"code":"NOT_FOUND"}}]}`)
+	got, err := IsNotFoundError(rawErr)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if !got {
+		t.Error("expected true, got false")
+	}
+}
+
+func TestIsNotFoundError_False(t *testing.T) {
+	rawErr := errors.New(`{"networkErrors":null,"graphqlErrors":[{"message":"something else","path":["getAWSEnv"],"extensions":{"code":"CONFLICT"}}]}`)
+	got, err := IsNotFoundError(rawErr)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if got {
+		t.Error("expected false, got true")
+	}
+}
+
+func TestIsNotFoundError_NonGraphQLError(t *testing.T) {
+	rawErr := errors.New("connection refused")
+	_, err := IsNotFoundError(rawErr)
+	if err == nil {
+		t.Error("expected parse error, got nil")
+	}
+}
+
+func TestIsNotFoundError_Nil(t *testing.T) {
+	got, err := IsNotFoundError(nil)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if got {
+		t.Error("expected false for nil error")
+	}
+}
+
+func TestIsActiveClustersError_True(t *testing.T) {
+	rawErr := errors.New(`{"networkErrors":null,"graphqlErrors":[{"message":"env has active clusters, use forceDestroyClusters=true","path":["deleteAWSEnv"],"extensions":{"code":"CONFLICT"}}]}`)
+	got, err := IsActiveClustersError(rawErr)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if !got {
+		t.Error("expected true, got false")
+	}
+}
+
+func TestIsActiveClustersError_ConflictWithoutClusters(t *testing.T) {
+	rawErr := errors.New(`{"networkErrors":null,"graphqlErrors":[{"message":"conflict","path":["createAWSEnv"],"extensions":{"code":"CONFLICT"}}]}`)
+	got, err := IsActiveClustersError(rawErr)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if got {
+		t.Error("expected false, got true")
+	}
+}
+
+func TestIsActiveClustersError_NotConflict(t *testing.T) {
+	rawErr := errors.New(`{"networkErrors":null,"graphqlErrors":[{"message":"env not found","path":["getAWSEnv"],"extensions":{"code":"NOT_FOUND"}}]}`)
+	got, err := IsActiveClustersError(rawErr)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if got {
+		t.Error("expected false, got true")
+	}
+}
+
+func TestIsActiveClustersError_NonGraphQLError(t *testing.T) {
+	rawErr := errors.New("connection refused")
+	_, err := IsActiveClustersError(rawErr)
+	if err == nil {
+		t.Error("expected parse error, got nil")
+	}
+}
+
+func TestIsActiveClustersError_Nil(t *testing.T) {
+	got, err := IsActiveClustersError(nil)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if got {
+		t.Error("expected false for nil error")
+	}
+}

@@ -49,7 +49,7 @@ Bring Your Own Cloud (BYOC) HCloud environment data source.
 			CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
 - `force_destroy` (Boolean) Locks the environment for accidental deletion when running `terraform destroy` command. Your environment will be deleted, only when setting this parameter to `true`. Once this parameter is set to `true`, there must be a successful `terraform apply` run (before running the `terraform destroy`) to update this value in the state. Without a successful `terraform apply` after this parameter is set, this flag will have no effect. (default `false`)
 - `force_destroy_clusters` (Boolean) By default, the destroy operation will not delete any provisioned clusters and the deletion will fail until the clusters get removed. Set to `true` to remove all provisioned clusters as part of the environment deletion process.
-- `hcloud_token_enc` (String) HCloud token (stored encrypted)
+- `hcloud_token_enc` (String, Sensitive) HCloud token (stored encrypted)
 - `id` (String) ID of the environment (automatically generated based on the name)
 - `load_balancers` (Attributes) Load balancers configuration. (see [below for nested schema](#nestedatt--load_balancers))
 - `load_balancing_strategy` (String) Load balancing strategy for the environment.

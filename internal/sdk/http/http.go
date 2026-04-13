@@ -63,7 +63,12 @@ func Do(
 		return nil, err
 	}
 	if res.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("%s %s resulted in %s %s", method, url, res.Status, string(body))
+		safeURL := SanitizeRequestURL(url)
+		preview := PreviewBodyForError(body)
+		if preview == "" {
+			return nil, fmt.Errorf("%s %s resulted in %s", method, safeURL, res.Status)
+		}
+		return nil, fmt.Errorf("%s %s resulted in %s: %s", method, safeURL, res.Status, preview)
 	}
 	return body, nil
 }

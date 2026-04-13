@@ -20,31 +20,24 @@ data "altinitycloud_env_azure_status" "current" {
 
 ### Wait for Azure environment to be fully provisioned:
 ```terraform
-resource "altinitycloud_env_aws" "this" {
-  name           = "acme-staging"
-  aws_account_id = "123456789012"
-  region         = "us-east-1"
-  zones          = ["us-east-1a", "us-east-1b"]
-  cidr           = "10.67.0.0/21"
+resource "altinitycloud_env_azure" "this" {
+  name            = "acme-staging"
+  cidr            = "10.136.0.0/21"
+  region          = "eastus"
+  zones           = ["eastus-1", "eastus-2"]
+  tenant_id       = "f3c1e3cb-3d92-4315-b98c-0a66676da2e8"
+  subscription_id = "3f919947-3102-4210-82ee-4d2ca69f2a01"
 
-  node_groups = [
-    {
-      node_type         = "t4g.large"
-      capacity_per_zone = 10
-      reservations      = ["SYSTEM", "ZOOKEEPER"]
-    },
-    {
-      node_type         = "m6i.large"
-      capacity_per_zone = 10
-      reservations      = ["CLICKHOUSE"]
-    }
-  ]
-  cloud_connect = true
+  node_groups = [{
+    node_type         = "Standard_B2s_v2"
+    capacity_per_zone = 3
+    reservations      = ["CLICKHOUSE", "ZOOKEEPER", "SYSTEM"]
+  }]
 }
 
-data "altinitycloud_env_aws_status" "current" {
-  name                           = altinitycloud_env_aws.this.name
-  wait_for_applied_spec_revision = altinitycloud_env_aws.this.spec_revision
+data "altinitycloud_env_azure_status" "current" {
+  name                           = altinitycloud_env_azure.this.name
+  wait_for_applied_spec_revision = altinitycloud_env_azure.this.spec_revision
 }
 ```
 
@@ -71,7 +64,7 @@ data "altinitycloud_env_aws_status" "current" {
 
 - `applied_spec_revision` (Number) Applied spec revision
 - `id` (String) ID of the environment (automatically generated based on the name)
-- `load_balancers` (Attributes) Status of internal load balancer. (see [below for nested schema](#nestedatt--load_balancers))
+- `load_balancers` (Attributes) Load balancer status information. (see [below for nested schema](#nestedatt--load_balancers))
 - `pending_delete` (Boolean) `true` indicates that environment is pending deletion
 
 <a id="nestedblock--timeouts"></a>

@@ -4,8 +4,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.1](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.6.0...v0.6.1)
+### Fixed
+- Fix typo "matchs" -> "matches" in AWS env status log [cddaae2](https://github.com/Altinity/terraform-provider-altinitycloud/commit/cddaae2).
+- Rename misleading `nonDisconnected` variable to `blockingErrors` in env status wait loop [cddaae2](https://github.com/Altinity/terraform-provider-altinitycloud/commit/cddaae2).
+- Fix nil pointer dereference in `IsNotFoundError` and `IsActiveClustersError` when called with nil error [34cdbd6](https://github.com/Altinity/terraform-provider-altinitycloud/commit/34cdbd6).
+- Add unit tests for `IsNotFoundError` and `IsActiveClustersError` [34cdbd6](https://github.com/Altinity/terraform-provider-altinitycloud/commit/34cdbd6).
+- Fix swapped load balancer description constants in docs [4ff8839](https://github.com/Altinity/terraform-provider-altinitycloud/commit/4ff8839).
+- Remove double space in delete status error message [c35554d](https://github.com/Altinity/terraform-provider-altinitycloud/commit/c35554d).
+- Mark `hcloud_token_enc` as Sensitive [7391dd2](https://github.com/Altinity/terraform-provider-altinitycloud/commit/7391dd2).
+- Use datasource schema types for `peering_connections` in AWS env status [98c90ba](https://github.com/Altinity/terraform-provider-altinitycloud/commit/98c90ba).
+- Fail hard on invalid `ca_crt` instead of falling back to system CAs [a0fb131](https://github.com/Altinity/terraform-provider-altinitycloud/commit/a0fb131).
+- Remove duplicate diagnostics append in Certificate and Secret Read [2f688cc](https://github.com/Altinity/terraform-provider-altinitycloud/commit/2f688cc).
+- Handle unknown plan values in immutable modifiers [ff2fc90](https://github.com/Altinity/terraform-provider-altinitycloud/commit/ff2fc90).
+
 ## [0.6.0](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.5.2...v0.6.0)
 ### Added
+- Documentation: "Asynchronous Provisioning" section in provider index, "Cloud Connect" sections in all environment resource docs, and clarify expected DISCONNECTED status during first provisioning [52bf7bb](https://github.com/Altinity/terraform-provider-altinitycloud/commit/52bf7bb).
 - Documentation: "Deprovision / Destroy" section in all environment resources, "Troubleshooting" and "Support" sections in provider index [35663a9](https://github.com/Altinity/terraform-provider-altinitycloud/commit/35663a9).
 - User-configurable delete timeouts for all environment resources [#220](https://github.com/Altinity/terraform-provider-altinitycloud/pull/220).
 - Real-time TTY progress output for env status polling [9b506d3](https://github.com/Altinity/terraform-provider-altinitycloud/commit/9b506d3).
@@ -15,6 +30,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Sanity test workflow triggered on release [#205](https://github.com/Altinity/terraform-provider-altinitycloud/pull/205).
 
 ### Fixed
+- Prevent immutable modifier bypass when Optional field removed from config [948f086](https://github.com/Altinity/terraform-provider-altinitycloud/commit/948f086).
+- Prevent nil pointer and index panics in `Decrypt()` [1979daa](https://github.com/Altinity/terraform-provider-altinitycloud/commit/1979daa).
+- Use `appliedSpecRevision` to distinguish expected DISCONNECTED (never provisioned) from real disconnection errors in status wait loop and delete flow [416c882](https://github.com/Altinity/terraform-provider-altinitycloud/commit/416c882).
 - Mark `env_secret` value and `api_token` as sensitive [7821136](https://github.com/Altinity/terraform-provider-altinitycloud/commit/7821136), [55c748e](https://github.com/Altinity/terraform-provider-altinitycloud/commit/55c748e).
 - Handle `K8S_DISCONNECTED` status in wait loop and delete checks [df3d8c9](https://github.com/Altinity/terraform-provider-altinitycloud/commit/df3d8c9).
 - Remove broken import support from `env_secret` and `env_certificate` [16d1134](https://github.com/Altinity/terraform-provider-altinitycloud/commit/16d1134).
@@ -26,6 +44,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Prevent nil dereference in K8S logs using `StringPointerValue` [ea9070d](https://github.com/Altinity/terraform-provider-altinitycloud/commit/ea9070d).
 - Export `WireguardPeers` struct fields for tfsdk reflection [f80e043](https://github.com/Altinity/terraform-provider-altinitycloud/commit/f80e043).
 - Guard `ElementsAs` calls against null/unknown values in list/set fields [b7a6abf](https://github.com/Altinity/terraform-provider-altinitycloud/commit/b7a6abf), [a723ce5](https://github.com/Altinity/terraform-provider-altinitycloud/commit/a723ce5).
+- Remove `custom_s3_table_bucket_arn` from AWS iceberg example (attribute removed in schema simplification) [c6bebf7](https://github.com/Altinity/terraform-provider-altinitycloud/commit/c6bebf7).
+- Fix GCP peering example: `load_balancers.private` -> `internal`, `peering_connections` from object to list [c6bebf7](https://github.com/Altinity/terraform-provider-altinitycloud/commit/c6bebf7).
+- Fix Azure status data source example using AWS resources instead of Azure.
+- Fix HCloud status data source example referencing GCP resources instead of HCloud.
 
 ### Changed
 - Rename `inmutable` -> `immutable` plan modifiers and remove unused `required_if_sibling_value` validator [aae1481](https://github.com/Altinity/terraform-provider-altinitycloud/commit/aae1481).

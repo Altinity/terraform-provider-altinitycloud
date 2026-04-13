@@ -9,6 +9,10 @@ description: |-
 
 Bring Your Own Cloud (BYOC) HCloud environment resource.
 
+### Cloud Connect Setup
+
+Hetzner Cloud environments require an API token to allow Altinity.Cloud to manage infrastructure in your account. The token must be encrypted using the `altinitycloud_env_secret` resource before passing it to `hcloud_token_enc`. The examples below show the full setup using `altinitycloud_env_certificate` and `altinitycloud_env_secret`.
+
 ## Example Usage
 
 ### HCloud environment with public Load Balancer:
@@ -77,7 +81,7 @@ data "altinitycloud_env_hcloud_status" "this" {
 		Examples:
 		- "10.136.0.0/21"
 		- "172.20.0.0/21"
-- `hcloud_token_enc` (String) HCloud token (stored encrypted)
+- `hcloud_token_enc` (String, Sensitive) HCloud token (stored encrypted)
 - `name` (String) A globally-unique environment identifier. **[IMMUTABLE]**
 
 		- All environment names must start with your account name as prefix.

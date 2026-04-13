@@ -177,15 +177,21 @@ func (r *HCloudEnvResource) Delete(ctx context.Context, req resource.DeleteReque
 		if notFound {
 			tflog.Trace(ctx, "deleted resource", map[string]interface{}{"name": envName})
 		} else {
-			resp.Diagnostics.AddError("Client Error", support.FormatClientError(fmt.Sprintf("Unable to read env status  %s, got error: %s", envName, err)))
+			resp.Diagnostics.AddError("Client Error", support.FormatClientError(fmt.Sprintf("Unable to read env status %s, got error: %s", envName, err)))
 		}
 		return
 	}
 
 	if len(envStatus.HcloudEnv.Status.Errors) > 0 {
 		for _, err := range envStatus.HcloudEnv.Status.Errors {
-			if (err.Code == "DISCONNECTED" || err.Code == "K8S_DISCONNECTED") && !data.SkipDeprovisionOnDestroy.ValueBool() && !data.AllowDeleteWhileDisconnected.ValueBool() {
-				resp.Diagnostics.AddError("Client Error", support.FormatClientError(fmt.Sprintf("Unable to start env %s, environment is DISCONNECTED.\nCheck environment's `cloudconnect` or use `allow_delete_while_disconnected=true` to continue with the delete operation.", envName)))
+			resp.Diagnostics.Append(common.ValidateDisconnected(
+				envName,
+				string(err.Code),
+				envStatus.HcloudEnv.Status.AppliedSpecRevision,
+				data.SkipDeprovisionOnDestroy.ValueBool(),
+				data.AllowDeleteWhileDisconnected.ValueBool(),
+			)...)
+			if resp.Diagnostics.HasError() {
 				return
 			}
 		}

@@ -39,6 +39,9 @@ func IsNotFoundError(err error) (bool, error) {
 	if parseErr != nil {
 		return false, parseErr
 	}
+	if parsedError == nil {
+		return false, nil
+	}
 
 	for _, gqlError := range parsedError.GraphqlErrors {
 		if code, ok := gqlError.Extensions["code"]; ok && code == "NOT_FOUND" {
@@ -128,6 +131,9 @@ func IsActiveClustersError(err error) (bool, error) {
 	parsedError, parseErr := ParseError(err)
 	if parseErr != nil {
 		return false, parseErr
+	}
+	if parsedError == nil {
+		return false, nil
 	}
 
 	for _, gqlError := range parsedError.GraphqlErrors {

@@ -124,7 +124,8 @@ func (p *altinityCloudProvider) Configure(ctx context.Context, req provider.Conf
 		var err error
 		rootCAs, err = loadCertPool(*caCrt)
 		if err != nil {
-			resp.Diagnostics.AddWarning("Failed to load CA certificate", err.Error())
+			resp.Diagnostics.AddError("Failed to load CA certificate", err.Error())
+			return
 		}
 	}
 

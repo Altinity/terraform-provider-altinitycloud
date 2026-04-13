@@ -1852,7 +1852,8 @@ enum EnvStatusErrorCode {
   CLOUD_PROVIDER_ACCESS_DENIED
   CLOUD_PROVIDER_QUOTA_EXCEEDED
   CLOUD_PROVIDER_RESOURCE_NOT_FOUND
-  GCP_PROJECT_NOT_FOUND
+  CLOUD_PROVIDER_BAD_REQUEST
+  GCP_PROJECT_NOT_FOUND @deprecated(reason: "Use CLOUD_PROVIDER_BAD_REQUEST instead.")
   K8S_DISCONNECTED
 }
 
@@ -2216,6 +2217,10 @@ type GCPEnvSpec {
   """
   cloudConnect: Boolean!
   """
+  Labels to apply to GCP resources.
+  """
+  labels: [KeyValue!]!
+  """
   List of network peering configurations.
   """
   peeringConnections: [GCPEnvPeeringConnectionSpec!]!
@@ -2487,6 +2492,10 @@ input CreateGCPEnvSpecInput {
   Immutable.
   """
   cloudConnect: Boolean
+  """
+  Labels to apply to GCP resources.
+  """
+  labels: [KeyValueInput!]
   """
   Network peering configuration.
   """
@@ -2776,6 +2785,10 @@ input UpdateGCPEnvSpecInput {
   Metrics endpoint configuration.
   """
   metricsEndpoint: MetricsEndpointSpecInput
+  """
+  Labels to apply to GCP resources.
+  """
+  labels: [KeyValueInput!]
 }
 
 """
