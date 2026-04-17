@@ -234,6 +234,7 @@ const AZURE_REGION_DESCRIPTION = `Azure region ([docs](https://azure.microsoft.c
 
 const AZURE_TENANT_ID_DESCRIPTION = "ID of the Azure Active Directory tenant for user identity and access management. **[IMMUTABLE]**"
 const AZURE_SUBSCRIPTION_ID_DESCRIPTION = "ID linking the environment to a specific Azure subscription for resource management. **[IMMUTABLE]**"
+const AZURE_RESOURCE_GROUP_DESCRIPTION = "Name of a pre-existing Azure resource group to deploy into. If not specified, a resource group will be created automatically. **[IMMUTABLE]**"
 const AZURE_PRIVATE_LINK_SERVICE_DESCRIPTION = "Azure Private Link service configuration."
 const AZURE_PRIVATE_LINK_SERVICE_ALIAS_DESCRIPTION = "Private Link Service Alias / DNS Name in prefix.GUID.suffix format."
 const AZURE_PRIVATE_LINK_SERVICE_ALLOWED_SUBSCRIPTIONS_DESCRIPTION = "Lists subscription IDs permitted for Private Link access, securing service connections."
