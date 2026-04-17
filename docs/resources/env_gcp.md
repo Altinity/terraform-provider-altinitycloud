@@ -49,11 +49,15 @@ resource "google_project_iam_member" "this" {
   member  = "group:anywhere-admin@altinity.com"
 }
 
+locals {
+  zones = ["us-east1-b", "us-east1-d"]
+}
+
 resource "altinitycloud_env_gcp" "this" {
   name           = "acme-staging"
   gcp_project_id = google_project.this.project_id
   region         = "us-east1"
-  zones          = ["us-east1-b", "us-east1-d"]
+  zones          = local.zones
   cidr           = "10.67.0.0/21"
 
   load_balancers = {
@@ -67,11 +71,13 @@ resource "altinitycloud_env_gcp" "this" {
     {
       node_type         = "e2-standard-2"
       capacity_per_zone = 10
+      zones             = local.zones
       reservations      = ["SYSTEM", "ZOOKEEPER"]
     },
     {
       node_type         = "n2d-standard-2"
       capacity_per_zone = 10
+      zones             = local.zones
       reservations      = ["CLICKHOUSE"]
     }
   ]
@@ -295,11 +301,15 @@ resource "google_project_iam_member" "this" {
   member  = "group:anywhere-admin@altinity.com"
 }
 
+locals {
+  zones = ["us-east1-b", "us-east1-d"]
+}
+
 resource "altinitycloud_env_gcp" "this" {
   name           = "acme-staging"
   gcp_project_id = google_project.this.project_id
   region         = "us-east1"
-  zones          = ["us-east1-b", "us-east1-d"]
+  zones          = local.zones
   cidr           = "10.67.0.0/21"
 
   load_balancers = {
@@ -312,11 +322,13 @@ resource "altinitycloud_env_gcp" "this" {
     {
       node_type         = "e2-standard-2"
       capacity_per_zone = 10
+      zones             = local.zones
       reservations      = ["SYSTEM", "ZOOKEEPER"]
     },
     {
       node_type         = "n2d-standard-2"
       capacity_per_zone = 10
+      zones             = local.zones
       reservations      = ["CLICKHOUSE"]
     }
   ]

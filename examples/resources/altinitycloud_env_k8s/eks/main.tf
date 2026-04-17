@@ -12,6 +12,10 @@ module "altinitycloud_connect" {
   pem    = altinitycloud_env_certificate.this.pem
 }
 
+locals {
+  zones = ["us-east-1a", "us-east-1b"]
+}
+
 resource "altinitycloud_env_k8s" "this" {
   name         = altinitycloud_env_certificate.this.env_name
   distribution = "EKS"
@@ -21,13 +25,13 @@ resource "altinitycloud_env_k8s" "this" {
       node_type         = "t4g.large"
       capacity_per_zone = 10
       reservations      = ["SYSTEM", "ZOOKEEPER"]
-      zones             = ["us-east-1a", "us-east-1b"]
+      zones             = local.zones
     },
     {
       node_type         = "m6i.large"
       capacity_per_zone = 10
       reservations      = ["CLICKHOUSE"]
-      zones             = ["us-east-1a", "us-east-1b"]
+      zones             = local.zones
       tolerations = [
         {
           key      = "dedicated"

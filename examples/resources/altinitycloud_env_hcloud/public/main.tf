@@ -11,11 +11,15 @@ resource "altinitycloud_env_secret" "this" {
   value = var.hcloud_token
 }
 
+locals {
+  locations = ["hil"]
+}
+
 resource "altinitycloud_env_hcloud" "this" {
   name             = altinitycloud_env_certificate.this.env_name
   cidr             = "10.136.0.0/21"
   network_zone     = "us-west"
-  locations        = ["hil"]
+  locations        = local.locations
   hcloud_token_enc = altinitycloud_env_secret.this.secret_value
 
   load_balancers = {
@@ -31,14 +35,14 @@ resource "altinitycloud_env_hcloud" "this" {
       name                  = "cpx11"
       node_type             = "cpx11"
       reservations          = ["SYSTEM", "ZOOKEEPER"]
-      locations             = ["hil"]
+      locations             = local.locations
     },
     {
       capacity_per_location = 10
       name                  = "ccx23"
       node_type             = "ccx23"
       reservations          = ["CLICKHOUSE"]
-      locations             = ["hil"]
+      locations             = local.locations
     }
   ]
 }

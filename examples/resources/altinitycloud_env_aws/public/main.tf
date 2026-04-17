@@ -2,6 +2,10 @@ resource "altinitycloud_env_certificate" "this" {
   env_name = "acme-staging"
 }
 
+locals {
+  zones = ["us-east-1a", "us-east-1b"]
+}
+
 provider "aws" {
   region = "us-east-1"
 }
@@ -15,7 +19,7 @@ resource "altinitycloud_env_aws" "this" {
   name           = altinitycloud_env_certificate.this.env_name
   aws_account_id = "123456789012"
   region         = "us-east-1"
-  zones          = ["us-east-1a", "us-east-1b"]
+  zones          = local.zones
   cidr           = "10.67.0.0/21"
   load_balancers = {
     public = {
@@ -27,11 +31,13 @@ resource "altinitycloud_env_aws" "this" {
     {
       node_type         = "t4g.large"
       capacity_per_zone = 10
+      zones             = local.zones
       reservations      = ["SYSTEM", "ZOOKEEPER"]
     },
     {
       node_type         = "m6i.large"
       capacity_per_zone = 10
+      zones             = local.zones
       reservations      = ["CLICKHOUSE"]
     }
   ]

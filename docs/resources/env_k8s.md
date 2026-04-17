@@ -33,6 +33,10 @@ module "altinitycloud_connect" {
   pem    = altinitycloud_env_certificate.this.pem
 }
 
+locals {
+  zones = ["us-east-1a", "us-east-1b"]
+}
+
 resource "altinitycloud_env_k8s" "this" {
   name         = altinitycloud_env_certificate.this.env_name
   distribution = "EKS"
@@ -42,13 +46,13 @@ resource "altinitycloud_env_k8s" "this" {
       node_type         = "t4g.large"
       capacity_per_zone = 10
       reservations      = ["SYSTEM", "ZOOKEEPER"]
-      zones             = ["us-east-1a", "us-east-1b"]
+      zones             = local.zones
     },
     {
       node_type         = "m6i.large"
       capacity_per_zone = 10
       reservations      = ["CLICKHOUSE"]
-      zones             = ["us-east-1a", "us-east-1b"]
+      zones             = local.zones
       tolerations = [
         {
           key      = "dedicated"
@@ -90,6 +94,10 @@ module "altinitycloud_connect" {
   pem    = altinitycloud_env_certificate.this.pem
 }
 
+locals {
+  zones = ["us-east1-b", "us-east1-d"]
+}
+
 resource "altinitycloud_env_k8s" "this" {
   name         = altinitycloud_env_certificate.this.env_name
   distribution = "GKE"
@@ -99,13 +107,13 @@ resource "altinitycloud_env_k8s" "this" {
       node_type         = "e2-standard-2"
       capacity_per_zone = 10
       reservations      = ["SYSTEM", "ZOOKEEPER"]
-      zones             = ["us-east1-b", "us-east1-d"]
+      zones             = local.zones
     },
     {
       node_type         = "n2d-standard-2"
       capacity_per_zone = 10
       reservations      = ["CLICKHOUSE"]
-      zones             = ["us-east1-b", "us-east1-d"]
+      zones             = local.zones
       tolerations = [
         {
           key      = "dedicated"
@@ -147,6 +155,10 @@ module "altinitycloud_connect" {
   pem    = altinitycloud_env_certificate.this.pem
 }
 
+locals {
+  zones = ["eastus-1", "eastus-2"]
+}
+
 resource "altinitycloud_env_k8s" "this" {
   name         = altinitycloud_env_certificate.this.env_name
   distribution = "AKS"
@@ -154,13 +166,13 @@ resource "altinitycloud_env_k8s" "this" {
   node_groups = [
     {
       node_type         = "Standard_B2pls_v2"
-      zones             = ["eastus-1", "eastus-2"]
+      zones             = local.zones
       capacity_per_zone = 10
       reservations      = ["SYSTEM", "ZOOKEEPER"]
     },
     {
       node_type         = "Standard_B2s_v2"
-      zones             = ["eastus-1", "eastus-2"]
+      zones             = local.zones
       capacity_per_zone = 10
       reservations      = ["CLICKHOUSE"]
       tolerations = [

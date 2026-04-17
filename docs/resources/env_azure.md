@@ -28,6 +28,7 @@ locals {
   # Replace these values with your own Azure tenant and subscription IDs
   tenant_id       = "f3c1e3cb-3d92-4315-b98c-0a66676da2e8"
   subscription_id = "3f919947-3102-4210-82ee-4d2ca69f2a01"
+  zones           = ["eastus-1", "eastus-2"]
 }
 
 data "azuread_client_config" "current" {}
@@ -50,7 +51,7 @@ resource "altinitycloud_env_azure" "azure" {
   name            = "acme-staging"
   cidr            = "10.136.0.0/21"
   region          = "eastus"
-  zones           = ["eastus-1", "eastus-2"]
+  zones           = local.zones
   tenant_id       = local.tenant_id
   subscription_id = local.subscription_id
 
@@ -64,6 +65,7 @@ resource "altinitycloud_env_azure" "azure" {
   node_groups = [{
     node_type         = "Standard_B2s_v2"
     capacity_per_zone = 3
+    zones             = local.zones
     reservations      = ["CLICKHOUSE", "ZOOKEEPER", "SYSTEM"]
   }]
 }

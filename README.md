@@ -60,17 +60,22 @@ resource "altinitycloud_env_certificate" "example" {
   env_name = "my-clickhouse-env"
 }
 
+locals {
+  zones = ["us-west-2a", "us-west-2b"]
+}
+
 resource "altinitycloud_env_aws" "example" {
   name           = altinitycloud_env_certificate.example.env_name
   aws_account_id = "123456789012"
   region         = "us-west-2"
-  zones          = ["us-west-2a", "us-west-2b"]
+  zones          = local.zones
   cidr           = "10.67.0.0/21"
 
   node_groups = [
     {
       node_type         = "m6i.large"
       capacity_per_zone = 5
+      zones             = local.zones
       reservations      = ["CLICKHOUSE"]
     }
   ]
