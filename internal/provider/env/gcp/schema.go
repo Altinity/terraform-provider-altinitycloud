@@ -36,7 +36,7 @@ func (r *GCPEnvResource) Schema(ctx context.Context, req resource.SchemaRequest,
 			"gcp_project_id":            getGCPProjectIDAttribute(true, false, false),
 			"peering_connections":       getPeeringConnectionsAttribute(false, true, false),
 			"private_service_consumers": getPrivateServiceConsumersAttribute(false, true, false),
-			"tags":                      getTagsAttribute(false, true, false),
+			"labels":                    getLabelsAttribute(false, true, false),
 			"metrics_endpoint":          common.GetMetricsEndpointAttribute(false, true, false),
 			"spec_revision":             common.SpecRevisionAttribute,
 
@@ -70,7 +70,7 @@ func (d *GCPEnvDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 			"region":                    common.GetRegionAttribute(false, false, true, common.GCP_REGION_DESCRIPTION),
 			"peering_connections":       getPeeringConnectionsAttribute(false, false, true),
 			"private_service_consumers": getPrivateServiceConsumersAttribute(false, false, true),
-			"tags":                      getTagsAttribute(false, false, true),
+			"labels":                    getLabelsAttribute(false, false, true),
 			"metrics_endpoint":          common.GetMetricsEndpointAttribute(false, false, true),
 			"spec_revision":             common.SpecRevisionAttribute,
 
@@ -146,8 +146,8 @@ func getPeeringConnectionsAttribute(required, optional, computed bool) rschema.L
 	}
 }
 
-func getTagsAttribute(required, optional, computed bool) rschema.ListNestedAttribute {
-	return common.GetTagsAttribute(required, optional, computed, common.GCP_TAGS_DESCRIPTION)
+func getLabelsAttribute(required, optional, computed bool) rschema.ListNestedAttribute {
+	return common.GetTagsAttribute(required, optional, computed, common.GCP_LABELS_DESCRIPTION)
 }
 
 func getPrivateServiceConsumersAttribute(required, optional, computed bool) rschema.ListAttribute {

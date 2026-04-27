@@ -2235,9 +2235,9 @@ type GCPEnvSpec {
   """
   privateServiceConnections: [GCPEnvPrivateServiceConnectionSpec!]!
   """
-  Tags to apply to GCP resources.
+  Labels to apply to GCP resources.
   """
-  tags: [KeyValue!]!
+  labels: [KeyValue!]!
   """
   Metrics endpoint configuration.
   """
@@ -2515,9 +2515,9 @@ input CreateGCPEnvSpecInput {
   """
   privateServiceConnections: [GCPEnvPrivateServiceConnectionSpecInput!]
   """
-  Tags to apply to GCP resources.
+  Labels to apply to GCP resources.
   """
-  tags: [KeyValueInput!]
+  labels: [KeyValueInput!]
   """
   Metrics endpoint configuration.
   """
@@ -2790,9 +2790,9 @@ input UpdateGCPEnvSpecInput {
   """
   privateServiceConnections: [GCPEnvPrivateServiceConnectionSpecInput!]
   """
-  Tags to apply to GCP resources.
+  Labels to apply to GCP resources.
   """
-  tags: [KeyValueInput!]
+  labels: [KeyValueInput!]
   """
   Metrics endpoint configuration.
   """

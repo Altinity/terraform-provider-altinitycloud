@@ -26,7 +26,7 @@ type GCPEnvResourceModel struct {
 	MaintenanceWindows      []common.MaintenanceWindowModel `tfsdk:"maintenance_windows"`
 	PeeringConnections      []GCPEnvPeeringConnectionModel  `tfsdk:"peering_connections"`
 	PrivateServiceConsumers types.List                      `tfsdk:"private_service_consumers"`
-	Tags                    []common.KeyValueModel          `tfsdk:"tags"`
+	Labels                  []common.KeyValueModel          `tfsdk:"labels"`
 	MetricsEndpoint         *MetricsEndpointModel           `tfsdk:"metrics_endpoint"`
 
 	SpecRevision                 types.Int64    `tfsdk:"spec_revision"`
@@ -78,9 +78,9 @@ func (e GCPEnvResourceModel) toSDK(ctx context.Context) (sdk.CreateGCPEnvInput, 
 	metricsEndpoint := metricsEndpointToSDK(e.MetricsEndpoint)
 	cloudConnect := false
 
-	var tags []*sdk.KeyValueInput
-	for _, t := range e.Tags {
-		tags = append(tags, &sdk.KeyValueInput{
+	var labels []*sdk.KeyValueInput
+	for _, t := range e.Labels {
+		labels = append(labels, &sdk.KeyValueInput{
 			Key:   t.Key.ValueString(),
 			Value: t.Value.ValueString(),
 		})
@@ -115,7 +115,7 @@ func (e GCPEnvResourceModel) toSDK(ctx context.Context) (sdk.CreateGCPEnvInput, 
 			CloudConnect:            &cloudConnect,
 			PeeringConnections:      peeringConnections,
 			PrivateServiceConsumers: privateServiceConsumers,
-			Tags:                    tags,
+			Labels:                  labels,
 			MetricsEndpoint:         metricsEndpoint,
 		},
 	}
@@ -133,7 +133,7 @@ func (e GCPEnvResourceModel) toSDK(ctx context.Context) (sdk.CreateGCPEnvInput, 
 			MaintenanceWindows:      maintenanceWindows,
 			PeeringConnections:      peeringConnections,
 			PrivateServiceConsumers: privateServiceConsumers,
-			Tags:                    tags,
+			Labels:                  labels,
 			MetricsEndpoint:         metricsEndpoint,
 		},
 	}
@@ -167,14 +167,14 @@ func (model *GCPEnvResourceModel) toModel(env sdk.GetGCPEnv_GCPEnv) diag.Diagnos
 
 	model.MetricsEndpoint = metricsEndpointToModel(&env.Spec.MetricsEndpoint)
 
-	var tags []common.KeyValueModel
-	for _, t := range env.Spec.Tags {
-		tags = append(tags, common.KeyValueModel{
+	var labels []common.KeyValueModel
+	for _, t := range env.Spec.Labels {
+		labels = append(labels, common.KeyValueModel{
 			Key:   types.StringValue(t.Key),
 			Value: types.StringValue(t.Value),
 		})
 	}
-	model.Tags = tags
+	model.Labels = labels
 
 	var peeringConnections []GCPEnvPeeringConnectionModel
 	for _, p := range env.Spec.PeeringConnections {

@@ -179,7 +179,7 @@ const GCP_PEERING_CONNECTION_DESCRIPTION = "Network peering configuration."
 const GCP_PEERING_CONNECTION_PROJECT_ID_DESCRIPTION = "Target network's project ID."
 const GCP_PEERING_CONNECTION_NETWORK_NAME_DESCRIPTION = "Target network name."
 const GCP_PRIVATE_SERVICE_CONSUMERS_DESCRIPTION = "List of project IDs representing the network's private service consumers."
-const GCP_TAGS_DESCRIPTION = "Tags to apply to GCP resources."
+const GCP_LABELS_DESCRIPTION = "Labels to apply to GCP resources."
 
 // K8S descriptions.
 const K8S_NODE_GROUP_NODE_TYPE_DESCRIPTION = "node.kubernetes.io/instance-type value."

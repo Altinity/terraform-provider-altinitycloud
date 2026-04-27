@@ -87,7 +87,7 @@ fragment GCPEnvSpecFragment on GCPEnvSpec {
   cidr
   gcpProjectId
   cloudConnect
-  tags {
+  labels {
     key
     value
   }
