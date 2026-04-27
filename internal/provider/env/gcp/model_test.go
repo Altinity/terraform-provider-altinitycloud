@@ -163,6 +163,130 @@ func TestReorderNodeGroups(t *testing.T) {
 	}
 }
 
+func TestReorderLabels(t *testing.T) {
+	tests := []struct {
+		name           string
+		model          []common.KeyValueModel
+		apiLabels      []*sdk.GCPEnvSpecFragment_Labels
+		expectedOrder  []string
+		expectedLength int
+		validateData   bool
+	}{
+		{
+			name: "Preserve model order and add new API labels",
+			model: []common.KeyValueModel{
+				{Key: types.StringValue("env"), Value: types.StringValue("staging")},
+				{Key: types.StringValue("team"), Value: types.StringValue("platform")},
+			},
+			apiLabels: []*sdk.GCPEnvSpecFragment_Labels{
+				{Key: "team", Value: "platform"},
+				{Key: "env", Value: "staging"},
+				{Key: "managed-by", Value: "terraform"},
+			},
+			expectedOrder:  []string{"env", "team", "managed-by"},
+			expectedLength: 3,
+		},
+		{
+			name: "All API labels exist in model",
+			model: []common.KeyValueModel{
+				{Key: types.StringValue("env"), Value: types.StringValue("prod")},
+				{Key: types.StringValue("team"), Value: types.StringValue("infra")},
+			},
+			apiLabels: []*sdk.GCPEnvSpecFragment_Labels{
+				{Key: "team", Value: "infra"},
+				{Key: "env", Value: "prod"},
+			},
+			expectedOrder:  []string{"env", "team"},
+			expectedLength: 2,
+		},
+		{
+			name: "Model has more labels than API",
+			model: []common.KeyValueModel{
+				{Key: types.StringValue("env"), Value: types.StringValue("dev")},
+				{Key: types.StringValue("team"), Value: types.StringValue("backend")},
+				{Key: types.StringValue("missing"), Value: types.StringValue("gone")},
+			},
+			apiLabels: []*sdk.GCPEnvSpecFragment_Labels{
+				{Key: "team", Value: "backend"},
+				{Key: "env", Value: "dev"},
+			},
+			expectedOrder:  []string{"env", "team"},
+			expectedLength: 2,
+		},
+		{
+			name:  "Empty model with API labels",
+			model: []common.KeyValueModel{},
+			apiLabels: []*sdk.GCPEnvSpecFragment_Labels{
+				{Key: "env", Value: "test"},
+				{Key: "team", Value: "qa"},
+			},
+			expectedOrder:  []string{"env", "team"},
+			expectedLength: 2,
+		},
+		{
+			name:           "Empty inputs",
+			model:          []common.KeyValueModel{},
+			apiLabels:      []*sdk.GCPEnvSpecFragment_Labels{},
+			expectedOrder:  []string{},
+			expectedLength: 0,
+		},
+		{
+			name: "No data loss validation",
+			model: []common.KeyValueModel{
+				{Key: types.StringValue("env"), Value: types.StringValue("prod")},
+			},
+			apiLabels: []*sdk.GCPEnvSpecFragment_Labels{
+				{Key: "team", Value: "platform"},
+				{Key: "env", Value: "prod"},
+				{Key: "cost-center", Value: "engineering"},
+			},
+			expectedOrder:  []string{"env", "team", "cost-center"},
+			expectedLength: 3,
+			validateData:   true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := common.ReorderByKey(tt.model, tt.apiLabels,
+				func(m common.KeyValueModel) string { return m.Key.ValueString() },
+				func(s *sdk.GCPEnvSpecFragment_Labels) string { return s.Key },
+			)
+
+			if len(result) != tt.expectedLength {
+				t.Errorf("Expected length %d, got %d", tt.expectedLength, len(result))
+			}
+
+			for i, expected := range tt.expectedOrder {
+				if i >= len(result) {
+					t.Errorf("Result has fewer elements than expected")
+					break
+				}
+				if result[i].Key != expected {
+					t.Errorf("Label key at position %d: expected %s, got %s", i, expected, result[i].Key)
+				}
+			}
+
+			if tt.validateData {
+				keyToLabel := make(map[string]*sdk.GCPEnvSpecFragment_Labels)
+				for _, label := range result {
+					keyToLabel[label.Key] = label
+				}
+
+				if keyToLabel["env"].Value != "prod" {
+					t.Errorf("Expected env value 'prod', got '%s'", keyToLabel["env"].Value)
+				}
+				if keyToLabel["team"].Value != "platform" {
+					t.Errorf("Expected team value 'platform', got '%s'", keyToLabel["team"].Value)
+				}
+				if keyToLabel["cost-center"].Value != "engineering" {
+					t.Errorf("Expected cost-center value 'engineering', got '%s'", keyToLabel["cost-center"].Value)
+				}
+			}
+		})
+	}
+}
+
 func TestMaintenanceWindowsToModel(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -994,6 +1118,10 @@ func TestGCPEnvResourceModel_toSDK(t *testing.T) {
 						NetworkName: types.StringValue("peer-network"),
 					},
 				},
+				Labels: []common.KeyValueModel{
+					{Key: types.StringValue("env"), Value: types.StringValue("staging")},
+					{Key: types.StringValue("team"), Value: types.StringValue("platform")},
+				},
 				PrivateServiceConsumers: types.ListValueMust(types.StringType, []attr.Value{types.StringValue("consumer-123"), types.StringValue("consumer-456")}),
 				MetricsEndpoint: &MetricsEndpointModel{
 					Enabled:        types.BoolValue(true),
@@ -1028,6 +1156,19 @@ func TestGCPEnvResourceModel_toSDK(t *testing.T) {
 				}
 				if len(create.Spec.PeeringConnections) != 1 {
 					t.Errorf("Create peering connections: expected 1, got %d", len(create.Spec.PeeringConnections))
+				}
+				if len(create.Spec.Labels) != 2 {
+					t.Errorf("Create labels: expected 2, got %d", len(create.Spec.Labels))
+				} else {
+					if create.Spec.Labels[0].Key != "env" || create.Spec.Labels[0].Value != "staging" {
+						t.Errorf("Create labels[0]: expected env=staging, got %s=%s", create.Spec.Labels[0].Key, create.Spec.Labels[0].Value)
+					}
+					if create.Spec.Labels[1].Key != "team" || create.Spec.Labels[1].Value != "platform" {
+						t.Errorf("Create labels[1]: expected team=platform, got %s=%s", create.Spec.Labels[1].Key, create.Spec.Labels[1].Value)
+					}
+				}
+				if len(update.Spec.Labels) != 2 {
+					t.Errorf("Update labels: expected 2, got %d", len(update.Spec.Labels))
 				}
 				if len(create.Spec.PrivateServiceConsumers) != 2 {
 					t.Errorf("Create private service consumers: expected 2, got %d", len(create.Spec.PrivateServiceConsumers))
@@ -1118,6 +1259,12 @@ func TestGCPEnvResourceModel_toSDK(t *testing.T) {
 				if len(create.Spec.PeeringConnections) != 0 {
 					t.Errorf("Expected empty peering connections, got %d", len(create.Spec.PeeringConnections))
 				}
+				if len(create.Spec.Labels) != 0 {
+					t.Errorf("Expected empty labels, got %d", len(create.Spec.Labels))
+				}
+				if len(update.Spec.Labels) != 0 {
+					t.Errorf("Expected empty update labels, got %d", len(update.Spec.Labels))
+				}
 				if len(create.Spec.PrivateServiceConsumers) != 0 {
 					t.Errorf("Expected empty private service consumers, got %d", len(create.Spec.PrivateServiceConsumers))
 				}
@@ -1196,6 +1343,11 @@ func TestGCPEnvResourceModel_toModel(t *testing.T) {
 						},
 					},
 					PrivateServiceConsumers: []string{"consumer-project-1", "consumer-project-2"},
+					Labels: []*sdk.GCPEnvSpecFragment_Labels{
+						{Key: "env", Value: "production"},
+						{Key: "team", Value: "platform"},
+						{Key: "cost-center", Value: "engineering"},
+					},
 					MetricsEndpoint: sdk.GCPEnvSpecFragment_MetricsEndpoint{
 						Enabled:        true,
 						SourceIPRanges: []string{"10.0.0.0/8", "192.168.0.0/16"},
@@ -1247,6 +1399,20 @@ func TestGCPEnvResourceModel_toModel(t *testing.T) {
 				}
 				if model.PeeringConnections[0].NetworkName.ValueString() != "peer-network-main" {
 					t.Errorf("Peering connection network name: expected 'peer-network-main', got '%s'", model.PeeringConnections[0].NetworkName.ValueString())
+				}
+
+				if len(model.Labels) != 3 {
+					t.Errorf("Labels count: expected 3, got %d", len(model.Labels))
+				} else {
+					if model.Labels[0].Key.ValueString() != "env" || model.Labels[0].Value.ValueString() != "production" {
+						t.Errorf("Labels[0]: expected env=production, got %s=%s", model.Labels[0].Key.ValueString(), model.Labels[0].Value.ValueString())
+					}
+					if model.Labels[1].Key.ValueString() != "team" || model.Labels[1].Value.ValueString() != "platform" {
+						t.Errorf("Labels[1]: expected team=platform, got %s=%s", model.Labels[1].Key.ValueString(), model.Labels[1].Value.ValueString())
+					}
+					if model.Labels[2].Key.ValueString() != "cost-center" || model.Labels[2].Value.ValueString() != "engineering" {
+						t.Errorf("Labels[2]: expected cost-center=engineering, got %s=%s", model.Labels[2].Key.ValueString(), model.Labels[2].Value.ValueString())
+					}
 				}
 
 				if model.LoadBalancers == nil {
@@ -1340,6 +1506,9 @@ func TestGCPEnvResourceModel_toModel(t *testing.T) {
 				}
 				if len(model.PeeringConnections) != 0 {
 					t.Errorf("PeeringConnections: expected empty slice, got %d items", len(model.PeeringConnections))
+				}
+				if len(model.Labels) != 0 {
+					t.Errorf("Labels: expected empty slice, got %d items", len(model.Labels))
 				}
 				var privateServiceConsumers []string
 				model.PrivateServiceConsumers.ElementsAs(context.TODO(), &privateServiceConsumers, false)
