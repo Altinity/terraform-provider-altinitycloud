@@ -1,8 +1,11 @@
+-include .env
+export
+
 PROVIDER_BIN:=$(shell basename `git rev-parse --show-toplevel`)
 PROVIDER_NAME:=$(shell echo $(PROVIDER_BIN) | sed 's/terraform-provider-//g')
 PROVIDER_DIRECTORY:=~/.terraform.d/plugins/local/altinity/${PROVIDER_NAME}
 DEFAULT_GRAPHQL_SCHEMA_FILE:=internal/sdk/client/graphql.schema
-DEFAULT_GRAPHQL_SCHEMA_URL:=https://anywhere.dev.altinity.cloud/api/v1/graphql.schema
+DEFAULT_GRAPHQL_SCHEMA_URL:=https://anywhere.altinity.cloud/api/v1/graphql.schema
 
 GRAPHQL_SCHEMA_URL:=$(or $(GRAPHQL_SCHEMA_URL),$(DEFAULT_GRAPHQL_SCHEMA_URL))
 GRAPHQL_SCHEMA_FILE:=$(or $(GRAPHQL_SCHEMA_FILE),$(DEFAULT_GRAPHQL_SCHEMA_FILE))
@@ -23,10 +26,7 @@ default: help
 
 .PHONY: testacc
 testacc:
-	ALTINITYCLOUD_TEST_ENV_PREFIX="ianaya89" \
-	ALTINITYCLOUD_API_TOKEN="eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJhbHRpbml0eS5jbG91ZC5sb2NhbGhvc3QiLCJpYXQiOjE3MzQ5NjYyNTgsInN1YiI6ImhpQGlhbmF5YTg5LmRldiJ9.4dUY1ulQQZI1cIkAZQogHgaC7Bti55oP3spYZRjqB5eyRCrLV1NGzLe3GI_TgIJP4S0vU8GjVKfP_z0xxN8rAw" \
-	ALTINITYCLOUD_API_URL="https://internal.altinity.cloud.localhost:7443" \
-	TF_ACC=1 go test ./... -run TestAccAltinityCloudEnvAWS_Basic -v  $(TESTARGS) -timeout 120m
+	TF_ACC=1 go test ./... -run TestAccAltinityCloudEnvAWS_Basic -v $(TESTARGS) -timeout 120m
 
 .PHONY: build
 build:
@@ -91,8 +91,8 @@ endif
 
 .PHONY: sdk
 sdk:
-	@echo "Fetching GraphQL schema from ${GRAPHQL_SCHEMA_URL} to ${GRAPHQL_SCHEMA_FILE}"
-	curl -o ${GRAPHQL_SCHEMA_FILE} ${GRAPHQL_SCHEMA_URL}
+	@echo "Fetching GraphQL schema to ${GRAPHQL_SCHEMA_FILE}"
+	@curl -sfS -o ${GRAPHQL_SCHEMA_FILE} ${GRAPHQL_SCHEMA_URL}
 	cd internal/sdk/client && go run github.com/Yamashou/gqlgenc
 
 .PHONY: gen
