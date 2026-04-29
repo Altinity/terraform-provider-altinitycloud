@@ -105,6 +105,7 @@ const STATUS_LOAD_BALANCERS_ENDPOINT_SERVICE_NAME_DESCRIPTION = "VPC endpoint se
 // AWS descriptions.
 const AWS_ACCOUNT_ID_DESCRIPTION = "ID of the AWS account ([docs](https://docs.aws.amazon.com/IAM/latest/UserGuide/console_account-alias.html#ViewYourAWSId)) in which to provision AWS resources. **[IMMUTABLE]**"
 const AWS_TAGS_DESCRIPTION = "Tags to apply to AWS resources."
+
 const AWS_REGION_DESCRIPTION = `AWS region ([docs](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.RegionsAndAvailabilityZones.html#Concepts.RegionsAndAvailabilityZones.Regions)). **[IMMUTABLE]**
 
 		Examples:
@@ -178,6 +179,7 @@ const GCP_PEERING_CONNECTION_DESCRIPTION = "Network peering configuration."
 const GCP_PEERING_CONNECTION_PROJECT_ID_DESCRIPTION = "Target network's project ID."
 const GCP_PEERING_CONNECTION_NETWORK_NAME_DESCRIPTION = "Target network name."
 const GCP_PRIVATE_SERVICE_CONSUMERS_DESCRIPTION = "List of project IDs representing the network's private service consumers."
+const GCP_LABELS_DESCRIPTION = "Labels to apply to GCP resources."
 
 // K8S descriptions.
 const K8S_NODE_GROUP_NODE_TYPE_DESCRIPTION = "node.kubernetes.io/instance-type value."
