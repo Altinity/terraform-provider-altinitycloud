@@ -51,6 +51,7 @@ Bring Your Own Cloud (BYOC) GCP environment data source.
 - `force_destroy_clusters` (Boolean) By default, the destroy operation will not delete any provisioned clusters and the deletion will fail until the clusters get removed. Set to `true` to remove all provisioned clusters as part of the environment deletion process.
 - `gcp_project_id` (String) ID of the GCP project ([docs](https://support.google.com/googleapi/answer/7014113?hl=en#:~:text=The%20project%20ID%20is%20a,ID%20or%20create%20your%20own.)) in which to provision GCP resources. **[IMMUTABLE]**
 - `id` (String) ID of the environment (automatically generated based on the name)
+- `labels` (Attributes List) Labels to apply to GCP resources. (see [below for nested schema](#nestedatt--labels))
 - `load_balancers` (Attributes) Load balancers configuration. (see [below for nested schema](#nestedatt--load_balancers))
 - `load_balancing_strategy` (String) Load balancing strategy for the environment.
 
@@ -71,6 +72,15 @@ Bring Your Own Cloud (BYOC) GCP environment data source.
 - `zones` (List of String) Explicit list of GCP zones. At least 2 required.
 		Examples:
 		- ["us-west1-a", "us-west1-b"]
+
+<a id="nestedatt--labels"></a>
+### Nested Schema for `labels`
+
+Required:
+
+- `key` (String) Name of the key
+- `value` (String) Value of the key
+
 
 <a id="nestedatt--load_balancers"></a>
 ### Nested Schema for `load_balancers`

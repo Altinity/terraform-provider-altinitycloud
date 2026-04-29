@@ -135,6 +135,7 @@ data "altinitycloud_env_gcp_status" "this" {
 			CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
 - `force_destroy` (Boolean) Locks the environment for accidental deletion when running `terraform destroy` command. Your environment will be deleted, only when setting this parameter to `true`. Once this parameter is set to `true`, there must be a successful `terraform apply` run (before running the `terraform destroy`) to update this value in the state. Without a successful `terraform apply` after this parameter is set, this flag will have no effect. (default `false`)
 - `force_destroy_clusters` (Boolean) By default, the destroy operation will not delete any provisioned clusters and the deletion will fail until the clusters get removed. Set to `true` to remove all provisioned clusters as part of the environment deletion process.
+- `labels` (Attributes List) Labels to apply to GCP resources. (see [below for nested schema](#nestedatt--labels))
 - `load_balancers` (Attributes) Load balancers configuration. (see [below for nested schema](#nestedatt--load_balancers))
 - `load_balancing_strategy` (String) Load balancing strategy for the environment.
 
@@ -174,6 +175,15 @@ Optional:
 
 - `name` (String) Unique (among environment node groups) node group identifier.
 - `zones` (List of String) Availability zones. Check possible available zones in your cloud provider documentation
+
+
+<a id="nestedatt--labels"></a>
+### Nested Schema for `labels`
+
+Required:
+
+- `key` (String) Name of the key
+- `value` (String) Value of the key
 
 
 <a id="nestedatt--load_balancers"></a>
@@ -393,6 +403,7 @@ data "altinitycloud_env_gcp_status" "this" {
 			CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
 - `force_destroy` (Boolean) Locks the environment for accidental deletion when running `terraform destroy` command. Your environment will be deleted, only when setting this parameter to `true`. Once this parameter is set to `true`, there must be a successful `terraform apply` run (before running the `terraform destroy`) to update this value in the state. Without a successful `terraform apply` after this parameter is set, this flag will have no effect. (default `false`)
 - `force_destroy_clusters` (Boolean) By default, the destroy operation will not delete any provisioned clusters and the deletion will fail until the clusters get removed. Set to `true` to remove all provisioned clusters as part of the environment deletion process.
+- `labels` (Attributes List) Labels to apply to GCP resources. (see [below for nested schema](#nestedatt--labels))
 - `load_balancers` (Attributes) Load balancers configuration. (see [below for nested schema](#nestedatt--load_balancers))
 - `load_balancing_strategy` (String) Load balancing strategy for the environment.
 
@@ -432,6 +443,15 @@ Optional:
 
 - `name` (String) Unique (among environment node groups) node group identifier.
 - `zones` (List of String) Availability zones. Check possible available zones in your cloud provider documentation
+
+
+<a id="nestedatt--labels"></a>
+### Nested Schema for `labels`
+
+Required:
+
+- `key` (String) Name of the key
+- `value` (String) Value of the key
 
 
 <a id="nestedatt--load_balancers"></a>

@@ -4039,6 +4039,24 @@ func (t *GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_PeeringConnections) GetProject
 	return t.ProjectID
 }
 
+type GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_Labels struct {
+	Key   string "json:\"key\" graphql:\"key\""
+	Value string "json:\"value\" graphql:\"value\""
+}
+
+func (t *GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_Labels) GetKey() string {
+	if t == nil {
+		t = &GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_Labels{}
+	}
+	return t.Key
+}
+func (t *GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_Labels) GetValue() string {
+	if t == nil {
+		t = &GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_Labels{}
+	}
+	return t.Value
+}
+
 type GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_MetricsEndpoint struct {
 	Enabled        bool     "json:\"enabled\" graphql:\"enabled\""
 	SourceIPRanges []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
@@ -4300,6 +4318,24 @@ func (t *CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_PeeringConnections) G
 	return t.ProjectID
 }
 
+type CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_Labels struct {
+	Key   string "json:\"key\" graphql:\"key\""
+	Value string "json:\"value\" graphql:\"value\""
+}
+
+func (t *CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_Labels) GetKey() string {
+	if t == nil {
+		t = &CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_Labels{}
+	}
+	return t.Key
+}
+func (t *CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_Labels) GetValue() string {
+	if t == nil {
+		t = &CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_Labels{}
+	}
+	return t.Value
+}
+
 type CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_MetricsEndpoint struct {
 	Enabled        bool     "json:\"enabled\" graphql:\"enabled\""
 	SourceIPRanges []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
@@ -4491,6 +4527,24 @@ func (t *UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_PeeringConnections) G
 		t = &UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_PeeringConnections{}
 	}
 	return t.ProjectID
+}
+
+type UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_Labels struct {
+	Key   string "json:\"key\" graphql:\"key\""
+	Value string "json:\"value\" graphql:\"value\""
+}
+
+func (t *UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_Labels) GetKey() string {
+	if t == nil {
+		t = &UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_Labels{}
+	}
+	return t.Key
+}
+func (t *UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_Labels) GetValue() string {
+	if t == nil {
+		t = &UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_Labels{}
+	}
+	return t.Value
 }
 
 type UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_MetricsEndpoint struct {
@@ -7432,6 +7486,10 @@ fragment GCPEnvSpecFragment on GCPEnvSpec {
 	cidr
 	gcpProjectId
 	cloudConnect
+	labels {
+		key
+		value
+	}
 	metricsEndpoint {
 		enabled
 		sourceIPRanges
@@ -7535,6 +7593,10 @@ fragment GCPEnvSpecFragment on GCPEnvSpec {
 	cidr
 	gcpProjectId
 	cloudConnect
+	labels {
+		key
+		value
+	}
 	metricsEndpoint {
 		enabled
 		sourceIPRanges
@@ -7605,6 +7667,10 @@ fragment GCPEnvSpecFragment on GCPEnvSpec {
 	cidr
 	gcpProjectId
 	cloudConnect
+	labels {
+		key
+		value
+	}
 	metricsEndpoint {
 		enabled
 		sourceIPRanges
