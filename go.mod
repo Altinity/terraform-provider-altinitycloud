@@ -1,6 +1,6 @@
 module github.com/altinity/terraform-provider-altinitycloud
 
-go 1.25.8
+go 1.26.2
 
 require (
 	github.com/Yamashou/gqlgenc v0.33.0
