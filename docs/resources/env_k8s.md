@@ -402,7 +402,7 @@ Required:
 
 - `capacity_per_zone` (Number) Maximum number of instances per availability zone.
 - `node_type` (String) node.kubernetes.io/instance-type value.
-- `zones` (List of String) topology.kubernetes.io/zone values.
+- `zones` (List of String) topology.kubernetes.io/zone values. ⚠️ Existing zones cannot be removed or replaced once added; only new zones may be appended.
 
 Optional:
 

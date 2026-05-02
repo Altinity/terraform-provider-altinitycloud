@@ -148,7 +148,8 @@ data "altinitycloud_env_gcp_status" "this" {
 - `private_service_consumers` (List of String) List of project IDs representing the network's private service consumers.
 - `skip_deprovision_on_destroy` (Boolean) Set to `true` will delete without waiting for environment deprovisioning. Use this with precaution, it may end up with dangling resources in your cloud provider (default `false`).
 - `timeouts` (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
-- `zones` (List of String) Explicit list of GCP zones. At least 2 required.
+- `zones` (List of String) Explicit list of GCP zones. At least 2 required. ⚠️ Existing zones cannot be removed or replaced once added; only new zones may be appended.
+
 		Examples:
 		- ["us-west1-a", "us-west1-b"]
 
@@ -416,7 +417,8 @@ data "altinitycloud_env_gcp_status" "this" {
 - `private_service_consumers` (List of String) List of project IDs representing the network's private service consumers.
 - `skip_deprovision_on_destroy` (Boolean) Set to `true` will delete without waiting for environment deprovisioning. Use this with precaution, it may end up with dangling resources in your cloud provider (default `false`).
 - `timeouts` (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
-- `zones` (List of String) Explicit list of GCP zones. At least 2 required.
+- `zones` (List of String) Explicit list of GCP zones. At least 2 required. ⚠️ Existing zones cannot be removed or replaced once added; only new zones may be appended.
+
 		Examples:
 		- ["us-west1-a", "us-west1-b"]
 

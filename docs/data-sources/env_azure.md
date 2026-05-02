@@ -70,7 +70,7 @@ Bring Your Own Cloud (BYOC) Azure environment data source.
 - `subscription_id` (String) ID linking the environment to a specific Azure subscription for resource management. **[IMMUTABLE]**
 - `tags` (Attributes List) Tags to apply to Azure resources. (see [below for nested schema](#nestedatt--tags))
 - `tenant_id` (String) ID of the Azure Active Directory tenant for user identity and access management. **[IMMUTABLE]**
-- `zones` (List of String) Explicit list of Azure availability zones. At least 2 required.
+- `zones` (List of String) Explicit list of Azure availability zones. At least 2 required. ⚠️ Existing zones cannot be removed or replaced once added; only new zones may be appended.
 
 		Examples:
 		- ["eastus-1", "eastus-2"]

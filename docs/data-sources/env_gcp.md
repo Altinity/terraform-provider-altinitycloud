@@ -69,7 +69,8 @@ Bring Your Own Cloud (BYOC) GCP environment data source.
 		- "us-west1".
 - `skip_deprovision_on_destroy` (Boolean) Set to `true` will delete without waiting for environment deprovisioning. Use this with precaution, it may end up with dangling resources in your cloud provider (default `false`).
 - `spec_revision` (Number) Spec revision
-- `zones` (List of String) Explicit list of GCP zones. At least 2 required.
+- `zones` (List of String) Explicit list of GCP zones. At least 2 required. ⚠️ Existing zones cannot be removed or replaced once added; only new zones may be appended.
+
 		Examples:
 		- ["us-west1-a", "us-west1-b"]
 
