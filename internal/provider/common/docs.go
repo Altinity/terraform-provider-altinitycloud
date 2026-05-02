@@ -112,7 +112,7 @@ const AWS_REGION_DESCRIPTION = `AWS region ([docs](https://docs.aws.amazon.com/A
 		- "us-east-1"
 		- "sa-east-1"
 `
-const AWS_ZONES_DESCRIPTION = `Explicit list of AWS availability zones. At least 2 required.
+const AWS_ZONES_DESCRIPTION = `Explicit list of AWS availability zones. At least 2 required. ⚠️ Existing zones cannot be removed or replaced once added; only new zones may be appended.
 
 		Examples:
 		- ["us-east-1a", "us-east-1b"]
@@ -165,7 +165,8 @@ const GCP_REGION_DESCRIPTION = `GCP region ([docs](https://cloud.google.com/abou
 		Examples:
 		- "us-west1".
 `
-const GCP_ZONES_DESCRIPTION = `Explicit list of GCP zones. At least 2 required.
+const GCP_ZONES_DESCRIPTION = `Explicit list of GCP zones. At least 2 required. ⚠️ Existing zones cannot be removed or replaced once added; only new zones may be appended.
+
 		Examples:
 		- ["us-west1-a", "us-west1-b"]
 `
@@ -183,7 +184,7 @@ const GCP_LABELS_DESCRIPTION = "Labels to apply to GCP resources."
 
 // K8S descriptions.
 const K8S_NODE_GROUP_NODE_TYPE_DESCRIPTION = "node.kubernetes.io/instance-type value."
-const K8S_NODE_GROUP_ZONES_DESCRIPTION = "topology.kubernetes.io/zone values."
+const K8S_NODE_GROUP_ZONES_DESCRIPTION = "topology.kubernetes.io/zone values. ⚠️ Existing zones cannot be removed or replaced once added; only new zones may be appended."
 const K8S_REGION_DESCRIPTION = "Cloud provider Region. Check possible available regions in your cloud provider documentation **[IMMUTABLE]**"
 const K8S_LOAD_BALANCER_ANNOTATIONS_DESCRIPTION = "List of annotations for the load balancer"
 const DISTRIBUTION_DESCRIPTION = `Kubernetes distribution. **[IMMUTABLE]**
@@ -222,7 +223,7 @@ const AZURE_CUSTOM_DOMAIN_DESCRIPTION = `Custom domain.
 		- (optional, privatelink)
 			CNAME *.privatelink.example.com. _.privatelink.$env_name.altinity.cloud.
 `
-const AZURE_ZONES_DESCRIPTION = `Explicit list of Azure availability zones. At least 2 required.
+const AZURE_ZONES_DESCRIPTION = `Explicit list of Azure availability zones. At least 2 required. ⚠️ Existing zones cannot be removed or replaced once added; only new zones may be appended.
 
 		Examples:
 		- ["eastus-1", "eastus-2"]
@@ -248,7 +249,7 @@ const HCLOUD_NETWORK_ZONE_DESCRIPTION = `HCloud network ([docs](https://docs.het
 		Examples:
 		- "us-west".
 `
-const HCLOUD_LOCATIONS_DESCRIPTION = `Explicit list of HCloud locations. Currently supports single location only.
+const HCLOUD_LOCATIONS_DESCRIPTION = `Explicit list of HCloud locations. Currently supports single location only. ⚠️ Existing locations cannot be removed or replaced once added; only new locations may be appended.
 
 		Examples:
 		- ["hil"]
