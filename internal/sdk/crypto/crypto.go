@@ -29,7 +29,7 @@ func NewCrypto(rootCAs *x509.CertPool, cryptoUrl string) *Crypto {
 	}
 }
 
-func (c *Crypto) Encrypt(pem string, value string) (string, error) {
+func (c *Crypto) Encrypt(ctx context.Context, pem string, value string) (string, error) {
 	split, err := split([]byte(pem))
 	if err != nil {
 		return "", err
@@ -41,7 +41,7 @@ func (c *Crypto) Encrypt(pem string, value string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	res, err := c.fetchPublicKey(context.Background(), tlsCert)
+	res, err := c.fetchPublicKey(ctx, tlsCert)
 	if err != nil {
 		return "", err
 	}

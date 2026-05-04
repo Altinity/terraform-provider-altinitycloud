@@ -58,7 +58,7 @@ func (r *SecretResource) Create(ctx context.Context, req resource.CreateRequest,
 	}
 
 	tflog.Trace(ctx, "creating resource")
-	secretValue, err := r.crypto.Encrypt(data.PEM.ValueString(), data.Value.ValueString())
+	secretValue, err := r.crypto.Encrypt(ctx, data.PEM.ValueString(), data.Value.ValueString())
 
 	if err != nil {
 		clientsupport.AddClientError(&resp.Diagnostics, fmt.Sprintf("Unable encrypt, got error: %s", err))
@@ -89,7 +89,7 @@ func (r *SecretResource) Update(ctx context.Context, req resource.UpdateRequest,
 
 	tflog.Trace(ctx, "updating resource")
 
-	secretValue, err := r.crypto.Encrypt(data.PEM.ValueString(), data.Value.ValueString())
+	secretValue, err := r.crypto.Encrypt(ctx, data.PEM.ValueString(), data.Value.ValueString())
 	if err != nil {
 		clientsupport.AddClientError(&resp.Diagnostics, fmt.Sprintf("Unable generate secret, got error: %s", err))
 		return
