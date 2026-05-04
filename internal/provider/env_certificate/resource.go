@@ -108,4 +108,9 @@ func (r *CertificateResource) Delete(ctx context.Context, req resource.DeleteReq
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
+	resp.Diagnostics.AddWarning(
+		"Certificate Not Revoked",
+		fmt.Sprintf("The certificate for environment %q has been removed from Terraform state but remains valid. There is no API to revoke certificates.", data.EnvironmentName.ValueString()),
+	)
 }

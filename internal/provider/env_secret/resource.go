@@ -109,4 +109,9 @@ func (r *SecretResource) Delete(ctx context.Context, req resource.DeleteRequest,
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
+	resp.Diagnostics.AddWarning(
+		"Secret Not Revoked",
+		"The encrypted secret has been removed from Terraform state but the encrypted value may still be valid. There is no API to revoke secrets.",
+	)
 }
