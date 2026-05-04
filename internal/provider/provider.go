@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"runtime"
+	"time"
 
 	env_aws "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env/aws"
 	env_azure "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env/azure"
@@ -142,6 +143,7 @@ func (p *altinityCloudProvider) Configure(ctx context.Context, req provider.Conf
 		httpClient,
 		apiUrl+GRAPHQL_API_PATH,
 		nil,
+		client.WithRetry(3, 500*time.Millisecond),
 		client.WithBearerAuthorization(ctx, apiToken),
 		client.WithUserAgent(ctx, userAgent(p.version)),
 	)
