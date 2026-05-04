@@ -59,6 +59,24 @@ func TestFormatError_QueryPathFallback(t *testing.T) {
 	}
 }
 
+func TestFormatError_NetworkErrorObject(t *testing.T) {
+	rawErr := errors.New(`{"networkErrors":{"message":"connect ECONNREFUSED 127.0.0.1:443"},"graphqlErrors":[]}`)
+	got := FormatError(rawErr, "test")
+	want := "Network error: connect ECONNREFUSED 127.0.0.1:443"
+	if got != want {
+		t.Errorf("got: %s, want: %s", got, want)
+	}
+}
+
+func TestFormatError_NetworkErrorString(t *testing.T) {
+	rawErr := errors.New(`{"networkErrors":"connection timeout","graphqlErrors":[]}`)
+	got := FormatError(rawErr, "test")
+	want := "Network error: connection timeout"
+	if got != want {
+		t.Errorf("got: %s, want: %s", got, want)
+	}
+}
+
 func TestIsNotFoundError_True(t *testing.T) {
 	rawErr := errors.New(`{"networkErrors":null,"graphqlErrors":[{"message":"env not found","path":["getAWSEnv"],"extensions":{"code":"NOT_FOUND"}}]}`)
 	got, err := IsNotFoundError(rawErr)

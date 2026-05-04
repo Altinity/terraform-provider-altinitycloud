@@ -94,6 +94,10 @@ func FormatError(err error, resourceName string) string {
 		return strings.Join(messages, "\n")
 	}
 
+	if parsedError.NetworkErrors != nil {
+		return formatNetworkErrors(parsedError.NetworkErrors)
+	}
+
 	return err.Error()
 }
 
@@ -125,6 +129,22 @@ func errorPrefix(gqlError GraphQLError) string {
 	}
 
 	return "Error"
+}
+
+func formatNetworkErrors(networkErrors interface{}) string {
+	switch v := networkErrors.(type) {
+	case string:
+		return fmt.Sprintf("Network error: %s", v)
+	case map[string]interface{}:
+		if msg, ok := v["message"]; ok {
+			return fmt.Sprintf("Network error: %v", msg)
+		}
+		raw, _ := json.Marshal(v)
+		return fmt.Sprintf("Network error: %s", raw)
+	default:
+		raw, _ := json.Marshal(v)
+		return fmt.Sprintf("Network error: %s", raw)
+	}
 }
 
 func IsActiveClustersError(err error) (bool, error) {
