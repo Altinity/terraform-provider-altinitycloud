@@ -18,9 +18,9 @@ LOCAL_DIRECTORY:=local
 ifeq ($(shell uname -s), Linux)
   OS := linux
 endif
-# ifeq ($(shell uname -m), arm64)
-#   ARCH=arm64
-# endif
+ifeq ($(shell uname -m), arm64)
+  ARCH := arm64
+endif
 
 default: help
 
@@ -83,11 +83,7 @@ sync:
 
 .PHONY: docs
 docs:
-ifeq ($(OS), darwin)
-	GOOS=darwin GOARCH=amd64 go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs
-else
-	go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs
-endif
+	GOOS=$(OS) GOARCH=$(ARCH) go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs
 
 .PHONY: sdk
 sdk:
