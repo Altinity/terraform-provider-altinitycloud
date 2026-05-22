@@ -366,6 +366,7 @@ type AWSEnvSpec struct {
 	EksLogging bool `json:"eksLogging"`
 	// Metrics endpoint configuration.
 	MetricsEndpoint *MetricsEndpointSpec `json:"metricsEndpoint"`
+	Datadog         *DatadogSpec         `json:"datadog"`
 }
 
 // AWS environment status.
@@ -434,6 +435,8 @@ type AWSEnvUpdateSpecInput struct {
 	EksLogging *bool `json:"eksLogging,omitempty"`
 	// Metrics endpoint configuration.
 	MetricsEndpoint *MetricsEndpointSpecInput `json:"metricsEndpoint,omitempty"`
+	// Datadog monitoring agent configuration.
+	Datadog *DatadogSpecInput `json:"datadog,omitempty"`
 }
 
 // AWS resource information.
@@ -647,6 +650,7 @@ type AzureEnvSpec struct {
 	CloudConnect bool `json:"cloudConnect"`
 	// Metrics endpoint configuration.
 	MetricsEndpoint *MetricsEndpointSpec `json:"metricsEndpoint"`
+	Datadog         *DatadogSpec         `json:"datadog"`
 }
 
 // Azure environment status.
@@ -779,6 +783,7 @@ type CreateAWSEnvSpecInput struct {
 	EksLogging *bool `json:"eksLogging,omitempty"`
 	// Metrics endpoint configuration.
 	MetricsEndpoint *MetricsEndpointSpecInput `json:"metricsEndpoint,omitempty"`
+	Datadog         *DatadogSpecInput         `json:"datadog,omitempty"`
 }
 
 // Azure environment create request input.
@@ -872,6 +877,8 @@ type CreateAzureEnvSpecInput struct {
 	CloudConnect *bool `json:"cloudConnect,omitempty"`
 	// Metrics endpoint configuration.
 	MetricsEndpoint *MetricsEndpointSpecInput `json:"metricsEndpoint,omitempty"`
+	// Datadog monitoring agent configuration.
+	Datadog *DatadogSpecInput `json:"datadog,omitempty"`
 }
 
 // GCP environment create request input.
@@ -969,6 +976,8 @@ type CreateGCPEnvSpecInput struct {
 	PrivateServiceConnections []*GCPEnvPrivateServiceConnectionSpecInput `json:"privateServiceConnections,omitempty"`
 	// Metrics endpoint configuration.
 	MetricsEndpoint *MetricsEndpointSpecInput `json:"metricsEndpoint,omitempty"`
+	// Datadog monitoring agent configuration.
+	Datadog *DatadogSpecInput `json:"datadog,omitempty"`
 }
 
 // HCloud environment create request input.
@@ -1050,6 +1059,8 @@ type CreateHCloudEnvSpecInput struct {
 	WireguardPeers []*HCloudEnvWireguardPeerSpecInput `json:"wireguardPeers,omitempty"`
 	// Metrics endpoint configuration.
 	MetricsEndpoint *MetricsEndpointSpecInput `json:"metricsEndpoint,omitempty"`
+	// Datadog monitoring agent configuration.
+	Datadog *DatadogSpecInput `json:"datadog,omitempty"`
 }
 
 // Kubernetes environment create request input.
@@ -1112,6 +1123,36 @@ type CreateK8SEnvSpecInput struct {
 	CustomDomain *string `json:"customDomain,omitempty"`
 	// Metrics endpoint configuration.
 	MetricsEndpoint *MetricsEndpointSpecInput `json:"metricsEndpoint,omitempty"`
+	// Datadog monitoring agent configuration.
+	Datadog *DatadogSpecInput `json:"datadog,omitempty"`
+}
+
+// Datadog agent configuration for the environment.
+type DatadogSpec struct {
+	// True if the Datadog agent is enabled, false otherwise.
+	Enabled bool `json:"enabled"`
+	// Datadog intake site domain (e.g. us3.datadoghq.com, app.datadoghq.eu).
+	Domain string `json:"domain"`
+	// True if ClickHouse log collection is enabled, false otherwise.
+	LogsEnabled bool `json:"logsEnabled"`
+	// True if ClickHouse metrics collection is enabled, false otherwise.
+	MetricsEnabled bool `json:"metricsEnabled"`
+}
+
+// Datadog monitoring agent configuration input.
+type DatadogSpecInput struct {
+	// Enable or disable the Datadog agent.
+	// Defaults to false.
+	Enabled *bool `json:"enabled,omitempty"`
+	// Datadog encrypted API key. Write-only — set to configure or rotate the key.
+	EncAPIKey *string `json:"encApiKey,omitempty"`
+	// Datadog intake site domain (e.g. us3.datadoghq.com, app.datadoghq.eu).
+	// Defaults to datadoghq.com.
+	Domain *string `json:"domain,omitempty"`
+	// Enable ClickHouse log collection.
+	LogsEnabled *bool `json:"logsEnabled,omitempty"`
+	// Enable ClickHouse metrics collection.
+	MetricsEnabled *bool `json:"metricsEnabled,omitempty"`
 }
 
 // AWS environment delete request input.
@@ -1458,6 +1499,7 @@ type GCPEnvSpec struct {
 	PrivateServiceConnections []*GCPEnvPrivateServiceConnectionSpec `json:"privateServiceConnections"`
 	// Metrics endpoint configuration.
 	MetricsEndpoint *MetricsEndpointSpec `json:"metricsEndpoint"`
+	Datadog         *DatadogSpec         `json:"datadog"`
 }
 
 // GCP environment status.
@@ -1645,6 +1687,7 @@ type HCloudEnvSpec struct {
 	WireguardPeers []*HCloudEnvWireguardPeerSpec `json:"wireguardPeers"`
 	// Metrics endpoint configuration.
 	MetricsEndpoint *MetricsEndpointSpec `json:"metricsEndpoint"`
+	Datadog         *DatadogSpec         `json:"datadog"`
 }
 
 // HCloud environment status.
@@ -2030,6 +2073,7 @@ type K8SEnvSpec struct {
 	CustomDomain *string `json:"customDomain,omitempty"`
 	// Metrics endpoint configuration.
 	MetricsEndpoint *MetricsEndpointSpec `json:"metricsEndpoint"`
+	Datadog         *DatadogSpec         `json:"datadog"`
 }
 
 // Kubernetes environment logs GCS storage configuration.
@@ -2256,6 +2300,8 @@ type UpdateAzureEnvSpecInput struct {
 	Tags               []*KeyValueInput             `json:"tags,omitempty"`
 	// Metrics endpoint configuration.
 	MetricsEndpoint *MetricsEndpointSpecInput `json:"metricsEndpoint,omitempty"`
+	// Datadog monitoring agent configuration.
+	Datadog *DatadogSpecInput `json:"datadog,omitempty"`
 }
 
 // GCP environment update request input.
@@ -2325,6 +2371,8 @@ type UpdateGCPEnvSpecInput struct {
 	MetricsEndpoint *MetricsEndpointSpecInput `json:"metricsEndpoint,omitempty"`
 	// Labels to apply to GCP resources.
 	Labels []*KeyValueInput `json:"labels,omitempty"`
+	// Datadog monitoring agent configuration.
+	Datadog *DatadogSpecInput `json:"datadog,omitempty"`
 }
 
 // HCloud environment update request input.
@@ -2384,6 +2432,8 @@ type UpdateHCloudEnvSpecInput struct {
 	WireguardPeers []*HCloudEnvWireguardPeerSpecInput `json:"wireguardPeers,omitempty"`
 	// Metrics endpoint configuration.
 	MetricsEndpoint *MetricsEndpointSpecInput `json:"metricsEndpoint,omitempty"`
+	// Datadog monitoring agent configuration.
+	Datadog *DatadogSpecInput `json:"datadog,omitempty"`
 }
 
 // Kubernetes environment update request input.
@@ -2441,6 +2491,8 @@ type UpdateK8SEnvSpecInput struct {
 	CustomDomain *string `json:"customDomain,omitempty"`
 	// Metrics endpoint configuration.
 	MetricsEndpoint *MetricsEndpointSpecInput `json:"metricsEndpoint,omitempty"`
+	// Datadog monitoring agent configuration.
+	Datadog *DatadogSpecInput `json:"datadog,omitempty"`
 }
 
 // Day of the week.
