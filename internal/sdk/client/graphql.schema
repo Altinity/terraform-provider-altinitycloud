@@ -159,6 +159,7 @@ type AWSEnvSpec {
   Metrics endpoint configuration.
   """
   metricsEndpoint: MetricsEndpointSpec!
+  datadog: DatadogSpec!
 }
 
 """
@@ -606,6 +607,7 @@ input CreateAWSEnvSpecInput {
   Metrics endpoint configuration.
   """
   metricsEndpoint: MetricsEndpointSpecInput
+  datadog: DatadogSpecInput
 }
 
 """
@@ -969,6 +971,10 @@ input AWSEnvUpdateSpecInput {
   Metrics endpoint configuration.
   """
   metricsEndpoint: MetricsEndpointSpecInput
+  """
+  Datadog monitoring agent configuration.
+  """
+  datadog: DatadogSpecInput
 }
 
 """
@@ -1123,6 +1129,7 @@ type AzureEnvSpec {
   Metrics endpoint configuration.
   """
   metricsEndpoint: MetricsEndpointSpec!
+  datadog: DatadogSpec!
 }
 
 """
@@ -1401,6 +1408,10 @@ input CreateAzureEnvSpecInput {
   Metrics endpoint configuration.
   """
   metricsEndpoint: MetricsEndpointSpecInput
+  """
+  Datadog monitoring agent configuration.
+  """
+  datadog: DatadogSpecInput
 }
 
 """
@@ -1648,6 +1659,10 @@ input UpdateAzureEnvSpecInput {
   Metrics endpoint configuration.
   """
   metricsEndpoint: MetricsEndpointSpecInput
+  """
+  Datadog monitoring agent configuration.
+  """
+  datadog: DatadogSpecInput
 }
 
 """
@@ -2086,6 +2101,56 @@ type MetricsEndpointSpec {
 }
 
 """
+Datadog agent configuration for the environment.
+"""
+type DatadogSpec {
+  """
+  True if the Datadog agent is enabled, false otherwise.
+  """
+  enabled: Boolean!
+  """
+  Datadog intake site domain (e.g. us3.datadoghq.com, app.datadoghq.eu).
+  """
+  domain: String!
+  """
+  True if ClickHouse log collection is enabled, false otherwise.
+  """
+  logsEnabled: Boolean!
+  """
+  True if ClickHouse metrics collection is enabled, false otherwise.
+  """
+  metricsEnabled: Boolean!
+}
+
+"""
+Datadog monitoring agent configuration input.
+"""
+input DatadogSpecInput {
+  """
+  Enable or disable the Datadog agent.
+  Defaults to false.
+  """
+  enabled: Boolean
+  """
+  Datadog encrypted API key. Write-only — set to configure or rotate the key.
+  """
+  encApiKey: Sensitive
+  """
+  Datadog intake site domain (e.g. us3.datadoghq.com, app.datadoghq.eu).
+  Defaults to datadoghq.com.
+  """
+  domain: String
+  """
+  Enable ClickHouse log collection.
+  """
+  logsEnabled: Boolean
+  """
+  Enable ClickHouse metrics collection.
+  """
+  metricsEnabled: Boolean
+}
+
+"""
 Metrics endpoint configuration input.
 """
 input MetricsEndpointSpecInput {
@@ -2238,6 +2303,7 @@ type GCPEnvSpec {
   Metrics endpoint configuration.
   """
   metricsEndpoint: MetricsEndpointSpec!
+  datadog: DatadogSpec!
 }
 
 """
@@ -2514,6 +2580,10 @@ input CreateGCPEnvSpecInput {
   Metrics endpoint configuration.
   """
   metricsEndpoint: MetricsEndpointSpecInput
+  """
+  Datadog monitoring agent configuration.
+  """
+  datadog: DatadogSpecInput
 }
 
 """
@@ -2789,6 +2859,10 @@ input UpdateGCPEnvSpecInput {
   Labels to apply to GCP resources.
   """
   labels: [KeyValueInput!]
+  """
+  Datadog monitoring agent configuration.
+  """
+  datadog: DatadogSpecInput
 }
 
 """
@@ -2931,6 +3005,7 @@ type HCloudEnvSpec {
   Metrics endpoint configuration.
   """
   metricsEndpoint: MetricsEndpointSpec!
+  datadog: DatadogSpec!
 }
 
 """
@@ -3170,6 +3245,10 @@ input CreateHCloudEnvSpecInput {
   Metrics endpoint configuration.
   """
   metricsEndpoint: MetricsEndpointSpecInput
+  """
+  Datadog monitoring agent configuration.
+  """
+  datadog: DatadogSpecInput
 }
 
 """
@@ -3409,6 +3488,10 @@ input UpdateHCloudEnvSpecInput {
   Metrics endpoint configuration.
   """
   metricsEndpoint: MetricsEndpointSpecInput
+  """
+  Datadog monitoring agent configuration.
+  """
+  datadog: DatadogSpecInput
 }
 
 """
@@ -3527,6 +3610,7 @@ type K8SEnvSpec {
   Metrics endpoint configuration.
   """
   metricsEndpoint: MetricsEndpointSpec!
+  datadog: DatadogSpec!
 }
 
 """
@@ -3841,6 +3925,10 @@ input CreateK8SEnvSpecInput {
   Metrics endpoint configuration.
   """
   metricsEndpoint: MetricsEndpointSpecInput
+  """
+  Datadog monitoring agent configuration.
+  """
+  datadog: DatadogSpecInput
 }
 
 """
@@ -4166,6 +4254,10 @@ input UpdateK8SEnvSpecInput {
   Metrics endpoint configuration.
   """
   metricsEndpoint: MetricsEndpointSpecInput
+  """
+  Datadog monitoring agent configuration.
+  """
+  datadog: DatadogSpecInput
 }
 
 """
