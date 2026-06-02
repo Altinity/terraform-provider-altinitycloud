@@ -102,6 +102,7 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
   awsAccountID
   permissionsBoundaryPolicyArn
   resourcePrefix
+  kmsKeyARN
   peeringConnections {
     awsAccountID
     vpcID
@@ -119,6 +120,7 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
   cloudConnect,
   externalBuckets {
     name
+    kmsKeyARN
   }
   backups {
     customBucket {

@@ -45,6 +45,7 @@ func (r *AWSEnvResource) Schema(ctx context.Context, req resource.SchemaRequest,
 			"cloud_connect":                   getCloudConnectAttribute(false, true, true),
 			"resource_prefix":                 getResourcePrefixAttribute(false, true, true),
 			"permissions_boundary_policy_arn": getPermissionsBoundaryPolicyArnAttribute(false, true, false),
+			"kms_key_arn":                     getKmsKeyArnAttribute(false, true, false),
 			"external_buckets":                getExternalBucketsAttribute(false, true, false),
 			"backups":                         getBackupStorageAttribute(false, true, false),
 			"iceberg":                         getIcebergAttribute(false, true, false),
@@ -86,6 +87,7 @@ func (d *AWSEnvDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 			"tags":                            getTagsAttribute(false, false, true),
 			"cloud_connect":                   getCloudConnectAttribute(false, false, true),
 			"permissions_boundary_policy_arn": getPermissionsBoundaryPolicyArnAttribute(false, false, true),
+			"kms_key_arn":                     getKmsKeyArnAttribute(false, false, true),
 			"resource_prefix":                 getResourcePrefixAttribute(false, false, true),
 			"external_buckets":                getExternalBucketsAttribute(false, false, true),
 			"backups":                         getBackupStorageAttribute(false, false, true),
@@ -265,6 +267,18 @@ func getPermissionsBoundaryPolicyArnAttribute(required, optional, computed bool)
 	}
 }
 
+func getKmsKeyArnAttribute(required, optional, computed bool) rschema.StringAttribute {
+	return rschema.StringAttribute{
+		Required: required,
+		Optional: optional,
+		Computed: computed,
+		PlanModifiers: []planmodifier.String{
+			modifiers.ImmutableString("kms_key_arn"),
+		},
+		MarkdownDescription: common.KMS_KEY_ARN_DESCRIPTION,
+	}
+}
+
 func getResourcePrefixAttribute(required, optional, computed bool) rschema.StringAttribute {
 	return rschema.StringAttribute{
 		Required: required,
@@ -347,6 +361,10 @@ var externalBucketAttribute = rschema.NestedAttributeObject{
 		"name": rschema.StringAttribute{
 			Required:            true,
 			MarkdownDescription: common.EXTERNAL_BUCKET_NAME_DESCRIPTION,
+		},
+		"kms_key_arn": rschema.StringAttribute{
+			Optional:            true,
+			MarkdownDescription: common.EXTERNAL_BUCKET_KMS_KEY_ARN_DESCRIPTION,
 		},
 	},
 }

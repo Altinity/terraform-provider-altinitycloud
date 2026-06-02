@@ -135,6 +135,7 @@ const AWS_NODE_GROUP_NODE_TYPE_DESCRIPTION = `Instance type ([docs](https://aws.
 `
 const EXTERNAL_BUCKET_DESCRIPTION = "List of external S3 bucket to allow access to."
 const EXTERNAL_BUCKET_NAME_DESCRIPTION = "External bucket name."
+const EXTERNAL_BUCKET_KMS_KEY_ARN_DESCRIPTION = "Optional ARN of a customer-managed KMS key used to encrypt this bucket. When set, the ClickHouse IRSA role is granted KMS decrypt/encrypt permissions on the key so SSE-KMS-encrypted objects in the bucket can be read and written (e.g. when the bucket backs a ClickHouse external disk)."
 const PEERING_CONNECTION_DESCRIPTION = "AWS environment VPC peering configuration."
 const PEERING_CONNECTION_ID_DESCRIPTION = "VPC peering connection ID."
 const PEERING_CONNECTION_VPC_ID_DESCRIPTION = "Target VPC ID."
@@ -146,6 +147,7 @@ const ENDPOINT_ALIAS_DESCRIPTION = "By default, VPC endpoints get assigned $endp
 const ENDPOINT_PRIVATE_DNS_DESCRIPTION = "`true` indicates whether to associate a private hosted zone with the specified VPC (default `false`)."
 const CLOUD_CONNECT_DESCRIPTION = "`true` indicates that cloud resources are to be managed via altinity/cloud-connect and `false` means direct management (default `true`). **[IMMUTABLE]**"
 const PERMISSIONS_BOUNDARY_POLICY_ARN_DESCRIPTION = "Policy ARN that sets the maximum permissions for the IAM roles created by the environment. **[IMMUTABLE]**"
+const KMS_KEY_ARN_DESCRIPTION = "ARN of the customer's KMS key for encrypting Altinity-provisioned data buckets and EBS volumes. **[IMMUTABLE]**"
 const RESOURCE_PREFIX_DESCRIPTION = "Resource prefix used for provisioned resources **[IMMUTABLE]**"
 const NAT_DESCRIPTION = "Enable AWS NAT Gateway. **[IMMUTABLE]**"
 const AWS_BACKUPS_DESCRIPTION = "Configuration for backup storage"

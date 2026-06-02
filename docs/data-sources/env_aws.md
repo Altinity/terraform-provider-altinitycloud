@@ -61,6 +61,7 @@ Bring Your Own Cloud (BYOC) AWS environment data source.
 - `force_destroy_clusters` (Boolean) By default, the destroy operation will not delete any provisioned clusters and the deletion will fail until the clusters get removed. Set to `true` to remove all provisioned clusters as part of the environment deletion process.
 - `iceberg` (Attributes) Iceberg configuration for Apache Iceberg table format support. (see [below for nested schema](#nestedatt--iceberg))
 - `id` (String) ID of the environment (automatically generated based on the name)
+- `kms_key_arn` (String) ARN of the customer's KMS key for encrypting Altinity-provisioned data buckets and EBS volumes. **[IMMUTABLE]**
 - `load_balancers` (Attributes) Load balancers configuration. (see [below for nested schema](#nestedatt--load_balancers))
 - `load_balancing_strategy` (String) Load balancing strategy for the environment.
 
@@ -124,6 +125,10 @@ Optional:
 Required:
 
 - `name` (String) External bucket name.
+
+Optional:
+
+- `kms_key_arn` (String) Optional ARN of a customer-managed KMS key used to encrypt this bucket. When set, the ClickHouse IRSA role is granted KMS decrypt/encrypt permissions on the key so SSE-KMS-encrypted objects in the bucket can be read and written (e.g. when the bucket backs a ClickHouse external disk).
 
 
 <a id="nestedatt--iceberg"></a>

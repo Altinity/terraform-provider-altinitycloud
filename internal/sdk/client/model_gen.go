@@ -79,12 +79,22 @@ type AWSEnvEndpointSpecInput struct {
 type AWSEnvExternalBucketSpec struct {
 	// External bucket name.
 	Name string `json:"name"`
+	// Optional ARN of a customer-managed KMS key used to encrypt this
+	// bucket. When set, the ClickHouse IRSA role is granted KMS
+	// decrypt/encrypt permissions on the key so SSE-KMS-encrypted objects
+	// in the bucket can be read and written (e.g. when the bucket backs a
+	// ClickHouse external disk).
+	KmsKeyArn *string `json:"kmsKeyARN,omitempty"`
 }
 
 // External S3 bucket to allow access to.
 type AWSEnvExternalBucketSpecInput struct {
 	// External bucket name.
 	Name string `json:"name"`
+	// ARN of a customer-managed KMS key used to encrypt this bucket.
+	// When set, grants the ClickHouse IRSA role KMS decrypt/encrypt
+	// permissions on the key.
+	KmsKeyArn *string `json:"kmsKeyARN,omitempty"`
 }
 
 // AWS environments query filter.
@@ -356,6 +366,9 @@ type AWSEnvSpec struct {
 	PermissionsBoundaryPolicyArn *string `json:"permissionsBoundaryPolicyArn,omitempty"`
 	// Prefix for AWS resources created by this environment.
 	ResourcePrefix string `json:"resourcePrefix"`
+	// ARN of the customer's KMS key for encrypting Altinity-provisioned
+	// data buckets and EBS volumes.
+	KmsKeyArn *string `json:"kmsKeyARN,omitempty"`
 	// List of external S3 buckets to allow access to.
 	ExternalBuckets []*AWSEnvExternalBucketSpec `json:"externalBuckets"`
 	// Backups configuration.
@@ -773,6 +786,11 @@ type CreateAWSEnvSpecInput struct {
 	//
 	// Immutable.
 	ResourcePrefix *string `json:"resourcePrefix,omitempty"`
+	// ARN of the customer's KMS key for encrypting Altinity-provisioned
+	// data buckets and EBS volumes.
+	//
+	// Immutable.
+	KmsKeyArn *string `json:"kmsKeyARN,omitempty"`
 	// List of external S3 buckets to allow access to.
 	ExternalBuckets []*AWSEnvExternalBucketSpecInput `json:"externalBuckets,omitempty"`
 	// Backups configuration.
