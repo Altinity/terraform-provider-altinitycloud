@@ -1,0 +1,71 @@
+resource "altinitycloud_env_certificate" "this" {
+  env_name = "acme-staging"
+}
+
+locals {
+  zones = ["us-east-1a", "us-east-1b"]
+}
+
+provider "aws" {
+  region = "us-east-1"
+}
+
+module "altinitycloud_connect_aws" {
+  source = "altinity/connect-aws/altinitycloud"
+  pem    = altinitycloud_env_certificate.this.pem
+}
+
+resource "altinitycloud_env_aws" "this" {
+  name           = altinitycloud_env_certificate.this.env_name
+  aws_account_id = "123456789012"
+  region         = "us-east-1"
+  zones          = local.zones
+  cidr           = "10.67.0.0/21"
+
+  // Env-level customer-managed KMS key: encrypts all Altinity-provisioned
+  // data buckets and EBS volumes. Immutable — set at creation only.
+  kms_key_arn = "arn:aws:kms:us-east-1:123456789012:key/11111111-2222-3333-4444-555555555555"
+
+  // Per-bucket key: grants the ClickHouse IRSA role decrypt/encrypt on the
+  // listed external bucket so SSE-KMS objects can be read/written. Mutable.
+  external_buckets = [
+    {
+      name        = "my-external-bucket"
+      kms_key_arn = "arn:aws:kms:us-east-1:123456789012:key/66666666-7777-8888-9999-000000000000"
+    }
+  ]
+
+  load_balancers = {
+    public = {
+      enabled          = true
+      source_ip_ranges = ["0.0.0.0/0"]
+    }
+  }
+  node_groups = [
+    {
+      node_type         = "t4g.large"
+      capacity_per_zone = 10
+      zones             = local.zones
+      reservations      = ["SYSTEM", "ZOOKEEPER"]
+    },
+    {
+      node_type         = "m6i.large"
+      capacity_per_zone = 10
+      zones             = local.zones
+      reservations      = ["CLICKHOUSE"]
+    }
+  ]
+  cloud_connect = true
+  depends_on = [
+    // "depends_on" is here to enforce "this resource, then altinitycloud_connect_aws" order on destroy.
+    module.altinitycloud_connect_aws
+  ]
+}
+
+// ⚠️ Environment provisioning is asynchronous.
+// Without this data source, Terraform cannot detect provisioning failures.
+// This data source waits until the environment is fully reconciled and reports errors.
+data "altinitycloud_env_aws_status" "this" {
+  name                           = altinitycloud_env_aws.this.name
+  wait_for_applied_spec_revision = altinitycloud_env_aws.this.spec_revision
+}

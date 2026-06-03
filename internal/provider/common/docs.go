@@ -135,7 +135,7 @@ const AWS_NODE_GROUP_NODE_TYPE_DESCRIPTION = `Instance type ([docs](https://aws.
 `
 const EXTERNAL_BUCKET_DESCRIPTION = "List of external S3 bucket to allow access to."
 const EXTERNAL_BUCKET_NAME_DESCRIPTION = "External bucket name."
-const EXTERNAL_BUCKET_KMS_KEY_ARN_DESCRIPTION = "Optional ARN of a customer-managed KMS key used to encrypt this bucket. When set, the ClickHouse IRSA role is granted KMS decrypt/encrypt permissions on the key so SSE-KMS-encrypted objects in the bucket can be read and written (e.g. when the bucket backs a ClickHouse external disk)."
+const EXTERNAL_BUCKET_KMS_KEY_ARN_DESCRIPTION = "Optional ARN of a customer-managed KMS key used to encrypt this bucket. When set, the ClickHouse IRSA role is granted KMS decrypt/encrypt permissions on the key so SSE-KMS-encrypted objects in the bucket can be read and written (e.g. when the bucket backs a ClickHouse external disk). The key is owned by the customer; bucket-level encryption is not managed by Altinity. The env-region constraint that applies to the env-level KMS key does not apply here — the key may be in any region from the env's perspective. S3 still requires the key to be in the bucket's region (or to be a KMS multi-region key with a replica in the bucket's region); that is the customer's responsibility and is not validated here."
 const PEERING_CONNECTION_DESCRIPTION = "AWS environment VPC peering configuration."
 const PEERING_CONNECTION_ID_DESCRIPTION = "VPC peering connection ID."
 const PEERING_CONNECTION_VPC_ID_DESCRIPTION = "Target VPC ID."

@@ -128,7 +128,7 @@ Required:
 
 Optional:
 
-- `kms_key_arn` (String) Optional ARN of a customer-managed KMS key used to encrypt this bucket. When set, the ClickHouse IRSA role is granted KMS decrypt/encrypt permissions on the key so SSE-KMS-encrypted objects in the bucket can be read and written (e.g. when the bucket backs a ClickHouse external disk).
+- `kms_key_arn` (String) Optional ARN of a customer-managed KMS key used to encrypt this bucket. When set, the ClickHouse IRSA role is granted KMS decrypt/encrypt permissions on the key so SSE-KMS-encrypted objects in the bucket can be read and written (e.g. when the bucket backs a ClickHouse external disk). The key is owned by the customer; bucket-level encryption is not managed by Altinity. The env-region constraint that applies to the env-level KMS key does not apply here — the key may be in any region from the env's perspective. S3 still requires the key to be in the bucket's region (or to be a KMS multi-region key with a replica in the bucket's region); that is the customer's responsibility and is not validated here.
 
 
 <a id="nestedatt--iceberg"></a>

@@ -98,22 +98,41 @@ type AWSEnvSpec {
   """
   maintenanceWindows: [MaintenanceWindowSpec!]!
   """
-  Custom domain.
+  Custom domain (deprecated, use customDomains instead).
+
+  Returns customDomains[0] for backwards compatibility.
+  """
+  customDomain: String @deprecated(reason: "Use customDomains instead")
+  """
+  Custom domains for TLS certificates.
+
+  Order is preserved.
 
   Examples:
-  - "example.com"
-  - "foo.bar.com"
+  - ["example.com"]
+  - ["example.com", "foo.bar.com"]
 
-  Before specifying custom domain, please create the following DNS records:
-  - CNAME _acme-challenge.example.com. $env_name.altinity.cloud.
-  - (optional, public load balancer)
-    CNAME *.example.com. _.$env_name.altinity.cloud.
-  - (optional, internal load balancer)
-    CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
-  - (optional, vpce)
-    CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
+  Before specifying custom domains, create the following DNS CNAME records
+  (replace example.com with your domain):
+
+  Required:
+  - _acme-challenge.example.com. → $env_name.altinity.cloud.
+
+  Public load balancer (if used):
+  - example.com.                        → _.$env_name.altinity.cloud.
+  - *.example.com.                      → _.$env_name.altinity.cloud.
+
+  Internal load balancer (if used):
+  - _acme-challenge.internal.example.com. → internal.$env_name.altinity.cloud.
+  - internal.example.com.                 → _.internal.$env_name.altinity.cloud.
+  - *.internal.example.com.               → _.internal.$env_name.altinity.cloud.
+
+  VPC endpoint (if used):
+  - _acme-challenge.vpce.example.com.   → vpce.$env_name.altinity.cloud.
+  - vpce.example.com.                   → _.vpce.$env_name.altinity.cloud.
+  - *.vpce.example.com.                 → _.vpce.$env_name.altinity.cloud.
   """
-  customDomain: String
+  customDomains: [String!]!
   """
   VPC peering configuration.
   """
@@ -140,11 +159,6 @@ type AWSEnvSpec {
   """
   resourcePrefix: String!
   """
-  ARN of the customer's KMS key for encrypting Altinity-provisioned
-  data buckets and EBS volumes.
-  """
-  kmsKeyARN: String
-  """
   List of external S3 buckets to allow access to.
   """
   externalBuckets: [AWSEnvExternalBucketSpec!]!
@@ -165,6 +179,11 @@ type AWSEnvSpec {
   """
   metricsEndpoint: MetricsEndpointSpec!
   datadog: DatadogSpec!
+  """
+  ARN of the customer's KMS key for encrypting Altinity-provisioned data buckets
+  and EBS volumes.
+  """
+  kmsKeyARN: String
 }
 
 """
@@ -407,11 +426,18 @@ type AWSEnvExternalBucketSpec {
   """
   name: String!
   """
-  Optional ARN of a customer-managed KMS key used to encrypt this
-  bucket. When set, the ClickHouse IRSA role is granted KMS
-  decrypt/encrypt permissions on the key so SSE-KMS-encrypted objects
-  in the bucket can be read and written (e.g. when the bucket backs a
-  ClickHouse external disk).
+  Optional ARN of a customer-managed KMS key used to encrypt this bucket.
+
+  When set, the ClickHouse IRSA role is granted KMS decrypt/encrypt permissions
+  on the key so SSE-KMS-encrypted objects in the bucket can be read and written
+  (e.g. when the bucket backs a ClickHouse external disk). The key is owned by
+  the customer; bucket-level encryption is not managed by Altinity.
+
+  The env-region constraint that applies to the env-level KMS key does not
+  apply here — the key may be in any region from the env's perspective.
+  S3 still requires the key to be in the bucket's region (or to be a KMS
+  multi-region key with a replica in the bucket's region); that is the
+  customer's responsibility and is not validated here.
   """
   kmsKeyARN: String
 }
@@ -552,22 +578,39 @@ input CreateAWSEnvSpecInput {
   """
   maintenanceWindows: [MaintenanceWindowSpecInput!]
   """
-  Custom domain.
+  Custom domain (deprecated, use customDomains instead).
+  """
+  customDomain: String @deprecated(reason: "Use customDomains instead")
+  """
+  Custom domains for TLS certificates.
+
+  Order is preserved.
 
   Examples:
-  - "example.com"
-  - "foo.bar.com"
+  - ["example.com"]
+  - ["example.com", "foo.bar.com"]
 
-  Before specifying custom domain, please create the following DNS records:
-  - CNAME _acme-challenge.example.com. $env_name.altinity.cloud.
-  - (optional, public load balancer)
-  CNAME *.example.com. _.$env_name.altinity.cloud.
-  - (optional, internal load balancer)
-  CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
-  - (optional, vpce)
-  CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
+  Before specifying custom domains, create the following DNS CNAME records
+  (replace example.com with your domain):
+
+  Required:
+  - _acme-challenge.example.com. → $env_name.altinity.cloud.
+
+  Public load balancer (if used):
+  - example.com.                        → _.$env_name.altinity.cloud.
+  - *.example.com.                      → _.$env_name.altinity.cloud.
+
+  Internal load balancer (if used):
+  - _acme-challenge.internal.example.com. → internal.$env_name.altinity.cloud.
+  - internal.example.com.                 → _.internal.$env_name.altinity.cloud.
+  - *.internal.example.com.               → _.internal.$env_name.altinity.cloud.
+
+  VPC endpoint (if used):
+  - _acme-challenge.vpce.example.com.   → vpce.$env_name.altinity.cloud.
+  - vpce.example.com.                   → _.vpce.$env_name.altinity.cloud.
+  - *.vpce.example.com.                 → _.vpce.$env_name.altinity.cloud.
   """
-  customDomain: String
+  customDomains: [String!]
   """
   VPC peering configuration.
   """
@@ -601,13 +644,6 @@ input CreateAWSEnvSpecInput {
   """
   resourcePrefix: String
   """
-  ARN of the customer's KMS key for encrypting Altinity-provisioned
-  data buckets and EBS volumes.
-
-  Immutable.
-  """
-  kmsKeyARN: String
-  """
   List of external S3 buckets to allow access to.
   """
   externalBuckets: [AWSEnvExternalBucketSpecInput!]
@@ -628,6 +664,11 @@ input CreateAWSEnvSpecInput {
   """
   metricsEndpoint: MetricsEndpointSpecInput
   datadog: DatadogSpecInput
+  """
+  ARN of the customer's KMS key for encrypting Altinity-provisioned data buckets
+  and EBS volumes.
+  """
+  kmsKeyARN: String
 }
 
 """
@@ -814,8 +855,11 @@ input AWSEnvExternalBucketSpecInput {
   name: String!
   """
   ARN of a customer-managed KMS key used to encrypt this bucket.
-  When set, grants the ClickHouse IRSA role KMS decrypt/encrypt
-  permissions on the key.
+
+  When set, grants the ClickHouse IRSA role KMS decrypt/encrypt permissions
+  on the key. The env-region constraint that applies to the env-level KMS
+  key does not apply here; S3's own bucket-region:key-region rule still
+  applies and is the customer's responsibility.
   """
   kmsKeyARN: String
 }
@@ -949,22 +993,39 @@ input AWSEnvUpdateSpecInput {
   """
   maintenanceWindows: [MaintenanceWindowSpecInput!]
   """
-  Custom domain.
+  Custom domain (deprecated, use customDomains instead).
+  """
+  customDomain: String @deprecated(reason: "Use customDomains instead")
+  """
+  Custom domains for TLS certificates.
+
+  Order is preserved.
 
   Examples:
-  - "example.com"
-  - "foo.bar.com"
+  - ["example.com"]
+  - ["example.com", "foo.bar.com"]
 
-  Before specifying custom domain, please create the following DNS records:
-  - CNAME _acme-challenge.example.com. $env_name.altinity.cloud.
-  - (optional, public load balancer)
-  CNAME *.example.com. _.$env_name.altinity.cloud.
-  - (optional, internal load balancer)
-  CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
-  - (optional, vpce)
-  CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
+  Before specifying custom domains, create the following DNS CNAME records
+  (replace example.com with your domain):
+
+  Required:
+  - _acme-challenge.example.com. → $env_name.altinity.cloud.
+
+  Public load balancer (if used):
+  - example.com.                        → _.$env_name.altinity.cloud.
+  - *.example.com.                      → _.$env_name.altinity.cloud.
+
+  Internal load balancer (if used):
+  - _acme-challenge.internal.example.com. → internal.$env_name.altinity.cloud.
+  - internal.example.com.                 → _.internal.$env_name.altinity.cloud.
+  - *.internal.example.com.               → _.internal.$env_name.altinity.cloud.
+
+  VPC endpoint (if used):
+  - _acme-challenge.vpce.example.com.   → vpce.$env_name.altinity.cloud.
+  - vpce.example.com.                   → _.vpce.$env_name.altinity.cloud.
+  - *.vpce.example.com.                 → _.vpce.$env_name.altinity.cloud.
   """
-  customDomain: String
+  customDomains: [String!]
   """
   VPC peering configuration.
   """
@@ -1122,22 +1183,41 @@ type AzureEnvSpec {
   """
   maintenanceWindows: [MaintenanceWindowSpec!]!
   """
-  Custom domain.
+  Custom domain (deprecated, use customDomains instead).
+
+  Returns customDomains[0] for backwards compatibility.
+  """
+  customDomain: String @deprecated(reason: "Use customDomains instead")
+  """
+  Custom domains for TLS certificates.
+
+  Order is preserved.
 
   Examples:
-  - "example.com"
-  - "foo.bar.com"
+  - ["example.com"]
+  - ["example.com", "foo.bar.com"]
 
-  Before specifying custom domain, please create the following DNS records:
-  - CNAME _acme-challenge.example.com. $env_name.altinity.cloud.
-  - (optional, public load balancer)
-    CNAME *.example.com. _.$env_name.altinity.cloud.
-  - (optional, internal load balancer)
-    CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
-  - (optional, privatelink)
-    CNAME *.privatelink.example.com. _.privatelink.$env_name.altinity.cloud.
+  Before specifying custom domains, create the following DNS CNAME records
+  (replace example.com with your domain):
+
+  Required:
+  - _acme-challenge.example.com. → $env_name.altinity.cloud.
+
+  Public load balancer (if used):
+  - example.com.                              → _.$env_name.altinity.cloud.
+  - *.example.com.                            → _.$env_name.altinity.cloud.
+
+  Internal load balancer (if used):
+  - _acme-challenge.internal.example.com.     → internal.$env_name.altinity.cloud.
+  - internal.example.com.                     → _.internal.$env_name.altinity.cloud.
+  - *.internal.example.com.                   → _.internal.$env_name.altinity.cloud.
+
+  Private Link (if used):
+  - _acme-challenge.privatelink.example.com.  → privatelink.$env_name.altinity.cloud.
+  - privatelink.example.com.                  → _.privatelink.$env_name.altinity.cloud.
+  - *.privatelink.example.com.                → _.privatelink.$env_name.altinity.cloud.
   """
-  customDomain: String
+  customDomains: [String!]!
   """
   Azure Private Link service configuration.
   """
@@ -1399,22 +1479,39 @@ input CreateAzureEnvSpecInput {
   """
   maintenanceWindows: [MaintenanceWindowSpecInput!]
   """
-  Custom domain.
+  Custom domain (deprecated, use customDomains instead).
+  """
+  customDomain: String @deprecated(reason: "Use customDomains instead")
+  """
+  Custom domains for TLS certificates.
+
+  Order is preserved.
 
   Examples:
-  - "example.com"
-  - "foo.bar.com"
+  - ["example.com"]
+  - ["example.com", "foo.bar.com"]
 
-  Before specifying custom domain, please create the following DNS records:
-  - CNAME _acme-challenge.example.com. $env_name.altinity.cloud.
-  - (optional, public load balancer)
-  CNAME *.example.com. _.$env_name.altinity.cloud.
-  - (optional, internal load balancer)
-  CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
-  - (optional, privatelink)
-  CNAME *.privatelink.example.com. _.privatelink.$env_name.altinity.cloud.
+  Before specifying custom domains, create the following DNS CNAME records
+  (replace example.com with your domain):
+
+  Required:
+  - _acme-challenge.example.com. → $env_name.altinity.cloud.
+
+  Public load balancer (if used):
+  - example.com.                              → _.$env_name.altinity.cloud.
+  - *.example.com.                            → _.$env_name.altinity.cloud.
+
+  Internal load balancer (if used):
+  - _acme-challenge.internal.example.com.     → internal.$env_name.altinity.cloud.
+  - internal.example.com.                     → _.internal.$env_name.altinity.cloud.
+  - *.internal.example.com.                   → _.internal.$env_name.altinity.cloud.
+
+  Private Link (if used):
+  - _acme-challenge.privatelink.example.com.  → privatelink.$env_name.altinity.cloud.
+  - privatelink.example.com.                  → _.privatelink.$env_name.altinity.cloud.
+  - *.privatelink.example.com.                → _.privatelink.$env_name.altinity.cloud.
   """
-  customDomain: String
+  customDomains: [String!]
   """
   Azure Private Link service configuration.
   """
@@ -1657,22 +1754,39 @@ input UpdateAzureEnvSpecInput {
   """
   maintenanceWindows: [MaintenanceWindowSpecInput!]
   """
-  Custom domain.
+  Custom domain (deprecated, use customDomains instead).
+  """
+  customDomain: String @deprecated(reason: "Use customDomains instead")
+  """
+  Custom domains for TLS certificates.
+
+  Order is preserved.
 
   Examples:
-  - "example.com"
-  - "foo.bar.com"
+  - ["example.com"]
+  - ["example.com", "foo.bar.com"]
 
-  Before specifying custom domain, please create the following DNS records:
-  - CNAME _acme-challenge.example.com. $env_name.altinity.cloud.
-  - (optional, public load balancer)
-  CNAME *.example.com. _.$env_name.altinity.cloud.
-  - (optional, internal load balancer)
-  CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
-  - (optional, privatelink)
-  CNAME *.privatelink.example.com. _.privatelink.$env_name.altinity.cloud.
+  Before specifying custom domains, create the following DNS CNAME records
+  (replace example.com with your domain):
+
+  Required:
+  - _acme-challenge.example.com. → $env_name.altinity.cloud.
+
+  Public load balancer (if used):
+  - example.com.                              → _.$env_name.altinity.cloud.
+  - *.example.com.                            → _.$env_name.altinity.cloud.
+
+  Internal load balancer (if used):
+  - _acme-challenge.internal.example.com.     → internal.$env_name.altinity.cloud.
+  - internal.example.com.                     → _.internal.$env_name.altinity.cloud.
+  - *.internal.example.com.                   → _.internal.$env_name.altinity.cloud.
+
+  Private Link (if used):
+  - _acme-challenge.privatelink.example.com.  → privatelink.$env_name.altinity.cloud.
+  - privatelink.example.com.                  → _.privatelink.$env_name.altinity.cloud.
+  - *.privatelink.example.com.                → _.privatelink.$env_name.altinity.cloud.
   """
-  customDomain: String
+  customDomains: [String!]
   """
   Azure Private Link service configuration.
   """
@@ -2286,22 +2400,41 @@ type GCPEnvSpec {
   """
   maintenanceWindows: [MaintenanceWindowSpec!]!
   """
-  Custom domain.
+  Custom domain (deprecated, use customDomains instead).
+
+  Returns customDomains[0] for backwards compatibility.
+  """
+  customDomain: String @deprecated(reason: "Use customDomains instead")
+  """
+  Custom domains for TLS certificates.
+
+  Order is preserved.
 
   Examples:
-  - "example.com"
-  - "foo.bar.com"
+  - ["example.com"]
+  - ["example.com", "foo.bar.com"]
 
-  Before specifying custom domain, please create the following DNS records:
-  - CNAME _acme-challenge.example.com. $env_name.altinity.cloud.
-  - (optional, public load balancer)
-  CNAME *.example.com. _.$env_name.altinity.cloud.
-  - (optional, internal load balancer)
-  CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
-  - (optional, vpce)
-  CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
+  Before specifying custom domains, create the following DNS CNAME records
+  (replace example.com with your domain):
+
+  Required:
+  - _acme-challenge.example.com. → $env_name.altinity.cloud.
+
+  Public load balancer (if used):
+  - example.com.                        → _.$env_name.altinity.cloud.
+  - *.example.com.                      → _.$env_name.altinity.cloud.
+
+  Internal load balancer (if used):
+  - _acme-challenge.internal.example.com. → internal.$env_name.altinity.cloud.
+  - internal.example.com.                 → _.internal.$env_name.altinity.cloud.
+  - *.internal.example.com.               → _.internal.$env_name.altinity.cloud.
+
+  VPC endpoint (if used):
+  - _acme-challenge.vpce.example.com.   → vpce.$env_name.altinity.cloud.
+  - vpce.example.com.                   → _.vpce.$env_name.altinity.cloud.
+  - *.vpce.example.com.                 → _.vpce.$env_name.altinity.cloud.
   """
-  customDomain: String
+  customDomains: [String!]!
   """
   True indicates that cloud resources are to be managed via altinity/cloud-connect.
   False means direct management.
@@ -2561,22 +2694,39 @@ input CreateGCPEnvSpecInput {
   """
   maintenanceWindows: [MaintenanceWindowSpecInput!]
   """
-  Custom domain.
+  Custom domain (deprecated, use customDomains instead).
+  """
+  customDomain: String @deprecated(reason: "Use customDomains instead")
+  """
+  Custom domains for TLS certificates.
+
+  Order is preserved.
 
   Examples:
-  - "example.com"
-  - "foo.bar.com"
+  - ["example.com"]
+  - ["example.com", "foo.bar.com"]
 
-  Before specifying custom domain, please create the following DNS records:
-  - CNAME _acme-challenge.example.com. $env_name.altinity.cloud.
-  - (optional, public load balancer)
-  CNAME *.example.com. _.$env_name.altinity.cloud.
-  - (optional, internal load balancer)
-  CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
-  - (optional, vpce)
-  CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
+  Before specifying custom domains, create the following DNS CNAME records
+  (replace example.com with your domain):
+
+  Required:
+  - _acme-challenge.example.com. → $env_name.altinity.cloud.
+
+  Public load balancer (if used):
+  - example.com.                        → _.$env_name.altinity.cloud.
+  - *.example.com.                      → _.$env_name.altinity.cloud.
+
+  Internal load balancer (if used):
+  - _acme-challenge.internal.example.com. → internal.$env_name.altinity.cloud.
+  - internal.example.com.                 → _.internal.$env_name.altinity.cloud.
+  - *.internal.example.com.               → _.internal.$env_name.altinity.cloud.
+
+  VPC endpoint (if used):
+  - _acme-challenge.vpce.example.com.   → vpce.$env_name.altinity.cloud.
+  - vpce.example.com.                   → _.vpce.$env_name.altinity.cloud.
+  - *.vpce.example.com.                 → _.vpce.$env_name.altinity.cloud.
   """
-  customDomain: String
+  customDomains: [String!]
   """
   True indicates that cloud resources are to be managed via altinity/cloud-connect.
   False means direct management (default).
@@ -2849,22 +2999,39 @@ input UpdateGCPEnvSpecInput {
   """
   maintenanceWindows: [MaintenanceWindowSpecInput!]
   """
-  Custom domain.
+  Custom domain (deprecated, use customDomains instead).
+  """
+  customDomain: String @deprecated(reason: "Use customDomains instead")
+  """
+  Custom domains for TLS certificates.
+
+  Order is preserved.
 
   Examples:
-  - "example.com"
-  - "foo.bar.com"
+  - ["example.com"]
+  - ["example.com", "foo.bar.com"]
 
-  Before specifying custom domain, please create the following DNS records:
-  - CNAME _acme-challenge.example.com. $env_name.altinity.cloud.
-  - (optional, public load balancer)
-  CNAME *.example.com. _.$env_name.altinity.cloud.
-  - (optional, internal load balancer)
-  CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
-  - (optional, vpce)
-  CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
+  Before specifying custom domains, create the following DNS CNAME records
+  (replace example.com with your domain):
+
+  Required:
+  - _acme-challenge.example.com. → $env_name.altinity.cloud.
+
+  Public load balancer (if used):
+  - example.com.                        → _.$env_name.altinity.cloud.
+  - *.example.com.                      → _.$env_name.altinity.cloud.
+
+  Internal load balancer (if used):
+  - _acme-challenge.internal.example.com. → internal.$env_name.altinity.cloud.
+  - internal.example.com.                 → _.internal.$env_name.altinity.cloud.
+  - *.internal.example.com.               → _.internal.$env_name.altinity.cloud.
+
+  VPC endpoint (if used):
+  - _acme-challenge.vpce.example.com.   → vpce.$env_name.altinity.cloud.
+  - vpce.example.com.                   → _.vpce.$env_name.altinity.cloud.
+  - *.vpce.example.com.                 → _.vpce.$env_name.altinity.cloud.
   """
-  customDomain: String
+  customDomains: [String!]
   """
   Network peering configuration.
   """
@@ -2998,22 +3165,41 @@ type HCloudEnvSpec {
   """
   maintenanceWindows: [MaintenanceWindowSpec!]!
   """
-  Custom domain.
+  Custom domain (deprecated, use customDomains instead).
+
+  Returns customDomains[0] for backwards compatibility.
+  """
+  customDomain: String @deprecated(reason: "Use customDomains instead")
+  """
+  Custom domains for TLS certificates.
+
+  Order is preserved.
 
   Examples:
-  - "example.com"
-  - "foo.bar.com"
+  - ["example.com"]
+  - ["example.com", "foo.bar.com"]
 
-  Before specifying custom domain, please create the following DNS records:
-  - CNAME _acme-challenge.example.com. $env_name.altinity.cloud.
-  - (optional, public load balancer)
-    CNAME *.example.com. _.$env_name.altinity.cloud.
-  - (optional, internal load balancer)
-    CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
-  - (optional, vpce)
-    CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
+  Before specifying custom domains, create the following DNS CNAME records
+  (replace example.com with your domain):
+
+  Required:
+  - _acme-challenge.example.com. → $env_name.altinity.cloud.
+
+  Public load balancer (if used):
+  - example.com.                        → _.$env_name.altinity.cloud.
+  - *.example.com.                      → _.$env_name.altinity.cloud.
+
+  Internal load balancer (if used):
+  - _acme-challenge.internal.example.com. → internal.$env_name.altinity.cloud.
+  - internal.example.com.                 → _.internal.$env_name.altinity.cloud.
+  - *.internal.example.com.               → _.internal.$env_name.altinity.cloud.
+
+  VPC endpoint (if used):
+  - _acme-challenge.vpce.example.com.   → vpce.$env_name.altinity.cloud.
+  - vpce.example.com.                   → _.vpce.$env_name.altinity.cloud.
+  - *.vpce.example.com.                 → _.vpce.$env_name.altinity.cloud.
   """
-  customDomain: String
+  customDomains: [String!]!
   """
   True indicates that cloud resources are to be managed via altinity/cloud-connect.
   False means direct management.
@@ -3234,22 +3420,39 @@ input CreateHCloudEnvSpecInput {
   """
   maintenanceWindows: [MaintenanceWindowSpecInput!]
   """
-  Custom domain.
+  Custom domain (deprecated, use customDomains instead).
+  """
+  customDomain: String @deprecated(reason: "Use customDomains instead")
+  """
+  Custom domains for TLS certificates.
+
+  Order is preserved.
 
   Examples:
-  - "example.com"
-  - "foo.bar.com"
+  - ["example.com"]
+  - ["example.com", "foo.bar.com"]
 
-  Before specifying custom domain, please create the following DNS records:
-  - CNAME _acme-challenge.example.com. $env_name.altinity.cloud.
-  - (optional, public load balancer)
-  CNAME *.example.com. _.$env_name.altinity.cloud.
-  - (optional, internal load balancer)
-  CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
-  - (optional, vpce)
-  CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
+  Before specifying custom domains, create the following DNS CNAME records
+  (replace example.com with your domain):
+
+  Required:
+  - _acme-challenge.example.com. → $env_name.altinity.cloud.
+
+  Public load balancer (if used):
+  - example.com.                        → _.$env_name.altinity.cloud.
+  - *.example.com.                      → _.$env_name.altinity.cloud.
+
+  Internal load balancer (if used):
+  - _acme-challenge.internal.example.com. → internal.$env_name.altinity.cloud.
+  - internal.example.com.                 → _.internal.$env_name.altinity.cloud.
+  - *.internal.example.com.               → _.internal.$env_name.altinity.cloud.
+
+  VPC endpoint (if used):
+  - _acme-challenge.vpce.example.com.   → vpce.$env_name.altinity.cloud.
+  - vpce.example.com.                   → _.vpce.$env_name.altinity.cloud.
+  - *.vpce.example.com.                 → _.vpce.$env_name.altinity.cloud.
   """
-  customDomain: String
+  customDomains: [String!]
   """
   True indicates that cloud resources are to be managed via altinity/cloud-connect.
   False means direct management.
@@ -3482,22 +3685,39 @@ input UpdateHCloudEnvSpecInput {
   """
   maintenanceWindows: [MaintenanceWindowSpecInput!]
   """
-  Custom domain.
+  Custom domain (deprecated, use customDomains instead).
+  """
+  customDomain: String @deprecated(reason: "Use customDomains instead")
+  """
+  Custom domains for TLS certificates.
+
+  Order is preserved.
 
   Examples:
-  - "example.com"
-  - "foo.bar.com"
+  - ["example.com"]
+  - ["example.com", "foo.bar.com"]
 
-  Before specifying custom domain, please update the following DNS records:
-  - CNAME _acme-challenge.example.com. $env_name.altinity.cloud.
-  - (optional, public load balancer)
-  CNAME *.example.com. _.$env_name.altinity.cloud.
-  - (optional, internal load balancer)
-  CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
-  - (optional, vpce)
-  CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
+  Before specifying custom domains, create the following DNS CNAME records
+  (replace example.com with your domain):
+
+  Required:
+  - _acme-challenge.example.com. → $env_name.altinity.cloud.
+
+  Public load balancer (if used):
+  - example.com.                        → _.$env_name.altinity.cloud.
+  - *.example.com.                      → _.$env_name.altinity.cloud.
+
+  Internal load balancer (if used):
+  - _acme-challenge.internal.example.com. → internal.$env_name.altinity.cloud.
+  - internal.example.com.                 → _.internal.$env_name.altinity.cloud.
+  - *.internal.example.com.               → _.internal.$env_name.altinity.cloud.
+
+  VPC endpoint (if used):
+  - _acme-challenge.vpce.example.com.   → vpce.$env_name.altinity.cloud.
+  - vpce.example.com.                   → _.vpce.$env_name.altinity.cloud.
+  - *.vpce.example.com.                 → _.vpce.$env_name.altinity.cloud.
   """
-  customDomain: String
+  customDomains: [String!]
   """
   Labels to apply to HCloud resources.
   """
@@ -3616,22 +3836,41 @@ type K8SEnvSpec {
   """
   maintenanceWindows: [MaintenanceWindowSpec!]!
   """
-  Custom domain.
+  Custom domain (deprecated, use customDomains instead).
+
+  Returns customDomains[0] for backwards compatibility.
+  """
+  customDomain: String @deprecated(reason: "Use customDomains instead")
+  """
+  Custom domains for TLS certificates.
+
+  Order is preserved.
 
   Examples:
-  - "example.com"
-  - "foo.bar.com"
+  - ["example.com"]
+  - ["example.com", "foo.bar.com"]
 
-  Before specifying custom domain, please create the following DNS records:
-  - CNAME _acme-challenge.example.com. $env_name.altinity.cloud.
-  - (optional, public load balancer)
-  CNAME *.example.com. _.$env_name.altinity.cloud.
-  - (optional, internal load balancer)
-  CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
-  - (optional, vpce)
-  CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
+  Before specifying custom domains, create the following DNS CNAME records
+  (replace example.com with your domain):
+
+  Required:
+  - _acme-challenge.example.com. → $env_name.altinity.cloud.
+
+  Public load balancer (if used):
+  - example.com.                        → _.$env_name.altinity.cloud.
+  - *.example.com.                      → _.$env_name.altinity.cloud.
+
+  Internal load balancer (if used):
+  - _acme-challenge.internal.example.com. → internal.$env_name.altinity.cloud.
+  - internal.example.com.                 → _.internal.$env_name.altinity.cloud.
+  - *.internal.example.com.               → _.internal.$env_name.altinity.cloud.
+
+  VPC endpoint (if used):
+  - _acme-challenge.vpce.example.com.   → vpce.$env_name.altinity.cloud.
+  - vpce.example.com.                   → _.vpce.$env_name.altinity.cloud.
+  - *.vpce.example.com.                 → _.vpce.$env_name.altinity.cloud.
   """
-  customDomain: String
+  customDomains: [String!]!
   """
   Metrics endpoint configuration.
   """
@@ -3931,22 +4170,39 @@ input CreateK8SEnvSpecInput {
   """
   maintenanceWindows: [MaintenanceWindowSpecInput!]
   """
-  Custom domain.
+  Custom domain (deprecated, use customDomains instead).
+  """
+  customDomain: String @deprecated(reason: "Use customDomains instead")
+  """
+  Custom domains for TLS certificates.
+
+  Order is preserved.
 
   Examples:
-  - "example.com"
-  - "foo.bar.com"
+  - ["example.com"]
+  - ["example.com", "foo.bar.com"]
 
-  Before specifying custom domain, please create the following DNS records:
-  - CNAME _acme-challenge.example.com. $env_name.altinity.cloud.
-  - (optional, public load balancer)
-  CNAME *.example.com. _.$env_name.altinity.cloud.
-  - (optional, internal load balancer)
-  CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
-  - (optional, vpce)
-  CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
+  Before specifying custom domains, create the following DNS CNAME records
+  (replace example.com with your domain):
+
+  Required:
+  - _acme-challenge.example.com. → $env_name.altinity.cloud.
+
+  Public load balancer (if used):
+  - example.com.                        → _.$env_name.altinity.cloud.
+  - *.example.com.                      → _.$env_name.altinity.cloud.
+
+  Internal load balancer (if used):
+  - _acme-challenge.internal.example.com. → internal.$env_name.altinity.cloud.
+  - internal.example.com.                 → _.internal.$env_name.altinity.cloud.
+  - *.internal.example.com.               → _.internal.$env_name.altinity.cloud.
+
+  VPC endpoint (if used):
+  - _acme-challenge.vpce.example.com.   → vpce.$env_name.altinity.cloud.
+  - vpce.example.com.                   → _.vpce.$env_name.altinity.cloud.
+  - *.vpce.example.com.                 → _.vpce.$env_name.altinity.cloud.
   """
-  customDomain: String
+  customDomains: [String!]
   """
   Metrics endpoint configuration.
   """
@@ -4260,22 +4516,39 @@ input UpdateK8SEnvSpecInput {
   """
   maintenanceWindows: [MaintenanceWindowSpecInput!]
   """
-  Custom domain.
+  Custom domain (deprecated, use customDomains instead).
+  """
+  customDomain: String @deprecated(reason: "Use customDomains instead")
+  """
+  Custom domains for TLS certificates.
+
+  Order is preserved.
 
   Examples:
-  - "example.com"
-  - "foo.bar.com"
+  - ["example.com"]
+  - ["example.com", "foo.bar.com"]
 
-  Before specifying custom domain, please create the following DNS records:
-  - CNAME _acme-challenge.example.com. $env_name.altinity.cloud.
-  - (optional, public load balancer)
-  CNAME *.example.com. _.$env_name.altinity.cloud.
-  - (optional, internal load balancer)
-  CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
-  - (optional, vpce)
-  CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
+  Before specifying custom domains, create the following DNS CNAME records
+  (replace example.com with your domain):
+
+  Required:
+  - _acme-challenge.example.com. → $env_name.altinity.cloud.
+
+  Public load balancer (if used):
+  - example.com.                        → _.$env_name.altinity.cloud.
+  - *.example.com.                      → _.$env_name.altinity.cloud.
+
+  Internal load balancer (if used):
+  - _acme-challenge.internal.example.com. → internal.$env_name.altinity.cloud.
+  - internal.example.com.                 → _.internal.$env_name.altinity.cloud.
+  - *.internal.example.com.               → _.internal.$env_name.altinity.cloud.
+
+  VPC endpoint (if used):
+  - _acme-challenge.vpce.example.com.   → vpce.$env_name.altinity.cloud.
+  - vpce.example.com.                   → _.vpce.$env_name.altinity.cloud.
+  - *.vpce.example.com.                 → _.vpce.$env_name.altinity.cloud.
   """
-  customDomain: String
+  customDomains: [String!]
   """
   Metrics endpoint configuration.
   """
