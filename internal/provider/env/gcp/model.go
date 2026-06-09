@@ -28,6 +28,7 @@ type GCPEnvResourceModel struct {
 	PrivateServiceConsumers types.List                      `tfsdk:"private_service_consumers"`
 	Labels                  []common.KeyValueModel          `tfsdk:"labels"`
 	MetricsEndpoint         *MetricsEndpointModel           `tfsdk:"metrics_endpoint"`
+	Datadog                 *common.DatadogModel            `tfsdk:"datadog"`
 
 	SpecRevision                 types.Int64    `tfsdk:"spec_revision"`
 	ForceDestroy                 types.Bool     `tfsdk:"force_destroy"`
@@ -76,6 +77,7 @@ func (e GCPEnvResourceModel) toSDK(ctx context.Context) (sdk.CreateGCPEnvInput, 
 	allDiags.Append(diags...)
 	loadBalancingStrategy := (*sdk.LoadBalancingStrategy)(e.LoadBalancingStrategy.ValueStringPointer())
 	metricsEndpoint := metricsEndpointToSDK(e.MetricsEndpoint)
+	datadog := common.DatadogToSDK(e.Datadog)
 	cloudConnect := false
 
 	var labels []*sdk.KeyValueInput
@@ -117,6 +119,7 @@ func (e GCPEnvResourceModel) toSDK(ctx context.Context) (sdk.CreateGCPEnvInput, 
 			PrivateServiceConsumers: privateServiceConsumers,
 			Labels:                  labels,
 			MetricsEndpoint:         metricsEndpoint,
+			Datadog:                 datadog,
 		},
 	}
 
@@ -135,6 +138,7 @@ func (e GCPEnvResourceModel) toSDK(ctx context.Context) (sdk.CreateGCPEnvInput, 
 			PrivateServiceConsumers: privateServiceConsumers,
 			Labels:                  labels,
 			MetricsEndpoint:         metricsEndpoint,
+			Datadog:                 datadog,
 		},
 	}
 
@@ -166,6 +170,7 @@ func (model *GCPEnvResourceModel) toModel(env sdk.GetGCPEnv_GCPEnv) diag.Diagnos
 	model.PrivateServiceConsumers = psc
 
 	model.MetricsEndpoint = metricsEndpointToModel(&env.Spec.MetricsEndpoint)
+	model.Datadog = datadogToModel(model.Datadog, &env.Spec.Datadog)
 
 	var labels []common.KeyValueModel
 	for _, t := range env.Spec.Labels {
@@ -341,4 +346,31 @@ func metricsEndpointToModel(endpoint *sdk.GCPEnvSpecFragment_MetricsEndpoint) *M
 		Enabled:        types.BoolValue(endpoint.Enabled),
 		SourceIPRanges: sourceIPRanges,
 	}
+}
+
+func datadogToModel(existing *common.DatadogModel, datadog *sdk.GCPEnvSpecFragment_Datadog) *common.DatadogModel {
+	if datadog == nil {
+		return existing
+	}
+
+	// The API always returns a datadog block (DatadogSpec!). Keep state null
+	// when the user never configured it and it's disabled, to avoid a perpetual diff.
+	if existing == nil && !datadog.Enabled {
+		return nil
+	}
+
+	model := &common.DatadogModel{
+		Enabled:        types.BoolValue(datadog.Enabled),
+		Domain:         types.StringValue(datadog.Domain),
+		LogsEnabled:    types.BoolValue(datadog.LogsEnabled),
+		MetricsEnabled: types.BoolValue(datadog.MetricsEnabled),
+	}
+
+	// enc_api_key is write-only; the API never returns it, so preserve the
+	// previously configured value.
+	if existing != nil {
+		model.EncAPIKey = existing.EncAPIKey
+	}
+
+	return model
 }

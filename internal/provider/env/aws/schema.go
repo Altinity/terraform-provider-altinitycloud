@@ -49,6 +49,7 @@ func (r *AWSEnvResource) Schema(ctx context.Context, req resource.SchemaRequest,
 			"backups":                         getBackupStorageAttribute(false, true, false),
 			"iceberg":                         getIcebergAttribute(false, true, false),
 			"metrics_endpoint":                common.GetMetricsEndpointAttribute(false, true, false),
+			"datadog":                         common.GetDatadogAttribute(false, true, false),
 			"eks_logging":                     getEksLoggingAttribute(false, true, true),
 
 			"spec_revision":                   common.SpecRevisionAttribute,
@@ -91,6 +92,7 @@ func (d *AWSEnvDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 			"backups":                         getBackupStorageAttribute(false, false, true),
 			"iceberg":                         getIcebergAttribute(false, false, true),
 			"metrics_endpoint":                common.GetMetricsEndpointAttribute(false, false, true),
+			"datadog":                         common.GetDatadogAttribute(false, false, true),
 			"eks_logging":                     getEksLoggingAttribute(false, false, true),
 			"spec_revision":                   common.SpecRevisionAttribute,
 

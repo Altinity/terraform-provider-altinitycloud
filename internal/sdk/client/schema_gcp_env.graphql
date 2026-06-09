@@ -95,4 +95,10 @@ fragment GCPEnvSpecFragment on GCPEnvSpec {
     enabled
     sourceIPRanges
   }
+  datadog {
+    enabled
+    domain
+    logsEnabled
+    metricsEnabled
+  }
 }

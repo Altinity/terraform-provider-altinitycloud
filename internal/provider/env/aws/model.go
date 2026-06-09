@@ -33,6 +33,7 @@ type AWSEnvResourceModel struct {
 	Backups                      *AWSEnvBackupsModel             `tfsdk:"backups"`
 	Iceberg                      *AWSEnvIcebergModel             `tfsdk:"iceberg"`
 	MetricsEndpoint              *AWSEnvMetricsEndpointModel     `tfsdk:"metrics_endpoint"`
+	Datadog                      *common.DatadogModel            `tfsdk:"datadog"`
 	EksLogging                   types.Bool                      `tfsdk:"eks_logging"`
 
 	SpecRevision                 types.Int64    `tfsdk:"spec_revision"`
@@ -165,6 +166,7 @@ func (e AWSEnvResourceModel) toSDK(ctx context.Context) (sdk.CreateAWSEnvInput, 
 
 	iceberg := icebergToSDK(e.Iceberg)
 	metricsEndpoint := metricsEndpointToSDK(e.MetricsEndpoint)
+	datadog := common.DatadogToSDK(e.Datadog)
 
 	create := sdk.CreateAWSEnvInput{
 		Name: e.Name.ValueString(),
@@ -189,6 +191,7 @@ func (e AWSEnvResourceModel) toSDK(ctx context.Context) (sdk.CreateAWSEnvInput, 
 			Backups:                      backups,
 			Iceberg:                      iceberg,
 			MetricsEndpoint:              metricsEndpoint,
+			Datadog:                      datadog,
 			EksLogging:                   e.EksLogging.ValueBoolPointer(),
 		},
 	}
@@ -213,6 +216,7 @@ func (e AWSEnvResourceModel) toSDK(ctx context.Context) (sdk.CreateAWSEnvInput, 
 			Backups:               backups,
 			Iceberg:               icebergUpdate,
 			MetricsEndpoint:       metricsEndpoint,
+			Datadog:               datadog,
 			EksLogging:            e.EksLogging.ValueBoolPointer(),
 		},
 	}
@@ -286,6 +290,7 @@ func (model *AWSEnvResourceModel) toModel(env sdk.GetAWSEnv_AWSEnv) diag.Diagnos
 	model.CloudConnect = types.BoolValue(env.Spec.CloudConnect)
 	model.EksLogging = types.BoolValue(env.Spec.EksLogging)
 	model.MetricsEndpoint = metricsEndpointToModel(&env.Spec.MetricsEndpoint)
+	model.Datadog = datadogToModel(model.Datadog, &env.Spec.Datadog)
 
 	return allDiags
 }
@@ -617,4 +622,31 @@ func metricsEndpointToModel(endpoint *sdk.AWSEnvSpecFragment_MetricsEndpoint) *A
 		Enabled:        types.BoolValue(endpoint.Enabled),
 		SourceIPRanges: sourceIPRanges,
 	}
+}
+
+func datadogToModel(existing *common.DatadogModel, datadog *sdk.AWSEnvSpecFragment_Datadog) *common.DatadogModel {
+	if datadog == nil {
+		return existing
+	}
+
+	// The API always returns a datadog block (DatadogSpec!). Keep state null
+	// when the user never configured it and it's disabled, to avoid a perpetual diff.
+	if existing == nil && !datadog.Enabled {
+		return nil
+	}
+
+	model := &common.DatadogModel{
+		Enabled:        types.BoolValue(datadog.Enabled),
+		Domain:         types.StringValue(datadog.Domain),
+		LogsEnabled:    types.BoolValue(datadog.LogsEnabled),
+		MetricsEnabled: types.BoolValue(datadog.MetricsEnabled),
+	}
+
+	// enc_api_key is write-only; the API never returns it, so preserve the
+	// previously configured value.
+	if existing != nil {
+		model.EncAPIKey = existing.EncAPIKey
+	}
+
+	return model
 }

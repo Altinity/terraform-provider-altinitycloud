@@ -26,6 +26,7 @@ type AzureEnvResourceModel struct {
 	Tags                  []common.KeyValueModel          `tfsdk:"tags"`
 	PrivateLinkService    *PrivateLinkServiceModel        `tfsdk:"private_link_service"`
 	MetricsEndpoint       *MetricsEndpointModel           `tfsdk:"metrics_endpoint"`
+	Datadog               *common.DatadogModel            `tfsdk:"datadog"`
 
 	SpecRevision                 types.Int64    `tfsdk:"spec_revision"`
 	ForceDestroy                 types.Bool     `tfsdk:"force_destroy"`
@@ -73,6 +74,7 @@ func (e AzureEnvResourceModel) toSDK(ctx context.Context) (client.CreateAzureEnv
 	allDiags.Append(diags...)
 	loadBalancingStrategy := (*client.LoadBalancingStrategy)(e.LoadBalancingStrategy.ValueStringPointer())
 	metricsEndpoint := metricsEndpointToSDK(e.MetricsEndpoint)
+	datadog := common.DatadogToSDK(e.Datadog)
 	cloudConnect := false
 
 	var tags []*client.KeyValueInput
@@ -109,6 +111,7 @@ func (e AzureEnvResourceModel) toSDK(ctx context.Context) (client.CreateAzureEnv
 				AllowedSubscriptions: allowedSubscriptions,
 			},
 			MetricsEndpoint: metricsEndpoint,
+			Datadog:         datadog,
 		},
 	}
 
@@ -128,6 +131,7 @@ func (e AzureEnvResourceModel) toSDK(ctx context.Context) (client.CreateAzureEnv
 				AllowedSubscriptions: allowedSubscriptions,
 			},
 			MetricsEndpoint: metricsEndpoint,
+			Datadog:         datadog,
 		},
 	}
 
@@ -156,6 +160,7 @@ func (model *AzureEnvResourceModel) toModel(env client.GetAzureEnv_AzureEnv) dia
 	model.Zones = zones
 
 	model.MetricsEndpoint = metricsEndpointToModel(&env.Spec.MetricsEndpoint)
+	model.Datadog = datadogToModel(model.Datadog, &env.Spec.Datadog)
 
 	var tags []common.KeyValueModel
 	for _, t := range env.Spec.Tags {
@@ -326,4 +331,31 @@ func metricsEndpointToModel(endpoint *client.AzureEnvSpecFragment_MetricsEndpoin
 		Enabled:        types.BoolValue(endpoint.Enabled),
 		SourceIPRanges: sourceIPRanges,
 	}
+}
+
+func datadogToModel(existing *common.DatadogModel, datadog *client.AzureEnvSpecFragment_Datadog) *common.DatadogModel {
+	if datadog == nil {
+		return existing
+	}
+
+	// The API always returns a datadog block (DatadogSpec!). Keep state null
+	// when the user never configured it and it's disabled, to avoid a perpetual diff.
+	if existing == nil && !datadog.Enabled {
+		return nil
+	}
+
+	model := &common.DatadogModel{
+		Enabled:        types.BoolValue(datadog.Enabled),
+		Domain:         types.StringValue(datadog.Domain),
+		LogsEnabled:    types.BoolValue(datadog.LogsEnabled),
+		MetricsEnabled: types.BoolValue(datadog.MetricsEnabled),
+	}
+
+	// enc_api_key is write-only; the API never returns it, so preserve the
+	// previously configured value.
+	if existing != nil {
+		model.EncAPIKey = existing.EncAPIKey
+	}
+
+	return model
 }
