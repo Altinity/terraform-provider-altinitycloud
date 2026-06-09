@@ -79,12 +79,32 @@ type AWSEnvEndpointSpecInput struct {
 type AWSEnvExternalBucketSpec struct {
 	// External bucket name.
 	Name string `json:"name"`
+	// Optional ARN of a customer-managed KMS key used to encrypt this bucket.
+	//
+	// When set, the ClickHouse IRSA role is granted KMS decrypt/encrypt permissions
+	// on the key so SSE-KMS-encrypted objects in the bucket can be read and written
+	// (e.g. when the bucket backs a ClickHouse external disk). The key is owned by
+	// the customer; bucket-level encryption is not managed by Altinity.
+	//
+	// The env-region constraint that applies to the env-level KMS key does not
+	// apply here — the key may be in any region from the env's perspective.
+	// S3 still requires the key to be in the bucket's region (or to be a KMS
+	// multi-region key with a replica in the bucket's region); that is the
+	// customer's responsibility and is not validated here.
+	KmsKeyArn *string `json:"kmsKeyARN,omitempty"`
 }
 
 // External S3 bucket to allow access to.
 type AWSEnvExternalBucketSpecInput struct {
 	// External bucket name.
 	Name string `json:"name"`
+	// ARN of a customer-managed KMS key used to encrypt this bucket.
+	//
+	// When set, grants the ClickHouse IRSA role KMS decrypt/encrypt permissions
+	// on the key. The env-region constraint that applies to the env-level KMS
+	// key does not apply here; S3's own bucket-region:key-region rule still
+	// applies and is the customer's responsibility.
+	KmsKeyArn *string `json:"kmsKeyARN,omitempty"`
 }
 
 // AWS environments query filter.
@@ -328,21 +348,38 @@ type AWSEnvSpec struct {
 	// List of maintenance windows during which automatic maintenance is permitted.
 	// By default updates are applied as soon as they are available.
 	MaintenanceWindows []*MaintenanceWindowSpec `json:"maintenanceWindows"`
-	// Custom domain.
+	// Custom domain (deprecated, use customDomains instead).
+	//
+	// Returns customDomains[0] for backwards compatibility.
+	CustomDomain *string `json:"customDomain,omitempty"`
+	// Custom domains for TLS certificates.
+	//
+	// Order is preserved.
 	//
 	// Examples:
-	// - "example.com"
-	// - "foo.bar.com"
+	// - ["example.com"]
+	// - ["example.com", "foo.bar.com"]
 	//
-	// Before specifying custom domain, please create the following DNS records:
-	// - CNAME _acme-challenge.example.com. $env_name.altinity.cloud.
-	// - (optional, public load balancer)
-	//   CNAME *.example.com. _.$env_name.altinity.cloud.
-	// - (optional, internal load balancer)
-	//   CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
-	// - (optional, vpce)
-	//   CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
-	CustomDomain *string `json:"customDomain,omitempty"`
+	// Before specifying custom domains, create the following DNS CNAME records
+	// (replace example.com with your domain):
+	//
+	// Required:
+	// - _acme-challenge.example.com. → $env_name.altinity.cloud.
+	//
+	// Public load balancer (if used):
+	// - example.com.                        → _.$env_name.altinity.cloud.
+	// - *.example.com.                      → _.$env_name.altinity.cloud.
+	//
+	// Internal load balancer (if used):
+	// - _acme-challenge.internal.example.com. → internal.$env_name.altinity.cloud.
+	// - internal.example.com.                 → _.internal.$env_name.altinity.cloud.
+	// - *.internal.example.com.               → _.internal.$env_name.altinity.cloud.
+	//
+	// VPC endpoint (if used):
+	// - _acme-challenge.vpce.example.com.   → vpce.$env_name.altinity.cloud.
+	// - vpce.example.com.                   → _.vpce.$env_name.altinity.cloud.
+	// - *.vpce.example.com.                 → _.vpce.$env_name.altinity.cloud.
+	CustomDomains []string `json:"customDomains"`
 	// VPC peering configuration.
 	PeeringConnections []*AWSEnvPeeringConnectionSpec `json:"peeringConnections"`
 	// VPC endpoints configuration.
@@ -367,6 +404,9 @@ type AWSEnvSpec struct {
 	// Metrics endpoint configuration.
 	MetricsEndpoint *MetricsEndpointSpec `json:"metricsEndpoint"`
 	Datadog         *DatadogSpec         `json:"datadog"`
+	// ARN of the customer's KMS key for encrypting Altinity-provisioned data buckets
+	// and EBS volumes.
+	KmsKeyArn *string `json:"kmsKeyARN,omitempty"`
 }
 
 // AWS environment status.
@@ -404,21 +444,36 @@ type AWSEnvUpdateSpecInput struct {
 	// List of maintenance windows during which automatic maintenance is permitted.
 	// By default updates are applied as soon as they are available.
 	MaintenanceWindows []*MaintenanceWindowSpecInput `json:"maintenanceWindows,omitempty"`
-	// Custom domain.
+	// Custom domain (deprecated, use customDomains instead).
+	CustomDomain *string `json:"customDomain,omitempty"`
+	// Custom domains for TLS certificates.
+	//
+	// Order is preserved.
 	//
 	// Examples:
-	// - "example.com"
-	// - "foo.bar.com"
+	// - ["example.com"]
+	// - ["example.com", "foo.bar.com"]
 	//
-	// Before specifying custom domain, please create the following DNS records:
-	// - CNAME _acme-challenge.example.com. $env_name.altinity.cloud.
-	// - (optional, public load balancer)
-	// CNAME *.example.com. _.$env_name.altinity.cloud.
-	// - (optional, internal load balancer)
-	// CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
-	// - (optional, vpce)
-	// CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
-	CustomDomain *string `json:"customDomain,omitempty"`
+	// Before specifying custom domains, create the following DNS CNAME records
+	// (replace example.com with your domain):
+	//
+	// Required:
+	// - _acme-challenge.example.com. → $env_name.altinity.cloud.
+	//
+	// Public load balancer (if used):
+	// - example.com.                        → _.$env_name.altinity.cloud.
+	// - *.example.com.                      → _.$env_name.altinity.cloud.
+	//
+	// Internal load balancer (if used):
+	// - _acme-challenge.internal.example.com. → internal.$env_name.altinity.cloud.
+	// - internal.example.com.                 → _.internal.$env_name.altinity.cloud.
+	// - *.internal.example.com.               → _.internal.$env_name.altinity.cloud.
+	//
+	// VPC endpoint (if used):
+	// - _acme-challenge.vpce.example.com.   → vpce.$env_name.altinity.cloud.
+	// - vpce.example.com.                   → _.vpce.$env_name.altinity.cloud.
+	// - *.vpce.example.com.                 → _.vpce.$env_name.altinity.cloud.
+	CustomDomains []string `json:"customDomains,omitempty"`
 	// VPC peering configuration.
 	PeeringConnections []*AWSEnvPeeringConnectionSpecInput `json:"peeringConnections,omitempty"`
 	// VPC endpoints configuration.
@@ -626,21 +681,38 @@ type AzureEnvSpec struct {
 	// List of maintenance windows during which automatic maintenance is permitted.
 	// By default updates are applied as soon as they are available.
 	MaintenanceWindows []*MaintenanceWindowSpec `json:"maintenanceWindows"`
-	// Custom domain.
+	// Custom domain (deprecated, use customDomains instead).
+	//
+	// Returns customDomains[0] for backwards compatibility.
+	CustomDomain *string `json:"customDomain,omitempty"`
+	// Custom domains for TLS certificates.
+	//
+	// Order is preserved.
 	//
 	// Examples:
-	// - "example.com"
-	// - "foo.bar.com"
+	// - ["example.com"]
+	// - ["example.com", "foo.bar.com"]
 	//
-	// Before specifying custom domain, please create the following DNS records:
-	// - CNAME _acme-challenge.example.com. $env_name.altinity.cloud.
-	// - (optional, public load balancer)
-	//   CNAME *.example.com. _.$env_name.altinity.cloud.
-	// - (optional, internal load balancer)
-	//   CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
-	// - (optional, privatelink)
-	//   CNAME *.privatelink.example.com. _.privatelink.$env_name.altinity.cloud.
-	CustomDomain *string `json:"customDomain,omitempty"`
+	// Before specifying custom domains, create the following DNS CNAME records
+	// (replace example.com with your domain):
+	//
+	// Required:
+	// - _acme-challenge.example.com. → $env_name.altinity.cloud.
+	//
+	// Public load balancer (if used):
+	// - example.com.                              → _.$env_name.altinity.cloud.
+	// - *.example.com.                            → _.$env_name.altinity.cloud.
+	//
+	// Internal load balancer (if used):
+	// - _acme-challenge.internal.example.com.     → internal.$env_name.altinity.cloud.
+	// - internal.example.com.                     → _.internal.$env_name.altinity.cloud.
+	// - *.internal.example.com.                   → _.internal.$env_name.altinity.cloud.
+	//
+	// Private Link (if used):
+	// - _acme-challenge.privatelink.example.com.  → privatelink.$env_name.altinity.cloud.
+	// - privatelink.example.com.                  → _.privatelink.$env_name.altinity.cloud.
+	// - *.privatelink.example.com.                → _.privatelink.$env_name.altinity.cloud.
+	CustomDomains []string `json:"customDomains"`
 	// Azure Private Link service configuration.
 	PrivateLinkService *PrivateLinkServiceSpec `json:"privateLinkService"`
 	// Tags to apply to Azure resources.
@@ -739,21 +811,36 @@ type CreateAWSEnvSpecInput struct {
 	// List of maintenance windows during which automatic maintenance is permitted.
 	// By default updates are applied as soon as they are available.
 	MaintenanceWindows []*MaintenanceWindowSpecInput `json:"maintenanceWindows,omitempty"`
-	// Custom domain.
+	// Custom domain (deprecated, use customDomains instead).
+	CustomDomain *string `json:"customDomain,omitempty"`
+	// Custom domains for TLS certificates.
+	//
+	// Order is preserved.
 	//
 	// Examples:
-	// - "example.com"
-	// - "foo.bar.com"
+	// - ["example.com"]
+	// - ["example.com", "foo.bar.com"]
 	//
-	// Before specifying custom domain, please create the following DNS records:
-	// - CNAME _acme-challenge.example.com. $env_name.altinity.cloud.
-	// - (optional, public load balancer)
-	// CNAME *.example.com. _.$env_name.altinity.cloud.
-	// - (optional, internal load balancer)
-	// CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
-	// - (optional, vpce)
-	// CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
-	CustomDomain *string `json:"customDomain,omitempty"`
+	// Before specifying custom domains, create the following DNS CNAME records
+	// (replace example.com with your domain):
+	//
+	// Required:
+	// - _acme-challenge.example.com. → $env_name.altinity.cloud.
+	//
+	// Public load balancer (if used):
+	// - example.com.                        → _.$env_name.altinity.cloud.
+	// - *.example.com.                      → _.$env_name.altinity.cloud.
+	//
+	// Internal load balancer (if used):
+	// - _acme-challenge.internal.example.com. → internal.$env_name.altinity.cloud.
+	// - internal.example.com.                 → _.internal.$env_name.altinity.cloud.
+	// - *.internal.example.com.               → _.internal.$env_name.altinity.cloud.
+	//
+	// VPC endpoint (if used):
+	// - _acme-challenge.vpce.example.com.   → vpce.$env_name.altinity.cloud.
+	// - vpce.example.com.                   → _.vpce.$env_name.altinity.cloud.
+	// - *.vpce.example.com.                 → _.vpce.$env_name.altinity.cloud.
+	CustomDomains []string `json:"customDomains,omitempty"`
 	// VPC peering configuration.
 	PeeringConnections []*AWSEnvPeeringConnectionSpecInput `json:"peeringConnections,omitempty"`
 	// VPC endpoints configuration.
@@ -784,6 +871,9 @@ type CreateAWSEnvSpecInput struct {
 	// Metrics endpoint configuration.
 	MetricsEndpoint *MetricsEndpointSpecInput `json:"metricsEndpoint,omitempty"`
 	Datadog         *DatadogSpecInput         `json:"datadog,omitempty"`
+	// ARN of the customer's KMS key for encrypting Altinity-provisioned data buckets
+	// and EBS volumes.
+	KmsKeyArn *string `json:"kmsKeyARN,omitempty"`
 }
 
 // Azure environment create request input.
@@ -852,21 +942,36 @@ type CreateAzureEnvSpecInput struct {
 	// List of maintenance windows during which automatic maintenance is permitted.
 	// By default updates are applied as soon as they are available.
 	MaintenanceWindows []*MaintenanceWindowSpecInput `json:"maintenanceWindows,omitempty"`
-	// Custom domain.
+	// Custom domain (deprecated, use customDomains instead).
+	CustomDomain *string `json:"customDomain,omitempty"`
+	// Custom domains for TLS certificates.
+	//
+	// Order is preserved.
 	//
 	// Examples:
-	// - "example.com"
-	// - "foo.bar.com"
+	// - ["example.com"]
+	// - ["example.com", "foo.bar.com"]
 	//
-	// Before specifying custom domain, please create the following DNS records:
-	// - CNAME _acme-challenge.example.com. $env_name.altinity.cloud.
-	// - (optional, public load balancer)
-	// CNAME *.example.com. _.$env_name.altinity.cloud.
-	// - (optional, internal load balancer)
-	// CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
-	// - (optional, privatelink)
-	// CNAME *.privatelink.example.com. _.privatelink.$env_name.altinity.cloud.
-	CustomDomain *string `json:"customDomain,omitempty"`
+	// Before specifying custom domains, create the following DNS CNAME records
+	// (replace example.com with your domain):
+	//
+	// Required:
+	// - _acme-challenge.example.com. → $env_name.altinity.cloud.
+	//
+	// Public load balancer (if used):
+	// - example.com.                              → _.$env_name.altinity.cloud.
+	// - *.example.com.                            → _.$env_name.altinity.cloud.
+	//
+	// Internal load balancer (if used):
+	// - _acme-challenge.internal.example.com.     → internal.$env_name.altinity.cloud.
+	// - internal.example.com.                     → _.internal.$env_name.altinity.cloud.
+	// - *.internal.example.com.                   → _.internal.$env_name.altinity.cloud.
+	//
+	// Private Link (if used):
+	// - _acme-challenge.privatelink.example.com.  → privatelink.$env_name.altinity.cloud.
+	// - privatelink.example.com.                  → _.privatelink.$env_name.altinity.cloud.
+	// - *.privatelink.example.com.                → _.privatelink.$env_name.altinity.cloud.
+	CustomDomains []string `json:"customDomains,omitempty"`
 	// Azure Private Link service configuration.
 	PrivateLinkService *PrivateLinkServiceSpecInput `json:"privateLinkService,omitempty"`
 	Tags               []*KeyValueInput             `json:"tags,omitempty"`
@@ -944,21 +1049,36 @@ type CreateGCPEnvSpecInput struct {
 	// List of maintenance windows during which automatic maintenance is permitted.
 	// By default updates are applied as soon as they are available.
 	MaintenanceWindows []*MaintenanceWindowSpecInput `json:"maintenanceWindows,omitempty"`
-	// Custom domain.
+	// Custom domain (deprecated, use customDomains instead).
+	CustomDomain *string `json:"customDomain,omitempty"`
+	// Custom domains for TLS certificates.
+	//
+	// Order is preserved.
 	//
 	// Examples:
-	// - "example.com"
-	// - "foo.bar.com"
+	// - ["example.com"]
+	// - ["example.com", "foo.bar.com"]
 	//
-	// Before specifying custom domain, please create the following DNS records:
-	// - CNAME _acme-challenge.example.com. $env_name.altinity.cloud.
-	// - (optional, public load balancer)
-	// CNAME *.example.com. _.$env_name.altinity.cloud.
-	// - (optional, internal load balancer)
-	// CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
-	// - (optional, vpce)
-	// CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
-	CustomDomain *string `json:"customDomain,omitempty"`
+	// Before specifying custom domains, create the following DNS CNAME records
+	// (replace example.com with your domain):
+	//
+	// Required:
+	// - _acme-challenge.example.com. → $env_name.altinity.cloud.
+	//
+	// Public load balancer (if used):
+	// - example.com.                        → _.$env_name.altinity.cloud.
+	// - *.example.com.                      → _.$env_name.altinity.cloud.
+	//
+	// Internal load balancer (if used):
+	// - _acme-challenge.internal.example.com. → internal.$env_name.altinity.cloud.
+	// - internal.example.com.                 → _.internal.$env_name.altinity.cloud.
+	// - *.internal.example.com.               → _.internal.$env_name.altinity.cloud.
+	//
+	// VPC endpoint (if used):
+	// - _acme-challenge.vpce.example.com.   → vpce.$env_name.altinity.cloud.
+	// - vpce.example.com.                   → _.vpce.$env_name.altinity.cloud.
+	// - *.vpce.example.com.                 → _.vpce.$env_name.altinity.cloud.
+	CustomDomains []string `json:"customDomains,omitempty"`
 	// True indicates that cloud resources are to be managed via altinity/cloud-connect.
 	// False means direct management (default).
 	//
@@ -1033,21 +1153,36 @@ type CreateHCloudEnvSpecInput struct {
 	// List of maintenance windows during which automatic maintenance is permitted.
 	// By default updates are applied as soon as they are available.
 	MaintenanceWindows []*MaintenanceWindowSpecInput `json:"maintenanceWindows,omitempty"`
-	// Custom domain.
+	// Custom domain (deprecated, use customDomains instead).
+	CustomDomain *string `json:"customDomain,omitempty"`
+	// Custom domains for TLS certificates.
+	//
+	// Order is preserved.
 	//
 	// Examples:
-	// - "example.com"
-	// - "foo.bar.com"
+	// - ["example.com"]
+	// - ["example.com", "foo.bar.com"]
 	//
-	// Before specifying custom domain, please create the following DNS records:
-	// - CNAME _acme-challenge.example.com. $env_name.altinity.cloud.
-	// - (optional, public load balancer)
-	// CNAME *.example.com. _.$env_name.altinity.cloud.
-	// - (optional, internal load balancer)
-	// CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
-	// - (optional, vpce)
-	// CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
-	CustomDomain *string `json:"customDomain,omitempty"`
+	// Before specifying custom domains, create the following DNS CNAME records
+	// (replace example.com with your domain):
+	//
+	// Required:
+	// - _acme-challenge.example.com. → $env_name.altinity.cloud.
+	//
+	// Public load balancer (if used):
+	// - example.com.                        → _.$env_name.altinity.cloud.
+	// - *.example.com.                      → _.$env_name.altinity.cloud.
+	//
+	// Internal load balancer (if used):
+	// - _acme-challenge.internal.example.com. → internal.$env_name.altinity.cloud.
+	// - internal.example.com.                 → _.internal.$env_name.altinity.cloud.
+	// - *.internal.example.com.               → _.internal.$env_name.altinity.cloud.
+	//
+	// VPC endpoint (if used):
+	// - _acme-challenge.vpce.example.com.   → vpce.$env_name.altinity.cloud.
+	// - vpce.example.com.                   → _.vpce.$env_name.altinity.cloud.
+	// - *.vpce.example.com.                 → _.vpce.$env_name.altinity.cloud.
+	CustomDomains []string `json:"customDomains,omitempty"`
 	// True indicates that cloud resources are to be managed via altinity/cloud-connect.
 	// False means direct management.
 	CloudConnect *bool `json:"cloudConnect,omitempty"`
@@ -1106,21 +1241,36 @@ type CreateK8SEnvSpecInput struct {
 	// List of maintenance windows during which automatic maintenance is permitted.
 	// By default updates are applied as soon as they are available.
 	MaintenanceWindows []*MaintenanceWindowSpecInput `json:"maintenanceWindows,omitempty"`
-	// Custom domain.
+	// Custom domain (deprecated, use customDomains instead).
+	CustomDomain *string `json:"customDomain,omitempty"`
+	// Custom domains for TLS certificates.
+	//
+	// Order is preserved.
 	//
 	// Examples:
-	// - "example.com"
-	// - "foo.bar.com"
+	// - ["example.com"]
+	// - ["example.com", "foo.bar.com"]
 	//
-	// Before specifying custom domain, please create the following DNS records:
-	// - CNAME _acme-challenge.example.com. $env_name.altinity.cloud.
-	// - (optional, public load balancer)
-	// CNAME *.example.com. _.$env_name.altinity.cloud.
-	// - (optional, internal load balancer)
-	// CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
-	// - (optional, vpce)
-	// CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
-	CustomDomain *string `json:"customDomain,omitempty"`
+	// Before specifying custom domains, create the following DNS CNAME records
+	// (replace example.com with your domain):
+	//
+	// Required:
+	// - _acme-challenge.example.com. → $env_name.altinity.cloud.
+	//
+	// Public load balancer (if used):
+	// - example.com.                        → _.$env_name.altinity.cloud.
+	// - *.example.com.                      → _.$env_name.altinity.cloud.
+	//
+	// Internal load balancer (if used):
+	// - _acme-challenge.internal.example.com. → internal.$env_name.altinity.cloud.
+	// - internal.example.com.                 → _.internal.$env_name.altinity.cloud.
+	// - *.internal.example.com.               → _.internal.$env_name.altinity.cloud.
+	//
+	// VPC endpoint (if used):
+	// - _acme-challenge.vpce.example.com.   → vpce.$env_name.altinity.cloud.
+	// - vpce.example.com.                   → _.vpce.$env_name.altinity.cloud.
+	// - *.vpce.example.com.                 → _.vpce.$env_name.altinity.cloud.
+	CustomDomains []string `json:"customDomains,omitempty"`
 	// Metrics endpoint configuration.
 	MetricsEndpoint *MetricsEndpointSpecInput `json:"metricsEndpoint,omitempty"`
 	// Datadog monitoring agent configuration.
@@ -1469,21 +1619,38 @@ type GCPEnvSpec struct {
 	// List of maintenance windows during which automatic maintenance is permitted.
 	// By default updates are applied as soon as they are available.
 	MaintenanceWindows []*MaintenanceWindowSpec `json:"maintenanceWindows"`
-	// Custom domain.
+	// Custom domain (deprecated, use customDomains instead).
+	//
+	// Returns customDomains[0] for backwards compatibility.
+	CustomDomain *string `json:"customDomain,omitempty"`
+	// Custom domains for TLS certificates.
+	//
+	// Order is preserved.
 	//
 	// Examples:
-	// - "example.com"
-	// - "foo.bar.com"
+	// - ["example.com"]
+	// - ["example.com", "foo.bar.com"]
 	//
-	// Before specifying custom domain, please create the following DNS records:
-	// - CNAME _acme-challenge.example.com. $env_name.altinity.cloud.
-	// - (optional, public load balancer)
-	// CNAME *.example.com. _.$env_name.altinity.cloud.
-	// - (optional, internal load balancer)
-	// CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
-	// - (optional, vpce)
-	// CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
-	CustomDomain *string `json:"customDomain,omitempty"`
+	// Before specifying custom domains, create the following DNS CNAME records
+	// (replace example.com with your domain):
+	//
+	// Required:
+	// - _acme-challenge.example.com. → $env_name.altinity.cloud.
+	//
+	// Public load balancer (if used):
+	// - example.com.                        → _.$env_name.altinity.cloud.
+	// - *.example.com.                      → _.$env_name.altinity.cloud.
+	//
+	// Internal load balancer (if used):
+	// - _acme-challenge.internal.example.com. → internal.$env_name.altinity.cloud.
+	// - internal.example.com.                 → _.internal.$env_name.altinity.cloud.
+	// - *.internal.example.com.               → _.internal.$env_name.altinity.cloud.
+	//
+	// VPC endpoint (if used):
+	// - _acme-challenge.vpce.example.com.   → vpce.$env_name.altinity.cloud.
+	// - vpce.example.com.                   → _.vpce.$env_name.altinity.cloud.
+	// - *.vpce.example.com.                 → _.vpce.$env_name.altinity.cloud.
+	CustomDomains []string `json:"customDomains"`
 	// True indicates that cloud resources are to be managed via altinity/cloud-connect.
 	// False means direct management.
 	CloudConnect bool `json:"cloudConnect"`
@@ -1663,21 +1830,38 @@ type HCloudEnvSpec struct {
 	// List of maintenance windows during which automatic maintenance is permitted.
 	// By default updates are applied as soon as they are available.
 	MaintenanceWindows []*MaintenanceWindowSpec `json:"maintenanceWindows"`
-	// Custom domain.
+	// Custom domain (deprecated, use customDomains instead).
+	//
+	// Returns customDomains[0] for backwards compatibility.
+	CustomDomain *string `json:"customDomain,omitempty"`
+	// Custom domains for TLS certificates.
+	//
+	// Order is preserved.
 	//
 	// Examples:
-	// - "example.com"
-	// - "foo.bar.com"
+	// - ["example.com"]
+	// - ["example.com", "foo.bar.com"]
 	//
-	// Before specifying custom domain, please create the following DNS records:
-	// - CNAME _acme-challenge.example.com. $env_name.altinity.cloud.
-	// - (optional, public load balancer)
-	//   CNAME *.example.com. _.$env_name.altinity.cloud.
-	// - (optional, internal load balancer)
-	//   CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
-	// - (optional, vpce)
-	//   CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
-	CustomDomain *string `json:"customDomain,omitempty"`
+	// Before specifying custom domains, create the following DNS CNAME records
+	// (replace example.com with your domain):
+	//
+	// Required:
+	// - _acme-challenge.example.com. → $env_name.altinity.cloud.
+	//
+	// Public load balancer (if used):
+	// - example.com.                        → _.$env_name.altinity.cloud.
+	// - *.example.com.                      → _.$env_name.altinity.cloud.
+	//
+	// Internal load balancer (if used):
+	// - _acme-challenge.internal.example.com. → internal.$env_name.altinity.cloud.
+	// - internal.example.com.                 → _.internal.$env_name.altinity.cloud.
+	// - *.internal.example.com.               → _.internal.$env_name.altinity.cloud.
+	//
+	// VPC endpoint (if used):
+	// - _acme-challenge.vpce.example.com.   → vpce.$env_name.altinity.cloud.
+	// - vpce.example.com.                   → _.vpce.$env_name.altinity.cloud.
+	// - *.vpce.example.com.                 → _.vpce.$env_name.altinity.cloud.
+	CustomDomains []string `json:"customDomains"`
 	// True indicates that cloud resources are to be managed via altinity/cloud-connect.
 	// False means direct management.
 	CloudConnect bool `json:"cloudConnect"`
@@ -2056,21 +2240,38 @@ type K8SEnvSpec struct {
 	// List of maintenance windows during which automatic maintenance is permitted.
 	// By default updates are applied as soon as they are available.
 	MaintenanceWindows []*MaintenanceWindowSpec `json:"maintenanceWindows"`
-	// Custom domain.
+	// Custom domain (deprecated, use customDomains instead).
+	//
+	// Returns customDomains[0] for backwards compatibility.
+	CustomDomain *string `json:"customDomain,omitempty"`
+	// Custom domains for TLS certificates.
+	//
+	// Order is preserved.
 	//
 	// Examples:
-	// - "example.com"
-	// - "foo.bar.com"
+	// - ["example.com"]
+	// - ["example.com", "foo.bar.com"]
 	//
-	// Before specifying custom domain, please create the following DNS records:
-	// - CNAME _acme-challenge.example.com. $env_name.altinity.cloud.
-	// - (optional, public load balancer)
-	// CNAME *.example.com. _.$env_name.altinity.cloud.
-	// - (optional, internal load balancer)
-	// CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
-	// - (optional, vpce)
-	// CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
-	CustomDomain *string `json:"customDomain,omitempty"`
+	// Before specifying custom domains, create the following DNS CNAME records
+	// (replace example.com with your domain):
+	//
+	// Required:
+	// - _acme-challenge.example.com. → $env_name.altinity.cloud.
+	//
+	// Public load balancer (if used):
+	// - example.com.                        → _.$env_name.altinity.cloud.
+	// - *.example.com.                      → _.$env_name.altinity.cloud.
+	//
+	// Internal load balancer (if used):
+	// - _acme-challenge.internal.example.com. → internal.$env_name.altinity.cloud.
+	// - internal.example.com.                 → _.internal.$env_name.altinity.cloud.
+	// - *.internal.example.com.               → _.internal.$env_name.altinity.cloud.
+	//
+	// VPC endpoint (if used):
+	// - _acme-challenge.vpce.example.com.   → vpce.$env_name.altinity.cloud.
+	// - vpce.example.com.                   → _.vpce.$env_name.altinity.cloud.
+	// - *.vpce.example.com.                 → _.vpce.$env_name.altinity.cloud.
+	CustomDomains []string `json:"customDomains"`
 	// Metrics endpoint configuration.
 	MetricsEndpoint *MetricsEndpointSpec `json:"metricsEndpoint"`
 	Datadog         *DatadogSpec         `json:"datadog"`
@@ -2280,21 +2481,36 @@ type UpdateAzureEnvSpecInput struct {
 	// List of maintenance windows during which automatic maintenance is permitted.
 	// By default updates are applied as soon as they are available.
 	MaintenanceWindows []*MaintenanceWindowSpecInput `json:"maintenanceWindows,omitempty"`
-	// Custom domain.
+	// Custom domain (deprecated, use customDomains instead).
+	CustomDomain *string `json:"customDomain,omitempty"`
+	// Custom domains for TLS certificates.
+	//
+	// Order is preserved.
 	//
 	// Examples:
-	// - "example.com"
-	// - "foo.bar.com"
+	// - ["example.com"]
+	// - ["example.com", "foo.bar.com"]
 	//
-	// Before specifying custom domain, please create the following DNS records:
-	// - CNAME _acme-challenge.example.com. $env_name.altinity.cloud.
-	// - (optional, public load balancer)
-	// CNAME *.example.com. _.$env_name.altinity.cloud.
-	// - (optional, internal load balancer)
-	// CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
-	// - (optional, privatelink)
-	// CNAME *.privatelink.example.com. _.privatelink.$env_name.altinity.cloud.
-	CustomDomain *string `json:"customDomain,omitempty"`
+	// Before specifying custom domains, create the following DNS CNAME records
+	// (replace example.com with your domain):
+	//
+	// Required:
+	// - _acme-challenge.example.com. → $env_name.altinity.cloud.
+	//
+	// Public load balancer (if used):
+	// - example.com.                              → _.$env_name.altinity.cloud.
+	// - *.example.com.                            → _.$env_name.altinity.cloud.
+	//
+	// Internal load balancer (if used):
+	// - _acme-challenge.internal.example.com.     → internal.$env_name.altinity.cloud.
+	// - internal.example.com.                     → _.internal.$env_name.altinity.cloud.
+	// - *.internal.example.com.                   → _.internal.$env_name.altinity.cloud.
+	//
+	// Private Link (if used):
+	// - _acme-challenge.privatelink.example.com.  → privatelink.$env_name.altinity.cloud.
+	// - privatelink.example.com.                  → _.privatelink.$env_name.altinity.cloud.
+	// - *.privatelink.example.com.                → _.privatelink.$env_name.altinity.cloud.
+	CustomDomains []string `json:"customDomains,omitempty"`
 	// Azure Private Link service configuration.
 	PrivateLinkService *PrivateLinkServiceSpecInput `json:"privateLinkService,omitempty"`
 	Tags               []*KeyValueInput             `json:"tags,omitempty"`
@@ -2346,21 +2562,36 @@ type UpdateGCPEnvSpecInput struct {
 	// List of maintenance windows during which automatic maintenance is permitted.
 	// By default updates are applied as soon as they are available.
 	MaintenanceWindows []*MaintenanceWindowSpecInput `json:"maintenanceWindows,omitempty"`
-	// Custom domain.
+	// Custom domain (deprecated, use customDomains instead).
+	CustomDomain *string `json:"customDomain,omitempty"`
+	// Custom domains for TLS certificates.
+	//
+	// Order is preserved.
 	//
 	// Examples:
-	// - "example.com"
-	// - "foo.bar.com"
+	// - ["example.com"]
+	// - ["example.com", "foo.bar.com"]
 	//
-	// Before specifying custom domain, please create the following DNS records:
-	// - CNAME _acme-challenge.example.com. $env_name.altinity.cloud.
-	// - (optional, public load balancer)
-	// CNAME *.example.com. _.$env_name.altinity.cloud.
-	// - (optional, internal load balancer)
-	// CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
-	// - (optional, vpce)
-	// CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
-	CustomDomain *string `json:"customDomain,omitempty"`
+	// Before specifying custom domains, create the following DNS CNAME records
+	// (replace example.com with your domain):
+	//
+	// Required:
+	// - _acme-challenge.example.com. → $env_name.altinity.cloud.
+	//
+	// Public load balancer (if used):
+	// - example.com.                        → _.$env_name.altinity.cloud.
+	// - *.example.com.                      → _.$env_name.altinity.cloud.
+	//
+	// Internal load balancer (if used):
+	// - _acme-challenge.internal.example.com. → internal.$env_name.altinity.cloud.
+	// - internal.example.com.                 → _.internal.$env_name.altinity.cloud.
+	// - *.internal.example.com.               → _.internal.$env_name.altinity.cloud.
+	//
+	// VPC endpoint (if used):
+	// - _acme-challenge.vpce.example.com.   → vpce.$env_name.altinity.cloud.
+	// - vpce.example.com.                   → _.vpce.$env_name.altinity.cloud.
+	// - *.vpce.example.com.                 → _.vpce.$env_name.altinity.cloud.
+	CustomDomains []string `json:"customDomains,omitempty"`
 	// Network peering configuration.
 	PeeringConnections []*GCPEnvPeeringConnectionSpecInput `json:"peeringConnections,omitempty"`
 	// List of project IDs representing the network's private service consumers.
@@ -2409,21 +2640,36 @@ type UpdateHCloudEnvSpecInput struct {
 	// List of maintenance windows during which automatic maintenance is permitted.
 	// By default updates are applied as soon as they are available.
 	MaintenanceWindows []*MaintenanceWindowSpecInput `json:"maintenanceWindows,omitempty"`
-	// Custom domain.
+	// Custom domain (deprecated, use customDomains instead).
+	CustomDomain *string `json:"customDomain,omitempty"`
+	// Custom domains for TLS certificates.
+	//
+	// Order is preserved.
 	//
 	// Examples:
-	// - "example.com"
-	// - "foo.bar.com"
+	// - ["example.com"]
+	// - ["example.com", "foo.bar.com"]
 	//
-	// Before specifying custom domain, please update the following DNS records:
-	// - CNAME _acme-challenge.example.com. $env_name.altinity.cloud.
-	// - (optional, public load balancer)
-	// CNAME *.example.com. _.$env_name.altinity.cloud.
-	// - (optional, internal load balancer)
-	// CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
-	// - (optional, vpce)
-	// CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
-	CustomDomain *string `json:"customDomain,omitempty"`
+	// Before specifying custom domains, create the following DNS CNAME records
+	// (replace example.com with your domain):
+	//
+	// Required:
+	// - _acme-challenge.example.com. → $env_name.altinity.cloud.
+	//
+	// Public load balancer (if used):
+	// - example.com.                        → _.$env_name.altinity.cloud.
+	// - *.example.com.                      → _.$env_name.altinity.cloud.
+	//
+	// Internal load balancer (if used):
+	// - _acme-challenge.internal.example.com. → internal.$env_name.altinity.cloud.
+	// - internal.example.com.                 → _.internal.$env_name.altinity.cloud.
+	// - *.internal.example.com.               → _.internal.$env_name.altinity.cloud.
+	//
+	// VPC endpoint (if used):
+	// - _acme-challenge.vpce.example.com.   → vpce.$env_name.altinity.cloud.
+	// - vpce.example.com.                   → _.vpce.$env_name.altinity.cloud.
+	// - *.vpce.example.com.                 → _.vpce.$env_name.altinity.cloud.
+	CustomDomains []string `json:"customDomains,omitempty"`
 	// Labels to apply to HCloud resources.
 	Labels []*KeyValueInput `json:"labels,omitempty"`
 	// Encrypted value of HCLOUD_TOKEN
@@ -2474,21 +2720,36 @@ type UpdateK8SEnvSpecInput struct {
 	// List of maintenance windows during which automatic maintenance is permitted.
 	// By default updates are applied as soon as they are available.
 	MaintenanceWindows []*MaintenanceWindowSpecInput `json:"maintenanceWindows,omitempty"`
-	// Custom domain.
+	// Custom domain (deprecated, use customDomains instead).
+	CustomDomain *string `json:"customDomain,omitempty"`
+	// Custom domains for TLS certificates.
+	//
+	// Order is preserved.
 	//
 	// Examples:
-	// - "example.com"
-	// - "foo.bar.com"
+	// - ["example.com"]
+	// - ["example.com", "foo.bar.com"]
 	//
-	// Before specifying custom domain, please create the following DNS records:
-	// - CNAME _acme-challenge.example.com. $env_name.altinity.cloud.
-	// - (optional, public load balancer)
-	// CNAME *.example.com. _.$env_name.altinity.cloud.
-	// - (optional, internal load balancer)
-	// CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
-	// - (optional, vpce)
-	// CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
-	CustomDomain *string `json:"customDomain,omitempty"`
+	// Before specifying custom domains, create the following DNS CNAME records
+	// (replace example.com with your domain):
+	//
+	// Required:
+	// - _acme-challenge.example.com. → $env_name.altinity.cloud.
+	//
+	// Public load balancer (if used):
+	// - example.com.                        → _.$env_name.altinity.cloud.
+	// - *.example.com.                      → _.$env_name.altinity.cloud.
+	//
+	// Internal load balancer (if used):
+	// - _acme-challenge.internal.example.com. → internal.$env_name.altinity.cloud.
+	// - internal.example.com.                 → _.internal.$env_name.altinity.cloud.
+	// - *.internal.example.com.               → _.internal.$env_name.altinity.cloud.
+	//
+	// VPC endpoint (if used):
+	// - _acme-challenge.vpce.example.com.   → vpce.$env_name.altinity.cloud.
+	// - vpce.example.com.                   → _.vpce.$env_name.altinity.cloud.
+	// - *.vpce.example.com.                 → _.vpce.$env_name.altinity.cloud.
+	CustomDomains []string `json:"customDomains,omitempty"`
 	// Metrics endpoint configuration.
 	MetricsEndpoint *MetricsEndpointSpecInput `json:"metricsEndpoint,omitempty"`
 	// Datadog monitoring agent configuration.
