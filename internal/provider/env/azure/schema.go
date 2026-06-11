@@ -38,6 +38,7 @@ func (r *AzureEnvResource) Schema(ctx context.Context, req resource.SchemaReques
 			"tags":                            getTagsAttribute(false, true, false),
 			"private_link_service":            getPrivateLinkServiceAttribute(false, true, true),
 			"metrics_endpoint":                common.GetMetricsEndpointAttribute(false, true, false),
+			"datadog":                         common.GetDatadogAttribute(false, true, false),
 			"spec_revision":                   common.SpecRevisionAttribute,
 			"force_destroy":                   common.GetForceDestroyAttribute(false, true, true),
 			"force_destroy_clusters":          common.GetForceDestroyClustersAttribute(false, true, true),
@@ -71,6 +72,7 @@ func (d *AzureEnvDataSource) Schema(ctx context.Context, req datasource.SchemaRe
 			"tags":                    getTagsAttribute(false, false, true),
 			"private_link_service":    getPrivateLinkServiceAttribute(false, false, true),
 			"metrics_endpoint":        common.GetMetricsEndpointAttribute(false, false, true),
+			"datadog":                 common.GetDatadogAttribute(false, false, true),
 			"spec_revision":           common.SpecRevisionAttribute,
 
 			// these options are not used in data sources,

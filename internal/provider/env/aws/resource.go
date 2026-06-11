@@ -15,6 +15,7 @@ import (
 
 var _ resource.Resource = &AWSEnvResource{}
 var _ resource.ResourceWithImportState = &AWSEnvResource{}
+var _ resource.ResourceWithValidateConfig = &AWSEnvResource{}
 
 func NewAWSEnvResource() resource.Resource {
 	return &AWSEnvResource{}
@@ -26,6 +27,15 @@ type AWSEnvResource struct {
 
 func (r *AWSEnvResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_env_aws"
+}
+
+func (r *AWSEnvResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	var data AWSEnvResourceModel
+	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	resp.Diagnostics.Append(common.ValidateDatadog(data.Datadog)...)
 }
 
 func (r *AWSEnvResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {

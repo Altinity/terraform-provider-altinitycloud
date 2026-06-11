@@ -2271,6 +2271,7 @@ func TestMetricsEndpointToSDK(t *testing.T) {
 func TestMetricsEndpointToModel(t *testing.T) {
 	tests := []struct {
 		name     string
+		existing *AWSEnvMetricsEndpointModel
 		input    *sdk.AWSEnvSpecFragment_MetricsEndpoint
 		expected *AWSEnvMetricsEndpointModel
 	}{
@@ -2278,6 +2279,12 @@ func TestMetricsEndpointToModel(t *testing.T) {
 			name:     "Nil input",
 			input:    nil,
 			expected: nil,
+		},
+		{
+			name:     "Nil input returns existing",
+			existing: &AWSEnvMetricsEndpointModel{Enabled: types.BoolValue(true)},
+			input:    nil,
+			expected: &AWSEnvMetricsEndpointModel{Enabled: types.BoolValue(true)},
 		},
 		{
 			name: "Complete metrics endpoint response",
@@ -2291,7 +2298,16 @@ func TestMetricsEndpointToModel(t *testing.T) {
 			},
 		},
 		{
-			name: "Metrics endpoint disabled with empty source IP ranges",
+			name: "Disabled and unconfigured stays null",
+			input: &sdk.AWSEnvSpecFragment_MetricsEndpoint{
+				Enabled:        false,
+				SourceIPRanges: []string{},
+			},
+			expected: nil,
+		},
+		{
+			name:     "Disabled but previously configured is preserved",
+			existing: &AWSEnvMetricsEndpointModel{Enabled: types.BoolValue(false)},
 			input: &sdk.AWSEnvSpecFragment_MetricsEndpoint{
 				Enabled:        false,
 				SourceIPRanges: []string{},
@@ -2305,7 +2321,7 @@ func TestMetricsEndpointToModel(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := metricsEndpointToModel(tt.input)
+			result := metricsEndpointToModel(tt.existing, tt.input)
 
 			if (tt.expected == nil) != (result == nil) {
 				t.Errorf("Expected nil: %v, got nil: %v", tt.expected == nil, result == nil)

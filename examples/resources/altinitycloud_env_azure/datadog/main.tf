@@ -1,0 +1,80 @@
+resource "altinitycloud_env_certificate" "this" {
+  env_name = "acme-staging"
+}
+
+variable "datadog_api_key" {
+  type      = string
+  sensitive = true
+}
+
+// The Datadog API key is stored encrypted via the secret resource,
+// the same pattern used for the Hetzner Cloud token.
+resource "altinitycloud_env_secret" "datadog" {
+  pem   = altinitycloud_env_certificate.this.pem
+  value = var.datadog_api_key
+}
+
+provider "azurerm" {
+  skip_provider_registration = true
+  features {}
+}
+
+locals {
+  # Replace these values with your own Azure tenant and subscription IDs
+  tenant_id       = "f3c1e3cb-3d92-4315-b98c-0a66676da2e8"
+  subscription_id = "3f919947-3102-4210-82ee-4d2ca69f2a01"
+  zones           = ["eastus-1", "eastus-2"]
+}
+
+data "azuread_service_principal" "altinity_cloud" {
+  # Do not change this client_id
+  client_id = "8ce5881c-ff0f-47f7-b391-931fbac6cd4b"
+}
+
+resource "random_uuid" "azurerm_role_assignment_altinity_cloud" {}
+
+resource "azurerm_role_assignment" "altinity_cloud" {
+  name                 = random_uuid.azurerm_role_assignment_altinity_cloud.id
+  scope                = "/subscriptions/${local.subscription_id}"
+  role_definition_name = "Owner"
+  principal_id         = data.azuread_service_principal.altinity_cloud.object_id
+}
+
+resource "altinitycloud_env_azure" "this" {
+  name            = altinitycloud_env_certificate.this.env_name
+  cidr            = "10.136.0.0/21"
+  region          = "eastus"
+  zones           = local.zones
+  tenant_id       = local.tenant_id
+  subscription_id = local.subscription_id
+
+  load_balancers = {
+    public = {
+      enabled          = true
+      source_ip_ranges = ["0.0.0.0/0"]
+    }
+  }
+
+  node_groups = [{
+    node_type         = "Standard_B2s_v2"
+    capacity_per_zone = 3
+    zones             = local.zones
+    reservations      = ["CLICKHOUSE", "ZOOKEEPER", "SYSTEM"]
+  }]
+
+  datadog = {
+    enabled         = true
+    enc_api_key     = altinitycloud_env_secret.datadog.secret_value
+    domain          = "datadoghq.com"
+    logs_enabled    = true
+    metrics_enabled = true
+  }
+}
+
+// ⚠️ Environment provisioning is asynchronous.
+// Without this data source, Terraform cannot detect provisioning failures.
+// This data source waits until the environment is fully reconciled and reports errors.
+data "altinitycloud_env_azure_status" "this" {
+  name                           = altinitycloud_env_azure.this.name
+  wait_for_applied_spec_revision = altinitycloud_env_azure.this.spec_revision
+}

@@ -99,4 +99,10 @@ fragment AzureEnvSpecFragment on AzureEnvSpec {
     enabled
     sourceIPRanges
   }
+  datadog {
+    enabled
+    domain
+    logsEnabled
+    metricsEnabled
+  }
 }

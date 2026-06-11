@@ -20,6 +20,14 @@ type NodeGroupsModel struct {
 	Reservations    types.Set    `tfsdk:"reservations"`
 }
 
+type DatadogModel struct {
+	Enabled        types.Bool   `tfsdk:"enabled"`
+	EncAPIKey      types.String `tfsdk:"enc_api_key"`
+	Domain         types.String `tfsdk:"domain"`
+	LogsEnabled    types.Bool   `tfsdk:"logs_enabled"`
+	MetricsEnabled types.Bool   `tfsdk:"metrics_enabled"`
+}
+
 type MaintenanceWindowModel struct {
 	Name          types.String   `tfsdk:"name"`
 	Enabled       types.Bool     `tfsdk:"enabled"`
