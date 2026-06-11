@@ -33,20 +33,19 @@ Bring Your Own Cloud (BYOC) Azure environment data source.
 		Examples:
 		- "10.136.0.0/21"
 		- "172.20.0.0/21"
-- `custom_domain` (String) Custom domain.
+- `custom_domain` (String, Deprecated) Deprecated. Use `custom_domains` instead.
+- `custom_domains` (List of String) Custom domains.
 
 		Examples:
 		- "example.com"
 		- "foo.bar.com"
 
-		Before specifying custom domain, please create the following DNS records:
-		- CNAME _acme-challenge.example.com. $env_name.altinity.cloud.
-		- (optional, public load balancer)
-			CNAME *.example.com. _.$env_name.altinity.cloud.
-		- (optional, internal load balancer)
-			CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
-		- (optional, privatelink)
-			CNAME *.privatelink.example.com. _.privatelink.$env_name.altinity.cloud.
+		For each custom domain you specify, please create the following DNS records:
+		`CNAME _acme-challenge.<custom_domain>. $env_name.altinity.cloud.`
+
+		E.g. for the above examples your records should be:
+		- `CNAME _acme-challenge.example.com. $env_name.altinity.cloud.`
+		- `CNAME _acme-challenge.foo.bar.com. $env_name.altinity.cloud.`
 - `datadog` (Attributes) Datadog agent configuration. (see [below for nested schema](#nestedatt--datadog))
 - `force_destroy` (Boolean) Locks the environment for accidental deletion when running `terraform destroy` command. Your environment will be deleted, only when setting this parameter to `true`. Once this parameter is set to `true`, there must be a successful `terraform apply` run (before running the `terraform destroy`) to update this value in the state. Without a successful `terraform apply` after this parameter is set, this flag will have no effect. (default `false`)
 - `force_destroy_clusters` (Boolean) By default, the destroy operation will not delete any provisioned clusters and the deletion will fail until the clusters get removed. Set to `true` to remove all provisioned clusters as part of the environment deletion process.
