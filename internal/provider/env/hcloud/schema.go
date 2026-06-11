@@ -30,7 +30,7 @@ func (r *HCloudEnvResource) Schema(ctx context.Context, req resource.SchemaReque
 			"name":                            common.NameAttribute,
 			"hcloud_token_enc":                getHCloudTokenEncAttribute(true, false, false),
 			"custom_domain":                   common.GetCommonCustomDomainAttribute(false, true, false),
-			"custom_domains":                  common.GetCommonCustomDomainsAttribute(false, true, true),
+			"custom_domains":                  common.GetCommonCustomDomainsAttribute(false, true, false),
 			"load_balancers":                  getLoadBalancersAttribute(false, true, true),
 			"load_balancing_strategy":         common.GetLoadBalancingStrategyAttribute(false, true, true),
 			"maintenance_windows":             common.GetMaintenanceWindowAttribute(false, true, false),

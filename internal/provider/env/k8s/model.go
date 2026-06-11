@@ -151,9 +151,9 @@ func (model *K8SEnvResourceModel) toModel(name string, specRevision int64, spec 
 	var allDiags diag.Diagnostics
 
 	model.Name = types.StringValue(name)
-	model.CustomDomain = types.StringPointerValue(spec.CustomDomain)
-	customDomains, diags := common.ListToModel(spec.CustomDomains)
+	customDomain, customDomains, diags := common.CustomDomainsToModel(model.CustomDomains, spec.CustomDomain, spec.CustomDomains)
 	allDiags.Append(diags...)
+	model.CustomDomain = customDomain
 	model.CustomDomains = customDomains
 	model.LoadBalancingStrategy = types.StringValue(string(spec.LoadBalancingStrategy))
 	model.CustomNodeTypes = nodeTypesToModel(spec.CustomNodeTypes)

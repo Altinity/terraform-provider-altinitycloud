@@ -135,9 +135,9 @@ func (model *HCloudEnvResourceModel) toModel(env client.GetHCloudEnv_HcloudEnv) 
 
 	model.Name = types.StringValue(env.Name)
 	model.NetworkZone = types.StringValue(env.Spec.NetworkZone)
-	model.CustomDomain = types.StringPointerValue(env.Spec.CustomDomain)
-	customDomains, diags := common.ListToModel(env.Spec.CustomDomains)
+	customDomain, customDomains, diags := common.CustomDomainsToModel(model.CustomDomains, env.Spec.CustomDomain, env.Spec.CustomDomains)
 	allDiags.Append(diags...)
+	model.CustomDomain = customDomain
 	model.CustomDomains = customDomains
 	model.CIDR = types.StringValue(env.Spec.Cidr)
 	model.LoadBalancingStrategy = types.StringValue(string(env.Spec.LoadBalancingStrategy))

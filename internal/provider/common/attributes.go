@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	rschema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -42,6 +43,7 @@ func GetCustomDomainAttribute(required, optional, computed bool, description str
 				DomainRegex,
 				"invalid domain format",
 			),
+			stringvalidator.ConflictsWith(path.MatchRoot("custom_domains")),
 		},
 	}
 }
@@ -61,6 +63,7 @@ func GetCustomDomainsAttribute(required, optional, computed bool, description st
 					"invalid domain format",
 				),
 			),
+			listvalidator.ConflictsWith(path.MatchRoot("custom_domain")),
 		},
 	}
 }

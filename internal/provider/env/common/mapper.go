@@ -30,25 +30,51 @@ func ListToModel(input []string) (types.List, diag.Diagnostics) {
 	return list, diags
 }
 
+// CustomDomainsToSDK resolves the deprecated custom_domain and the custom_domains
+// list into SDK inputs. They are mutually exclusive at config level (enforced by a
+// ConflictsWith validator), so prefer the list when set and fall back to the
+// deprecated scalar otherwise. Both are unknown-safe (treated as "not set").
 func CustomDomainsToSDK(ctx context.Context, customDomain types.String, customDomains types.List) (*string, []string, diag.Diagnostics) {
 	var allDiags diag.Diagnostics
 
 	if !customDomains.IsUnknown() && !customDomains.IsNull() {
 		var domains []string
-		diags := customDomains.ElementsAs(ctx, &domains, false)
-		allDiags.Append(diags...)
-
-		if !customDomain.IsUnknown() && !customDomain.IsNull() && len(domains) > 0 && customDomain.ValueString() != domains[0] {
-			allDiags.AddError(
-				"Invalid custom domain configuration",
-				"custom_domain must match custom_domains[0] when both attributes are configured.",
-			)
-		}
-
+		allDiags.Append(customDomains.ElementsAs(ctx, &domains, false)...)
 		return nil, domains, allDiags
 	}
 
+	if customDomain.IsUnknown() || customDomain.IsNull() {
+		return nil, nil, allDiags
+	}
+
 	return customDomain.ValueStringPointer(), nil, allDiags
+}
+
+// CustomDomainsToModel maps the API response back to the two mutually-exclusive
+// model fields for a resource Read. It is driven by prior state (priorCustomDomains):
+// if the user manages domains via the list, refresh the list and keep the deprecated
+// scalar null; otherwise mirror the deprecated scalar and keep the list null. This
+// avoids the API's customDomains[0] echo flipping a list-managed resource into a
+// permanent diff on the deprecated attribute. Data sources expose both fields
+// directly and must not use this helper.
+func CustomDomainsToModel(priorCustomDomains types.List, specCustomDomain *string, specCustomDomains []string) (types.String, types.List, diag.Diagnostics) {
+	var diags diag.Diagnostics
+
+	if !priorCustomDomains.IsNull() {
+		list, d := ListToModel(specCustomDomains)
+		diags.Append(d...)
+		return types.StringNull(), list, diags
+	}
+
+	return types.StringPointerValue(specCustomDomain), types.ListNull(types.StringType), diags
+}
+
+// DataSourceCustomDomainsToModel populates both the deprecated custom_domain and the
+// custom_domains list from the API response. Data sources are read-only and have no
+// "user intent" to preserve, so they expose the actual values of both attributes.
+func DataSourceCustomDomainsToModel(specCustomDomain *string, specCustomDomains []string) (types.String, types.List, diag.Diagnostics) {
+	list, diags := ListToModel(specCustomDomains)
+	return types.StringPointerValue(specCustomDomain), list, diags
 }
 
 func ReservationsToModel(input []client.NodeReservation) (types.Set, diag.Diagnostics) {

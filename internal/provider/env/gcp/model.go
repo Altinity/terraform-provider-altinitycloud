@@ -150,9 +150,9 @@ func (model *GCPEnvResourceModel) toModel(env sdk.GetGCPEnv_GCPEnv) diag.Diagnos
 	var allDiags diag.Diagnostics
 	model.Name = types.StringValue(env.Name)
 	model.Region = types.StringValue(env.Spec.Region)
-	model.CustomDomain = types.StringPointerValue(env.Spec.CustomDomain)
-	customDomains, diags := common.ListToModel(env.Spec.CustomDomains)
+	customDomain, customDomains, diags := common.CustomDomainsToModel(model.CustomDomains, env.Spec.CustomDomain, env.Spec.CustomDomains)
 	allDiags.Append(diags...)
+	model.CustomDomain = customDomain
 	model.CustomDomains = customDomains
 	model.CIDR = types.StringValue(env.Spec.Cidr)
 	model.GCPProjectID = types.StringValue(env.Spec.GCPProjectID)

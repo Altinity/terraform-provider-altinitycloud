@@ -232,9 +232,9 @@ func (model *AWSEnvResourceModel) toModel(env sdk.GetAWSEnv_AWSEnv) diag.Diagnos
 	model.Region = types.StringValue(env.Spec.Region)
 	model.NAT = types.BoolValue(env.Spec.Nat)
 	model.AWSAccountID = types.StringValue(env.Spec.AWSAccountID)
-	model.CustomDomain = types.StringPointerValue(env.Spec.CustomDomain)
-	customDomains, diags := common.ListToModel(env.Spec.CustomDomains)
+	customDomain, customDomains, diags := common.CustomDomainsToModel(model.CustomDomains, env.Spec.CustomDomain, env.Spec.CustomDomains)
 	allDiags.Append(diags...)
+	model.CustomDomain = customDomain
 	model.CustomDomains = customDomains
 	model.LoadBalancingStrategy = types.StringValue(string(env.Spec.LoadBalancingStrategy))
 	model.LoadBalancers = loadBalancersToModel(env.Spec.LoadBalancers)

@@ -26,7 +26,7 @@ func (r *AzureEnvResource) Schema(ctx context.Context, req resource.SchemaReques
 			"id":                              common.IDAttribute,
 			"name":                            common.NameAttribute,
 			"custom_domain":                   getCustomDomainAttribute(false, true, false),
-			"custom_domains":                  getCustomDomainsAttribute(false, true, true),
+			"custom_domains":                  getCustomDomainsAttribute(false, true, false),
 			"load_balancers":                  getLoadBalancersAttribute(false, true, true),
 			"load_balancing_strategy":         common.GetLoadBalancingStrategyAttribute(false, true, true),
 			"maintenance_windows":             common.GetMaintenanceWindowAttribute(false, true, false),
