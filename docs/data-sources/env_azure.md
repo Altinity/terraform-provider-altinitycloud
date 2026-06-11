@@ -33,7 +33,7 @@ Bring Your Own Cloud (BYOC) Azure environment data source.
 		Examples:
 		- "10.136.0.0/21"
 		- "172.20.0.0/21"
-- `custom_domain` (String) Deprecated. Use `custom_domains` instead.
+- `custom_domain` (String, Deprecated) Deprecated. Use `custom_domains` instead.
 - `custom_domains` (List of String) Custom domains.
 
 		Examples:

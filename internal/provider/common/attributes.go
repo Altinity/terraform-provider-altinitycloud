@@ -38,6 +38,7 @@ func GetCustomDomainAttribute(required, optional, computed bool, description str
 		Optional:            optional,
 		Computed:            computed,
 		MarkdownDescription: description,
+		DeprecationMessage:  "Use `custom_domains` instead.",
 		Validators: []validator.String{
 			stringvalidator.RegexMatches(
 				DomainRegex,

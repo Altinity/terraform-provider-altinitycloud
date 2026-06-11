@@ -196,7 +196,7 @@ data "altinitycloud_env_gcp_status" "this" {
 ### Optional
 
 - `allow_delete_while_disconnected` (Boolean) Set to `true` to allow deletion of the environment while it is disconnected from the cloud connect. If the the environment is not connected during the deletion process you will end up in a delete timeout (default `false`).
-- `custom_domain` (String) Deprecated. Use `custom_domains` instead.
+- `custom_domain` (String, Deprecated) Deprecated. Use `custom_domains` instead.
 - `custom_domains` (List of String) Custom domains.
 
 		Examples:
@@ -477,7 +477,7 @@ data "altinitycloud_env_gcp_status" "this" {
 ### Optional
 
 - `allow_delete_while_disconnected` (Boolean) Set to `true` to allow deletion of the environment while it is disconnected from the cloud connect. If the the environment is not connected during the deletion process you will end up in a delete timeout (default `false`).
-- `custom_domain` (String) Deprecated. Use `custom_domains` instead.
+- `custom_domain` (String, Deprecated) Deprecated. Use `custom_domains` instead.
 - `custom_domains` (List of String) Custom domains.
 
 		Examples:

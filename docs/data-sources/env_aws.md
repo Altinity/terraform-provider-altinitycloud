@@ -40,7 +40,7 @@ Bring Your Own Cloud (BYOC) AWS environment data source.
 		- "10.136.0.0/21"
 		- "172.20.0.0/21"
 - `cloud_connect` (Boolean) `true` indicates that cloud resources are to be managed via altinity/cloud-connect and `false` means direct management (default `true`). **[IMMUTABLE]**
-- `custom_domain` (String) Deprecated. Use `custom_domains` instead.
+- `custom_domain` (String, Deprecated) Deprecated. Use `custom_domains` instead.
 - `custom_domains` (List of String) Custom domains.
 
 		Examples:

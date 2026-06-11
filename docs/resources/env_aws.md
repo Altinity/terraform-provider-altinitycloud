@@ -484,7 +484,7 @@ data "altinitycloud_env_aws_status" "this" {
 - `allow_delete_while_disconnected` (Boolean) Set to `true` to allow deletion of the environment while it is disconnected from the cloud connect. If the the environment is not connected during the deletion process you will end up in a delete timeout (default `false`).
 - `backups` (Attributes) Configuration for backup storage (see [below for nested schema](#nestedatt--backups))
 - `cloud_connect` (Boolean) `true` indicates that cloud resources are to be managed via altinity/cloud-connect and `false` means direct management (default `true`). **[IMMUTABLE]**
-- `custom_domain` (String) Deprecated. Use `custom_domains` instead.
+- `custom_domain` (String, Deprecated) Deprecated. Use `custom_domains` instead.
 - `custom_domains` (List of String) Custom domains.
 
 		Examples:
