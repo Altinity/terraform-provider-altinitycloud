@@ -72,6 +72,7 @@ fragment K8SEnvSpecFragment on K8SEnvSpec {
   loadBalancingStrategy
   distribution
   customDomain
+  customDomains
   nodeGroups {
     name
     nodeType

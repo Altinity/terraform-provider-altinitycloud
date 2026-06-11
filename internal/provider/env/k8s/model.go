@@ -14,6 +14,7 @@ type K8SEnvResourceModel struct {
 	Id                    types.String                    `tfsdk:"id"`
 	Name                  types.String                    `tfsdk:"name"`
 	CustomDomain          types.String                    `tfsdk:"custom_domain"`
+	CustomDomains         types.List                      `tfsdk:"custom_domains"`
 	LoadBalancers         *LoadBalancersModel             `tfsdk:"load_balancers"`
 	LoadBalancingStrategy types.String                    `tfsdk:"load_balancing_strategy"`
 	Distribution          types.String                    `tfsdk:"distribution"`
@@ -105,12 +106,15 @@ func (e K8SEnvResourceModel) toSDK(ctx context.Context) (client.CreateK8SEnvInpu
 	loadBalancingStrategy := (*client.LoadBalancingStrategy)(e.LoadBalancingStrategy.ValueStringPointer())
 	metrics := metricsToSDK(e.Metrics)
 	distribution := client.K8SDistribution(e.Distribution.ValueString())
+	customDomain, customDomains, diags := common.CustomDomainsToSDK(ctx, e.CustomDomain, e.CustomDomains)
+	allDiags.Append(diags...)
 
 	create := client.CreateK8SEnvInput{
 		Name: e.Name.ValueString(),
 		Spec: &client.CreateK8SEnvSpecInput{
 			Distribution:          distribution,
-			CustomDomain:          e.CustomDomain.ValueStringPointer(),
+			CustomDomain:          customDomain,
+			CustomDomains:         customDomains,
 			LoadBalancingStrategy: loadBalancingStrategy,
 			LoadBalancers:         loadBalancers,
 			NodeGroups:            nodeGroups,
@@ -127,7 +131,8 @@ func (e K8SEnvResourceModel) toSDK(ctx context.Context) (client.CreateK8SEnvInpu
 		Name:           e.Name.ValueString(),
 		UpdateStrategy: &strategy,
 		Spec: &client.UpdateK8SEnvSpecInput{
-			CustomDomain:          e.CustomDomain.ValueStringPointer(),
+			CustomDomain:          customDomain,
+			CustomDomains:         customDomains,
 			LoadBalancingStrategy: loadBalancingStrategy,
 			LoadBalancers:         loadBalancers,
 			NodeGroups:            nodeGroups,
@@ -147,6 +152,9 @@ func (model *K8SEnvResourceModel) toModel(name string, specRevision int64, spec 
 
 	model.Name = types.StringValue(name)
 	model.CustomDomain = types.StringPointerValue(spec.CustomDomain)
+	customDomains, diags := common.ListToModel(spec.CustomDomains)
+	allDiags.Append(diags...)
+	model.CustomDomains = customDomains
 	model.LoadBalancingStrategy = types.StringValue(string(spec.LoadBalancingStrategy))
 	model.CustomNodeTypes = nodeTypesToModel(spec.CustomNodeTypes)
 	nodeGroups, diags := nodeGroupsToModel(spec.NodeGroups)

@@ -14,6 +14,7 @@ type AWSEnvResourceModel struct {
 	Id                           types.String                    `tfsdk:"id"`
 	Name                         types.String                    `tfsdk:"name"`
 	CustomDomain                 types.String                    `tfsdk:"custom_domain"`
+	CustomDomains                types.List                      `tfsdk:"custom_domains"`
 	LoadBalancingStrategy        types.String                    `tfsdk:"load_balancing_strategy"`
 	Region                       types.String                    `tfsdk:"region"`
 	PermissionsBoundaryPolicyArn types.String                    `tfsdk:"permissions_boundary_policy_arn"`
@@ -165,11 +166,14 @@ func (e AWSEnvResourceModel) toSDK(ctx context.Context) (sdk.CreateAWSEnvInput, 
 
 	iceberg := icebergToSDK(e.Iceberg)
 	metricsEndpoint := metricsEndpointToSDK(e.MetricsEndpoint)
+	customDomain, customDomains, diags := common.CustomDomainsToSDK(ctx, e.CustomDomain, e.CustomDomains)
+	allDiags.Append(diags...)
 
 	create := sdk.CreateAWSEnvInput{
 		Name: e.Name.ValueString(),
 		Spec: &sdk.CreateAWSEnvSpecInput{
-			CustomDomain:                 e.CustomDomain.ValueStringPointer(),
+			CustomDomain:                 customDomain,
+			CustomDomains:                customDomains,
 			LoadBalancingStrategy:        loadBalancingStrategy,
 			LoadBalancers:                LoadBalancers,
 			NodeGroups:                   nodeGroups,
@@ -200,7 +204,8 @@ func (e AWSEnvResourceModel) toSDK(ctx context.Context) (sdk.CreateAWSEnvInput, 
 		Name:           e.Name.ValueString(),
 		UpdateStrategy: &strategy,
 		Spec: &sdk.AWSEnvUpdateSpecInput{
-			CustomDomain:          e.CustomDomain.ValueStringPointer(),
+			CustomDomain:          customDomain,
+			CustomDomains:         customDomains,
 			LoadBalancingStrategy: loadBalancingStrategy,
 			LoadBalancers:         LoadBalancers,
 			NodeGroups:            nodeGroups,
@@ -228,6 +233,9 @@ func (model *AWSEnvResourceModel) toModel(env sdk.GetAWSEnv_AWSEnv) diag.Diagnos
 	model.NAT = types.BoolValue(env.Spec.Nat)
 	model.AWSAccountID = types.StringValue(env.Spec.AWSAccountID)
 	model.CustomDomain = types.StringPointerValue(env.Spec.CustomDomain)
+	customDomains, diags := common.ListToModel(env.Spec.CustomDomains)
+	allDiags.Append(diags...)
+	model.CustomDomains = customDomains
 	model.LoadBalancingStrategy = types.StringValue(string(env.Spec.LoadBalancingStrategy))
 	model.LoadBalancers = loadBalancersToModel(env.Spec.LoadBalancers)
 	nodeGroups, diags := nodeGroupsToModel(env.Spec.NodeGroups)

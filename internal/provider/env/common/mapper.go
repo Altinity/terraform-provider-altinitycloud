@@ -1,6 +1,8 @@
 package env
 
 import (
+	"context"
+
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/client"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -26,6 +28,27 @@ func ListToModel(input []string) (types.List, diag.Diagnostics) {
 
 	list, diags := types.ListValue(types.StringType, zones)
 	return list, diags
+}
+
+func CustomDomainsToSDK(ctx context.Context, customDomain types.String, customDomains types.List) (*string, []string, diag.Diagnostics) {
+	var allDiags diag.Diagnostics
+
+	if !customDomains.IsUnknown() && !customDomains.IsNull() {
+		var domains []string
+		diags := customDomains.ElementsAs(ctx, &domains, false)
+		allDiags.Append(diags...)
+
+		if !customDomain.IsUnknown() && !customDomain.IsNull() && len(domains) > 0 && customDomain.ValueString() != domains[0] {
+			allDiags.AddError(
+				"Invalid custom domain configuration",
+				"custom_domain must match custom_domains[0] when both attributes are configured.",
+			)
+		}
+
+		return nil, domains, allDiags
+	}
+
+	return customDomain.ValueStringPointer(), nil, allDiags
 }
 
 func ReservationsToModel(input []client.NodeReservation) (types.Set, diag.Diagnostics) {

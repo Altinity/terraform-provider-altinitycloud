@@ -27,6 +27,10 @@ func GetCommonCustomDomainAttribute(required, optional, computed bool) rschema.S
 	return GetCustomDomainAttribute(required, optional, computed, CUSTOM_DOMAIN_DESCRIPTION)
 }
 
+func GetCommonCustomDomainsAttribute(required, optional, computed bool) rschema.ListAttribute {
+	return GetCustomDomainsAttribute(required, optional, computed, CUSTOM_DOMAINS_DESCRIPTION)
+}
+
 func GetCustomDomainAttribute(required, optional, computed bool, description string) rschema.StringAttribute {
 	return rschema.StringAttribute{
 		Required:            required,
@@ -37,6 +41,25 @@ func GetCustomDomainAttribute(required, optional, computed bool, description str
 			stringvalidator.RegexMatches(
 				DomainRegex,
 				"invalid domain format",
+			),
+		},
+	}
+}
+
+func GetCustomDomainsAttribute(required, optional, computed bool, description string) rschema.ListAttribute {
+	return rschema.ListAttribute{
+		ElementType:         types.StringType,
+		Required:            required,
+		Optional:            optional,
+		Computed:            computed,
+		MarkdownDescription: description,
+		Validators: []validator.List{
+			listvalidator.SizeAtLeast(1),
+			listvalidator.ValueStringsAre(
+				stringvalidator.RegexMatches(
+					DomainRegex,
+					"invalid domain format",
+				),
 			),
 		},
 	}

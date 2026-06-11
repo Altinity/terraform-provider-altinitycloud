@@ -20,6 +20,7 @@ type AWSEnvSpecFragment struct {
 	LoadBalancers                AWSEnvSpecFragment_LoadBalancers         "json:\"loadBalancers\" graphql:\"loadBalancers\""
 	LoadBalancingStrategy        LoadBalancingStrategy                    "json:\"loadBalancingStrategy\" graphql:\"loadBalancingStrategy\""
 	CustomDomain                 *string                                  "json:\"customDomain,omitempty\" graphql:\"customDomain\""
+	CustomDomains                []string                                 "json:\"customDomains\" graphql:\"customDomains\""
 	NodeGroups                   []*AWSEnvSpecFragment_NodeGroups         "json:\"nodeGroups\" graphql:\"nodeGroups\""
 	MaintenanceWindows           []*AWSEnvSpecFragment_MaintenanceWindows "json:\"maintenanceWindows\" graphql:\"maintenanceWindows\""
 	Region                       string                                   "json:\"region\" graphql:\"region\""
@@ -57,6 +58,12 @@ func (t *AWSEnvSpecFragment) GetCustomDomain() *string {
 		t = &AWSEnvSpecFragment{}
 	}
 	return t.CustomDomain
+}
+func (t *AWSEnvSpecFragment) GetCustomDomains() []string {
+	if t == nil {
+		t = &AWSEnvSpecFragment{}
+	}
+	return t.CustomDomains
 }
 func (t *AWSEnvSpecFragment) GetNodeGroups() []*AWSEnvSpecFragment_NodeGroups {
 	if t == nil {
@@ -171,6 +178,7 @@ type AzureEnvSpecFragment struct {
 	LoadBalancers         AzureEnvSpecFragment_LoadBalancers         "json:\"loadBalancers\" graphql:\"loadBalancers\""
 	LoadBalancingStrategy LoadBalancingStrategy                      "json:\"loadBalancingStrategy\" graphql:\"loadBalancingStrategy\""
 	CustomDomain          *string                                    "json:\"customDomain,omitempty\" graphql:\"customDomain\""
+	CustomDomains         []string                                   "json:\"customDomains\" graphql:\"customDomains\""
 	NodeGroups            []*AzureEnvSpecFragment_NodeGroups         "json:\"nodeGroups\" graphql:\"nodeGroups\""
 	MaintenanceWindows    []*AzureEnvSpecFragment_MaintenanceWindows "json:\"maintenanceWindows\" graphql:\"maintenanceWindows\""
 	Tags                  []*AzureEnvSpecFragment_Tags               "json:\"tags\" graphql:\"tags\""
@@ -201,6 +209,12 @@ func (t *AzureEnvSpecFragment) GetCustomDomain() *string {
 		t = &AzureEnvSpecFragment{}
 	}
 	return t.CustomDomain
+}
+func (t *AzureEnvSpecFragment) GetCustomDomains() []string {
+	if t == nil {
+		t = &AzureEnvSpecFragment{}
+	}
+	return t.CustomDomains
 }
 func (t *AzureEnvSpecFragment) GetNodeGroups() []*AzureEnvSpecFragment_NodeGroups {
 	if t == nil {
@@ -273,6 +287,7 @@ type GCPEnvSpecFragment struct {
 	LoadBalancers           GCPEnvSpecFragment_LoadBalancers         "json:\"loadBalancers\" graphql:\"loadBalancers\""
 	LoadBalancingStrategy   LoadBalancingStrategy                    "json:\"loadBalancingStrategy\" graphql:\"loadBalancingStrategy\""
 	CustomDomain            *string                                  "json:\"customDomain,omitempty\" graphql:\"customDomain\""
+	CustomDomains           []string                                 "json:\"customDomains\" graphql:\"customDomains\""
 	NodeGroups              []*GCPEnvSpecFragment_NodeGroups         "json:\"nodeGroups\" graphql:\"nodeGroups\""
 	MaintenanceWindows      []*GCPEnvSpecFragment_MaintenanceWindows "json:\"maintenanceWindows\" graphql:\"maintenanceWindows\""
 	PeeringConnections      []*GCPEnvSpecFragment_PeeringConnections "json:\"peeringConnections\" graphql:\"peeringConnections\""
@@ -303,6 +318,12 @@ func (t *GCPEnvSpecFragment) GetCustomDomain() *string {
 		t = &GCPEnvSpecFragment{}
 	}
 	return t.CustomDomain
+}
+func (t *GCPEnvSpecFragment) GetCustomDomains() []string {
+	if t == nil {
+		t = &GCPEnvSpecFragment{}
+	}
+	return t.CustomDomains
 }
 func (t *GCPEnvSpecFragment) GetNodeGroups() []*GCPEnvSpecFragment_NodeGroups {
 	if t == nil {
@@ -375,6 +396,7 @@ type HCloudEnvSpecFragment struct {
 	LoadBalancers         HCloudEnvSpecFragment_LoadBalancers         "json:\"loadBalancers\" graphql:\"loadBalancers\""
 	LoadBalancingStrategy LoadBalancingStrategy                       "json:\"loadBalancingStrategy\" graphql:\"loadBalancingStrategy\""
 	CustomDomain          *string                                     "json:\"customDomain,omitempty\" graphql:\"customDomain\""
+	CustomDomains         []string                                    "json:\"customDomains\" graphql:\"customDomains\""
 	NodeGroups            []*HCloudEnvSpecFragment_NodeGroups         "json:\"nodeGroups\" graphql:\"nodeGroups\""
 	MaintenanceWindows    []*HCloudEnvSpecFragment_MaintenanceWindows "json:\"maintenanceWindows\" graphql:\"maintenanceWindows\""
 	NetworkZone           string                                      "json:\"networkZone\" graphql:\"networkZone\""
@@ -402,6 +424,12 @@ func (t *HCloudEnvSpecFragment) GetCustomDomain() *string {
 		t = &HCloudEnvSpecFragment{}
 	}
 	return t.CustomDomain
+}
+func (t *HCloudEnvSpecFragment) GetCustomDomains() []string {
+	if t == nil {
+		t = &HCloudEnvSpecFragment{}
+	}
+	return t.CustomDomains
 }
 func (t *HCloudEnvSpecFragment) GetNodeGroups() []*HCloudEnvSpecFragment_NodeGroups {
 	if t == nil {
@@ -457,6 +485,7 @@ type K8SEnvSpecFragment struct {
 	LoadBalancingStrategy LoadBalancingStrategy                    "json:\"loadBalancingStrategy\" graphql:\"loadBalancingStrategy\""
 	Distribution          K8SDistribution                          "json:\"distribution\" graphql:\"distribution\""
 	CustomDomain          *string                                  "json:\"customDomain,omitempty\" graphql:\"customDomain\""
+	CustomDomains         []string                                 "json:\"customDomains\" graphql:\"customDomains\""
 	NodeGroups            []*K8SEnvSpecFragment_NodeGroups         "json:\"nodeGroups\" graphql:\"nodeGroups\""
 	CustomNodeTypes       []*K8SEnvSpecFragment_CustomNodeTypes    "json:\"customNodeTypes\" graphql:\"customNodeTypes\""
 	MaintenanceWindows    []*K8SEnvSpecFragment_MaintenanceWindows "json:\"maintenanceWindows\" graphql:\"maintenanceWindows\""
@@ -487,6 +516,12 @@ func (t *K8SEnvSpecFragment) GetCustomDomain() *string {
 		t = &K8SEnvSpecFragment{}
 	}
 	return t.CustomDomain
+}
+func (t *K8SEnvSpecFragment) GetCustomDomains() []string {
+	if t == nil {
+		t = &K8SEnvSpecFragment{}
+	}
+	return t.CustomDomains
 }
 func (t *K8SEnvSpecFragment) GetNodeGroups() []*K8SEnvSpecFragment_NodeGroups {
 	if t == nil {
@@ -6776,6 +6811,7 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 	}
 	loadBalancingStrategy
 	customDomain
+	customDomains
 	nodeGroups {
 		name
 		nodeType
@@ -6935,6 +6971,7 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 	}
 	loadBalancingStrategy
 	customDomain
+	customDomains
 	nodeGroups {
 		name
 		nodeType
@@ -7047,6 +7084,7 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 	}
 	loadBalancingStrategy
 	customDomain
+	customDomains
 	nodeGroups {
 		name
 		nodeType
@@ -7180,6 +7218,7 @@ fragment AzureEnvSpecFragment on AzureEnvSpec {
 	}
 	loadBalancingStrategy
 	customDomain
+	customDomains
 	nodeGroups {
 		name
 		nodeType
@@ -7291,6 +7330,7 @@ fragment AzureEnvSpecFragment on AzureEnvSpec {
 	}
 	loadBalancingStrategy
 	customDomain
+	customDomains
 	nodeGroups {
 		name
 		nodeType
@@ -7364,6 +7404,7 @@ fragment AzureEnvSpecFragment on AzureEnvSpec {
 	}
 	loadBalancingStrategy
 	customDomain
+	customDomains
 	nodeGroups {
 		name
 		nodeType
@@ -7462,6 +7503,7 @@ fragment GCPEnvSpecFragment on GCPEnvSpec {
 	}
 	loadBalancingStrategy
 	customDomain
+	customDomains
 	nodeGroups {
 		name
 		nodeType
@@ -7569,6 +7611,7 @@ fragment GCPEnvSpecFragment on GCPEnvSpec {
 	}
 	loadBalancingStrategy
 	customDomain
+	customDomains
 	nodeGroups {
 		name
 		nodeType
@@ -7643,6 +7686,7 @@ fragment GCPEnvSpecFragment on GCPEnvSpec {
 	}
 	loadBalancingStrategy
 	customDomain
+	customDomains
 	nodeGroups {
 		name
 		nodeType
@@ -7742,6 +7786,7 @@ fragment HCloudEnvSpecFragment on HCloudEnvSpec {
 	}
 	loadBalancingStrategy
 	customDomain
+	customDomains
 	nodeGroups {
 		name
 		nodeType
@@ -7844,6 +7889,7 @@ fragment HCloudEnvSpecFragment on HCloudEnvSpec {
 	}
 	loadBalancingStrategy
 	customDomain
+	customDomains
 	nodeGroups {
 		name
 		nodeType
@@ -7913,6 +7959,7 @@ fragment HCloudEnvSpecFragment on HCloudEnvSpec {
 	}
 	loadBalancingStrategy
 	customDomain
+	customDomains
 	nodeGroups {
 		name
 		nodeType
@@ -8016,6 +8063,7 @@ fragment K8SEnvSpecFragment on K8SEnvSpec {
 	loadBalancingStrategy
 	distribution
 	customDomain
+	customDomains
 	nodeGroups {
 		name
 		nodeType
@@ -8143,6 +8191,7 @@ fragment K8SEnvSpecFragment on K8SEnvSpec {
 	loadBalancingStrategy
 	distribution
 	customDomain
+	customDomains
 	nodeGroups {
 		name
 		nodeType
@@ -8237,6 +8286,7 @@ fragment K8SEnvSpecFragment on K8SEnvSpec {
 	loadBalancingStrategy
 	distribution
 	customDomain
+	customDomains
 	nodeGroups {
 		name
 		nodeType

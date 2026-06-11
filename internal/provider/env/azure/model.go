@@ -14,6 +14,7 @@ type AzureEnvResourceModel struct {
 	Id                    types.String                    `tfsdk:"id"`
 	Name                  types.String                    `tfsdk:"name"`
 	CustomDomain          types.String                    `tfsdk:"custom_domain"`
+	CustomDomains         types.List                      `tfsdk:"custom_domains"`
 	NodeGroups            []common.NodeGroupsModel        `tfsdk:"node_groups"`
 	Region                types.String                    `tfsdk:"region"`
 	CIDR                  types.String                    `tfsdk:"cidr"`
@@ -74,6 +75,8 @@ func (e AzureEnvResourceModel) toSDK(ctx context.Context) (client.CreateAzureEnv
 	loadBalancingStrategy := (*client.LoadBalancingStrategy)(e.LoadBalancingStrategy.ValueStringPointer())
 	metricsEndpoint := metricsEndpointToSDK(e.MetricsEndpoint)
 	cloudConnect := false
+	customDomain, customDomains, diags := common.CustomDomainsToSDK(ctx, e.CustomDomain, e.CustomDomains)
+	allDiags.Append(diags...)
 
 	var tags []*client.KeyValueInput
 	for _, t := range e.Tags {
@@ -93,7 +96,8 @@ func (e AzureEnvResourceModel) toSDK(ctx context.Context) (client.CreateAzureEnv
 	create := client.CreateAzureEnvInput{
 		Name: e.Name.ValueString(),
 		Spec: &client.CreateAzureEnvSpecInput{
-			CustomDomain:          e.CustomDomain.ValueStringPointer(),
+			CustomDomain:          customDomain,
+			CustomDomains:         customDomains,
 			NodeGroups:            nodeGroups,
 			TenantID:              e.TenantID.ValueString(),
 			SubscriptionID:        e.SubscriptionID.ValueString(),
@@ -117,7 +121,8 @@ func (e AzureEnvResourceModel) toSDK(ctx context.Context) (client.CreateAzureEnv
 		Name:           e.Name.ValueString(),
 		UpdateStrategy: &strategy,
 		Spec: &client.UpdateAzureEnvSpecInput{
-			CustomDomain:          e.CustomDomain.ValueStringPointer(),
+			CustomDomain:          customDomain,
+			CustomDomains:         customDomains,
 			NodeGroups:            nodeGroups,
 			Zones:                 zones,
 			LoadBalancingStrategy: loadBalancingStrategy,
@@ -139,6 +144,9 @@ func (model *AzureEnvResourceModel) toModel(env client.GetAzureEnv_AzureEnv) dia
 	model.Name = types.StringValue(env.Name)
 	model.Region = types.StringValue(env.Spec.Region)
 	model.CustomDomain = types.StringPointerValue(env.Spec.CustomDomain)
+	customDomains, diags := common.ListToModel(env.Spec.CustomDomains)
+	allDiags.Append(diags...)
+	model.CustomDomains = customDomains
 	model.CIDR = types.StringValue(env.Spec.Cidr)
 	model.SubscriptionID = types.StringValue(env.Spec.SubscriptionID)
 	model.TenantID = types.StringValue(env.Spec.TenantID)

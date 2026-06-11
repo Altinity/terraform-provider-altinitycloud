@@ -40,20 +40,19 @@ Bring Your Own Cloud (BYOC) AWS environment data source.
 		- "10.136.0.0/21"
 		- "172.20.0.0/21"
 - `cloud_connect` (Boolean) `true` indicates that cloud resources are to be managed via altinity/cloud-connect and `false` means direct management (default `true`). **[IMMUTABLE]**
-- `custom_domain` (String) Custom domain.
+- `custom_domain` (String) Deprecated. Use `custom_domains` instead.
+- `custom_domains` (List of String) Custom domains.
 
 		Examples:
 		- "example.com"
 		- "foo.bar.com"
 
-		Before specifying custom domain, please create the following DNS records:
-		- CNAME _acme-challenge.example.com. $env_name.altinity.cloud.
-		- (optional, public load balancer)
-			CNAME *.example.com. _.$env_name.altinity.cloud.
-		- (optional, internal load balancer)
-			CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
-		- (optional, vpce)
-			CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
+		For each custom domain you specify, please create the following DNS records:
+		`CNAME _acme-challenge.<custom_domain>. $env_name.altinity.cloud.`
+
+		E.g. for the above examples your records should be:
+		- `CNAME _acme-challenge.example.com. $env_name.altinity.cloud.`
+		- `CNAME _acme-challenge.foo.bar.com. $env_name.altinity.cloud.`
 - `eks_logging` (Boolean) Enable/Disable EKS control plane logging to CloudWatch (default `false`).
 - `endpoints` (Attributes List) AWS environment VPC endpoint configuration (see [below for nested schema](#nestedatt--endpoints))
 - `external_buckets` (Attributes Set) List of external S3 bucket to allow access to. (see [below for nested schema](#nestedatt--external_buckets))

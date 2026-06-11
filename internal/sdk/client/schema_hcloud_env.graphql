@@ -63,6 +63,7 @@ fragment HCloudEnvSpecFragment on HCloudEnvSpec {
   }
   loadBalancingStrategy
   customDomain
+  customDomains
   nodeGroups {
     name
     nodeType

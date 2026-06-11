@@ -15,6 +15,7 @@ type HCloudEnvResourceModel struct {
 	Name                  types.String                    `tfsdk:"name"`
 	HCloudTokenEnc        types.String                    `tfsdk:"hcloud_token_enc"`
 	CustomDomain          types.String                    `tfsdk:"custom_domain"`
+	CustomDomains         types.List                      `tfsdk:"custom_domains"`
 	NodeGroups            []NodeGroupsModel               `tfsdk:"node_groups"`
 	NetworkZone           types.String                    `tfsdk:"network_zone"`
 	CIDR                  types.String                    `tfsdk:"cidr"`
@@ -87,12 +88,15 @@ func (e HCloudEnvResourceModel) toSDK(ctx context.Context) (client.CreateHCloudE
 	loadBalancingStrategy := (*client.LoadBalancingStrategy)(e.LoadBalancingStrategy.ValueStringPointer())
 	metricsEndpoint := metricsEndpointToSDK(e.MetricsEndpoint)
 	cloudConnect := false
+	customDomain, customDomains, diags := common.CustomDomainsToSDK(ctx, e.CustomDomain, e.CustomDomains)
+	allDiags.Append(diags...)
 
 	create := client.CreateHCloudEnvInput{
 		Name: e.Name.ValueString(),
 		Spec: &client.CreateHCloudEnvSpecInput{
 			HcloudTokenEnc:        e.HCloudTokenEnc.ValueString(),
-			CustomDomain:          e.CustomDomain.ValueStringPointer(),
+			CustomDomain:          customDomain,
+			CustomDomains:         customDomains,
 			NodeGroups:            nodeGroups,
 			NetworkZone:           e.NetworkZone.ValueString(),
 			Cidr:                  e.CIDR.ValueString(),
@@ -112,7 +116,8 @@ func (e HCloudEnvResourceModel) toSDK(ctx context.Context) (client.CreateHCloudE
 		UpdateStrategy: &strategy,
 		Spec: &client.UpdateHCloudEnvSpecInput{
 			HcloudTokenEnc:        e.HCloudTokenEnc.ValueStringPointer(),
-			CustomDomain:          e.CustomDomain.ValueStringPointer(),
+			CustomDomain:          customDomain,
+			CustomDomains:         customDomains,
 			NodeGroups:            nodeGroups,
 			LoadBalancingStrategy: loadBalancingStrategy,
 			LoadBalancers:         LoadBalancers,
@@ -131,6 +136,9 @@ func (model *HCloudEnvResourceModel) toModel(env client.GetHCloudEnv_HcloudEnv) 
 	model.Name = types.StringValue(env.Name)
 	model.NetworkZone = types.StringValue(env.Spec.NetworkZone)
 	model.CustomDomain = types.StringPointerValue(env.Spec.CustomDomain)
+	customDomains, diags := common.ListToModel(env.Spec.CustomDomains)
+	allDiags.Append(diags...)
+	model.CustomDomains = customDomains
 	model.CIDR = types.StringValue(env.Spec.Cidr)
 	model.LoadBalancingStrategy = types.StringValue(string(env.Spec.LoadBalancingStrategy))
 	model.LoadBalancers = loadBalancersToModel(env.Spec.LoadBalancers)

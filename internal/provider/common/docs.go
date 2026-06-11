@@ -16,20 +16,19 @@ const CIDR_DESCRIPTION = `VPC CIDR block from the private IPv4 address ranges as
 		- "10.136.0.0/21"
 		- "172.20.0.0/21"
 `
-const CUSTOM_DOMAIN_DESCRIPTION = `Custom domain.
+const CUSTOM_DOMAIN_DESCRIPTION = "Deprecated. Use `custom_domains` instead."
+const CUSTOM_DOMAINS_DESCRIPTION = `Custom domains.
 
 		Examples:
 		- "example.com"
 		- "foo.bar.com"
 
-		Before specifying custom domain, please create the following DNS records:
-		- CNAME _acme-challenge.example.com. $env_name.altinity.cloud.
-		- (optional, public load balancer)
-			CNAME *.example.com. _.$env_name.altinity.cloud.
-		- (optional, internal load balancer)
-			CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
-		- (optional, vpce)
-			CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
+		For each custom domain you specify, please create the following DNS records:
+		` + "`" + `CNAME _acme-challenge.<custom_domain>. $env_name.altinity.cloud.` + "`" + `
+
+		E.g. for the above examples your records should be:
+		- ` + "`" + `CNAME _acme-challenge.example.com. $env_name.altinity.cloud.` + "`" + `
+		- ` + "`" + `CNAME _acme-challenge.foo.bar.com. $env_name.altinity.cloud.` + "`" + `
 `
 const SOURCE_IP_RANGES_DESCRIPTION = " IP addresses/blocks to allow traffic from (default `\"0.0.0.0/0\"`)."
 const MAINTENANCE_WINDOW_DAYS_DESCRIPTION = `Days on which maintenance can take place.
@@ -208,20 +207,19 @@ const METRICS_DESCRIPTION = "Metrics configuration"
 const METRICS_RETENTION_PERIOD_IN_DAYS_DESCRIPTION = "Metrics retention period in days (default `30`)."
 
 // Azure descriptions.
-const AZURE_CUSTOM_DOMAIN_DESCRIPTION = `Custom domain.
+const AZURE_CUSTOM_DOMAIN_DESCRIPTION = "Deprecated. Use `custom_domains` instead."
+const AZURE_CUSTOM_DOMAINS_DESCRIPTION = `Custom domains.
 
 		Examples:
 		- "example.com"
 		- "foo.bar.com"
 
-		Before specifying custom domain, please create the following DNS records:
-		- CNAME _acme-challenge.example.com. $env_name.altinity.cloud.
-		- (optional, public load balancer)
-			CNAME *.example.com. _.$env_name.altinity.cloud.
-		- (optional, internal load balancer)
-			CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
-		- (optional, privatelink)
-			CNAME *.privatelink.example.com. _.privatelink.$env_name.altinity.cloud.
+		For each custom domain you specify, please create the following DNS records:
+		` + "`" + `CNAME _acme-challenge.<custom_domain>. $env_name.altinity.cloud.` + "`" + `
+
+		E.g. for the above examples your records should be:
+		- ` + "`" + `CNAME _acme-challenge.example.com. $env_name.altinity.cloud.` + "`" + `
+		- ` + "`" + `CNAME _acme-challenge.foo.bar.com. $env_name.altinity.cloud.` + "`" + `
 `
 const AZURE_ZONES_DESCRIPTION = `Explicit list of Azure availability zones. At least 2 required. ⚠️ Existing zones cannot be removed or replaced once added; only new zones may be appended.
 
