@@ -7,8 +7,7 @@ variable "datadog_api_key" {
   sensitive = true
 }
 
-// The Datadog API key is stored encrypted via the secret resource,
-// the same pattern used for the Hetzner Cloud token.
+// The Datadog API key is stored encrypted via the secret resource.
 resource "altinitycloud_env_secret" "datadog" {
   pem   = altinitycloud_env_certificate.this.pem
   value = var.datadog_api_key
