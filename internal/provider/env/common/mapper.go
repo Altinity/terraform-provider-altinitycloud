@@ -117,6 +117,20 @@ func KeyValueToSDK(input []KeyValueModel) []*client.KeyValueInput {
 	return list
 }
 
+func DatadogToSDK(datadog *DatadogModel) *client.DatadogSpecInput {
+	if datadog == nil {
+		return nil
+	}
+
+	return &client.DatadogSpecInput{
+		Enabled:        datadog.Enabled.ValueBoolPointer(),
+		EncAPIKey:      datadog.EncAPIKey.ValueStringPointer(),
+		Domain:         datadog.Domain.ValueStringPointer(),
+		LogsEnabled:    datadog.LogsEnabled.ValueBoolPointer(),
+		MetricsEnabled: datadog.MetricsEnabled.ValueBoolPointer(),
+	}
+}
+
 func MaintenanceWindowsToSDK(maintenanceWindows []MaintenanceWindowModel) []*client.MaintenanceWindowSpecInput {
 	var sdkMaintenanceWindows []*client.MaintenanceWindowSpecInput
 	for _, mw := range maintenanceWindows {

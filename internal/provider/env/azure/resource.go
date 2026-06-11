@@ -15,6 +15,7 @@ import (
 
 var _ resource.Resource = &AzureEnvResource{}
 var _ resource.ResourceWithImportState = &AzureEnvResource{}
+var _ resource.ResourceWithValidateConfig = &AzureEnvResource{}
 
 func NewAzureEnvResource() resource.Resource {
 	return &AzureEnvResource{}
@@ -26,6 +27,15 @@ type AzureEnvResource struct {
 
 func (r *AzureEnvResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_env_azure"
+}
+
+func (r *AzureEnvResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	var data AzureEnvResourceModel
+	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	resp.Diagnostics.Append(common.ValidateDatadog(data.Datadog)...)
 }
 
 func (r *AzureEnvResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {

@@ -38,7 +38,8 @@ func (r *GCPEnvResource) Schema(ctx context.Context, req resource.SchemaRequest,
 			"peering_connections":       getPeeringConnectionsAttribute(false, true, false),
 			"private_service_consumers": getPrivateServiceConsumersAttribute(false, true, false),
 			"labels":                    getLabelsAttribute(false, true, false),
-			"metrics_endpoint":          common.GetMetricsEndpointAttribute(false, true, false),
+			"metrics_endpoint":          common.GetMetricsEndpointAttribute(false, true, true),
+			"datadog":                   common.GetDatadogAttribute(false, true, false),
 			"spec_revision":             common.SpecRevisionAttribute,
 
 			"force_destroy":                   common.GetForceDestroyAttribute(false, true, true),
@@ -74,6 +75,7 @@ func (d *GCPEnvDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 			"private_service_consumers": getPrivateServiceConsumersAttribute(false, false, true),
 			"labels":                    getLabelsAttribute(false, false, true),
 			"metrics_endpoint":          common.GetMetricsEndpointAttribute(false, false, true),
+			"datadog":                   common.GetDatadogAttribute(false, false, true),
 			"spec_revision":             common.SpecRevisionAttribute,
 
 			// these options are not used in data sources,

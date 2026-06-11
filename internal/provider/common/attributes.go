@@ -320,6 +320,49 @@ func GetMetricsEndpointAttribute(required, optional, computed bool) rschema.Sing
 	}
 }
 
+func GetDatadogAttribute(required, optional, computed bool) rschema.SingleNestedAttribute {
+	return rschema.SingleNestedAttribute{
+		Optional:            optional,
+		Required:            required,
+		Computed:            computed,
+		MarkdownDescription: DATADOG_DESCRIPTION,
+		Attributes: map[string]rschema.Attribute{
+			"enabled": rschema.BoolAttribute{
+				Optional:            true,
+				Computed:            true,
+				MarkdownDescription: DATADOG_ENABLED_DESCRIPTION,
+				Default:             booldefault.StaticBool(false),
+			},
+			"enc_api_key": rschema.StringAttribute{
+				Optional:            true,
+				Sensitive:           true,
+				MarkdownDescription: DATADOG_ENC_API_KEY_DESCRIPTION,
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
+				},
+			},
+			"domain": rschema.StringAttribute{
+				Optional:            true,
+				Computed:            true,
+				MarkdownDescription: DATADOG_DOMAIN_DESCRIPTION,
+				Default:             stringdefault.StaticString("datadoghq.com"),
+			},
+			"logs_enabled": rschema.BoolAttribute{
+				Optional:            true,
+				Computed:            true,
+				MarkdownDescription: DATADOG_LOGS_ENABLED_DESCRIPTION,
+				Default:             booldefault.StaticBool(false),
+			},
+			"metrics_enabled": rschema.BoolAttribute{
+				Optional:            true,
+				Computed:            true,
+				MarkdownDescription: DATADOG_METRICS_ENABLED_DESCRIPTION,
+				Default:             booldefault.StaticBool(false),
+			},
+		},
+	}
+}
+
 var WaitForAppliedSpecRevisionAttribute = rschema.Int64Attribute{
 	Optional:            true,
 	MarkdownDescription: STATUS_WAIT_FOR_APPLIED_SPEC_REVISION_DESCRIPTION,

@@ -39,6 +39,7 @@ type AWSEnvSpecFragment struct {
 	Iceberg                      *AWSEnvSpecFragment_Iceberg              "json:\"iceberg,omitempty\" graphql:\"iceberg\""
 	EksLogging                   bool                                     "json:\"eksLogging\" graphql:\"eksLogging\""
 	MetricsEndpoint              AWSEnvSpecFragment_MetricsEndpoint       "json:\"metricsEndpoint\" graphql:\"metricsEndpoint\""
+	Datadog                      AWSEnvSpecFragment_Datadog               "json:\"datadog\" graphql:\"datadog\""
 }
 
 func (t *AWSEnvSpecFragment) GetLoadBalancers() *AWSEnvSpecFragment_LoadBalancers {
@@ -173,6 +174,12 @@ func (t *AWSEnvSpecFragment) GetMetricsEndpoint() *AWSEnvSpecFragment_MetricsEnd
 	}
 	return &t.MetricsEndpoint
 }
+func (t *AWSEnvSpecFragment) GetDatadog() *AWSEnvSpecFragment_Datadog {
+	if t == nil {
+		t = &AWSEnvSpecFragment{}
+	}
+	return &t.Datadog
+}
 
 type AzureEnvSpecFragment struct {
 	LoadBalancers         AzureEnvSpecFragment_LoadBalancers         "json:\"loadBalancers\" graphql:\"loadBalancers\""
@@ -190,6 +197,7 @@ type AzureEnvSpecFragment struct {
 	SubscriptionID        string                                     "json:\"subscriptionID\" graphql:\"subscriptionID\""
 	CloudConnect          bool                                       "json:\"cloudConnect\" graphql:\"cloudConnect\""
 	MetricsEndpoint       AzureEnvSpecFragment_MetricsEndpoint       "json:\"metricsEndpoint\" graphql:\"metricsEndpoint\""
+	Datadog               AzureEnvSpecFragment_Datadog               "json:\"datadog\" graphql:\"datadog\""
 }
 
 func (t *AzureEnvSpecFragment) GetLoadBalancers() *AzureEnvSpecFragment_LoadBalancers {
@@ -282,6 +290,12 @@ func (t *AzureEnvSpecFragment) GetMetricsEndpoint() *AzureEnvSpecFragment_Metric
 	}
 	return &t.MetricsEndpoint
 }
+func (t *AzureEnvSpecFragment) GetDatadog() *AzureEnvSpecFragment_Datadog {
+	if t == nil {
+		t = &AzureEnvSpecFragment{}
+	}
+	return &t.Datadog
+}
 
 type GCPEnvSpecFragment struct {
 	LoadBalancers           GCPEnvSpecFragment_LoadBalancers         "json:\"loadBalancers\" graphql:\"loadBalancers\""
@@ -299,6 +313,7 @@ type GCPEnvSpecFragment struct {
 	CloudConnect            bool                                     "json:\"cloudConnect\" graphql:\"cloudConnect\""
 	Labels                  []*GCPEnvSpecFragment_Labels             "json:\"labels\" graphql:\"labels\""
 	MetricsEndpoint         GCPEnvSpecFragment_MetricsEndpoint       "json:\"metricsEndpoint\" graphql:\"metricsEndpoint\""
+	Datadog                 GCPEnvSpecFragment_Datadog               "json:\"datadog\" graphql:\"datadog\""
 }
 
 func (t *GCPEnvSpecFragment) GetLoadBalancers() *GCPEnvSpecFragment_LoadBalancers {
@@ -391,6 +406,12 @@ func (t *GCPEnvSpecFragment) GetMetricsEndpoint() *GCPEnvSpecFragment_MetricsEnd
 	}
 	return &t.MetricsEndpoint
 }
+func (t *GCPEnvSpecFragment) GetDatadog() *GCPEnvSpecFragment_Datadog {
+	if t == nil {
+		t = &GCPEnvSpecFragment{}
+	}
+	return &t.Datadog
+}
 
 type HCloudEnvSpecFragment struct {
 	LoadBalancers         HCloudEnvSpecFragment_LoadBalancers         "json:\"loadBalancers\" graphql:\"loadBalancers\""
@@ -405,6 +426,7 @@ type HCloudEnvSpecFragment struct {
 	CloudConnect          bool                                        "json:\"cloudConnect\" graphql:\"cloudConnect\""
 	WireguardPeers        []*HCloudEnvSpecFragment_WireguardPeers     "json:\"wireguardPeers\" graphql:\"wireguardPeers\""
 	MetricsEndpoint       HCloudEnvSpecFragment_MetricsEndpoint       "json:\"metricsEndpoint\" graphql:\"metricsEndpoint\""
+	Datadog               HCloudEnvSpecFragment_Datadog               "json:\"datadog\" graphql:\"datadog\""
 }
 
 func (t *HCloudEnvSpecFragment) GetLoadBalancers() *HCloudEnvSpecFragment_LoadBalancers {
@@ -478,6 +500,12 @@ func (t *HCloudEnvSpecFragment) GetMetricsEndpoint() *HCloudEnvSpecFragment_Metr
 		t = &HCloudEnvSpecFragment{}
 	}
 	return &t.MetricsEndpoint
+}
+func (t *HCloudEnvSpecFragment) GetDatadog() *HCloudEnvSpecFragment_Datadog {
+	if t == nil {
+		t = &HCloudEnvSpecFragment{}
+	}
+	return &t.Datadog
 }
 
 type K8SEnvSpecFragment struct {
@@ -933,6 +961,38 @@ func (t *AWSEnvSpecFragment_MetricsEndpoint) GetSourceIPRanges() []string {
 	return t.SourceIPRanges
 }
 
+type AWSEnvSpecFragment_Datadog struct {
+	Domain         string "json:\"domain\" graphql:\"domain\""
+	Enabled        bool   "json:\"enabled\" graphql:\"enabled\""
+	LogsEnabled    bool   "json:\"logsEnabled\" graphql:\"logsEnabled\""
+	MetricsEnabled bool   "json:\"metricsEnabled\" graphql:\"metricsEnabled\""
+}
+
+func (t *AWSEnvSpecFragment_Datadog) GetDomain() string {
+	if t == nil {
+		t = &AWSEnvSpecFragment_Datadog{}
+	}
+	return t.Domain
+}
+func (t *AWSEnvSpecFragment_Datadog) GetEnabled() bool {
+	if t == nil {
+		t = &AWSEnvSpecFragment_Datadog{}
+	}
+	return t.Enabled
+}
+func (t *AWSEnvSpecFragment_Datadog) GetLogsEnabled() bool {
+	if t == nil {
+		t = &AWSEnvSpecFragment_Datadog{}
+	}
+	return t.LogsEnabled
+}
+func (t *AWSEnvSpecFragment_Datadog) GetMetricsEnabled() bool {
+	if t == nil {
+		t = &AWSEnvSpecFragment_Datadog{}
+	}
+	return t.MetricsEnabled
+}
+
 type AzureEnvSpecFragment_LoadBalancers_Public struct {
 	Enabled        bool     "json:\"enabled\" graphql:\"enabled\""
 	SourceIPRanges []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
@@ -1110,6 +1170,38 @@ func (t *AzureEnvSpecFragment_MetricsEndpoint) GetSourceIPRanges() []string {
 		t = &AzureEnvSpecFragment_MetricsEndpoint{}
 	}
 	return t.SourceIPRanges
+}
+
+type AzureEnvSpecFragment_Datadog struct {
+	Domain         string "json:\"domain\" graphql:\"domain\""
+	Enabled        bool   "json:\"enabled\" graphql:\"enabled\""
+	LogsEnabled    bool   "json:\"logsEnabled\" graphql:\"logsEnabled\""
+	MetricsEnabled bool   "json:\"metricsEnabled\" graphql:\"metricsEnabled\""
+}
+
+func (t *AzureEnvSpecFragment_Datadog) GetDomain() string {
+	if t == nil {
+		t = &AzureEnvSpecFragment_Datadog{}
+	}
+	return t.Domain
+}
+func (t *AzureEnvSpecFragment_Datadog) GetEnabled() bool {
+	if t == nil {
+		t = &AzureEnvSpecFragment_Datadog{}
+	}
+	return t.Enabled
+}
+func (t *AzureEnvSpecFragment_Datadog) GetLogsEnabled() bool {
+	if t == nil {
+		t = &AzureEnvSpecFragment_Datadog{}
+	}
+	return t.LogsEnabled
+}
+func (t *AzureEnvSpecFragment_Datadog) GetMetricsEnabled() bool {
+	if t == nil {
+		t = &AzureEnvSpecFragment_Datadog{}
+	}
+	return t.MetricsEnabled
 }
 
 type GCPEnvSpecFragment_LoadBalancers_Public struct {
@@ -1298,6 +1390,38 @@ func (t *GCPEnvSpecFragment_MetricsEndpoint) GetSourceIPRanges() []string {
 	return t.SourceIPRanges
 }
 
+type GCPEnvSpecFragment_Datadog struct {
+	Domain         string "json:\"domain\" graphql:\"domain\""
+	Enabled        bool   "json:\"enabled\" graphql:\"enabled\""
+	LogsEnabled    bool   "json:\"logsEnabled\" graphql:\"logsEnabled\""
+	MetricsEnabled bool   "json:\"metricsEnabled\" graphql:\"metricsEnabled\""
+}
+
+func (t *GCPEnvSpecFragment_Datadog) GetDomain() string {
+	if t == nil {
+		t = &GCPEnvSpecFragment_Datadog{}
+	}
+	return t.Domain
+}
+func (t *GCPEnvSpecFragment_Datadog) GetEnabled() bool {
+	if t == nil {
+		t = &GCPEnvSpecFragment_Datadog{}
+	}
+	return t.Enabled
+}
+func (t *GCPEnvSpecFragment_Datadog) GetLogsEnabled() bool {
+	if t == nil {
+		t = &GCPEnvSpecFragment_Datadog{}
+	}
+	return t.LogsEnabled
+}
+func (t *GCPEnvSpecFragment_Datadog) GetMetricsEnabled() bool {
+	if t == nil {
+		t = &GCPEnvSpecFragment_Datadog{}
+	}
+	return t.MetricsEnabled
+}
+
 type HCloudEnvSpecFragment_LoadBalancers_Public struct {
 	Enabled        bool     "json:\"enabled\" graphql:\"enabled\""
 	SourceIPRanges []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
@@ -1471,6 +1595,38 @@ func (t *HCloudEnvSpecFragment_MetricsEndpoint) GetSourceIPRanges() []string {
 		t = &HCloudEnvSpecFragment_MetricsEndpoint{}
 	}
 	return t.SourceIPRanges
+}
+
+type HCloudEnvSpecFragment_Datadog struct {
+	Domain         string "json:\"domain\" graphql:\"domain\""
+	Enabled        bool   "json:\"enabled\" graphql:\"enabled\""
+	LogsEnabled    bool   "json:\"logsEnabled\" graphql:\"logsEnabled\""
+	MetricsEnabled bool   "json:\"metricsEnabled\" graphql:\"metricsEnabled\""
+}
+
+func (t *HCloudEnvSpecFragment_Datadog) GetDomain() string {
+	if t == nil {
+		t = &HCloudEnvSpecFragment_Datadog{}
+	}
+	return t.Domain
+}
+func (t *HCloudEnvSpecFragment_Datadog) GetEnabled() bool {
+	if t == nil {
+		t = &HCloudEnvSpecFragment_Datadog{}
+	}
+	return t.Enabled
+}
+func (t *HCloudEnvSpecFragment_Datadog) GetLogsEnabled() bool {
+	if t == nil {
+		t = &HCloudEnvSpecFragment_Datadog{}
+	}
+	return t.LogsEnabled
+}
+func (t *HCloudEnvSpecFragment_Datadog) GetMetricsEnabled() bool {
+	if t == nil {
+		t = &HCloudEnvSpecFragment_Datadog{}
+	}
+	return t.MetricsEnabled
 }
 
 type K8SEnvSpecFragment_LoadBalancers_Public_Annotations struct {
@@ -2192,6 +2348,38 @@ func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_MetricsEndpoint) GetSourceIPRa
 	return t.SourceIPRanges
 }
 
+type GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Datadog struct {
+	Domain         string "json:\"domain\" graphql:\"domain\""
+	Enabled        bool   "json:\"enabled\" graphql:\"enabled\""
+	LogsEnabled    bool   "json:\"logsEnabled\" graphql:\"logsEnabled\""
+	MetricsEnabled bool   "json:\"metricsEnabled\" graphql:\"metricsEnabled\""
+}
+
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Datadog) GetDomain() string {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Datadog{}
+	}
+	return t.Domain
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Datadog) GetEnabled() bool {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Datadog{}
+	}
+	return t.Enabled
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Datadog) GetLogsEnabled() bool {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Datadog{}
+	}
+	return t.LogsEnabled
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Datadog) GetMetricsEnabled() bool {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Datadog{}
+	}
+	return t.MetricsEnabled
+}
+
 type GetAWSEnv_AWSEnv struct {
 	Name         string              "json:\"name\" graphql:\"name\""
 	Spec         *AWSEnvSpecFragment "json:\"spec\" graphql:\"spec\""
@@ -2750,6 +2938,38 @@ func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_MetricsEndpoint) GetS
 	return t.SourceIPRanges
 }
 
+type CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Datadog struct {
+	Domain         string "json:\"domain\" graphql:\"domain\""
+	Enabled        bool   "json:\"enabled\" graphql:\"enabled\""
+	LogsEnabled    bool   "json:\"logsEnabled\" graphql:\"logsEnabled\""
+	MetricsEnabled bool   "json:\"metricsEnabled\" graphql:\"metricsEnabled\""
+}
+
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Datadog) GetDomain() string {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Datadog{}
+	}
+	return t.Domain
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Datadog) GetEnabled() bool {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Datadog{}
+	}
+	return t.Enabled
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Datadog) GetLogsEnabled() bool {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Datadog{}
+	}
+	return t.LogsEnabled
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Datadog) GetMetricsEnabled() bool {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Datadog{}
+	}
+	return t.MetricsEnabled
+}
+
 type CreateAWSEnv_CreateAWSEnv struct {
 	MutationID   string              "json:\"mutationId\" graphql:\"mutationId\""
 	Spec         *AWSEnvSpecFragment "json:\"spec\" graphql:\"spec\""
@@ -3154,6 +3374,38 @@ func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_MetricsEndpoint) GetS
 	return t.SourceIPRanges
 }
 
+type UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Datadog struct {
+	Domain         string "json:\"domain\" graphql:\"domain\""
+	Enabled        bool   "json:\"enabled\" graphql:\"enabled\""
+	LogsEnabled    bool   "json:\"logsEnabled\" graphql:\"logsEnabled\""
+	MetricsEnabled bool   "json:\"metricsEnabled\" graphql:\"metricsEnabled\""
+}
+
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Datadog) GetDomain() string {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Datadog{}
+	}
+	return t.Domain
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Datadog) GetEnabled() bool {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Datadog{}
+	}
+	return t.Enabled
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Datadog) GetLogsEnabled() bool {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Datadog{}
+	}
+	return t.LogsEnabled
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Datadog) GetMetricsEnabled() bool {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Datadog{}
+	}
+	return t.MetricsEnabled
+}
+
 type UpdateAWSEnv_UpdateAWSEnv struct {
 	MutationID   string              "json:\"mutationId\" graphql:\"mutationId\""
 	Spec         *AWSEnvSpecFragment "json:\"spec\" graphql:\"spec\""
@@ -3374,6 +3626,38 @@ func (t *GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_MetricsEndpoint) GetSour
 		t = &GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_MetricsEndpoint{}
 	}
 	return t.SourceIPRanges
+}
+
+type GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_Datadog struct {
+	Domain         string "json:\"domain\" graphql:\"domain\""
+	Enabled        bool   "json:\"enabled\" graphql:\"enabled\""
+	LogsEnabled    bool   "json:\"logsEnabled\" graphql:\"logsEnabled\""
+	MetricsEnabled bool   "json:\"metricsEnabled\" graphql:\"metricsEnabled\""
+}
+
+func (t *GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_Datadog) GetDomain() string {
+	if t == nil {
+		t = &GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_Datadog{}
+	}
+	return t.Domain
+}
+func (t *GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_Datadog) GetEnabled() bool {
+	if t == nil {
+		t = &GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_Datadog{}
+	}
+	return t.Enabled
+}
+func (t *GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_Datadog) GetLogsEnabled() bool {
+	if t == nil {
+		t = &GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_Datadog{}
+	}
+	return t.LogsEnabled
+}
+func (t *GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_Datadog) GetMetricsEnabled() bool {
+	if t == nil {
+		t = &GetAzureEnv_AzureEnv_Spec_AzureEnvSpecFragment_Datadog{}
+	}
+	return t.MetricsEnabled
 }
 
 type GetAzureEnv_AzureEnv struct {
@@ -3677,6 +3961,38 @@ func (t *CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_MetricsEndpoint
 	return t.SourceIPRanges
 }
 
+type CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_Datadog struct {
+	Domain         string "json:\"domain\" graphql:\"domain\""
+	Enabled        bool   "json:\"enabled\" graphql:\"enabled\""
+	LogsEnabled    bool   "json:\"logsEnabled\" graphql:\"logsEnabled\""
+	MetricsEnabled bool   "json:\"metricsEnabled\" graphql:\"metricsEnabled\""
+}
+
+func (t *CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_Datadog) GetDomain() string {
+	if t == nil {
+		t = &CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_Datadog{}
+	}
+	return t.Domain
+}
+func (t *CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_Datadog) GetEnabled() bool {
+	if t == nil {
+		t = &CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_Datadog{}
+	}
+	return t.Enabled
+}
+func (t *CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_Datadog) GetLogsEnabled() bool {
+	if t == nil {
+		t = &CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_Datadog{}
+	}
+	return t.LogsEnabled
+}
+func (t *CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_Datadog) GetMetricsEnabled() bool {
+	if t == nil {
+		t = &CreateAzureEnv_CreateAzureEnv_Spec_AzureEnvSpecFragment_Datadog{}
+	}
+	return t.MetricsEnabled
+}
+
 type CreateAzureEnv_CreateAzureEnv struct {
 	MutationID   string                "json:\"mutationId\" graphql:\"mutationId\""
 	Spec         *AzureEnvSpecFragment "json:\"spec\" graphql:\"spec\""
@@ -3879,6 +4195,38 @@ func (t *UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_MetricsEndpoint
 		t = &UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_MetricsEndpoint{}
 	}
 	return t.SourceIPRanges
+}
+
+type UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_Datadog struct {
+	Domain         string "json:\"domain\" graphql:\"domain\""
+	Enabled        bool   "json:\"enabled\" graphql:\"enabled\""
+	LogsEnabled    bool   "json:\"logsEnabled\" graphql:\"logsEnabled\""
+	MetricsEnabled bool   "json:\"metricsEnabled\" graphql:\"metricsEnabled\""
+}
+
+func (t *UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_Datadog) GetDomain() string {
+	if t == nil {
+		t = &UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_Datadog{}
+	}
+	return t.Domain
+}
+func (t *UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_Datadog) GetEnabled() bool {
+	if t == nil {
+		t = &UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_Datadog{}
+	}
+	return t.Enabled
+}
+func (t *UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_Datadog) GetLogsEnabled() bool {
+	if t == nil {
+		t = &UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_Datadog{}
+	}
+	return t.LogsEnabled
+}
+func (t *UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_Datadog) GetMetricsEnabled() bool {
+	if t == nil {
+		t = &UpdateAzureEnv_UpdateAzureEnv_Spec_AzureEnvSpecFragment_Datadog{}
+	}
+	return t.MetricsEnabled
 }
 
 type UpdateAzureEnv_UpdateAzureEnv struct {
@@ -4108,6 +4456,38 @@ func (t *GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_MetricsEndpoint) GetSourceIPRa
 		t = &GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_MetricsEndpoint{}
 	}
 	return t.SourceIPRanges
+}
+
+type GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_Datadog struct {
+	Domain         string "json:\"domain\" graphql:\"domain\""
+	Enabled        bool   "json:\"enabled\" graphql:\"enabled\""
+	LogsEnabled    bool   "json:\"logsEnabled\" graphql:\"logsEnabled\""
+	MetricsEnabled bool   "json:\"metricsEnabled\" graphql:\"metricsEnabled\""
+}
+
+func (t *GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_Datadog) GetDomain() string {
+	if t == nil {
+		t = &GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_Datadog{}
+	}
+	return t.Domain
+}
+func (t *GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_Datadog) GetEnabled() bool {
+	if t == nil {
+		t = &GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_Datadog{}
+	}
+	return t.Enabled
+}
+func (t *GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_Datadog) GetLogsEnabled() bool {
+	if t == nil {
+		t = &GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_Datadog{}
+	}
+	return t.LogsEnabled
+}
+func (t *GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_Datadog) GetMetricsEnabled() bool {
+	if t == nil {
+		t = &GetGCPEnv_GCPEnv_Spec_GCPEnvSpecFragment_Datadog{}
+	}
+	return t.MetricsEnabled
 }
 
 type GetGCPEnv_GCPEnv struct {
@@ -4389,6 +4769,38 @@ func (t *CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_MetricsEndpoint) GetS
 	return t.SourceIPRanges
 }
 
+type CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_Datadog struct {
+	Domain         string "json:\"domain\" graphql:\"domain\""
+	Enabled        bool   "json:\"enabled\" graphql:\"enabled\""
+	LogsEnabled    bool   "json:\"logsEnabled\" graphql:\"logsEnabled\""
+	MetricsEnabled bool   "json:\"metricsEnabled\" graphql:\"metricsEnabled\""
+}
+
+func (t *CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_Datadog) GetDomain() string {
+	if t == nil {
+		t = &CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_Datadog{}
+	}
+	return t.Domain
+}
+func (t *CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_Datadog) GetEnabled() bool {
+	if t == nil {
+		t = &CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_Datadog{}
+	}
+	return t.Enabled
+}
+func (t *CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_Datadog) GetLogsEnabled() bool {
+	if t == nil {
+		t = &CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_Datadog{}
+	}
+	return t.LogsEnabled
+}
+func (t *CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_Datadog) GetMetricsEnabled() bool {
+	if t == nil {
+		t = &CreateGCPEnv_CreateGCPEnv_Spec_GCPEnvSpecFragment_Datadog{}
+	}
+	return t.MetricsEnabled
+}
+
 type CreateGCPEnv_CreateGCPEnv struct {
 	MutationID   string              "json:\"mutationId\" graphql:\"mutationId\""
 	Spec         *GCPEnvSpecFragment "json:\"spec\" graphql:\"spec\""
@@ -4598,6 +5010,38 @@ func (t *UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_MetricsEndpoint) GetS
 		t = &UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_MetricsEndpoint{}
 	}
 	return t.SourceIPRanges
+}
+
+type UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_Datadog struct {
+	Domain         string "json:\"domain\" graphql:\"domain\""
+	Enabled        bool   "json:\"enabled\" graphql:\"enabled\""
+	LogsEnabled    bool   "json:\"logsEnabled\" graphql:\"logsEnabled\""
+	MetricsEnabled bool   "json:\"metricsEnabled\" graphql:\"metricsEnabled\""
+}
+
+func (t *UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_Datadog) GetDomain() string {
+	if t == nil {
+		t = &UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_Datadog{}
+	}
+	return t.Domain
+}
+func (t *UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_Datadog) GetEnabled() bool {
+	if t == nil {
+		t = &UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_Datadog{}
+	}
+	return t.Enabled
+}
+func (t *UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_Datadog) GetLogsEnabled() bool {
+	if t == nil {
+		t = &UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_Datadog{}
+	}
+	return t.LogsEnabled
+}
+func (t *UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_Datadog) GetMetricsEnabled() bool {
+	if t == nil {
+		t = &UpdateGCPEnv_UpdateGCPEnv_Spec_GCPEnvSpecFragment_Datadog{}
+	}
+	return t.MetricsEnabled
 }
 
 type UpdateGCPEnv_UpdateGCPEnv struct {
@@ -4816,6 +5260,38 @@ func (t *GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_MetricsEndpoint) GetS
 		t = &GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_MetricsEndpoint{}
 	}
 	return t.SourceIPRanges
+}
+
+type GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_Datadog struct {
+	Domain         string "json:\"domain\" graphql:\"domain\""
+	Enabled        bool   "json:\"enabled\" graphql:\"enabled\""
+	LogsEnabled    bool   "json:\"logsEnabled\" graphql:\"logsEnabled\""
+	MetricsEnabled bool   "json:\"metricsEnabled\" graphql:\"metricsEnabled\""
+}
+
+func (t *GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_Datadog) GetDomain() string {
+	if t == nil {
+		t = &GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_Datadog{}
+	}
+	return t.Domain
+}
+func (t *GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_Datadog) GetEnabled() bool {
+	if t == nil {
+		t = &GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_Datadog{}
+	}
+	return t.Enabled
+}
+func (t *GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_Datadog) GetLogsEnabled() bool {
+	if t == nil {
+		t = &GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_Datadog{}
+	}
+	return t.LogsEnabled
+}
+func (t *GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_Datadog) GetMetricsEnabled() bool {
+	if t == nil {
+		t = &GetHCloudEnv_HcloudEnv_Spec_HCloudEnvSpecFragment_Datadog{}
+	}
+	return t.MetricsEnabled
 }
 
 type GetHCloudEnv_HcloudEnv struct {
@@ -5086,6 +5562,38 @@ func (t *CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_MetricsEndpo
 	return t.SourceIPRanges
 }
 
+type CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_Datadog struct {
+	Domain         string "json:\"domain\" graphql:\"domain\""
+	Enabled        bool   "json:\"enabled\" graphql:\"enabled\""
+	LogsEnabled    bool   "json:\"logsEnabled\" graphql:\"logsEnabled\""
+	MetricsEnabled bool   "json:\"metricsEnabled\" graphql:\"metricsEnabled\""
+}
+
+func (t *CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_Datadog) GetDomain() string {
+	if t == nil {
+		t = &CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_Datadog{}
+	}
+	return t.Domain
+}
+func (t *CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_Datadog) GetEnabled() bool {
+	if t == nil {
+		t = &CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_Datadog{}
+	}
+	return t.Enabled
+}
+func (t *CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_Datadog) GetLogsEnabled() bool {
+	if t == nil {
+		t = &CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_Datadog{}
+	}
+	return t.LogsEnabled
+}
+func (t *CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_Datadog) GetMetricsEnabled() bool {
+	if t == nil {
+		t = &CreateHCloudEnv_CreateHCloudEnv_Spec_HCloudEnvSpecFragment_Datadog{}
+	}
+	return t.MetricsEnabled
+}
+
 type CreateHCloudEnv_CreateHCloudEnv struct {
 	MutationID   string                 "json:\"mutationId\" graphql:\"mutationId\""
 	Spec         *HCloudEnvSpecFragment "json:\"spec\" graphql:\"spec\""
@@ -5284,6 +5792,38 @@ func (t *UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_MetricsEndpo
 		t = &UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_MetricsEndpoint{}
 	}
 	return t.SourceIPRanges
+}
+
+type UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_Datadog struct {
+	Domain         string "json:\"domain\" graphql:\"domain\""
+	Enabled        bool   "json:\"enabled\" graphql:\"enabled\""
+	LogsEnabled    bool   "json:\"logsEnabled\" graphql:\"logsEnabled\""
+	MetricsEnabled bool   "json:\"metricsEnabled\" graphql:\"metricsEnabled\""
+}
+
+func (t *UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_Datadog) GetDomain() string {
+	if t == nil {
+		t = &UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_Datadog{}
+	}
+	return t.Domain
+}
+func (t *UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_Datadog) GetEnabled() bool {
+	if t == nil {
+		t = &UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_Datadog{}
+	}
+	return t.Enabled
+}
+func (t *UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_Datadog) GetLogsEnabled() bool {
+	if t == nil {
+		t = &UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_Datadog{}
+	}
+	return t.LogsEnabled
+}
+func (t *UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_Datadog) GetMetricsEnabled() bool {
+	if t == nil {
+		t = &UpdateHCloudEnv_UpdateHCloudEnv_Spec_HCloudEnvSpecFragment_Datadog{}
+	}
+	return t.MetricsEnabled
 }
 
 type UpdateHCloudEnv_UpdateHCloudEnv struct {
@@ -6878,6 +7418,12 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 		enabled
 		sourceIPRanges
 	}
+	datadog {
+		enabled
+		domain
+		logsEnabled
+		metricsEnabled
+	}
 }
 `
 
@@ -7038,6 +7584,12 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 		enabled
 		sourceIPRanges
 	}
+	datadog {
+		enabled
+		domain
+		logsEnabled
+		metricsEnabled
+	}
 }
 `
 
@@ -7151,6 +7703,12 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 		enabled
 		sourceIPRanges
 	}
+	datadog {
+		enabled
+		domain
+		logsEnabled
+		metricsEnabled
+	}
 }
 `
 
@@ -7249,6 +7807,12 @@ fragment AzureEnvSpecFragment on AzureEnvSpec {
 	metricsEndpoint {
 		enabled
 		sourceIPRanges
+	}
+	datadog {
+		enabled
+		domain
+		logsEnabled
+		metricsEnabled
 	}
 }
 `
@@ -7362,6 +7926,12 @@ fragment AzureEnvSpecFragment on AzureEnvSpec {
 		enabled
 		sourceIPRanges
 	}
+	datadog {
+		enabled
+		domain
+		logsEnabled
+		metricsEnabled
+	}
 }
 `
 
@@ -7435,6 +8005,12 @@ fragment AzureEnvSpecFragment on AzureEnvSpec {
 	metricsEndpoint {
 		enabled
 		sourceIPRanges
+	}
+	datadog {
+		enabled
+		domain
+		logsEnabled
+		metricsEnabled
 	}
 }
 `
@@ -7535,6 +8111,12 @@ fragment GCPEnvSpecFragment on GCPEnvSpec {
 	metricsEndpoint {
 		enabled
 		sourceIPRanges
+	}
+	datadog {
+		enabled
+		domain
+		logsEnabled
+		metricsEnabled
 	}
 }
 `
@@ -7644,6 +8226,12 @@ fragment GCPEnvSpecFragment on GCPEnvSpec {
 		enabled
 		sourceIPRanges
 	}
+	datadog {
+		enabled
+		domain
+		logsEnabled
+		metricsEnabled
+	}
 }
 `
 
@@ -7718,6 +8306,12 @@ fragment GCPEnvSpecFragment on GCPEnvSpec {
 	metricsEndpoint {
 		enabled
 		sourceIPRanges
+	}
+	datadog {
+		enabled
+		domain
+		logsEnabled
+		metricsEnabled
 	}
 }
 `
@@ -7813,6 +8407,12 @@ fragment HCloudEnvSpecFragment on HCloudEnvSpec {
 	metricsEndpoint {
 		enabled
 		sourceIPRanges
+	}
+	datadog {
+		enabled
+		domain
+		logsEnabled
+		metricsEnabled
 	}
 }
 `
@@ -7917,6 +8517,12 @@ fragment HCloudEnvSpecFragment on HCloudEnvSpec {
 		enabled
 		sourceIPRanges
 	}
+	datadog {
+		enabled
+		domain
+		logsEnabled
+		metricsEnabled
+	}
 }
 `
 
@@ -7986,6 +8592,12 @@ fragment HCloudEnvSpecFragment on HCloudEnvSpec {
 	metricsEndpoint {
 		enabled
 		sourceIPRanges
+	}
+	datadog {
+		enabled
+		domain
+		logsEnabled
+		metricsEnabled
 	}
 }
 `

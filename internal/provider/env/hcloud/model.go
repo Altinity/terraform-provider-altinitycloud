@@ -25,6 +25,7 @@ type HCloudEnvResourceModel struct {
 	MaintenanceWindows    []common.MaintenanceWindowModel `tfsdk:"maintenance_windows"`
 	WireguardPeers        []WireguardPeers                `tfsdk:"wireguard_peers"`
 	MetricsEndpoint       *MetricsEndpointModel           `tfsdk:"metrics_endpoint"`
+	Datadog               *common.DatadogModel            `tfsdk:"datadog"`
 
 	SpecRevision                 types.Int64    `tfsdk:"spec_revision"`
 	ForceDestroy                 types.Bool     `tfsdk:"force_destroy"`
@@ -87,6 +88,7 @@ func (e HCloudEnvResourceModel) toSDK(ctx context.Context) (client.CreateHCloudE
 
 	loadBalancingStrategy := (*client.LoadBalancingStrategy)(e.LoadBalancingStrategy.ValueStringPointer())
 	metricsEndpoint := metricsEndpointToSDK(e.MetricsEndpoint)
+	datadog := common.DatadogToSDK(e.Datadog)
 	cloudConnect := false
 	customDomain, customDomains, diags := common.CustomDomainsToSDK(ctx, e.CustomDomain, e.CustomDomains)
 	allDiags.Append(diags...)
@@ -107,6 +109,7 @@ func (e HCloudEnvResourceModel) toSDK(ctx context.Context) (client.CreateHCloudE
 			CloudConnect:          &cloudConnect,
 			WireguardPeers:        wireguardPeers,
 			MetricsEndpoint:       metricsEndpoint,
+			Datadog:               datadog,
 		},
 	}
 
@@ -124,6 +127,7 @@ func (e HCloudEnvResourceModel) toSDK(ctx context.Context) (client.CreateHCloudE
 			MaintenanceWindows:    maintenanceWindows,
 			WireguardPeers:        wireguardPeers,
 			MetricsEndpoint:       metricsEndpoint,
+			Datadog:               datadog,
 		},
 	}
 
@@ -157,7 +161,8 @@ func (model *HCloudEnvResourceModel) toModel(env client.GetHCloudEnv_HcloudEnv) 
 	allDiags.Append(diags...)
 	model.WireguardPeers = wireguardPeers
 
-	model.MetricsEndpoint = metricsEndpointToModel(&env.Spec.MetricsEndpoint)
+	model.MetricsEndpoint = metricsEndpointToModel(model.MetricsEndpoint, &env.Spec.MetricsEndpoint)
+	model.Datadog = datadogToModel(model.Datadog, &env.Spec.Datadog)
 	model.SpecRevision = types.Int64Value(env.SpecRevision)
 
 	return allDiags
@@ -339,8 +344,14 @@ func metricsEndpointToSDK(endpoint *MetricsEndpointModel) *client.MetricsEndpoin
 	}
 }
 
-func metricsEndpointToModel(endpoint *client.HCloudEnvSpecFragment_MetricsEndpoint) *MetricsEndpointModel {
+func metricsEndpointToModel(existing *MetricsEndpointModel, endpoint *client.HCloudEnvSpecFragment_MetricsEndpoint) *MetricsEndpointModel {
 	if endpoint == nil {
+		return existing
+	}
+
+	// The API always returns a metrics_endpoint block. Keep state null when the
+	// user never configured it and it's disabled, to avoid a perpetual diff.
+	if existing == nil && !endpoint.Enabled {
 		return nil
 	}
 
@@ -353,4 +364,31 @@ func metricsEndpointToModel(endpoint *client.HCloudEnvSpecFragment_MetricsEndpoi
 		Enabled:        types.BoolValue(endpoint.Enabled),
 		SourceIPRanges: sourceIPRanges,
 	}
+}
+
+func datadogToModel(existing *common.DatadogModel, datadog *client.HCloudEnvSpecFragment_Datadog) *common.DatadogModel {
+	if datadog == nil {
+		return existing
+	}
+
+	// The API always returns a datadog block (DatadogSpec!). Keep state null
+	// when the user never configured it and it's disabled, to avoid a perpetual diff.
+	if existing == nil && !datadog.Enabled {
+		return nil
+	}
+
+	model := &common.DatadogModel{
+		Enabled:        types.BoolValue(datadog.Enabled),
+		Domain:         types.StringValue(datadog.Domain),
+		LogsEnabled:    types.BoolValue(datadog.LogsEnabled),
+		MetricsEnabled: types.BoolValue(datadog.MetricsEnabled),
+	}
+
+	// enc_api_key is write-only; the API never returns it, so preserve the
+	// previously configured value.
+	if existing != nil {
+		model.EncAPIKey = existing.EncAPIKey
+	}
+
+	return model
 }

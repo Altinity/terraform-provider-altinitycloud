@@ -91,4 +91,10 @@ fragment HCloudEnvSpecFragment on HCloudEnvSpec {
     enabled
     sourceIPRanges
   }
+  datadog {
+    enabled
+    domain
+    logsEnabled
+    metricsEnabled
+  }
 }
