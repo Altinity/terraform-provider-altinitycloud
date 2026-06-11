@@ -18,6 +18,7 @@ type AWSEnvResourceModel struct {
 	Region                       types.String                    `tfsdk:"region"`
 	PermissionsBoundaryPolicyArn types.String                    `tfsdk:"permissions_boundary_policy_arn"`
 	ResourcePrefix               types.String                    `tfsdk:"resource_prefix"`
+	KmsKeyArn                    types.String                    `tfsdk:"kms_key_arn"`
 	NAT                          types.Bool                      `tfsdk:"nat"`
 	CIDR                         types.String                    `tfsdk:"cidr"`
 	AWSAccountID                 types.String                    `tfsdk:"aws_account_id"`
@@ -76,7 +77,8 @@ type AWSEnvPeeringConnectionModel struct {
 }
 
 type AWSEnvExternalBucketModel struct {
-	Name types.String `tfsdk:"name"`
+	Name      types.String `tfsdk:"name"`
+	KmsKeyArn types.String `tfsdk:"kms_key_arn"`
 }
 
 type AWSEnvBackupsModel struct {
@@ -152,7 +154,8 @@ func (e AWSEnvResourceModel) toSDK(ctx context.Context) (sdk.CreateAWSEnvInput, 
 	var externalBuckets []*sdk.AWSEnvExternalBucketSpecInput
 	for _, b := range e.ExternalBuckets {
 		externalBuckets = append(externalBuckets, &sdk.AWSEnvExternalBucketSpecInput{
-			Name: b.Name.ValueString(),
+			Name:      b.Name.ValueString(),
+			KmsKeyArn: b.KmsKeyArn.ValueStringPointer(),
 		})
 	}
 
@@ -187,6 +190,7 @@ func (e AWSEnvResourceModel) toSDK(ctx context.Context) (sdk.CreateAWSEnvInput, 
 			MaintenanceWindows:           maintenanceWindows,
 			PermissionsBoundaryPolicyArn: e.PermissionsBoundaryPolicyArn.ValueStringPointer(),
 			ResourcePrefix:               e.ResourcePrefix.ValueStringPointer(),
+			KmsKeyArn:                    e.KmsKeyArn.ValueStringPointer(),
 			ExternalBuckets:              externalBuckets,
 			Backups:                      backups,
 			Iceberg:                      iceberg,
@@ -243,6 +247,7 @@ func (model *AWSEnvResourceModel) toModel(env sdk.GetAWSEnv_AWSEnv) diag.Diagnos
 	model.Zones = zones
 	model.PermissionsBoundaryPolicyArn = types.StringPointerValue(env.Spec.PermissionsBoundaryPolicyArn)
 	model.ResourcePrefix = types.StringValue(env.Spec.ResourcePrefix)
+	model.KmsKeyArn = types.StringPointerValue(env.Spec.KmsKeyArn)
 
 	var peeringConnections []AWSEnvPeeringConnectionModel
 	for _, p := range env.Spec.PeeringConnections {
@@ -273,7 +278,8 @@ func (model *AWSEnvResourceModel) toModel(env sdk.GetAWSEnv_AWSEnv) diag.Diagnos
 	var externalBuckets []AWSEnvExternalBucketModel
 	for _, b := range env.Spec.ExternalBuckets {
 		externalBuckets = append(externalBuckets, AWSEnvExternalBucketModel{
-			Name: types.StringValue(b.Name),
+			Name:      types.StringValue(b.Name),
+			KmsKeyArn: types.StringPointerValue(b.KmsKeyArn),
 		})
 	}
 
