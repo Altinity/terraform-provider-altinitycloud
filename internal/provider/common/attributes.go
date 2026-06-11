@@ -299,6 +299,12 @@ func GetMetricsEndpointAttribute(required, optional, computed bool) rschema.Sing
 		Required:            required,
 		Computed:            computed,
 		MarkdownDescription: METRICS_ENDPOINT_DESCRIPTION,
+		PlanModifiers: []planmodifier.Object{
+			modifiers.DefaultObject(map[string]attr.Value{
+				"enabled":          types.BoolValue(false),
+				"source_ip_ranges": types.ListNull(types.StringType),
+			}),
+		},
 		Attributes: map[string]rschema.Attribute{
 			"enabled": rschema.BoolAttribute{
 				Optional:            true,
