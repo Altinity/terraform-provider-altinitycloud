@@ -15,6 +15,7 @@ import (
 
 var _ resource.Resource = &GCPEnvResource{}
 var _ resource.ResourceWithImportState = &GCPEnvResource{}
+var _ resource.ResourceWithValidateConfig = &GCPEnvResource{}
 
 func NewGCPEnvResource() resource.Resource {
 	return &GCPEnvResource{}
@@ -26,6 +27,15 @@ type GCPEnvResource struct {
 
 func (r *GCPEnvResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_env_gcp"
+}
+
+func (r *GCPEnvResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	var data GCPEnvResourceModel
+	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	resp.Diagnostics.Append(common.ValidateDatadog(data.Datadog)...)
 }
 
 func (r *GCPEnvResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {

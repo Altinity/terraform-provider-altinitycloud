@@ -2281,6 +2281,12 @@ func TestMetricsEndpointToModel(t *testing.T) {
 			expected: nil,
 		},
 		{
+			name:     "Nil input returns existing",
+			existing: &AWSEnvMetricsEndpointModel{Enabled: types.BoolValue(true)},
+			input:    nil,
+			expected: &AWSEnvMetricsEndpointModel{Enabled: types.BoolValue(true)},
+		},
+		{
 			name: "Complete metrics endpoint response",
 			input: &sdk.AWSEnvSpecFragment_MetricsEndpoint{
 				Enabled:        true,

@@ -15,6 +15,7 @@ import (
 
 var _ resource.Resource = &HCloudEnvResource{}
 var _ resource.ResourceWithImportState = &HCloudEnvResource{}
+var _ resource.ResourceWithValidateConfig = &HCloudEnvResource{}
 
 func NewHCloudEnvResource() resource.Resource {
 	return &HCloudEnvResource{}
@@ -26,6 +27,15 @@ type HCloudEnvResource struct {
 
 func (r *HCloudEnvResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_env_hcloud"
+}
+
+func (r *HCloudEnvResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	var data HCloudEnvResourceModel
+	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	resp.Diagnostics.Append(common.ValidateDatadog(data.Datadog)...)
 }
 
 func (r *HCloudEnvResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {

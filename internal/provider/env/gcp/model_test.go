@@ -1022,6 +1022,12 @@ func TestMetricsEndpointToModel(t *testing.T) {
 			expected: nil,
 		},
 		{
+			name:     "Nil input returns existing",
+			existing: &MetricsEndpointModel{Enabled: types.BoolValue(true)},
+			input:    nil,
+			expected: &MetricsEndpointModel{Enabled: types.BoolValue(true)},
+		},
+		{
 			name: "Complete metrics endpoint response",
 			input: &sdk.GCPEnvSpecFragment_MetricsEndpoint{
 				Enabled:        true,
