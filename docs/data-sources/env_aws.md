@@ -54,6 +54,7 @@ Bring Your Own Cloud (BYOC) AWS environment data source.
 			CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
 		- (optional, vpce)
 			CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
+- `datadog` (Attributes) Datadog agent configuration. (see [below for nested schema](#nestedatt--datadog))
 - `eks_logging` (Boolean) Enable/Disable EKS control plane logging to CloudWatch (default `false`).
 - `endpoints` (Attributes List) AWS environment VPC endpoint configuration (see [below for nested schema](#nestedatt--endpoints))
 - `external_buckets` (Attributes Set) List of external S3 bucket to allow access to. (see [below for nested schema](#nestedatt--external_buckets))
@@ -104,6 +105,18 @@ Required:
 - `region` (String) AWS region where the backup bucket is located
 - `role_arn` (String) Authentication configuration for backup bucket access
 
+
+
+<a id="nestedatt--datadog"></a>
+### Nested Schema for `datadog`
+
+Optional:
+
+- `domain` (String) Datadog intake site domain (e.g. `us3.datadoghq.com`, `app.datadoghq.eu`). Defaults to `datadoghq.com`.
+- `enabled` (Boolean) Set to `true` if the Datadog agent is enabled, `false` otherwise (default `false`).
+- `enc_api_key` (String, Sensitive) Datadog encrypted API key. Write-only — set to configure or rotate the key.
+- `logs_enabled` (Boolean) Set to `true` to enable ClickHouse log collection, `false` otherwise (default `false`).
+- `metrics_enabled` (Boolean) Set to `true` to enable ClickHouse metrics collection, `false` otherwise (default `false`).
 
 
 <a id="nestedatt--endpoints"></a>

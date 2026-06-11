@@ -47,6 +47,7 @@ Bring Your Own Cloud (BYOC) HCloud environment data source.
 			CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
 		- (optional, vpce)
 			CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
+- `datadog` (Attributes) Datadog agent configuration. (see [below for nested schema](#nestedatt--datadog))
 - `force_destroy` (Boolean) Locks the environment for accidental deletion when running `terraform destroy` command. Your environment will be deleted, only when setting this parameter to `true`. Once this parameter is set to `true`, there must be a successful `terraform apply` run (before running the `terraform destroy`) to update this value in the state. Without a successful `terraform apply` after this parameter is set, this flag will have no effect. (default `false`)
 - `force_destroy_clusters` (Boolean) By default, the destroy operation will not delete any provisioned clusters and the deletion will fail until the clusters get removed. Set to `true` to remove all provisioned clusters as part of the environment deletion process.
 - `hcloud_token_enc` (String, Sensitive) HCloud token (stored encrypted)
@@ -71,6 +72,18 @@ Bring Your Own Cloud (BYOC) HCloud environment data source.
 - `skip_deprovision_on_destroy` (Boolean) Set to `true` will delete without waiting for environment deprovisioning. Use this with precaution, it may end up with dangling resources in your cloud provider (default `false`).
 - `spec_revision` (Number) Spec revision
 - `wireguard_peers` (Attributes List) HCloud Wireguard peer configuration. (see [below for nested schema](#nestedatt--wireguard_peers))
+
+<a id="nestedatt--datadog"></a>
+### Nested Schema for `datadog`
+
+Optional:
+
+- `domain` (String) Datadog intake site domain (e.g. `us3.datadoghq.com`, `app.datadoghq.eu`). Defaults to `datadoghq.com`.
+- `enabled` (Boolean) Set to `true` if the Datadog agent is enabled, `false` otherwise (default `false`).
+- `enc_api_key` (String, Sensitive) Datadog encrypted API key. Write-only — set to configure or rotate the key.
+- `logs_enabled` (Boolean) Set to `true` to enable ClickHouse log collection, `false` otherwise (default `false`).
+- `metrics_enabled` (Boolean) Set to `true` to enable ClickHouse metrics collection, `false` otherwise (default `false`).
+
 
 <a id="nestedatt--load_balancers"></a>
 ### Nested Schema for `load_balancers`

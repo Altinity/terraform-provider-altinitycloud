@@ -149,4 +149,10 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
     enabled
     sourceIPRanges
   }
+  datadog {
+    enabled
+    domain
+    logsEnabled
+    metricsEnabled
+  }
 }

@@ -290,6 +290,14 @@ const METRICS_ENDPOINT_DESCRIPTION = "Metrics endpoint configuration."
 const METRICS_ENDPOINT_ENABLED_DESCRIPTION = "Set to `true` if metrics endpoint is enabled, `false` otherwise (default `false`)."
 const METRICS_ENDPOINT_SOURCE_IP_RANGES_DESCRIPTION = "IP addresses/blocks to allow traffic from when metrics endpoint is enabled."
 
+// Datadog descriptions.
+const DATADOG_DESCRIPTION = "Datadog agent configuration."
+const DATADOG_ENABLED_DESCRIPTION = "Set to `true` if the Datadog agent is enabled, `false` otherwise (default `false`)."
+const DATADOG_ENC_API_KEY_DESCRIPTION = "Datadog encrypted API key. Write-only — set to configure or rotate the key."
+const DATADOG_DOMAIN_DESCRIPTION = "Datadog intake site domain (e.g. `us3.datadoghq.com`, `app.datadoghq.eu`). Defaults to `datadoghq.com`."
+const DATADOG_LOGS_ENABLED_DESCRIPTION = "Set to `true` to enable ClickHouse log collection, `false` otherwise (default `false`)."
+const DATADOG_METRICS_ENABLED_DESCRIPTION = "Set to `true` to enable ClickHouse metrics collection, `false` otherwise (default `false`)."
+
 // EKS Logging descriptions.
 const EKS_LOGGING_DESCRIPTION = "Enable/Disable EKS control plane logging to CloudWatch (default `false`)."
 

@@ -47,6 +47,7 @@ Bring Your Own Cloud (BYOC) Azure environment data source.
 			CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
 		- (optional, privatelink)
 			CNAME *.privatelink.example.com. _.privatelink.$env_name.altinity.cloud.
+- `datadog` (Attributes) Datadog agent configuration. (see [below for nested schema](#nestedatt--datadog))
 - `force_destroy` (Boolean) Locks the environment for accidental deletion when running `terraform destroy` command. Your environment will be deleted, only when setting this parameter to `true`. Once this parameter is set to `true`, there must be a successful `terraform apply` run (before running the `terraform destroy`) to update this value in the state. Without a successful `terraform apply` after this parameter is set, this flag will have no effect. (default `false`)
 - `force_destroy_clusters` (Boolean) By default, the destroy operation will not delete any provisioned clusters and the deletion will fail until the clusters get removed. Set to `true` to remove all provisioned clusters as part of the environment deletion process.
 - `id` (String) ID of the environment (automatically generated based on the name)
@@ -74,6 +75,18 @@ Bring Your Own Cloud (BYOC) Azure environment data source.
 
 		Examples:
 		- ["eastus-1", "eastus-2"]
+
+<a id="nestedatt--datadog"></a>
+### Nested Schema for `datadog`
+
+Optional:
+
+- `domain` (String) Datadog intake site domain (e.g. `us3.datadoghq.com`, `app.datadoghq.eu`). Defaults to `datadoghq.com`.
+- `enabled` (Boolean) Set to `true` if the Datadog agent is enabled, `false` otherwise (default `false`).
+- `enc_api_key` (String, Sensitive) Datadog encrypted API key. Write-only — set to configure or rotate the key.
+- `logs_enabled` (Boolean) Set to `true` to enable ClickHouse log collection, `false` otherwise (default `false`).
+- `metrics_enabled` (Boolean) Set to `true` to enable ClickHouse metrics collection, `false` otherwise (default `false`).
+
 
 <a id="nestedatt--load_balancers"></a>
 ### Nested Schema for `load_balancers`
