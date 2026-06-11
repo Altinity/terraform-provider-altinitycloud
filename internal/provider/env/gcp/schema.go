@@ -37,7 +37,7 @@ func (r *GCPEnvResource) Schema(ctx context.Context, req resource.SchemaRequest,
 			"peering_connections":       getPeeringConnectionsAttribute(false, true, false),
 			"private_service_consumers": getPrivateServiceConsumersAttribute(false, true, false),
 			"labels":                    getLabelsAttribute(false, true, false),
-			"metrics_endpoint":          common.GetMetricsEndpointAttribute(false, true, false),
+			"metrics_endpoint":          common.GetMetricsEndpointAttribute(false, true, true),
 			"datadog":                   common.GetDatadogAttribute(false, true, false),
 			"spec_revision":             common.SpecRevisionAttribute,
 
