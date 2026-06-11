@@ -289,7 +289,7 @@ func (model *AWSEnvResourceModel) toModel(env sdk.GetAWSEnv_AWSEnv) diag.Diagnos
 	model.SpecRevision = types.Int64Value(env.SpecRevision)
 	model.CloudConnect = types.BoolValue(env.Spec.CloudConnect)
 	model.EksLogging = types.BoolValue(env.Spec.EksLogging)
-	model.MetricsEndpoint = metricsEndpointToModel(&env.Spec.MetricsEndpoint)
+	model.MetricsEndpoint = metricsEndpointToModel(model.MetricsEndpoint, &env.Spec.MetricsEndpoint)
 	model.Datadog = datadogToModel(model.Datadog, &env.Spec.Datadog)
 
 	return allDiags
@@ -608,8 +608,14 @@ func metricsEndpointToSDK(endpoint *AWSEnvMetricsEndpointModel) *sdk.MetricsEndp
 	}
 }
 
-func metricsEndpointToModel(endpoint *sdk.AWSEnvSpecFragment_MetricsEndpoint) *AWSEnvMetricsEndpointModel {
+func metricsEndpointToModel(existing *AWSEnvMetricsEndpointModel, endpoint *sdk.AWSEnvSpecFragment_MetricsEndpoint) *AWSEnvMetricsEndpointModel {
 	if endpoint == nil {
+		return existing
+	}
+
+	// The API always returns a metrics_endpoint block. Keep state null when the
+	// user never configured it and it's disabled, to avoid a perpetual diff.
+	if existing == nil && !endpoint.Enabled {
 		return nil
 	}
 

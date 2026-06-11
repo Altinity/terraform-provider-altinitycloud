@@ -159,7 +159,7 @@ func (model *AzureEnvResourceModel) toModel(env client.GetAzureEnv_AzureEnv) dia
 	allDiags.Append(diags...)
 	model.Zones = zones
 
-	model.MetricsEndpoint = metricsEndpointToModel(&env.Spec.MetricsEndpoint)
+	model.MetricsEndpoint = metricsEndpointToModel(model.MetricsEndpoint, &env.Spec.MetricsEndpoint)
 	model.Datadog = datadogToModel(model.Datadog, &env.Spec.Datadog)
 
 	var tags []common.KeyValueModel
@@ -317,8 +317,14 @@ func metricsEndpointToSDK(endpoint *MetricsEndpointModel) *client.MetricsEndpoin
 	}
 }
 
-func metricsEndpointToModel(endpoint *client.AzureEnvSpecFragment_MetricsEndpoint) *MetricsEndpointModel {
+func metricsEndpointToModel(existing *MetricsEndpointModel, endpoint *client.AzureEnvSpecFragment_MetricsEndpoint) *MetricsEndpointModel {
 	if endpoint == nil {
+		return existing
+	}
+
+	// The API always returns a metrics_endpoint block. Keep state null when the
+	// user never configured it and it's disabled, to avoid a perpetual diff.
+	if existing == nil && !endpoint.Enabled {
 		return nil
 	}
 
