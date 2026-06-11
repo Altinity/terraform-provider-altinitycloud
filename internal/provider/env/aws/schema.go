@@ -48,7 +48,7 @@ func (r *AWSEnvResource) Schema(ctx context.Context, req resource.SchemaRequest,
 			"external_buckets":                getExternalBucketsAttribute(false, true, false),
 			"backups":                         getBackupStorageAttribute(false, true, false),
 			"iceberg":                         getIcebergAttribute(false, true, false),
-			"metrics_endpoint":                common.GetMetricsEndpointAttribute(false, true, false),
+			"metrics_endpoint":                common.GetMetricsEndpointAttribute(false, true, true),
 			"eks_logging":                     getEksLoggingAttribute(false, true, true),
 
 			"spec_revision":                   common.SpecRevisionAttribute,
