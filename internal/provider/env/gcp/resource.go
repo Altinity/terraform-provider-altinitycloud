@@ -31,9 +31,7 @@ func (r *GCPEnvResource) Metadata(ctx context.Context, req resource.MetadataRequ
 }
 
 func (r *GCPEnvResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
-	// Read only the datadog attribute. Decoding the whole config into the model
-	// panics when any nested struct-pointer attribute holds an unknown value at
-	// validate time, e.g. via try() over a not-yet-known local.
+	// Read only datadog: a full Config.Get panics on unknown nested struct-pointer attrs.
 	var datadogObj types.Object
 	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("datadog"), &datadogObj)...)
 	if resp.Diagnostics.HasError() || datadogObj.IsNull() || datadogObj.IsUnknown() {
