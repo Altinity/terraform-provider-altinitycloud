@@ -27,7 +27,7 @@ terraform {
     altinitycloud = {
       source = "altinity/altinitycloud"
       # https://github.com/altinity/terraform-provider-altinitycloud/blob/master/CHANGELOG.md
-      version = "0.7.0"
+      version = "0.7.1"
     }
   }
 }
