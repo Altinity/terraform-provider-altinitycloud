@@ -9,6 +9,7 @@ import (
 	clientsupport "github.com/altinity/terraform-provider-altinitycloud/internal/provider/common"
 	common "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env/common"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/client"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -30,12 +31,21 @@ func (r *GCPEnvResource) Metadata(ctx context.Context, req resource.MetadataRequ
 }
 
 func (r *GCPEnvResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
-	var data GCPEnvResourceModel
-	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
+	// Read only the datadog attribute. Decoding the whole config into the model
+	// panics when any nested struct-pointer attribute holds an unknown value at
+	// validate time, e.g. via try() over a not-yet-known local.
+	var datadogObj types.Object
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("datadog"), &datadogObj)...)
+	if resp.Diagnostics.HasError() || datadogObj.IsNull() || datadogObj.IsUnknown() {
+		return
+	}
+
+	var datadog *common.DatadogModel
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("datadog"), &datadog)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	resp.Diagnostics.Append(common.ValidateDatadog(data.Datadog)...)
+	resp.Diagnostics.Append(common.ValidateDatadog(datadog)...)
 }
 
 func (r *GCPEnvResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
