@@ -1,5 +1,5 @@
 ---
-page_title: "altinitycloud_env_aws_status Data Source - terraform-provider-altinitycloud"
+page_title: "altinitycloud_env_aws_status Data Source - altinitycloud"
 subcategory: ""
 description: |-
   Altinity.Cloud AWS environment status data source. It will long pool the status until matching_spec is true. Use this data source to wait for the environment is fully provisioned.

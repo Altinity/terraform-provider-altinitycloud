@@ -1,5 +1,5 @@
 ---
-page_title: "altinitycloud_env_azure Resource - terraform-provider-altinitycloud"
+page_title: "altinitycloud_env_azure Resource - altinitycloud"
 subcategory: ""
 description: |-
   Bring Your Own Cloud (BYOC) Azure environment resource.

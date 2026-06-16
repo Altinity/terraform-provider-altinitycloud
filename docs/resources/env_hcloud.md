@@ -1,5 +1,5 @@
 ---
-page_title: "altinitycloud_env_hcloud Resource - terraform-provider-altinitycloud"
+page_title: "altinitycloud_env_hcloud Resource - altinitycloud"
 subcategory: ""
 description: |-
   Bring Your Own Cloud (BYOC) HCloud environment resource.
