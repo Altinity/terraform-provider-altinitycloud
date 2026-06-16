@@ -1,5 +1,5 @@
 ---
-page_title: "altinitycloud_env_k8s Resource - altinitycloud"
+page_title: "altinitycloud_env_k8s Resource - terraform-provider-altinitycloud"
 subcategory: ""
 description: |-
   Bring Your Own Kubernetes (BYOK) environment resource.

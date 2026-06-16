@@ -1,5 +1,5 @@
 ---
-page_title: "altinitycloud_env_aws Resource - altinitycloud"
+page_title: "altinitycloud_env_aws Resource - terraform-provider-altinitycloud"
 subcategory: ""
 description: |-
   Bring Your Own Cloud (BYOC) AWS environment resource.

@@ -1,5 +1,5 @@
 ---
-page_title: "altinitycloud_env_gcp Resource - altinitycloud"
+page_title: "altinitycloud_env_gcp Resource - terraform-provider-altinitycloud"
 subcategory: ""
 description: |-
   Bring Your Own Cloud (BYOC) GCP environment resource.

@@ -1,5 +1,5 @@
 ---
-page_title: "altinitycloud_env_gcp_status Data Source - altinitycloud"
+page_title: "altinitycloud_env_gcp_status Data Source - terraform-provider-altinitycloud"
 subcategory: ""
 description: |-
   Altinity.Cloud GCP environment status data source. It will long pool the status until matching_spec is true. Use this data source to wait for the environment is fully provisioned.
