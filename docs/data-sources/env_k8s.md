@@ -28,20 +28,19 @@ Bring Your Own Kubernetes (BYOK) environment data source.
 ### Read-Only
 
 - `allow_delete_while_disconnected` (Boolean) Set to `true` to allow deletion of the environment while it is disconnected from the cloud connect. If the the environment is not connected during the deletion process you will end up in a delete timeout (default `false`).
-- `custom_domain` (String) Custom domain.
+- `custom_domain` (String, Deprecated) Deprecated. Use `custom_domains` instead.
+- `custom_domains` (List of String) Custom domains.
 
 		Examples:
 		- "example.com"
 		- "foo.bar.com"
 
-		Before specifying custom domain, please create the following DNS records:
-		- CNAME _acme-challenge.example.com. $env_name.altinity.cloud.
-		- (optional, public load balancer)
-			CNAME *.example.com. _.$env_name.altinity.cloud.
-		- (optional, internal load balancer)
-			CNAME *.internal.example.com. _.internal.$env_name.altinity.cloud.
-		- (optional, vpce)
-			CNAME *.vpce.example.com. _.vpce.$env_name.altinity.cloud.
+		For each custom domain you specify, please create the following DNS records:
+		`CNAME _acme-challenge.<custom_domain>. $env_name.altinity.cloud.`
+
+		E.g. for the above examples your records should be:
+		- `CNAME _acme-challenge.example.com. $env_name.altinity.cloud.`
+		- `CNAME _acme-challenge.foo.bar.com. $env_name.altinity.cloud.`
 - `custom_node_types` (Attributes List) Custom node types (see [below for nested schema](#nestedatt--custom_node_types))
 - `distribution` (String) Kubernetes distribution. **[IMMUTABLE]**
 

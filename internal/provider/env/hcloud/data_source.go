@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	clientsupport "github.com/altinity/terraform-provider-altinitycloud/internal/provider/common"
+	common "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env/common"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/client"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
@@ -74,6 +75,8 @@ func (d *HCloudEnvDataSource) Read(ctx context.Context, req datasource.ReadReque
 	if resp.Diagnostics.HasError() {
 		return
 	}
+	data.CustomDomain, data.CustomDomains, diags = common.DataSourceCustomDomainsToModel(apiResp.HcloudEnv.Spec.CustomDomain, apiResp.HcloudEnv.Spec.CustomDomains)
+	resp.Diagnostics.Append(diags...)
 	data.Id = data.Name
 
 	diags = resp.State.Set(ctx, &data)

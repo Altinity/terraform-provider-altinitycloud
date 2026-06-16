@@ -12,10 +12,11 @@ import (
 )
 
 type GCPEnvResourceModel struct {
-	Id           types.String             `tfsdk:"id"`
-	Name         types.String             `tfsdk:"name"`
-	CustomDomain types.String             `tfsdk:"custom_domain"`
-	NodeGroups   []common.NodeGroupsModel `tfsdk:"node_groups"`
+	Id            types.String             `tfsdk:"id"`
+	Name          types.String             `tfsdk:"name"`
+	CustomDomain  types.String             `tfsdk:"custom_domain"`
+	CustomDomains types.List               `tfsdk:"custom_domains"`
+	NodeGroups    []common.NodeGroupsModel `tfsdk:"node_groups"`
 
 	Region                  types.String                    `tfsdk:"region"`
 	CIDR                    types.String                    `tfsdk:"cidr"`
@@ -79,6 +80,8 @@ func (e GCPEnvResourceModel) toSDK(ctx context.Context) (sdk.CreateGCPEnvInput, 
 	metricsEndpoint := metricsEndpointToSDK(e.MetricsEndpoint)
 	datadog := common.DatadogToSDK(e.Datadog)
 	cloudConnect := false
+	customDomain, customDomains, diags := common.CustomDomainsToSDK(ctx, e.CustomDomain, e.CustomDomains)
+	allDiags.Append(diags...)
 
 	var labels []*sdk.KeyValueInput
 	for _, t := range e.Labels {
@@ -105,7 +108,8 @@ func (e GCPEnvResourceModel) toSDK(ctx context.Context) (sdk.CreateGCPEnvInput, 
 	create := sdk.CreateGCPEnvInput{
 		Name: e.Name.ValueString(),
 		Spec: &sdk.CreateGCPEnvSpecInput{
-			CustomDomain:            e.CustomDomain.ValueStringPointer(),
+			CustomDomain:            customDomain,
+			CustomDomains:           customDomains,
 			NodeGroups:              nodeGroups,
 			GCPProjectID:            e.GCPProjectID.ValueString(),
 			Region:                  e.Region.ValueString(),
@@ -128,7 +132,8 @@ func (e GCPEnvResourceModel) toSDK(ctx context.Context) (sdk.CreateGCPEnvInput, 
 		Name:           e.Name.ValueString(),
 		UpdateStrategy: &strategy,
 		Spec: &sdk.UpdateGCPEnvSpecInput{
-			CustomDomain:            e.CustomDomain.ValueStringPointer(),
+			CustomDomain:            customDomain,
+			CustomDomains:           customDomains,
 			NodeGroups:              nodeGroups,
 			Zones:                   zones,
 			LoadBalancingStrategy:   loadBalancingStrategy,
@@ -149,7 +154,10 @@ func (model *GCPEnvResourceModel) toModel(env sdk.GetGCPEnv_GCPEnv) diag.Diagnos
 	var allDiags diag.Diagnostics
 	model.Name = types.StringValue(env.Name)
 	model.Region = types.StringValue(env.Spec.Region)
-	model.CustomDomain = types.StringPointerValue(env.Spec.CustomDomain)
+	customDomain, customDomains, diags := common.CustomDomainsToModel(model.CustomDomains, env.Spec.CustomDomain, env.Spec.CustomDomains)
+	allDiags.Append(diags...)
+	model.CustomDomain = customDomain
+	model.CustomDomains = customDomains
 	model.CIDR = types.StringValue(env.Spec.Cidr)
 	model.GCPProjectID = types.StringValue(env.Spec.GCPProjectID)
 	model.LoadBalancingStrategy = types.StringValue(string(env.Spec.LoadBalancingStrategy))

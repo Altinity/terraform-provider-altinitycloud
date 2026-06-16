@@ -63,6 +63,7 @@ fragment GCPEnvSpecFragment on GCPEnvSpec {
   }
   loadBalancingStrategy
   customDomain
+  customDomains
   nodeGroups {
     name
     nodeType

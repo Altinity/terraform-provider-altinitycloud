@@ -12,6 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	rschema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
@@ -27,17 +28,43 @@ func GetCommonCustomDomainAttribute(required, optional, computed bool) rschema.S
 	return GetCustomDomainAttribute(required, optional, computed, CUSTOM_DOMAIN_DESCRIPTION)
 }
 
+func GetCommonCustomDomainsAttribute(required, optional, computed bool) rschema.ListAttribute {
+	return GetCustomDomainsAttribute(required, optional, computed, CUSTOM_DOMAINS_DESCRIPTION)
+}
+
 func GetCustomDomainAttribute(required, optional, computed bool, description string) rschema.StringAttribute {
 	return rschema.StringAttribute{
 		Required:            required,
 		Optional:            optional,
 		Computed:            computed,
 		MarkdownDescription: description,
+		DeprecationMessage:  "Use `custom_domains` instead.",
 		Validators: []validator.String{
 			stringvalidator.RegexMatches(
 				DomainRegex,
 				"invalid domain format",
 			),
+			stringvalidator.ConflictsWith(path.MatchRoot("custom_domains")),
+		},
+	}
+}
+
+func GetCustomDomainsAttribute(required, optional, computed bool, description string) rschema.ListAttribute {
+	return rschema.ListAttribute{
+		ElementType:         types.StringType,
+		Required:            required,
+		Optional:            optional,
+		Computed:            computed,
+		MarkdownDescription: description,
+		Validators: []validator.List{
+			listvalidator.SizeAtLeast(1),
+			listvalidator.ValueStringsAre(
+				stringvalidator.RegexMatches(
+					DomainRegex,
+					"invalid domain format",
+				),
+			),
+			listvalidator.ConflictsWith(path.MatchRoot("custom_domain")),
 		},
 	}
 }
@@ -272,6 +299,12 @@ func GetMetricsEndpointAttribute(required, optional, computed bool) rschema.Sing
 		Required:            required,
 		Computed:            computed,
 		MarkdownDescription: METRICS_ENDPOINT_DESCRIPTION,
+		PlanModifiers: []planmodifier.Object{
+			modifiers.DefaultObject(map[string]attr.Value{
+				"enabled":          types.BoolValue(false),
+				"source_ip_ranges": types.ListNull(types.StringType),
+			}),
+		},
 		Attributes: map[string]rschema.Attribute{
 			"enabled": rschema.BoolAttribute{
 				Optional:            true,

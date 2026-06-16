@@ -7,6 +7,7 @@ import (
 	"github.com/MakeNowJust/heredoc/v2"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/provider/common"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/provider/modifiers"
+	"github.com/altinity/terraform-provider-altinitycloud/internal/provider/validators"
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
@@ -30,6 +31,7 @@ func (r *AWSEnvResource) Schema(ctx context.Context, req resource.SchemaRequest,
 			"id":                              common.IDAttribute,
 			"name":                            common.NameAttribute,
 			"custom_domain":                   common.GetCommonCustomDomainAttribute(false, true, false),
+			"custom_domains":                  common.GetCommonCustomDomainsAttribute(false, true, false),
 			"load_balancers":                  getLoadBalancersAttribute(false, true, true),
 			"load_balancing_strategy":         common.GetLoadBalancingStrategyAttribute(false, true, true),
 			"maintenance_windows":             common.GetMaintenanceWindowAttribute(false, true, false),
@@ -74,6 +76,7 @@ func (d *AWSEnvDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 			"id":                              common.IDAttribute,
 			"name":                            common.NameAttribute,
 			"custom_domain":                   common.GetCommonCustomDomainAttribute(false, false, true),
+			"custom_domains":                  common.GetCommonCustomDomainsAttribute(false, false, true),
 			"load_balancers":                  getLoadBalancersAttribute(false, false, true),
 			"load_balancing_strategy":         common.GetLoadBalancingStrategyAttribute(false, false, true),
 			"maintenance_windows":             common.GetMaintenanceWindowAttribute(false, false, true),
@@ -201,6 +204,7 @@ func getExternalBucketsAttribute(required, optional, computed bool) rschema.SetN
 		MarkdownDescription: common.EXTERNAL_BUCKET_DESCRIPTION,
 		Validators: []validator.Set{
 			setvalidator.SizeAtLeast(1),
+			validators.UniqueExternalBucketNames(),
 		},
 	}
 }

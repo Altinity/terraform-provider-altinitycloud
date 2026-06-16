@@ -4,6 +4,44 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.2](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.7.1...v0.7.2)
+### Fixed
+- Fix `inconsistent result after apply` on `spec_revision` during env updates [#243](https://github.com/Altinity/terraform-provider-altinitycloud/pull/243).
+
+## [0.7.1](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.7.0...v0.7.1)
+### Fixed
+- Fix value conversion crash during config validation when a nested attribute (e.g. `backups`) holds an unknown value, such as via `try()` over a not-yet-known local [#242](https://github.com/Altinity/terraform-provider-altinitycloud/pull/242).
+
+## [0.7.0](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.6.1...v0.7.0)
+### Added
+- Support `custom_domains` configuration [#239](https://github.com/Altinity/terraform-provider-altinitycloud/pull/239).
+- Datadog agent support across all environments (except BYOK) [#238](https://github.com/Altinity/terraform-provider-altinitycloud/pull/238).
+- Retry interceptor for transient errors in the GraphQL client [2d1fe82](https://github.com/Altinity/terraform-provider-altinitycloud/commit/2d1fe82).
+- Support `tags` in `altinitycloud_env_gcp` [#225](https://github.com/Altinity/terraform-provider-altinitycloud/pull/225).
+- Slack support message in Client Error diagnostics [#223](https://github.com/Altinity/terraform-provider-altinitycloud/pull/223).
+
+### Fixed
+- Fix unknown value crash on `metrics_endpoint` create [#241](https://github.com/Altinity/terraform-provider-altinitycloud/pull/241).
+- Surface network errors in `FormatError` [bb7d027](https://github.com/Altinity/terraform-provider-altinitycloud/commit/bb7d027).
+- Add `RequiresReplace` plan modifier to certificate `env_name` [c11c9fa](https://github.com/Altinity/terraform-provider-altinitycloud/commit/c11c9fa).
+- Add warning diagnostic on Certificate and Secret Delete [4017081](https://github.com/Altinity/terraform-provider-altinitycloud/commit/4017081).
+- Propagate context in `Encrypt()` instead of `context.Background()` [25dde0a](https://github.com/Altinity/terraform-provider-altinitycloud/commit/25dde0a).
+- Update hc-install to fix expired GPG key during doc generation [58d892b](https://github.com/Altinity/terraform-provider-altinitycloud/commit/58d892b).
+- Add workflow permissions to fix code scanning alert [#217](https://github.com/Altinity/terraform-provider-altinitycloud/pull/217).
+- Truncate HTTP error bodies and strip query from URLs in SDK errors [256dc3e](https://github.com/Altinity/terraform-provider-altinitycloud/commit/256dc3e).
+- Make computed nested lists explicit in AWS env status schema [d4316a7](https://github.com/Altinity/terraform-provider-altinitycloud/commit/d4316a7).
+- Retry env delete polling on transient API errors [1442ca8](https://github.com/Altinity/terraform-provider-altinitycloud/commit/1442ca8).
+
+### Changed
+- Add more feedback to error messages [ad7e3b8](https://github.com/Altinity/terraform-provider-altinitycloud/commit/ad7e3b8).
+- Add explicit zones to node groups via shared local in examples [b532efb](https://github.com/Altinity/terraform-provider-altinitycloud/commit/b532efb).
+- Bump Go to `1.26.2` [c297ff2](https://github.com/Altinity/terraform-provider-altinitycloud/commit/c297ff2).
+- Sync GraphQL SDK and docs [0156d59](https://github.com/Altinity/terraform-provider-altinitycloud/commit/0156d59), [cb2888d](https://github.com/Altinity/terraform-provider-altinitycloud/commit/cb2888d).
+- Add `agents.md` [6fd1a47](https://github.com/Altinity/terraform-provider-altinitycloud/commit/6fd1a47).
+- Bump github.com/hashicorp/terraform-plugin-sdk/v2 [#231](https://github.com/Altinity/terraform-provider-altinitycloud/pull/231).
+- Bump github.com/hashicorp/terraform-plugin-docs [#230](https://github.com/Altinity/terraform-provider-altinitycloud/pull/230).
+- Bump github.com/hashicorp/terraform-plugin-testing [#229](https://github.com/Altinity/terraform-provider-altinitycloud/pull/229).
+
 ## [0.6.1](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.6.0...v0.6.1)
 ### Fixed
 - Fix typo "matchs" -> "matches" in AWS env status log [cddaae2](https://github.com/Altinity/terraform-provider-altinitycloud/commit/cddaae2).

@@ -9,6 +9,7 @@ import (
 	clientsupport "github.com/altinity/terraform-provider-altinitycloud/internal/provider/common"
 	common "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env/common"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/client"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -30,12 +31,19 @@ func (r *AzureEnvResource) Metadata(ctx context.Context, req resource.MetadataRe
 }
 
 func (r *AzureEnvResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
-	var data AzureEnvResourceModel
-	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
+	// Read only datadog: a full Config.Get panics on unknown nested struct-pointer attrs.
+	var datadogObj types.Object
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("datadog"), &datadogObj)...)
+	if resp.Diagnostics.HasError() || datadogObj.IsNull() || datadogObj.IsUnknown() {
+		return
+	}
+
+	var datadog *common.DatadogModel
+	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("datadog"), &datadog)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	resp.Diagnostics.Append(common.ValidateDatadog(data.Datadog)...)
+	resp.Diagnostics.Append(common.ValidateDatadog(datadog)...)
 }
 
 func (r *AzureEnvResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {

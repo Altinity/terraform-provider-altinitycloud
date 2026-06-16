@@ -81,6 +81,7 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
   }
   loadBalancingStrategy
   customDomain
+  customDomains
   nodeGroups {
     name
     nodeType

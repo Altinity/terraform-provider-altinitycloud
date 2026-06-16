@@ -26,6 +26,7 @@ func (r *AzureEnvResource) Schema(ctx context.Context, req resource.SchemaReques
 			"id":                              common.IDAttribute,
 			"name":                            common.NameAttribute,
 			"custom_domain":                   getCustomDomainAttribute(false, true, false),
+			"custom_domains":                  getCustomDomainsAttribute(false, true, false),
 			"load_balancers":                  getLoadBalancersAttribute(false, true, true),
 			"load_balancing_strategy":         common.GetLoadBalancingStrategyAttribute(false, true, true),
 			"maintenance_windows":             common.GetMaintenanceWindowAttribute(false, true, false),
@@ -60,6 +61,7 @@ func (d *AzureEnvDataSource) Schema(ctx context.Context, req datasource.SchemaRe
 			"id":                      common.IDAttribute,
 			"name":                    common.NameAttribute,
 			"custom_domain":           getCustomDomainAttribute(false, false, true),
+			"custom_domains":          getCustomDomainsAttribute(false, false, true),
 			"load_balancers":          getLoadBalancersAttribute(false, false, true),
 			"load_balancing_strategy": common.GetLoadBalancingStrategyAttribute(false, false, true),
 			"maintenance_windows":     common.GetMaintenanceWindowAttribute(false, false, true),
@@ -136,6 +138,10 @@ func getAzureTenantIDAttribute(required, optional, computed bool) rschema.String
 
 func getCustomDomainAttribute(required, optional, computed bool) rschema.StringAttribute {
 	return common.GetCustomDomainAttribute(required, optional, computed, common.AZURE_CUSTOM_DOMAIN_DESCRIPTION)
+}
+
+func getCustomDomainsAttribute(required, optional, computed bool) rschema.ListAttribute {
+	return common.GetCustomDomainsAttribute(required, optional, computed, common.AZURE_CUSTOM_DOMAINS_DESCRIPTION)
 }
 
 func getAzureSubscriptionIDAttribute(required, optional, computed bool) rschema.StringAttribute {

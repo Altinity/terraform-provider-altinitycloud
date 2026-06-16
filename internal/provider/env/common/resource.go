@@ -75,6 +75,12 @@ func (r *EnvResourceBase) ModifyPlan(ctx context.Context, req resource.ModifyPla
 		if skipDeprovision.ValueBool() {
 			resp.Diagnostics.AddAttributeWarning(path.Root("skip_deprovision_on_destroy"), "Skip Deprovision on Destroy", "This resource is using the 'skip_deprovision_on_destroy'.\nUse this with precaution as it will delete the environment without deleting any of your cloud resources.")
 		}
+		return
+	}
+
+	// spec_revision is server-reassigned each update; unknown-on-change so the plan doesn't pin the stale value.
+	if !req.State.Raw.IsNull() && !req.Plan.Raw.Equal(req.State.Raw) {
+		resp.Diagnostics.Append(resp.Plan.SetAttribute(ctx, path.Root("spec_revision"), types.Int64Unknown())...)
 	}
 }
 

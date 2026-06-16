@@ -68,6 +68,7 @@ fragment AzureEnvSpecFragment on AzureEnvSpec {
   }
   loadBalancingStrategy
   customDomain
+  customDomains
   nodeGroups {
     name
     nodeType
