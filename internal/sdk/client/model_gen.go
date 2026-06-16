@@ -403,7 +403,8 @@ type AWSEnvSpec struct {
 	EksLogging bool `json:"eksLogging"`
 	// Metrics endpoint configuration.
 	MetricsEndpoint *MetricsEndpointSpec `json:"metricsEndpoint"`
-	Datadog         *DatadogSpec         `json:"datadog"`
+	// Datadog agent configuration.
+	Datadog *DatadogSpec `json:"datadog"`
 	// ARN of the customer's KMS key for encrypting Altinity-provisioned data buckets
 	// and EBS volumes.
 	KmsKeyArn *string `json:"kmsKeyARN,omitempty"`
@@ -722,7 +723,8 @@ type AzureEnvSpec struct {
 	CloudConnect bool `json:"cloudConnect"`
 	// Metrics endpoint configuration.
 	MetricsEndpoint *MetricsEndpointSpec `json:"metricsEndpoint"`
-	Datadog         *DatadogSpec         `json:"datadog"`
+	// Datadog agent configuration.
+	Datadog *DatadogSpec `json:"datadog"`
 }
 
 // Azure environment status.
@@ -870,7 +872,8 @@ type CreateAWSEnvSpecInput struct {
 	EksLogging *bool `json:"eksLogging,omitempty"`
 	// Metrics endpoint configuration.
 	MetricsEndpoint *MetricsEndpointSpecInput `json:"metricsEndpoint,omitempty"`
-	Datadog         *DatadogSpecInput         `json:"datadog,omitempty"`
+	// Datadog monitoring agent configuration.
+	Datadog *DatadogSpecInput `json:"datadog,omitempty"`
 	// ARN of the customer's KMS key for encrypting Altinity-provisioned data buckets
 	// and EBS volumes.
 	KmsKeyArn *string `json:"kmsKeyARN,omitempty"`
@@ -1277,7 +1280,7 @@ type CreateK8SEnvSpecInput struct {
 	Datadog *DatadogSpecInput `json:"datadog,omitempty"`
 }
 
-// Datadog agent configuration for the environment.
+// Datadog monitoring agent configuration .
 type DatadogSpec struct {
 	// True if the Datadog agent is enabled, false otherwise.
 	Enabled bool `json:"enabled"`
@@ -1666,7 +1669,8 @@ type GCPEnvSpec struct {
 	PrivateServiceConnections []*GCPEnvPrivateServiceConnectionSpec `json:"privateServiceConnections"`
 	// Metrics endpoint configuration.
 	MetricsEndpoint *MetricsEndpointSpec `json:"metricsEndpoint"`
-	Datadog         *DatadogSpec         `json:"datadog"`
+	// Datadog agent configuration.
+	Datadog *DatadogSpec `json:"datadog"`
 }
 
 // GCP environment status.
@@ -1871,7 +1875,8 @@ type HCloudEnvSpec struct {
 	WireguardPeers []*HCloudEnvWireguardPeerSpec `json:"wireguardPeers"`
 	// Metrics endpoint configuration.
 	MetricsEndpoint *MetricsEndpointSpec `json:"metricsEndpoint"`
-	Datadog         *DatadogSpec         `json:"datadog"`
+	// Datadog agent configuration.
+	Datadog *DatadogSpec `json:"datadog"`
 }
 
 // HCloud environment status.
@@ -2274,7 +2279,8 @@ type K8SEnvSpec struct {
 	CustomDomains []string `json:"customDomains"`
 	// Metrics endpoint configuration.
 	MetricsEndpoint *MetricsEndpointSpec `json:"metricsEndpoint"`
-	Datadog         *DatadogSpec         `json:"datadog"`
+	// Datadog agent configuration.
+	Datadog *DatadogSpec `json:"datadog"`
 }
 
 // Kubernetes environment logs GCS storage configuration.

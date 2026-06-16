@@ -178,6 +178,9 @@ type AWSEnvSpec {
   Metrics endpoint configuration.
   """
   metricsEndpoint: MetricsEndpointSpec!
+  """
+  Datadog agent configuration.
+  """
   datadog: DatadogSpec!
   """
   ARN of the customer's KMS key for encrypting Altinity-provisioned data buckets
@@ -663,6 +666,9 @@ input CreateAWSEnvSpecInput {
   Metrics endpoint configuration.
   """
   metricsEndpoint: MetricsEndpointSpecInput
+  """
+  Datadog monitoring agent configuration.
+  """
   datadog: DatadogSpecInput
   """
   ARN of the customer's KMS key for encrypting Altinity-provisioned data buckets
@@ -1235,6 +1241,9 @@ type AzureEnvSpec {
   Metrics endpoint configuration.
   """
   metricsEndpoint: MetricsEndpointSpec!
+  """
+  Datadog agent configuration.
+  """
   datadog: DatadogSpec!
 }
 
@@ -2241,7 +2250,7 @@ type MetricsEndpointSpec {
 }
 
 """
-Datadog agent configuration for the environment.
+Datadog monitoring agent configuration .
 """
 type DatadogSpec {
   """
@@ -2462,6 +2471,9 @@ type GCPEnvSpec {
   Metrics endpoint configuration.
   """
   metricsEndpoint: MetricsEndpointSpec!
+  """
+  Datadog agent configuration.
+  """
   datadog: DatadogSpec!
 }
 
@@ -3217,6 +3229,9 @@ type HCloudEnvSpec {
   Metrics endpoint configuration.
   """
   metricsEndpoint: MetricsEndpointSpec!
+  """
+  Datadog agent configuration.
+  """
   datadog: DatadogSpec!
 }
 
@@ -3875,6 +3890,9 @@ type K8SEnvSpec {
   Metrics endpoint configuration.
   """
   metricsEndpoint: MetricsEndpointSpec!
+  """
+  Datadog agent configuration.
+  """
   datadog: DatadogSpec!
 }
 
