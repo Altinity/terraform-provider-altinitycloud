@@ -7,6 +7,7 @@ import (
 	"github.com/MakeNowJust/heredoc/v2"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/provider/common"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/provider/modifiers"
+	"github.com/altinity/terraform-provider-altinitycloud/internal/provider/validators"
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
@@ -201,6 +202,7 @@ func getExternalBucketsAttribute(required, optional, computed bool) rschema.SetN
 		MarkdownDescription: common.EXTERNAL_BUCKET_DESCRIPTION,
 		Validators: []validator.Set{
 			setvalidator.SizeAtLeast(1),
+			validators.UniqueExternalBucketNames(),
 		},
 	}
 }
