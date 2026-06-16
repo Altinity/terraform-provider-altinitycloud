@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.2](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.7.1...v0.7.2)
+### Fixed
+- Fix `inconsistent result after apply` on `spec_revision` during env updates [#243](https://github.com/Altinity/terraform-provider-altinitycloud/pull/243).
+
 ## [0.7.1](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.7.0...v0.7.1)
 ### Fixed
 - Fix value conversion crash during config validation when a nested attribute (e.g. `backups`) holds an unknown value, such as via `try()` over a not-yet-known local [#242](https://github.com/Altinity/terraform-provider-altinitycloud/pull/242).
