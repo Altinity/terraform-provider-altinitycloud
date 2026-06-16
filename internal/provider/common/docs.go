@@ -29,6 +29,17 @@ const CUSTOM_DOMAINS_DESCRIPTION = `Custom domains.
 		E.g. for the above examples your records should be:
 		- ` + "`" + `CNAME _acme-challenge.example.com. $env_name.altinity.cloud.` + "`" + `
 		- ` + "`" + `CNAME _acme-challenge.foo.bar.com. $env_name.altinity.cloud.` + "`" + `
+
+		This will allow altinity to automatically provision a certificate for your custom domain.
+
+		You should also setup a CNAME to point from your custom domain to the environment public loadbalancer:
+
+		 - ` + "`" + `CNAME *.<custom_domain>. _.$env_name.altinity.cloud.` + "`" + `
+
+		So for the above examples you would have two additional CNAME records:
+
+		- ` + "`" + `CNAME *.example.com. _.$env_name.altinity.cloud.` + "`" + `
+		- ` + "`" + `CNAME *.foo.bar.com. _.$env_name.altinity.cloud.` + "`" + `
 `
 const SOURCE_IP_RANGES_DESCRIPTION = " IP addresses/blocks to allow traffic from (default `\"0.0.0.0/0\"`)."
 const MAINTENANCE_WINDOW_DAYS_DESCRIPTION = `Days on which maintenance can take place.

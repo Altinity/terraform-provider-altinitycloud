@@ -41,6 +41,17 @@ Bring Your Own Kubernetes (BYOK) environment data source.
 		E.g. for the above examples your records should be:
 		- `CNAME _acme-challenge.example.com. $env_name.altinity.cloud.`
 		- `CNAME _acme-challenge.foo.bar.com. $env_name.altinity.cloud.`
+
+		This will allow altinity to automatically provision a certificate for your custom domain.
+
+		You should also setup a CNAME to point from your custom domain to the environment public loadbalancer:
+
+		 - `CNAME *.<custom_domain>. _.$env_name.altinity.cloud.`
+
+		So for the above examples you would have two additional CNAME records:
+
+		- `CNAME *.example.com. _.$env_name.altinity.cloud.`
+		- `CNAME *.foo.bar.com. _.$env_name.altinity.cloud.`
 - `custom_node_types` (Attributes List) Custom node types (see [below for nested schema](#nestedatt--custom_node_types))
 - `distribution` (String) Kubernetes distribution. **[IMMUTABLE]**
 

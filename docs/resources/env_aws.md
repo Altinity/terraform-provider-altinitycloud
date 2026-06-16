@@ -636,6 +636,17 @@ data "altinitycloud_env_aws_status" "this" {
 		E.g. for the above examples your records should be:
 		- `CNAME _acme-challenge.example.com. $env_name.altinity.cloud.`
 		- `CNAME _acme-challenge.foo.bar.com. $env_name.altinity.cloud.`
+
+		This will allow altinity to automatically provision a certificate for your custom domain.
+
+		You should also setup a CNAME to point from your custom domain to the environment public loadbalancer:
+
+		 - `CNAME *.<custom_domain>. _.$env_name.altinity.cloud.`
+
+		So for the above examples you would have two additional CNAME records:
+
+		- `CNAME *.example.com. _.$env_name.altinity.cloud.`
+		- `CNAME *.foo.bar.com. _.$env_name.altinity.cloud.`
 - `datadog` (Attributes) Datadog agent configuration. (see [below for nested schema](#nestedatt--datadog))
 - `eks_logging` (Boolean) Enable/Disable EKS control plane logging to CloudWatch (default `false`).
 - `endpoints` (Attributes List) AWS environment VPC endpoint configuration (see [below for nested schema](#nestedatt--endpoints))
