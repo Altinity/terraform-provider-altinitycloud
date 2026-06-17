@@ -1,8 +1,10 @@
 package client
 
 import (
+	"bytes"
 	"context"
 	"errors"
+	"io"
 	"net/http"
 	"testing"
 	"time"
@@ -118,6 +120,40 @@ func TestWithRetry_429IsRetryable(t *testing.T) {
 	}
 	if calls != 2 {
 		t.Errorf("expected 2 calls, got %d", calls)
+	}
+}
+
+func TestWithRetry_ReplaysBodyOnRetry(t *testing.T) {
+	interceptor := WithRetry(3, time.Millisecond)
+	const payload = "graphql-payload"
+
+	req, err := http.NewRequest(http.MethodPost, "http://example.test", bytes.NewReader([]byte(payload)))
+	if err != nil {
+		t.Fatalf("failed to build request: %v", err)
+	}
+
+	calls := 0
+	var reads []string
+	next := func(ctx context.Context, req *http.Request, gqlInfo *clientv2.GQLRequestInfo, res interface{}) error {
+		calls++
+		body, _ := io.ReadAll(req.Body)
+		reads = append(reads, string(body))
+		if calls < 3 {
+			return errors.New("status 503")
+		}
+		return nil
+	}
+
+	if err := interceptor(context.Background(), req, &clientv2.GQLRequestInfo{}, nil, next); err != nil {
+		t.Fatalf("expected nil error, got: %v", err)
+	}
+	if calls != 3 {
+		t.Fatalf("expected 3 calls, got %d", calls)
+	}
+	for i, got := range reads {
+		if got != payload {
+			t.Errorf("attempt %d read body %q, want %q (body not replayed on retry)", i+1, got, payload)
+		}
 	}
 }
 

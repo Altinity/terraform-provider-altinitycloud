@@ -1,8 +1,10 @@
 package client
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"io"
 	"net/http"
 	"strings"
 	"time"
@@ -53,10 +55,32 @@ func isRetryable(err error) bool {
 
 func WithRetry(maxRetries int, initialBackoff time.Duration) clientv2.RequestInterceptor {
 	return func(ctx context.Context, req *http.Request, gqlInfo *clientv2.GQLRequestInfo, res interface{}, next clientv2.RequestInterceptorFunc) error {
+		// Buffer the body so it can be replayed: the transport consumes req.Body on
+		// each attempt, so without a fresh body a retry sends an empty payload
+		// ("ContentLength=N with Body length 0").
+		if req.Body != nil && req.GetBody == nil {
+			body, readErr := io.ReadAll(req.Body)
+			_ = req.Body.Close()
+			if readErr != nil {
+				return readErr
+			}
+			req.GetBody = func() (io.ReadCloser, error) {
+				return io.NopCloser(bytes.NewReader(body)), nil
+			}
+		}
+
 		var err error
 		backoff := initialBackoff
 
 		for attempt := 0; attempt <= maxRetries; attempt++ {
+			if req.GetBody != nil {
+				body, bodyErr := req.GetBody()
+				if bodyErr != nil {
+					return bodyErr
+				}
+				req.Body = body
+			}
+
 			err = next(ctx, req, gqlInfo, res)
 			if err == nil {
 				return nil
