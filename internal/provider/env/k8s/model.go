@@ -156,6 +156,12 @@ func (model *K8SEnvResourceModel) toModel(name string, specRevision int64, spec 
 	model.CustomDomain = customDomain
 	model.CustomDomains = customDomains
 	model.LoadBalancingStrategy = types.StringValue(string(spec.LoadBalancingStrategy))
+	// Reorder custom node types to respect order in the user's configuration; the
+	// API may return them in a different order, which would otherwise drift.
+	spec.CustomNodeTypes = common.ReorderByKey(model.CustomNodeTypes, spec.CustomNodeTypes,
+		func(m NodeTypeModel) string { return m.Name.ValueString() },
+		func(s *client.K8SEnvSpecFragment_CustomNodeTypes) string { return s.Name },
+	)
 	model.CustomNodeTypes = nodeTypesToModel(spec.CustomNodeTypes)
 	nodeGroups, diags := nodeGroupsToModel(spec.NodeGroups)
 	allDiags.Append(diags...)
