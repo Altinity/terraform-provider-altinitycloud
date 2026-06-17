@@ -3,10 +3,12 @@
 package test
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/hashicorp/terraform-exec/tfexec"
@@ -73,6 +75,106 @@ func NewE2ETerraform(t *testing.T) (*tfexec.Terraform, string) {
 		t.Fatalf("failed to init tfexec: %s", err)
 	}
 	return tf, workdir
+}
+
+// e2eTransientPatterns are control-plane/network errors worth retrying in e2e.
+// The dev control plane intermittently resets long-lived connections (~30s) on
+// heavy create requests, which surfaces as a transient apply failure from the
+// GitHub Actions runners.
+var e2eTransientPatterns = []string{
+	"connection reset by peer",
+	"connection refused",
+	"i/o timeout",
+	"TLS handshake timeout",
+	"EOF",
+	"request failed",
+	"502", "503", "504",
+}
+
+func isE2ETransient(err error) bool {
+	if err == nil {
+		return false
+	}
+	msg := err.Error()
+	for _, p := range e2eTransientPatterns {
+		if strings.Contains(msg, p) {
+			return true
+		}
+	}
+	return false
+}
+
+// RunE2ELifecycle drives the standard env lifecycle against the dev control
+// plane: create -> drift check -> update -> drift check. Teardown is skipped
+// (dev delete requires MFA). configFn renders the resource HCL for a given env
+// name and node capacity (the capacity drives the mutable update).
+//
+// Create is retried with a fresh env name on transient dev errors so a reset
+// connection doesn't leave us colliding with a half-created env; the idempotent
+// update/plan steps are retried in place.
+func RunE2ELifecycle(t *testing.T, namePrefix string, configFn func(envName string, capacity int) string) {
+	t.Helper()
+	E2EPreCheck(t)
+	tf, workdir := NewE2ETerraform(t)
+	ctx := context.Background()
+
+	const maxAttempts = 3
+
+	var envName string
+	for attempt := 1; ; attempt++ {
+		envName = namePrefix + GenerateRandomResourceName()
+		WriteE2EConfig(t, workdir, configFn(envName, 1))
+		err := tf.Apply(ctx)
+		if err == nil {
+			break
+		}
+		if attempt >= maxAttempts || !isE2ETransient(err) {
+			t.Fatalf("create apply failed: %s", err)
+		}
+		t.Logf("transient create error (attempt %d/%d), retrying with fresh name: %s", attempt, maxAttempts, err)
+	}
+
+	e2eAssertNoDrift(t, tf, ctx, envName, "create")
+
+	test := func() error {
+		WriteE2EConfig(t, workdir, configFn(envName, 3))
+		return tf.Apply(ctx)
+	}
+	if err := e2eRetryTransient(t, maxAttempts, test); err != nil {
+		t.Fatalf("update apply failed: %s", err)
+	}
+	e2eAssertNoDrift(t, tf, ctx, envName, "update")
+
+	t.Logf("e2e create+update+drift OK for %s (delete skipped: dev requires MFA)", envName)
+}
+
+func e2eAssertNoDrift(t *testing.T, tf *tfexec.Terraform, ctx context.Context, envName, phase string) {
+	t.Helper()
+	var changed bool
+	err := e2eRetryTransient(t, 3, func() error {
+		var planErr error
+		changed, planErr = tf.Plan(ctx)
+		return planErr
+	})
+	if err != nil {
+		t.Fatalf("plan after %s failed: %s", phase, err)
+	}
+	if changed {
+		t.Fatalf("unexpected drift after %s for env %s", phase, envName)
+	}
+}
+
+func e2eRetryTransient(t *testing.T, attempts int, fn func() error) error {
+	t.Helper()
+	var err error
+	for i := 1; i <= attempts; i++ {
+		err = fn()
+		if err == nil || !isE2ETransient(err) {
+			return err
+		}
+		t.Logf("transient error (attempt %d/%d): %s", i, attempts, err)
+	}
+	return err
 }
 
 // WriteE2EConfig writes main.tf (terraform block + given resource HCL) into the

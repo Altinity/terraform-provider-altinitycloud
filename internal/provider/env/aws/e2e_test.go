@@ -3,7 +3,6 @@
 package env_test
 
 import (
-	"context"
 	"fmt"
 	"testing"
 
@@ -11,47 +10,12 @@ import (
 )
 
 // TestE2EAltinityCloudEnvAWS drives create -> update against the dev control
-// plane (https://anywhere.dev.altinity.cloud) using a dummy-prefixed env, and
-// asserts there is no drift after each apply (a non-empty plan = drift).
-//
-// The config exercises every settable field of the AWS env resource so the
-// drift check validates the full spec round-trip (toSDK -> API -> toModel).
-//
-// Teardown is intentionally skipped: deleting an env on dev requires MFA
-// confirmation, which CI cannot provide. Dummy-prefixed envs are cleaned up out
-// of band.
+// plane using a dummy-prefixed env, asserting no drift after each apply. The
+// config exercises every settable field so the drift check validates the full
+// spec round-trip (toSDK -> API -> toModel). Teardown is skipped (dev delete
+// requires MFA).
 func TestE2EAltinityCloudEnvAWS(t *testing.T) {
-	test.E2EPreCheck(t)
-	tf, workdir := test.NewE2ETerraform(t)
-	ctx := context.Background()
-
-	envName := "dummy-e2e-aws-" + test.GenerateRandomResourceName()
-
-	// 1. Create with the full field set.
-	test.WriteE2EConfig(t, workdir, awsE2EConfig(envName, 1))
-	if err := tf.Apply(ctx); err != nil {
-		t.Fatalf("create apply failed: %s", err)
-	}
-
-	// 2. Drift check: a plan right after create must be empty.
-	if changed, err := tf.Plan(ctx); err != nil {
-		t.Fatalf("plan after create failed: %s", err)
-	} else if changed {
-		t.Fatalf("unexpected drift after create for env %s", envName)
-	}
-
-	// 3. Update (capacity 1 -> 3), then assert no drift.
-	test.WriteE2EConfig(t, workdir, awsE2EConfig(envName, 3))
-	if err := tf.Apply(ctx); err != nil {
-		t.Fatalf("update apply failed: %s", err)
-	}
-	if changed, err := tf.Plan(ctx); err != nil {
-		t.Fatalf("plan after update failed: %s", err)
-	} else if changed {
-		t.Fatalf("unexpected drift after update for env %s", envName)
-	}
-
-	t.Logf("e2e create+update+drift OK for %s (delete skipped: dev requires MFA)", envName)
+	test.RunE2ELifecycle(t, "dummy-e2e-aws-", awsE2EConfig)
 }
 
 // awsE2EConfig returns an AWS env resource that sets every settable attribute.

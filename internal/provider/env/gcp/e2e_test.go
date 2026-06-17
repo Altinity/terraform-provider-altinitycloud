@@ -3,7 +3,6 @@
 package env_test
 
 import (
-	"context"
 	"fmt"
 	"testing"
 
@@ -15,33 +14,7 @@ import (
 // config exercises every settable field so the drift check validates the full
 // spec round-trip. Teardown is skipped (dev delete requires MFA).
 func TestE2EAltinityCloudEnvGCP(t *testing.T) {
-	test.E2EPreCheck(t)
-	tf, workdir := test.NewE2ETerraform(t)
-	ctx := context.Background()
-
-	envName := "dummy-e2e-gcp-" + test.GenerateRandomResourceName()
-
-	test.WriteE2EConfig(t, workdir, gcpE2EConfig(envName, 1))
-	if err := tf.Apply(ctx); err != nil {
-		t.Fatalf("create apply failed: %s", err)
-	}
-	if changed, err := tf.Plan(ctx); err != nil {
-		t.Fatalf("plan after create failed: %s", err)
-	} else if changed {
-		t.Fatalf("unexpected drift after create for env %s", envName)
-	}
-
-	test.WriteE2EConfig(t, workdir, gcpE2EConfig(envName, 3))
-	if err := tf.Apply(ctx); err != nil {
-		t.Fatalf("update apply failed: %s", err)
-	}
-	if changed, err := tf.Plan(ctx); err != nil {
-		t.Fatalf("plan after update failed: %s", err)
-	} else if changed {
-		t.Fatalf("unexpected drift after update for env %s", envName)
-	}
-
-	t.Logf("e2e create+update+drift OK for %s (delete skipped: dev requires MFA)", envName)
+	test.RunE2ELifecycle(t, "dummy-e2e-gcp-", gcpE2EConfig)
 }
 
 // gcpE2EConfig returns a GCP env resource that sets every settable attribute.
