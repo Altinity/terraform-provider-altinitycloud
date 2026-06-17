@@ -157,6 +157,44 @@ func TestWithRetry_ReplaysBodyOnRetry(t *testing.T) {
 	}
 }
 
+func TestWithRetry_DoesNotRetryMutations(t *testing.T) {
+	interceptor := WithRetry(3, time.Millisecond)
+	calls := 0
+	next := func(ctx context.Context, req *http.Request, gqlInfo *clientv2.GQLRequestInfo, res interface{}) error {
+		calls++
+		return errors.New("status 503")
+	}
+
+	gqlInfo := &clientv2.GQLRequestInfo{Request: &clientv2.Request{Query: "mutation CreateAWSEnv ($input: CreateAWSEnvInput!) { createAWSEnv }"}}
+	err := interceptor(context.Background(), &http.Request{}, gqlInfo, nil, next)
+	if err == nil {
+		t.Fatal("expected error, got nil")
+	}
+	if calls != 1 {
+		t.Errorf("expected 1 call (mutations are not retried), got %d", calls)
+	}
+}
+
+func TestWithRetry_RetriesQueries(t *testing.T) {
+	interceptor := WithRetry(3, time.Millisecond)
+	calls := 0
+	next := func(ctx context.Context, req *http.Request, gqlInfo *clientv2.GQLRequestInfo, res interface{}) error {
+		calls++
+		if calls < 2 {
+			return errors.New("status 503")
+		}
+		return nil
+	}
+
+	gqlInfo := &clientv2.GQLRequestInfo{Request: &clientv2.Request{Query: "query GetAWSEnv ($name: String!) { awsEnv }"}}
+	if err := interceptor(context.Background(), &http.Request{}, gqlInfo, nil, next); err != nil {
+		t.Fatalf("expected nil error, got: %v", err)
+	}
+	if calls != 2 {
+		t.Errorf("expected 2 calls (queries are retried), got %d", calls)
+	}
+}
+
 func TestIsRetryable(t *testing.T) {
 	tests := []struct {
 		err  string

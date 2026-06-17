@@ -53,8 +53,24 @@ func isRetryable(err error) bool {
 	return false
 }
 
+// isMutation reports whether the GraphQL operation mutates server state. Such
+// operations are not idempotent: retrying one that already succeeded (e.g. when
+// a transient error happens after the server committed it) yields spurious
+// failures like "environment already exists".
+func isMutation(gqlInfo *clientv2.GQLRequestInfo) bool {
+	if gqlInfo == nil || gqlInfo.Request == nil {
+		return false
+	}
+	return strings.HasPrefix(strings.TrimSpace(gqlInfo.Request.Query), "mutation")
+}
+
 func WithRetry(maxRetries int, initialBackoff time.Duration) clientv2.RequestInterceptor {
 	return func(ctx context.Context, req *http.Request, gqlInfo *clientv2.GQLRequestInfo, res interface{}, next clientv2.RequestInterceptorFunc) error {
+		// Only idempotent operations (queries) are safe to retry.
+		if isMutation(gqlInfo) {
+			return next(ctx, req, gqlInfo, res)
+		}
+
 		// Buffer the body so it can be replayed: the transport consumes req.Body on
 		// each attempt, so without a fresh body a retry sends an empty payload
 		// ("ContentLength=N with Body length 0").
