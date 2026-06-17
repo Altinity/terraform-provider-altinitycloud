@@ -114,6 +114,10 @@ install-hooks:
 test:
 	go test -v -cover ./...
 
+.PHONY: test-e2e
+test-e2e:
+	go test -tags e2e -run 'TestE2E' ./... -v $(TESTARGS) -timeout 10m
+
 .PHONY: help
 help:
 	@echo "Available commands:"
@@ -128,6 +132,7 @@ help:
 	@echo "sdk               - Re-sync the SDK client and models. This pulls the latest GraphQL schema and regenerates the client code."
 	@echo "sync              - Fetch and update the current version in the 'example' directory. This syncs the version used in examples with the latest git tag."
 	@echo "test              - Run Go unit tests with coverage. This runs all unit tests in the project and provides coverage information."
+	@echo "test-e2e          - Run e2e lifecycle tests against the dev control plane using dummy-prefixed envs. Skips without ALTINITYCLOUD_API_TOKEN."
 	@echo "testacc           - Run acceptance tests. These are integration tests that use the Terraform binary to test real infrastructure."
 	@echo "tool              - Run Go tools. This is a placeholder for any Go-based tools you might want to run as part of the build."
 
