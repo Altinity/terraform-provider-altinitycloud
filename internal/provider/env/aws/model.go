@@ -245,6 +245,15 @@ func (model *AWSEnvResourceModel) toModel(env sdk.GetAWSEnv_AWSEnv) diag.Diagnos
 	nodeGroups, diags := nodeGroupsToModel(env.Spec.NodeGroups)
 	allDiags.Append(diags...)
 	model.NodeGroups = nodeGroups
+	// Reorder list fields the API may return out of config order, to avoid drift.
+	env.Spec.MaintenanceWindows = common.ReorderByKey(model.MaintenanceWindows, env.Spec.MaintenanceWindows,
+		func(m common.MaintenanceWindowModel) string { return m.Name.ValueString() },
+		func(s *sdk.AWSEnvSpecFragment_MaintenanceWindows) string { return s.Name },
+	)
+	env.Spec.Endpoints = common.ReorderByKey(model.Endpoints, env.Spec.Endpoints,
+		func(m AWSEnvEndpointModel) string { return m.ServiceName.ValueString() },
+		func(s *sdk.AWSEnvSpecFragment_Endpoints) string { return s.ServiceName },
+	)
 	model.MaintenanceWindows = maintenanceWindowsToModel(env.Spec.MaintenanceWindows)
 	zones, diags := common.ListToModel(env.Spec.Zones)
 	allDiags.Append(diags...)

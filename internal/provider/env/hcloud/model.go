@@ -151,12 +151,21 @@ func (model *HCloudEnvResourceModel) toModel(env client.GetHCloudEnv_HcloudEnv) 
 	allDiags.Append(diags...)
 	model.NodeGroups = nodeGroups
 
+	// Reorder maintenance windows the API may return out of config order, to avoid drift.
+	env.Spec.MaintenanceWindows = common.ReorderByKey(model.MaintenanceWindows, env.Spec.MaintenanceWindows,
+		func(m common.MaintenanceWindowModel) string { return m.Name.ValueString() },
+		func(s *client.HCloudEnvSpecFragment_MaintenanceWindows) string { return s.Name },
+	)
 	model.MaintenanceWindows = maintenanceWindowsToModel(env.Spec.MaintenanceWindows)
 
 	locations, diags := common.ListToModel(env.Spec.Locations)
 	allDiags.Append(diags...)
 	model.Locations = locations
 
+	env.Spec.WireguardPeers = common.ReorderByKey(model.WireguardPeers, env.Spec.WireguardPeers,
+		func(m WireguardPeers) string { return m.PublicKey.ValueString() },
+		func(s *client.HCloudEnvSpecFragment_WireguardPeers) string { return s.PublicKey },
+	)
 	wireguardPeers, diags := wireguardPeersToModel(env.Spec.WireguardPeers)
 	allDiags.Append(diags...)
 	model.WireguardPeers = wireguardPeers

@@ -161,6 +161,11 @@ func (model *AzureEnvResourceModel) toModel(env client.GetAzureEnv_AzureEnv) dia
 	allDiags.Append(diags...)
 	model.NodeGroups = nodeGroups
 
+	// Reorder maintenance windows the API may return out of config order, to avoid drift.
+	env.Spec.MaintenanceWindows = common.ReorderByKey(model.MaintenanceWindows, env.Spec.MaintenanceWindows,
+		func(m common.MaintenanceWindowModel) string { return m.Name.ValueString() },
+		func(s *client.AzureEnvSpecFragment_MaintenanceWindows) string { return s.Name },
+	)
 	model.MaintenanceWindows = maintenanceWindowsToModel(env.Spec.MaintenanceWindows)
 
 	zones, diags := common.ListToModel(env.Spec.Zones)

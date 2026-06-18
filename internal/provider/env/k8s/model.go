@@ -168,6 +168,11 @@ func (model *K8SEnvResourceModel) toModel(name string, specRevision int64, spec 
 	model.NodeGroups = nodeGroups
 	model.LoadBalancers = loadBalancersToModel(spec.LoadBalancers)
 	model.Logs = logsToModel(spec.Logs)
+	// Reorder maintenance windows the API may return out of config order, to avoid drift.
+	spec.MaintenanceWindows = common.ReorderByKey(model.MaintenanceWindows, spec.MaintenanceWindows,
+		func(m common.MaintenanceWindowModel) string { return m.Name.ValueString() },
+		func(s *client.K8SEnvSpecFragment_MaintenanceWindows) string { return s.Name },
+	)
 	model.MaintenanceWindows = maintenanceWindowsToModel(spec.MaintenanceWindows)
 	model.Metrics = metricsToModel(spec.Metrics)
 	model.Distribution = types.StringValue(string(spec.Distribution))
