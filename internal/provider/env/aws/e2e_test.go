@@ -59,7 +59,7 @@ resource "%s" "dummy" {
 
   node_groups = [
     {
-      zones             = ["us-east-1a"]
+      zones             = ["us-east-1a", "us-east-1b"]
       node_type         = "t4g.large"
       capacity_per_zone = %d
       reservations      = ["SYSTEM", "ZOOKEEPER"]

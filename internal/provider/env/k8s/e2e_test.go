@@ -65,19 +65,33 @@ resource "%s" "dummy" {
   node_groups = [
     {
       node_type         = "small"
-      zones             = ["us-east-1a"]
+      zones             = ["us-east-1a", "us-east-1b"]
       capacity_per_zone = %d
       reservations      = ["SYSTEM", "ZOOKEEPER"]
-      selector = [{
-        key   = "workload"
-        value = "system"
-      }]
-      tolerations = [{
-        key      = "dedicated"
-        value    = "system"
-        operator = "EQUAL"
-        effect   = "NO_SCHEDULE"
-      }]
+      selector = [
+        {
+          key   = "workload"
+          value = "system"
+        },
+        {
+          key   = "tier"
+          value = "infra"
+        },
+      ]
+      tolerations = [
+        {
+          key      = "dedicated"
+          value    = "system"
+          operator = "EQUAL"
+          effect   = "NO_SCHEDULE"
+        },
+        {
+          key      = "priority"
+          value    = "high"
+          operator = "EQUAL"
+          effect   = "NO_EXECUTE"
+        },
+      ]
     },
     {
       node_type         = "large"
