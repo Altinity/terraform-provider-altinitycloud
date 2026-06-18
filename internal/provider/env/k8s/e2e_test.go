@@ -87,13 +87,22 @@ resource "%s" "dummy" {
     },
   ]
 
-  maintenance_windows = [{
-    name            = "weekly"
-    enabled         = true
-    hour            = 2
-    length_in_hours = 4
-    days            = ["MONDAY", "TUESDAY", "WEDNESDAY"]
-  }]
+  maintenance_windows = [
+    {
+      name            = "weekly"
+      enabled         = true
+      hour            = 2
+      length_in_hours = 4
+      days            = ["MONDAY", "TUESDAY", "WEDNESDAY"]
+    },
+    {
+      name            = "biweekly"
+      enabled         = true
+      hour            = 6
+      length_in_hours = 4
+      days            = ["THURSDAY", "FRIDAY", "SATURDAY"]
+    },
+  ]
 
   logs = {
     storage = {

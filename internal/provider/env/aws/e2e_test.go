@@ -72,13 +72,22 @@ resource "%s" "dummy" {
     },
   ]
 
-  maintenance_windows = [{
-    name            = "weekly"
-    enabled         = true
-    hour            = 2
-    length_in_hours = 4
-    days            = ["MONDAY", "TUESDAY"]
-  }]
+  maintenance_windows = [
+    {
+      name            = "weekly"
+      enabled         = true
+      hour            = 2
+      length_in_hours = 4
+      days            = ["MONDAY", "TUESDAY"]
+    },
+    {
+      name            = "weekend"
+      enabled         = false
+      hour            = 5
+      length_in_hours = 4
+      days            = ["SATURDAY", "SUNDAY"]
+    },
+  ]
 
   peering_connections = [{
     aws_account_id = "123456789012"
@@ -86,11 +95,18 @@ resource "%s" "dummy" {
     vpc_region     = "us-east-1"
   }]
 
-  endpoints = [{
-    service_name = "com.amazonaws.vpce.us-east-1.vpce-svc-12345678"
-    alias        = "b-1.dummycluster.a1b2c3.c2.kafka.us-east-1.amazonaws.com"
-    private_dns  = true
-  }]
+  endpoints = [
+    {
+      service_name = "com.amazonaws.vpce.us-east-1.vpce-svc-12345678"
+      alias        = "b-1.dummycluster.a1b2c3.c2.kafka.us-east-1.amazonaws.com"
+      private_dns  = true
+    },
+    {
+      service_name = "com.amazonaws.vpce.us-east-1.vpce-svc-87654321"
+      alias        = "b-2.dummycluster.a1b2c3.c2.kafka.us-east-1.amazonaws.com"
+      private_dns  = false
+    },
+  ]
 
   tags = [{
     key   = "team"
