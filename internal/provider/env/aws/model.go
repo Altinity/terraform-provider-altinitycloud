@@ -585,11 +585,18 @@ func icebergToUpdateSDK(iceberg *AWSEnvIcebergModel) *sdk.IcebergUpdateInputSpec
 	}
 }
 
-func icebergCatalogName(s *sdk.AWSEnvSpecFragment_Iceberg_Catalogs) string {
-	if s.Name != nil {
-		return *s.Name
+func ptrString(s *string) string {
+	if s != nil {
+		return *s
 	}
 	return ""
+}
+
+// icebergCatalogKey builds a composite identity (name + type). name is optional,
+// so two unnamed catalogs would collide on name alone; including type reduces
+// that, and positional matching in ReorderByKey keeps it loss-safe regardless.
+func icebergCatalogKey(name, catalogType string) string {
+	return name + "\x1f" + catalogType
 }
 
 // reorderIceberg reorders the API iceberg catalogs (and each catalog's watches)
@@ -600,13 +607,17 @@ func reorderIceberg(model *AWSEnvIcebergModel, spec *sdk.AWSEnvSpecFragment_Iceb
 	}
 
 	spec.Catalogs = common.ReorderByKey(model.Catalogs, spec.Catalogs,
-		func(m AWSEnvIcebergCatalogModel) string { return m.Name.ValueString() },
-		icebergCatalogName,
+		func(m AWSEnvIcebergCatalogModel) string {
+			return icebergCatalogKey(m.Name.ValueString(), m.Type.ValueString())
+		},
+		func(s *sdk.AWSEnvSpecFragment_Iceberg_Catalogs) string {
+			return icebergCatalogKey(ptrString(s.Name), string(s.Type))
+		},
 	)
 
 	for _, mc := range model.Catalogs {
 		for _, sc := range spec.Catalogs {
-			if mc.Name.ValueString() != icebergCatalogName(sc) {
+			if icebergCatalogKey(mc.Name.ValueString(), mc.Type.ValueString()) != icebergCatalogKey(ptrString(sc.Name), string(sc.Type)) {
 				continue
 			}
 			sc.Watches = common.ReorderByKey(mc.Watches, sc.Watches,

@@ -480,6 +480,17 @@ func nodeGroupMatches(m NodeGroupsModel, s *client.K8SEnvSpecFragment_NodeGroups
 
 // reorderNodeGroups returns the API node groups in config order: each config
 // group pulls its match to the front, then any API-only groups follow.
+// selectorKey/tolerationKey build a composite identity from all fields so
+// entries that share a key (valid for both) reorder by full identity instead of
+// collapsing on key alone. \x1f (unit separator) can't appear in these values.
+func selectorKey(key, value string) string {
+	return key + "\x1f" + value
+}
+
+func tolerationKey(key, value, operator, effect string) string {
+	return key + "\x1f" + value + "\x1f" + operator + "\x1f" + effect
+}
+
 func reorderNodeGroups(model []NodeGroupsModel, items []*client.K8SEnvSpecFragment_NodeGroups) []*client.K8SEnvSpecFragment_NodeGroups {
 	ordered := make([]*client.K8SEnvSpecFragment_NodeGroups, 0, len(items))
 	used := make([]bool, len(items))
@@ -503,12 +514,16 @@ func reorderNodeGroups(model []NodeGroupsModel, items []*client.K8SEnvSpecFragme
 		for _, apiGroup := range ordered {
 			if nodeGroupMatches(ng, apiGroup) {
 				apiGroup.Selector = common.ReorderByKey(ng.NodeSelector, apiGroup.Selector,
-					func(m common.KeyValueModel) string { return m.Key.ValueString() },
-					func(s *client.K8SEnvSpecFragment_NodeGroups_Selector) string { return s.Key },
+					func(m common.KeyValueModel) string { return selectorKey(m.Key.ValueString(), m.Value.ValueString()) },
+					func(s *client.K8SEnvSpecFragment_NodeGroups_Selector) string { return selectorKey(s.Key, s.Value) },
 				)
 				apiGroup.Tolerations = common.ReorderByKey(ng.Tolerations, apiGroup.Tolerations,
-					func(m TolerationModel) string { return m.Key.ValueString() },
-					func(s *client.K8SEnvSpecFragment_NodeGroups_Tolerations) string { return s.Key },
+					func(m TolerationModel) string {
+						return tolerationKey(m.Key.ValueString(), m.Value.ValueString(), m.Operator.ValueString(), m.Effect.ValueString())
+					},
+					func(s *client.K8SEnvSpecFragment_NodeGroups_Tolerations) string {
+						return tolerationKey(s.Key, s.Value, string(s.Operator), string(s.Effect))
+					},
 				)
 				break
 			}
