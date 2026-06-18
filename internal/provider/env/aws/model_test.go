@@ -2489,3 +2489,47 @@ func TestIcebergToUpdateSDK(t *testing.T) {
 		})
 	}
 }
+
+func TestReorderIceberg(t *testing.T) {
+	name := func(s string) *string { return &s }
+
+	model := &AWSEnvIcebergModel{
+		Catalogs: []AWSEnvIcebergCatalogModel{
+			{
+				Name: types.StringValue("cat-b"),
+				Watches: []AWSEnvIcebergCatalogWatchModel{
+					{Table: types.StringValue("t2")},
+					{Table: types.StringValue("t1")},
+				},
+			},
+			{Name: types.StringValue("cat-a")},
+		},
+	}
+	spec := &sdk.AWSEnvSpecFragment_Iceberg{
+		Catalogs: []*sdk.AWSEnvSpecFragment_Iceberg_Catalogs{
+			{Name: name("cat-a")},
+			{
+				Name: name("cat-b"),
+				Watches: []*sdk.AWSEnvSpecFragment_Iceberg_Catalogs_Watches{
+					{Table: "t1"},
+					{Table: "t2"},
+				},
+			},
+		},
+	}
+
+	reorderIceberg(model, spec)
+
+	if got := []string{*spec.Catalogs[0].Name, *spec.Catalogs[1].Name}; got[0] != "cat-b" || got[1] != "cat-a" {
+		t.Errorf("catalog order = %v, want [cat-b cat-a]", got)
+	}
+	catB := spec.Catalogs[0]
+	if got := []string{catB.Watches[0].Table, catB.Watches[1].Table}; got[0] != "t2" || got[1] != "t1" {
+		t.Errorf("watch order = %v, want [t2 t1]", got)
+	}
+}
+
+func TestReorderIcebergNilSafe(t *testing.T) {
+	reorderIceberg(nil, &sdk.AWSEnvSpecFragment_Iceberg{})
+	reorderIceberg(&AWSEnvIcebergModel{}, nil)
+}

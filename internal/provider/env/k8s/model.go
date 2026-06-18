@@ -166,7 +166,7 @@ func (model *K8SEnvResourceModel) toModel(name string, specRevision int64, spec 
 	nodeGroups, diags := nodeGroupsToModel(spec.NodeGroups)
 	allDiags.Append(diags...)
 	model.NodeGroups = nodeGroups
-	model.LoadBalancers = loadBalancersToModel(spec.LoadBalancers)
+	model.LoadBalancers = loadBalancersToModel(spec.LoadBalancers, model.LoadBalancers)
 	model.Logs = logsToModel(spec.Logs)
 	// Reorder maintenance windows the API may return out of config order, to avoid drift.
 	spec.MaintenanceWindows = common.ReorderByKey(model.MaintenanceWindows, spec.MaintenanceWindows,
@@ -211,7 +211,12 @@ func loadBalancersToSDK(loadBalancers *LoadBalancersModel) *client.K8SEnvLoadBal
 	}
 }
 
-func loadBalancersToModel(loadBalancers client.K8SEnvSpecFragment_LoadBalancers) *LoadBalancersModel {
+func reorderAnnotations(config, items []common.KeyValueModel) []common.KeyValueModel {
+	key := func(m common.KeyValueModel) string { return m.Key.ValueString() }
+	return common.ReorderByKey(config, items, key, key)
+}
+
+func loadBalancersToModel(loadBalancers client.K8SEnvSpecFragment_LoadBalancers, config *LoadBalancersModel) *LoadBalancersModel {
 	model := &LoadBalancersModel{
 		Public: &PublicLoadBalancerModel{
 			Annotations: []common.KeyValueModel{},
@@ -238,6 +243,9 @@ func loadBalancersToModel(loadBalancers client.K8SEnvSpecFragment_LoadBalancers)
 	}
 
 	model.Public.Enabled = types.BoolValue(loadBalancers.Public.Enabled)
+	if config != nil && config.Public != nil {
+		publicAnnotations = reorderAnnotations(config.Public.Annotations, publicAnnotations)
+	}
 	model.Public.Annotations = publicAnnotations
 	model.Public.SourceIPRanges = publicSourceIpRanges
 
@@ -255,6 +263,9 @@ func loadBalancersToModel(loadBalancers client.K8SEnvSpecFragment_LoadBalancers)
 	}
 
 	model.Internal.Enabled = types.BoolValue(loadBalancers.Internal.Enabled)
+	if config != nil && config.Internal != nil {
+		internalAnnotations = reorderAnnotations(config.Internal.Annotations, internalAnnotations)
+	}
 	model.Internal.Annotations = internalAnnotations
 	model.Internal.SourceIPRanges = internalSourceIpRanges
 

@@ -717,7 +717,7 @@ func TestLoadBalancersToModel(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := loadBalancersToModel(tt.input)
+			result := loadBalancersToModel(tt.input, nil)
 
 			if result == nil {
 				t.Error("Expected non-nil result")
@@ -2235,5 +2235,45 @@ func TestK8SEnvResourceModel_toModel(t *testing.T) {
 			}
 			tt.validate(t, model)
 		})
+	}
+}
+
+func TestLoadBalancersToModelReordersAnnotations(t *testing.T) {
+	lb := client.K8SEnvSpecFragment_LoadBalancers{
+		Public: client.K8SEnvSpecFragment_LoadBalancers_Public{
+			Annotations: []*client.K8SEnvSpecFragment_LoadBalancers_Public_Annotations{
+				{Key: "a", Value: "1"},
+				{Key: "b", Value: "2"},
+			},
+		},
+		Internal: client.K8SEnvSpecFragment_LoadBalancers_Internal{
+			Annotations: []*client.K8SEnvSpecFragment_LoadBalancers_Internal_Annotations{
+				{Key: "x", Value: "9"},
+				{Key: "y", Value: "8"},
+			},
+		},
+	}
+	config := &LoadBalancersModel{
+		Public: &PublicLoadBalancerModel{
+			Annotations: []common.KeyValueModel{
+				{Key: types.StringValue("b")},
+				{Key: types.StringValue("a")},
+			},
+		},
+		Internal: &InternalLoadBalancerModel{
+			Annotations: []common.KeyValueModel{
+				{Key: types.StringValue("y")},
+				{Key: types.StringValue("x")},
+			},
+		},
+	}
+
+	result := loadBalancersToModel(lb, config)
+
+	if got := result.Public.Annotations; got[0].Key.ValueString() != "b" || got[1].Key.ValueString() != "a" {
+		t.Errorf("public annotation order = [%s %s], want [b a]", got[0].Key.ValueString(), got[1].Key.ValueString())
+	}
+	if got := result.Internal.Annotations; got[0].Key.ValueString() != "y" || got[1].Key.ValueString() != "x" {
+		t.Errorf("internal annotation order = [%s %s], want [y x]", got[0].Key.ValueString(), got[1].Key.ValueString())
 	}
 }

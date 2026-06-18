@@ -306,6 +306,8 @@ func (model *AWSEnvResourceModel) toModel(env sdk.GetAWSEnv_AWSEnv) diag.Diagnos
 		})
 	}
 
+	reorderIceberg(model.Iceberg, env.Spec.Iceberg)
+
 	backups := backupsToModel(env.Spec.Backups)
 	iceberg := icebergToModel(env.Spec.Iceberg)
 
@@ -580,6 +582,39 @@ func icebergToUpdateSDK(iceberg *AWSEnvIcebergModel) *sdk.IcebergUpdateInputSpec
 
 	return &sdk.IcebergUpdateInputSpec{
 		Catalogs: catalogs,
+	}
+}
+
+func icebergCatalogName(s *sdk.AWSEnvSpecFragment_Iceberg_Catalogs) string {
+	if s.Name != nil {
+		return *s.Name
+	}
+	return ""
+}
+
+// reorderIceberg reorders the API iceberg catalogs (and each catalog's watches)
+// into the user's configured order to avoid drift. Mutates spec in place.
+func reorderIceberg(model *AWSEnvIcebergModel, spec *sdk.AWSEnvSpecFragment_Iceberg) {
+	if model == nil || spec == nil {
+		return
+	}
+
+	spec.Catalogs = common.ReorderByKey(model.Catalogs, spec.Catalogs,
+		func(m AWSEnvIcebergCatalogModel) string { return m.Name.ValueString() },
+		icebergCatalogName,
+	)
+
+	for _, mc := range model.Catalogs {
+		for _, sc := range spec.Catalogs {
+			if mc.Name.ValueString() != icebergCatalogName(sc) {
+				continue
+			}
+			sc.Watches = common.ReorderByKey(mc.Watches, sc.Watches,
+				func(m AWSEnvIcebergCatalogWatchModel) string { return m.Table.ValueString() },
+				func(s *sdk.AWSEnvSpecFragment_Iceberg_Catalogs_Watches) string { return s.Table },
+			)
+			break
+		}
 	}
 }
 
