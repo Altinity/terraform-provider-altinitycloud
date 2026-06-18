@@ -25,10 +25,6 @@ Bring Your Own Cloud (BYOC) AWS environment data source.
 		Examples:
 		- "acme-staging" (where "acme" is your account name)
 
-### Optional
-
-- `nat` (Boolean) Enable AWS NAT Gateway. **[IMMUTABLE]**
-
 ### Read-Only
 
 - `allow_delete_while_disconnected` (Boolean) Set to `true` to allow deletion of the environment while it is disconnected from the cloud connect. If the the environment is not connected during the deletion process you will end up in a delete timeout (default `false`).
@@ -69,6 +65,7 @@ Bring Your Own Cloud (BYOC) AWS environment data source.
 		- "ZONE_BEST_EFFORT": keep traffic within same zone
 - `maintenance_windows` (Attributes List) List of maintenance windows during which automatic maintenance is permitted. By default updates are applied as soon as they are available. (see [below for nested schema](#nestedatt--maintenance_windows))
 - `metrics_endpoint` (Attributes) Metrics endpoint configuration. (see [below for nested schema](#nestedatt--metrics_endpoint))
+- `nat` (Boolean) Enable AWS NAT Gateway. **[IMMUTABLE]**
 - `node_groups` (Attributes List) List of node groups. At least one required. (see [below for nested schema](#nestedatt--node_groups))
 - `peering_connections` (Attributes List) AWS environment VPC peering configuration. (see [below for nested schema](#nestedatt--peering_connections))
 - `permissions_boundary_policy_arn` (String) Policy ARN that sets the maximum permissions for the IAM roles created by the environment. **[IMMUTABLE]**
