@@ -104,6 +104,14 @@ func isE2ETransient(err error) bool {
 	return false
 }
 
+// isE2EAlreadyExists reports a name collision. The dev control plane can commit
+// an env server-side and still surface the create as a failure (e.g. it resets
+// a heavy create connection after committing), so a later attempt with the same
+// name collides. Retrying with a fresh name recovers, same as a transient error.
+func isE2EAlreadyExists(err error) bool {
+	return err != nil && strings.Contains(err.Error(), "already exists")
+}
+
 // RunE2ELifecycle drives the standard env lifecycle against the dev control
 // plane: create -> drift check -> update -> drift check. Teardown is skipped
 // (dev delete requires MFA). configFn renders the resource HCL for a given env
@@ -128,10 +136,11 @@ func RunE2ELifecycle(t *testing.T, namePrefix string, configFn func(envName stri
 		if err == nil {
 			break
 		}
-		if attempt >= maxAttempts || !isE2ETransient(err) {
+		retryable := isE2ETransient(err) || isE2EAlreadyExists(err)
+		if attempt >= maxAttempts || !retryable {
 			t.Fatalf("create apply failed: %s", err)
 		}
-		t.Logf("transient create error (attempt %d/%d), retrying with fresh name: %s", attempt, maxAttempts, err)
+		t.Logf("retryable create error (attempt %d/%d), retrying with fresh name: %s", attempt, maxAttempts, err)
 	}
 
 	e2eAssertNoDrift(t, tf, ctx, envName, "create")
