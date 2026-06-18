@@ -456,15 +456,41 @@ func maintenanceWindowsToModel(input []*client.K8SEnvSpecFragment_MaintenanceWin
 	return maintenanceWindow
 }
 
+// nodeGroupMatches pairs a config node group with an API one. When the user
+// set a name it is the unique identity (so two groups sharing a node_type but
+// differing by name pair correctly); otherwise name is server-computed and may
+// differ from the node type, so we fall back to matching on node_type.
+func nodeGroupMatches(m NodeGroupsModel, s *client.K8SEnvSpecFragment_NodeGroups) bool {
+	if name := m.Name.ValueString(); name != "" {
+		return name == s.Name
+	}
+	return m.NodeType.ValueString() == s.NodeType
+}
+
+// reorderNodeGroups returns the API node groups in config order: each config
+// group pulls its match to the front, then any API-only groups follow.
 func reorderNodeGroups(model []NodeGroupsModel, items []*client.K8SEnvSpecFragment_NodeGroups) []*client.K8SEnvSpecFragment_NodeGroups {
-	ordered := common.ReorderByKey(model, items,
-		func(m NodeGroupsModel) string { return m.NodeType.ValueString() },
-		func(s *client.K8SEnvSpecFragment_NodeGroups) string { return s.NodeType },
-	)
+	ordered := make([]*client.K8SEnvSpecFragment_NodeGroups, 0, len(items))
+	used := make([]bool, len(items))
+
+	for _, ng := range model {
+		for i, item := range items {
+			if !used[i] && nodeGroupMatches(ng, item) {
+				ordered = append(ordered, item)
+				used[i] = true
+				break
+			}
+		}
+	}
+	for i, item := range items {
+		if !used[i] {
+			ordered = append(ordered, item)
+		}
+	}
 
 	for _, ng := range model {
 		for _, apiGroup := range ordered {
-			if ng.NodeType.ValueString() == apiGroup.NodeType {
+			if nodeGroupMatches(ng, apiGroup) {
 				apiGroup.Selector = common.ReorderByKey(ng.NodeSelector, apiGroup.Selector,
 					func(m common.KeyValueModel) string { return m.Key.ValueString() },
 					func(s *client.K8SEnvSpecFragment_NodeGroups_Selector) string { return s.Key },

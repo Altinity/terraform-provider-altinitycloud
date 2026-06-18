@@ -162,6 +162,32 @@ func TestReorderNodeGroups(t *testing.T) {
 	}
 }
 
+// Two node groups sharing a node_type but with distinct user-set names must
+// pair by name, not node_type — otherwise their selectors/tolerations get
+// mispaired and state is corrupted.
+func TestReorderNodeGroupsSameTypeDistinctNames(t *testing.T) {
+	model := []NodeGroupsModel{
+		{Name: types.StringValue("ng-b"), NodeType: types.StringValue("t4g.large")},
+		{Name: types.StringValue("ng-a"), NodeType: types.StringValue("t4g.large")},
+	}
+	api := []*client.K8SEnvSpecFragment_NodeGroups{
+		{NodeType: "t4g.large", Name: "ng-a", CapacityPerZone: 1},
+		{NodeType: "t4g.large", Name: "ng-b", CapacityPerZone: 2},
+	}
+
+	result := reorderNodeGroups(model, api)
+
+	if len(result) != 2 {
+		t.Fatalf("expected 2 node groups, got %d", len(result))
+	}
+	if result[0].Name != "ng-b" || result[1].Name != "ng-a" {
+		t.Errorf("expected config order [ng-b ng-a], got [%s %s]", result[0].Name, result[1].Name)
+	}
+	if result[0].CapacityPerZone != 2 || result[1].CapacityPerZone != 1 {
+		t.Errorf("capacity mispaired: got ng-b=%d ng-a=%d (want 2, 1)", result[0].CapacityPerZone, result[1].CapacityPerZone)
+	}
+}
+
 func TestReorderSelectors(t *testing.T) {
 	tests := []struct {
 		name           string
