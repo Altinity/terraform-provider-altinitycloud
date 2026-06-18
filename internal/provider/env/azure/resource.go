@@ -89,6 +89,10 @@ func (r *AzureEnvResource) Create(ctx context.Context, req resource.CreateReques
 	resp.Diagnostics.Append(diags...)
 	data.SpecRevision = types.Int64Value(apiResp.CreateAzureEnv.SpecRevision)
 
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	tflog.Trace(ctx, "created resource", map[string]interface{}{"name": name})
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
@@ -180,6 +184,10 @@ func (r *AzureEnvResource) Update(ctx context.Context, req resource.UpdateReques
 	data.NodeGroups, diags = nodeGroupsToModel(apiResp.UpdateAzureEnv.Spec.NodeGroups)
 	resp.Diagnostics.Append(diags...)
 	data.SpecRevision = types.Int64Value(apiResp.UpdateAzureEnv.SpecRevision)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
 
 	tflog.Trace(ctx, "updated resource", map[string]interface{}{"name": name})
 	diags = resp.State.Set(ctx, &data)

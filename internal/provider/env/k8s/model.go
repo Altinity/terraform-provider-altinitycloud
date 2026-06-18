@@ -156,12 +156,23 @@ func (model *K8SEnvResourceModel) toModel(name string, specRevision int64, spec 
 	model.CustomDomain = customDomain
 	model.CustomDomains = customDomains
 	model.LoadBalancingStrategy = types.StringValue(string(spec.LoadBalancingStrategy))
+	// Reorder custom node types to respect order in the user's configuration; the
+	// API may return them in a different order, which would otherwise drift.
+	spec.CustomNodeTypes = common.ReorderByKey(model.CustomNodeTypes, spec.CustomNodeTypes,
+		func(m NodeTypeModel) string { return m.Name.ValueString() },
+		func(s *client.K8SEnvSpecFragment_CustomNodeTypes) string { return s.Name },
+	)
 	model.CustomNodeTypes = nodeTypesToModel(spec.CustomNodeTypes)
 	nodeGroups, diags := nodeGroupsToModel(spec.NodeGroups)
 	allDiags.Append(diags...)
 	model.NodeGroups = nodeGroups
-	model.LoadBalancers = loadBalancersToModel(spec.LoadBalancers)
+	model.LoadBalancers = loadBalancersToModel(spec.LoadBalancers, model.LoadBalancers)
 	model.Logs = logsToModel(spec.Logs)
+	// Reorder maintenance windows the API may return out of config order, to avoid drift.
+	spec.MaintenanceWindows = common.ReorderByKey(model.MaintenanceWindows, spec.MaintenanceWindows,
+		func(m common.MaintenanceWindowModel) string { return m.Name.ValueString() },
+		func(s *client.K8SEnvSpecFragment_MaintenanceWindows) string { return s.Name },
+	)
 	model.MaintenanceWindows = maintenanceWindowsToModel(spec.MaintenanceWindows)
 	model.Metrics = metricsToModel(spec.Metrics)
 	model.Distribution = types.StringValue(string(spec.Distribution))
@@ -200,7 +211,12 @@ func loadBalancersToSDK(loadBalancers *LoadBalancersModel) *client.K8SEnvLoadBal
 	}
 }
 
-func loadBalancersToModel(loadBalancers client.K8SEnvSpecFragment_LoadBalancers) *LoadBalancersModel {
+func reorderAnnotations(config, items []common.KeyValueModel) []common.KeyValueModel {
+	key := func(m common.KeyValueModel) string { return m.Key.ValueString() }
+	return common.ReorderByKey(config, items, key, key)
+}
+
+func loadBalancersToModel(loadBalancers client.K8SEnvSpecFragment_LoadBalancers, config *LoadBalancersModel) *LoadBalancersModel {
 	model := &LoadBalancersModel{
 		Public: &PublicLoadBalancerModel{
 			Annotations: []common.KeyValueModel{},
@@ -227,6 +243,9 @@ func loadBalancersToModel(loadBalancers client.K8SEnvSpecFragment_LoadBalancers)
 	}
 
 	model.Public.Enabled = types.BoolValue(loadBalancers.Public.Enabled)
+	if config != nil && config.Public != nil {
+		publicAnnotations = reorderAnnotations(config.Public.Annotations, publicAnnotations)
+	}
 	model.Public.Annotations = publicAnnotations
 	model.Public.SourceIPRanges = publicSourceIpRanges
 
@@ -244,6 +263,9 @@ func loadBalancersToModel(loadBalancers client.K8SEnvSpecFragment_LoadBalancers)
 	}
 
 	model.Internal.Enabled = types.BoolValue(loadBalancers.Internal.Enabled)
+	if config != nil && config.Internal != nil {
+		internalAnnotations = reorderAnnotations(config.Internal.Annotations, internalAnnotations)
+	}
 	model.Internal.Annotations = internalAnnotations
 	model.Internal.SourceIPRanges = internalSourceIpRanges
 
@@ -445,22 +467,63 @@ func maintenanceWindowsToModel(input []*client.K8SEnvSpecFragment_MaintenanceWin
 	return maintenanceWindow
 }
 
+// nodeGroupMatches pairs a config node group with an API one. When the user
+// set a name it is the unique identity (so two groups sharing a node_type but
+// differing by name pair correctly); otherwise name is server-computed and may
+// differ from the node type, so we fall back to matching on node_type.
+func nodeGroupMatches(m NodeGroupsModel, s *client.K8SEnvSpecFragment_NodeGroups) bool {
+	if name := m.Name.ValueString(); name != "" {
+		return name == s.Name
+	}
+	return m.NodeType.ValueString() == s.NodeType
+}
+
+// reorderNodeGroups returns the API node groups in config order: each config
+// group pulls its match to the front, then any API-only groups follow.
+// selectorKey/tolerationKey build a composite identity from all fields so
+// entries that share a key (valid for both) reorder by full identity instead of
+// collapsing on key alone. \x1f (unit separator) can't appear in these values.
+func selectorKey(key, value string) string {
+	return key + "\x1f" + value
+}
+
+func tolerationKey(key, value, operator, effect string) string {
+	return key + "\x1f" + value + "\x1f" + operator + "\x1f" + effect
+}
+
 func reorderNodeGroups(model []NodeGroupsModel, items []*client.K8SEnvSpecFragment_NodeGroups) []*client.K8SEnvSpecFragment_NodeGroups {
-	ordered := common.ReorderByKey(model, items,
-		func(m NodeGroupsModel) string { return m.NodeType.ValueString() },
-		func(s *client.K8SEnvSpecFragment_NodeGroups) string { return s.NodeType },
-	)
+	ordered := make([]*client.K8SEnvSpecFragment_NodeGroups, 0, len(items))
+	used := make([]bool, len(items))
+
+	for _, ng := range model {
+		for i, item := range items {
+			if !used[i] && nodeGroupMatches(ng, item) {
+				ordered = append(ordered, item)
+				used[i] = true
+				break
+			}
+		}
+	}
+	for i, item := range items {
+		if !used[i] {
+			ordered = append(ordered, item)
+		}
+	}
 
 	for _, ng := range model {
 		for _, apiGroup := range ordered {
-			if ng.NodeType.ValueString() == apiGroup.NodeType {
+			if nodeGroupMatches(ng, apiGroup) {
 				apiGroup.Selector = common.ReorderByKey(ng.NodeSelector, apiGroup.Selector,
-					func(m common.KeyValueModel) string { return m.Key.ValueString() },
-					func(s *client.K8SEnvSpecFragment_NodeGroups_Selector) string { return s.Key },
+					func(m common.KeyValueModel) string { return selectorKey(m.Key.ValueString(), m.Value.ValueString()) },
+					func(s *client.K8SEnvSpecFragment_NodeGroups_Selector) string { return selectorKey(s.Key, s.Value) },
 				)
 				apiGroup.Tolerations = common.ReorderByKey(ng.Tolerations, apiGroup.Tolerations,
-					func(m TolerationModel) string { return m.Key.ValueString() },
-					func(s *client.K8SEnvSpecFragment_NodeGroups_Tolerations) string { return s.Key },
+					func(m TolerationModel) string {
+						return tolerationKey(m.Key.ValueString(), m.Value.ValueString(), m.Operator.ValueString(), m.Effect.ValueString())
+					},
+					func(s *client.K8SEnvSpecFragment_NodeGroups_Tolerations) string {
+						return tolerationKey(s.Key, s.Value, string(s.Operator), string(s.Effect))
+					},
 				)
 				break
 			}

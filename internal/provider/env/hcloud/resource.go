@@ -85,6 +85,10 @@ func (r *HCloudEnvResource) Create(ctx context.Context, req resource.CreateReque
 	resp.Diagnostics.Append(diags...)
 	data.SpecRevision = types.Int64Value(apiResp.CreateHCloudEnv.SpecRevision)
 
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	tflog.Trace(ctx, "created resource", map[string]interface{}{"name": name})
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
@@ -168,6 +172,10 @@ func (r *HCloudEnvResource) Update(ctx context.Context, req resource.UpdateReque
 	data.NodeGroups, diags = nodeGroupsToModel(apiResp.UpdateHCloudEnv.Spec.NodeGroups)
 	resp.Diagnostics.Append(diags...)
 	data.SpecRevision = types.Int64Value(apiResp.UpdateHCloudEnv.SpecRevision)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
 
 	tflog.Trace(ctx, "updated resource", map[string]interface{}{"name": name})
 	diags = resp.State.Set(ctx, &data)

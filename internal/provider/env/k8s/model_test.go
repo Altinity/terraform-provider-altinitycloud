@@ -162,6 +162,32 @@ func TestReorderNodeGroups(t *testing.T) {
 	}
 }
 
+// Two node groups sharing a node_type but with distinct user-set names must
+// pair by name, not node_type — otherwise their selectors/tolerations get
+// mispaired and state is corrupted.
+func TestReorderNodeGroupsSameTypeDistinctNames(t *testing.T) {
+	model := []NodeGroupsModel{
+		{Name: types.StringValue("ng-b"), NodeType: types.StringValue("t4g.large")},
+		{Name: types.StringValue("ng-a"), NodeType: types.StringValue("t4g.large")},
+	}
+	api := []*client.K8SEnvSpecFragment_NodeGroups{
+		{NodeType: "t4g.large", Name: "ng-a", CapacityPerZone: 1},
+		{NodeType: "t4g.large", Name: "ng-b", CapacityPerZone: 2},
+	}
+
+	result := reorderNodeGroups(model, api)
+
+	if len(result) != 2 {
+		t.Fatalf("expected 2 node groups, got %d", len(result))
+	}
+	if result[0].Name != "ng-b" || result[1].Name != "ng-a" {
+		t.Errorf("expected config order [ng-b ng-a], got [%s %s]", result[0].Name, result[1].Name)
+	}
+	if result[0].CapacityPerZone != 2 || result[1].CapacityPerZone != 1 {
+		t.Errorf("capacity mispaired: got ng-b=%d ng-a=%d (want 2, 1)", result[0].CapacityPerZone, result[1].CapacityPerZone)
+	}
+}
+
 func TestReorderSelectors(t *testing.T) {
 	tests := []struct {
 		name           string
@@ -691,7 +717,7 @@ func TestLoadBalancersToModel(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := loadBalancersToModel(tt.input)
+			result := loadBalancersToModel(tt.input, nil)
 
 			if result == nil {
 				t.Error("Expected non-nil result")
@@ -2209,5 +2235,45 @@ func TestK8SEnvResourceModel_toModel(t *testing.T) {
 			}
 			tt.validate(t, model)
 		})
+	}
+}
+
+func TestLoadBalancersToModelReordersAnnotations(t *testing.T) {
+	lb := client.K8SEnvSpecFragment_LoadBalancers{
+		Public: client.K8SEnvSpecFragment_LoadBalancers_Public{
+			Annotations: []*client.K8SEnvSpecFragment_LoadBalancers_Public_Annotations{
+				{Key: "a", Value: "1"},
+				{Key: "b", Value: "2"},
+			},
+		},
+		Internal: client.K8SEnvSpecFragment_LoadBalancers_Internal{
+			Annotations: []*client.K8SEnvSpecFragment_LoadBalancers_Internal_Annotations{
+				{Key: "x", Value: "9"},
+				{Key: "y", Value: "8"},
+			},
+		},
+	}
+	config := &LoadBalancersModel{
+		Public: &PublicLoadBalancerModel{
+			Annotations: []common.KeyValueModel{
+				{Key: types.StringValue("b")},
+				{Key: types.StringValue("a")},
+			},
+		},
+		Internal: &InternalLoadBalancerModel{
+			Annotations: []common.KeyValueModel{
+				{Key: types.StringValue("y")},
+				{Key: types.StringValue("x")},
+			},
+		},
+	}
+
+	result := loadBalancersToModel(lb, config)
+
+	if got := result.Public.Annotations; got[0].Key.ValueString() != "b" || got[1].Key.ValueString() != "a" {
+		t.Errorf("public annotation order = [%s %s], want [b a]", got[0].Key.ValueString(), got[1].Key.ValueString())
+	}
+	if got := result.Internal.Annotations; got[0].Key.ValueString() != "y" || got[1].Key.ValueString() != "x" {
+		t.Errorf("internal annotation order = [%s %s], want [y x]", got[0].Key.ValueString(), got[1].Key.ValueString())
 	}
 }

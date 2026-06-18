@@ -8,7 +8,7 @@ import (
 
 type GraphQLError struct {
 	Message    string                 `json:"message"`
-	Path       []string               `json:"path"`
+	Path       []interface{}          `json:"path"` // GraphQL path elements are strings or list indices (ints)
 	Extensions map[string]interface{} `json:"extensions"`
 }
 
@@ -122,7 +122,11 @@ func errorPrefix(gqlError GraphQLError) string {
 
 	// No extension code: infer from mutation path (create/update/delete).
 	for _, p := range gqlError.Path {
-		lp := strings.ToLower(p)
+		s, ok := p.(string)
+		if !ok {
+			continue
+		}
+		lp := strings.ToLower(s)
 		if strings.HasPrefix(lp, "create") || strings.HasPrefix(lp, "update") || strings.HasPrefix(lp, "delete") {
 			return "Validation Error"
 		}

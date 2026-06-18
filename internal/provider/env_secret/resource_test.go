@@ -18,7 +18,7 @@ func TestAccAltinityCloudSecret_Basic(t *testing.T) {
 		ProtoV6ProviderFactories: test.TestAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
-				Config: GeSecretResource(),
+				Config: GetSecretResource(),
 				Check: resource.ComposeTestCheckFunc(
 					testAccCheckAltinityCloudSecretExists(FILE_NAME),
 					resource.TestCheckResourceAttr(FILE_NAME, "value", "value"),
@@ -43,7 +43,7 @@ func testAccCheckAltinityCloudSecretExists(n string) resource.TestCheckFunc {
 	}
 }
 
-func GeSecretResource() string {
+func GetSecretResource() string {
 	return fmt.Sprintf(`
 resource "%s" "dummy" {
   pem   = "xxx"

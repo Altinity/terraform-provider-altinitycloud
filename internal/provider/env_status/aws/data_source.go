@@ -96,6 +96,11 @@ func (d *AWSEnvStatusDataSource) Read(ctx context.Context, req datasource.ReadRe
 		return
 	}
 
+	if apiResp.AWSEnv == nil {
+		clientsupport.AddClientError(&resp.Diagnostics, fmt.Sprintf("Environment %s was not found", envName))
+		return
+	}
+
 	data.toModel(*apiResp.AWSEnv)
 	data.Id = data.Name
 	diags = resp.State.Set(ctx, &data)

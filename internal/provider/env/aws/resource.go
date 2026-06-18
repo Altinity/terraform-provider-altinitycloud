@@ -93,6 +93,10 @@ func (r *AWSEnvResource) Create(ctx context.Context, req resource.CreateRequest,
 	data.SpecRevision = types.Int64Value(apiResp.CreateAWSEnv.SpecRevision)
 	data.ResourcePrefix = types.StringValue(apiResp.CreateAWSEnv.Spec.ResourcePrefix)
 
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	tflog.Trace(ctx, "created resource", map[string]interface{}{"name": envName})
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
@@ -192,6 +196,10 @@ func (r *AWSEnvResource) Update(ctx context.Context, req resource.UpdateRequest,
 	resp.Diagnostics.Append(diags...)
 	data.SpecRevision = types.Int64Value(apiResp.UpdateAWSEnv.SpecRevision)
 	data.ResourcePrefix = types.StringValue(apiResp.UpdateAWSEnv.Spec.ResourcePrefix)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
 
 	tflog.Trace(ctx, "updated resource", map[string]interface{}{"name": envName})
 	diags = resp.State.Set(ctx, &data)

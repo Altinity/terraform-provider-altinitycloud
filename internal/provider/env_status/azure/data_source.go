@@ -95,6 +95,11 @@ func (d *AzureEnvStatusDataSource) Read(ctx context.Context, req datasource.Read
 		return
 	}
 
+	if apiResp.AzureEnv == nil {
+		clientsupport.AddClientError(&resp.Diagnostics, fmt.Sprintf("Environment %s was not found", envName))
+		return
+	}
+
 	data.toModel(*apiResp.AzureEnv)
 	data.Id = data.Name
 	diags = resp.State.Set(ctx, &data)

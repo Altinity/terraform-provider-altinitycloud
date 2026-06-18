@@ -91,6 +91,45 @@ func TestReorderByKey(t *testing.T) {
 	}
 }
 
+// Duplicate keys (valid for tolerations, unnamed catalogs, same-named windows)
+// must not collapse to the first match or drop entries.
+func TestReorderByKeyDuplicateKeys(t *testing.T) {
+	type item struct{ Key, Value string }
+
+	t.Run("empty keys preserved positionally", func(t *testing.T) {
+		model := []item{{Key: "", Value: "B"}, {Key: "", Value: "A"}}
+		items := []item{{Key: "", Value: "A"}, {Key: "", Value: "B"}}
+		result := ReorderByKey(model, items,
+			func(m item) string { return m.Key },
+			func(s item) string { return s.Key },
+		)
+		if len(result) != 2 {
+			t.Fatalf("expected 2 items, got %d (%v)", len(result), result)
+		}
+		// Both originals present, none duplicated.
+		seen := map[string]int{}
+		for _, r := range result {
+			seen[r.Value]++
+		}
+		if seen["A"] != 1 || seen["B"] != 1 {
+			t.Fatalf("expected one A and one B, got %v", seen)
+		}
+	})
+
+	t.Run("shared key matches distinct values", func(t *testing.T) {
+		// e.g. two tolerations with key "dedicated" but different values.
+		model := []item{{Key: "k", Value: "v2"}, {Key: "k", Value: "v1"}}
+		items := []item{{Key: "k", Value: "v1"}, {Key: "k", Value: "v2"}}
+		result := ReorderByKey(model, items,
+			func(m item) string { return m.Key },
+			func(s item) string { return s.Key },
+		)
+		if len(result) != 2 || result[0].Value == result[1].Value {
+			t.Fatalf("expected both distinct values preserved, got %v", result)
+		}
+	})
+}
+
 func TestReorderList(t *testing.T) {
 	tests := []struct {
 		name           string

@@ -95,6 +95,11 @@ func (d *HCloudEnvStatusDataSource) Read(ctx context.Context, req datasource.Rea
 		return
 	}
 
+	if apiResp.HcloudEnv == nil {
+		clientsupport.AddClientError(&resp.Diagnostics, fmt.Sprintf("Environment %s was not found", envName))
+		return
+	}
+
 	data.toModel(*apiResp.HcloudEnv)
 	data.Id = data.Name
 	diags = resp.State.Set(ctx, &data)

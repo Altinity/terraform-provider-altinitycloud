@@ -93,6 +93,10 @@ func (r *GCPEnvResource) Create(ctx context.Context, req resource.CreateRequest,
 	resp.Diagnostics.Append(diags...)
 	data.SpecRevision = types.Int64Value(apiResp.CreateGCPEnv.SpecRevision)
 
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	tflog.Trace(ctx, "created resource", map[string]interface{}{"name": name})
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
@@ -192,6 +196,10 @@ func (r *GCPEnvResource) Update(ctx context.Context, req resource.UpdateRequest,
 	data.NodeGroups, diags = nodeGroupsToModel(apiResp.UpdateGCPEnv.Spec.NodeGroups)
 	resp.Diagnostics.Append(diags...)
 	data.SpecRevision = types.Int64Value(apiResp.UpdateGCPEnv.SpecRevision)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
 
 	tflog.Trace(ctx, "updated resource", map[string]interface{}{"name": name})
 	diags = resp.State.Set(ctx, &data)

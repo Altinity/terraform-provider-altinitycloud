@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Fixed
+- Fix perpetual drift (`inconsistent result after apply`) caused by the API returning list fields in a different order than configured; provider now preserves user-defined ordering for node groups, maintenance windows, endpoints, peering connections, tags/labels, external buckets, wireguard peers, and Iceberg catalogs/watches across all environments [#244](https://github.com/Altinity/terraform-provider-altinitycloud/pull/244).
+- Fix k8s node groups with the same `node_type` but different names being matched by type instead of name, corrupting selectors and tolerations after apply [#244](https://github.com/Altinity/terraform-provider-altinitycloud/pull/244).
+- Fix not-found and conflict detection (e.g. a deleted resource not detected as gone on refresh) when a GraphQL error path contains a list index [#244](https://github.com/Altinity/terraform-provider-altinitycloud/pull/244).
+- Fix provider panic in env status data sources when the environment is deleted during the status poll [#244](https://github.com/Altinity/terraform-provider-altinitycloud/pull/244).
+- Fix `nat` exposed as a writable attribute in the AWS env status data source; it is read-only [#244](https://github.com/Altinity/terraform-provider-altinitycloud/pull/244).
+- Check diagnostics before persisting state in env Create/Update so a failed response conversion no longer saves partial state [#244](https://github.com/Altinity/terraform-provider-altinitycloud/pull/244).
+
+### Changed
+- GraphQL client retry logic now skips non-idempotent mutations, replays the request body on retry (previously retried with an empty body), and classifies retryable errors by HTTP status / transport error instead of response body substring matching [#244](https://github.com/Altinity/terraform-provider-altinitycloud/pull/244).
+
 ## [0.7.2](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.7.1...v0.7.2)
 ### Fixed
 - Fix `inconsistent result after apply` on `spec_revision` during env updates [#243](https://github.com/Altinity/terraform-provider-altinitycloud/pull/243).

@@ -245,6 +245,27 @@ func (model *AWSEnvResourceModel) toModel(env sdk.GetAWSEnv_AWSEnv) diag.Diagnos
 	nodeGroups, diags := nodeGroupsToModel(env.Spec.NodeGroups)
 	allDiags.Append(diags...)
 	model.NodeGroups = nodeGroups
+	// Reorder list fields the API may return out of config order, to avoid drift.
+	env.Spec.MaintenanceWindows = common.ReorderByKey(model.MaintenanceWindows, env.Spec.MaintenanceWindows,
+		func(m common.MaintenanceWindowModel) string { return m.Name.ValueString() },
+		func(s *sdk.AWSEnvSpecFragment_MaintenanceWindows) string { return s.Name },
+	)
+	env.Spec.Endpoints = common.ReorderByKey(model.Endpoints, env.Spec.Endpoints,
+		func(m AWSEnvEndpointModel) string { return m.ServiceName.ValueString() },
+		func(s *sdk.AWSEnvSpecFragment_Endpoints) string { return s.ServiceName },
+	)
+	env.Spec.PeeringConnections = common.ReorderByKey(model.PeeringConnections, env.Spec.PeeringConnections,
+		func(m AWSEnvPeeringConnectionModel) string { return m.VpcID.ValueString() },
+		func(s *sdk.AWSEnvSpecFragment_PeeringConnections) string { return s.VpcID },
+	)
+	env.Spec.Tags = common.ReorderByKey(model.Tags, env.Spec.Tags,
+		func(m common.KeyValueModel) string { return m.Key.ValueString() },
+		func(s *sdk.AWSEnvSpecFragment_Tags) string { return s.Key },
+	)
+	env.Spec.ExternalBuckets = common.ReorderByKey(model.ExternalBuckets, env.Spec.ExternalBuckets,
+		func(m AWSEnvExternalBucketModel) string { return m.Name.ValueString() },
+		func(s *sdk.AWSEnvSpecFragment_ExternalBuckets) string { return s.Name },
+	)
 	model.MaintenanceWindows = maintenanceWindowsToModel(env.Spec.MaintenanceWindows)
 	zones, diags := common.ListToModel(env.Spec.Zones)
 	allDiags.Append(diags...)
@@ -284,6 +305,8 @@ func (model *AWSEnvResourceModel) toModel(env sdk.GetAWSEnv_AWSEnv) diag.Diagnos
 			Name: types.StringValue(b.Name),
 		})
 	}
+
+	reorderIceberg(model.Iceberg, env.Spec.Iceberg)
 
 	backups := backupsToModel(env.Spec.Backups)
 	iceberg := icebergToModel(env.Spec.Iceberg)
@@ -559,6 +582,50 @@ func icebergToUpdateSDK(iceberg *AWSEnvIcebergModel) *sdk.IcebergUpdateInputSpec
 
 	return &sdk.IcebergUpdateInputSpec{
 		Catalogs: catalogs,
+	}
+}
+
+func ptrString(s *string) string {
+	if s != nil {
+		return *s
+	}
+	return ""
+}
+
+// icebergCatalogKey builds a composite identity (name + type). name is optional,
+// so two unnamed catalogs would collide on name alone; including type reduces
+// that, and positional matching in ReorderByKey keeps it loss-safe regardless.
+func icebergCatalogKey(name, catalogType string) string {
+	return name + "\x1f" + catalogType
+}
+
+// reorderIceberg reorders the API iceberg catalogs (and each catalog's watches)
+// into the user's configured order to avoid drift. Mutates spec in place.
+func reorderIceberg(model *AWSEnvIcebergModel, spec *sdk.AWSEnvSpecFragment_Iceberg) {
+	if model == nil || spec == nil {
+		return
+	}
+
+	spec.Catalogs = common.ReorderByKey(model.Catalogs, spec.Catalogs,
+		func(m AWSEnvIcebergCatalogModel) string {
+			return icebergCatalogKey(m.Name.ValueString(), m.Type.ValueString())
+		},
+		func(s *sdk.AWSEnvSpecFragment_Iceberg_Catalogs) string {
+			return icebergCatalogKey(ptrString(s.Name), string(s.Type))
+		},
+	)
+
+	for _, mc := range model.Catalogs {
+		for _, sc := range spec.Catalogs {
+			if icebergCatalogKey(mc.Name.ValueString(), mc.Type.ValueString()) != icebergCatalogKey(ptrString(sc.Name), string(sc.Type)) {
+				continue
+			}
+			sc.Watches = common.ReorderByKey(mc.Watches, sc.Watches,
+				func(m AWSEnvIcebergCatalogWatchModel) string { return m.Table.ValueString() },
+				func(s *sdk.AWSEnvSpecFragment_Iceberg_Catalogs_Watches) string { return s.Table },
+			)
+			break
+		}
 	}
 }
 
