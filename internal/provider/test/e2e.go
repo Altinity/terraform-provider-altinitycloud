@@ -3,13 +3,17 @@
 package test
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"io"
+	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/terraform-exec/tfexec"
 )
@@ -28,6 +32,66 @@ func E2EPreCheck(t *testing.T) {
 	if os.Getenv("ALTINITYCLOUD_API_TOKEN") == "" {
 		t.Skip("ALTINITYCLOUD_API_TOKEN not set; skipping e2e tests against dev control plane")
 	}
+}
+
+// e2eReadyTimeout bounds how long to wait for the control plane to become
+// reachable; e2eReadyInterval is the gap between probes.
+const (
+	e2eReadyTimeout  = 3 * time.Minute
+	e2eReadyInterval = 10 * time.Second
+)
+
+// E2EWaitForAPI blocks until the control plane answers a trivial authenticated
+// GraphQL query, then returns. While the dev control plane is mid-deployment it
+// transiently rejects requests (e.g. "invalid API token", 5xx, reset
+// connections); waiting avoids spurious test failures during a deploy window.
+// If it never comes up within the timeout the test is skipped, not failed, so a
+// deploy in progress doesn't red the build.
+func E2EWaitForAPI(t *testing.T) {
+	t.Helper()
+	token := os.Getenv("ALTINITYCLOUD_API_TOKEN")
+	url := E2EAPIURL + "/api/v1/graphql"
+
+	deadline := time.Now().Add(e2eReadyTimeout)
+	var lastErr error
+	for attempt := 1; ; attempt++ {
+		if lastErr = e2ePingAPI(url, token); lastErr == nil {
+			return
+		}
+		if time.Now().After(deadline) {
+			t.Skipf("control plane not ready after %s (last error: %s); skipping (likely mid-deployment)", e2eReadyTimeout, lastErr)
+		}
+		t.Logf("control plane not ready (attempt %d): %s; retrying in %s", attempt, lastErr, e2eReadyInterval)
+		time.Sleep(e2eReadyInterval)
+	}
+}
+
+// e2ePingAPI returns nil when an authenticated `{ __typename }` query succeeds.
+func e2ePingAPI(url, token string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), e2eReadyInterval)
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, strings.NewReader(`{"query":"query { __typename }"}`))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer func() { _, _ = io.Copy(io.Discard, resp.Body); resp.Body.Close() }()
+
+	body, _ := io.ReadAll(io.LimitReader(resp.Body, 4096))
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("status %d: %s", resp.StatusCode, bytes.TrimSpace(body))
+	}
+	if !bytes.Contains(body, []byte("__typename")) {
+		return fmt.Errorf("unexpected response: %s", bytes.TrimSpace(body))
+	}
+	return nil
 }
 
 // NewE2ETerraform builds the provider, wires a dev_overrides CLI config so a
@@ -127,6 +191,7 @@ func isE2EAlreadyExists(err error) bool {
 func RunE2ELifecycle(t *testing.T, namePrefix string, configFn func(envName string, capacity int) string) {
 	t.Helper()
 	E2EPreCheck(t)
+	E2EWaitForAPI(t)
 	tf, workdir := NewE2ETerraform(t)
 	ctx := context.Background()
 
