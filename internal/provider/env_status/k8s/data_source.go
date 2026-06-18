@@ -95,6 +95,11 @@ func (d *K8SEnvStatusDataSource) Read(ctx context.Context, req datasource.ReadRe
 		return
 	}
 
+	if apiResp.K8sEnv == nil {
+		clientsupport.AddClientError(&resp.Diagnostics, fmt.Sprintf("Environment %s was not found", envName))
+		return
+	}
+
 	data.toModel(*apiResp.K8sEnv)
 	data.Id = data.Name
 	diags = resp.State.Set(ctx, &data)
