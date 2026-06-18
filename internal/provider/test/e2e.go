@@ -89,6 +89,10 @@ var e2eTransientPatterns = []string{
 	"EOF",
 	"request failed",
 	"502", "503", "504",
+	// Eventual consistency: a just-created env can briefly read as not found on
+	// the update that immediately follows (create lands on one backend, the
+	// update hits another). The update is idempotent (REPLACE), so retry.
+	"environment not found",
 }
 
 func isE2ETransient(err error) bool {
