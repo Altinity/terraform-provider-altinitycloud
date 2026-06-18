@@ -254,6 +254,18 @@ func (model *AWSEnvResourceModel) toModel(env sdk.GetAWSEnv_AWSEnv) diag.Diagnos
 		func(m AWSEnvEndpointModel) string { return m.ServiceName.ValueString() },
 		func(s *sdk.AWSEnvSpecFragment_Endpoints) string { return s.ServiceName },
 	)
+	env.Spec.PeeringConnections = common.ReorderByKey(model.PeeringConnections, env.Spec.PeeringConnections,
+		func(m AWSEnvPeeringConnectionModel) string { return m.VpcID.ValueString() },
+		func(s *sdk.AWSEnvSpecFragment_PeeringConnections) string { return s.VpcID },
+	)
+	env.Spec.Tags = common.ReorderByKey(model.Tags, env.Spec.Tags,
+		func(m common.KeyValueModel) string { return m.Key.ValueString() },
+		func(s *sdk.AWSEnvSpecFragment_Tags) string { return s.Key },
+	)
+	env.Spec.ExternalBuckets = common.ReorderByKey(model.ExternalBuckets, env.Spec.ExternalBuckets,
+		func(m AWSEnvExternalBucketModel) string { return m.Name.ValueString() },
+		func(s *sdk.AWSEnvSpecFragment_ExternalBuckets) string { return s.Name },
+	)
 	model.MaintenanceWindows = maintenanceWindowsToModel(env.Spec.MaintenanceWindows)
 	zones, diags := common.ListToModel(env.Spec.Zones)
 	allDiags.Append(diags...)

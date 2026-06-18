@@ -167,10 +167,18 @@ func (model *GCPEnvResourceModel) toModel(env sdk.GetGCPEnv_GCPEnv) diag.Diagnos
 	allDiags.Append(diags...)
 	model.NodeGroups = nodeGroups
 
-	// Reorder maintenance windows the API may return out of config order, to avoid drift.
+	// Reorder list fields the API may return out of config order, to avoid drift.
 	env.Spec.MaintenanceWindows = common.ReorderByKey(model.MaintenanceWindows, env.Spec.MaintenanceWindows,
 		func(m common.MaintenanceWindowModel) string { return m.Name.ValueString() },
 		func(s *sdk.GCPEnvSpecFragment_MaintenanceWindows) string { return s.Name },
+	)
+	env.Spec.PeeringConnections = common.ReorderByKey(model.PeeringConnections, env.Spec.PeeringConnections,
+		func(m GCPEnvPeeringConnectionModel) string { return m.NetworkName.ValueString() },
+		func(s *sdk.GCPEnvSpecFragment_PeeringConnections) string { return s.NetworkName },
+	)
+	env.Spec.Labels = common.ReorderByKey(model.Labels, env.Spec.Labels,
+		func(m common.KeyValueModel) string { return m.Key.ValueString() },
+		func(s *sdk.GCPEnvSpecFragment_Labels) string { return s.Key },
 	)
 	model.MaintenanceWindows = maintenanceWindowsToModel(env.Spec.MaintenanceWindows)
 
