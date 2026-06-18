@@ -3,6 +3,7 @@ package client
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -26,15 +27,21 @@ func WithUserAgent(ctx context.Context, userAgent string) clientv2.RequestInterc
 	}
 }
 
-// retryablePatterns contains error substrings that indicate a transient failure.
-var retryablePatterns = []string{
-	"429",
-	"502",
-	"503",
-	"504",
+// retryableNetworkCodes are HTTP status codes that indicate a transient
+// server-side failure worth retrying.
+var retryableNetworkCodes = map[int]bool{
+	429: true,
+	502: true,
+	503: true,
+	504: true,
+}
+
+// transportPatterns match transport-level errors (no HTTP response received),
+// which clientv2 surfaces as a plain wrapped error rather than an
+// *ErrorResponse, so there is no status code to inspect.
+var transportPatterns = []string{
 	"connection reset",
 	"connection refused",
-	"connect: connection refused",
 	"i/o timeout",
 	"TLS handshake timeout",
 	"EOF",
@@ -44,8 +51,18 @@ func isRetryable(err error) bool {
 	if err == nil {
 		return false
 	}
+
+	// HTTP response received: only retry on transient status codes. GraphQL
+	// business errors (NetworkError nil) must never be retried, even if their
+	// message text happens to contain a code or "EOF".
+	var errResp *clientv2.ErrorResponse
+	if errors.As(err, &errResp) {
+		return errResp.NetworkError != nil && retryableNetworkCodes[errResp.NetworkError.Code]
+	}
+
+	// No HTTP response: classify the transport error by its message.
 	msg := err.Error()
-	for _, pattern := range retryablePatterns {
+	for _, pattern := range transportPatterns {
 		if strings.Contains(msg, pattern) {
 			return true
 		}
@@ -58,10 +75,29 @@ func isRetryable(err error) bool {
 // a transient error happens after the server committed it) yields spurious
 // failures like "environment already exists".
 func isMutation(gqlInfo *clientv2.GQLRequestInfo) bool {
+	// Fail closed: if the operation can't be determined, treat it as a mutation
+	// so it is never retried.
 	if gqlInfo == nil || gqlInfo.Request == nil {
-		return false
+		return true
 	}
-	return strings.HasPrefix(strings.TrimSpace(gqlInfo.Request.Query), "mutation")
+	return strings.HasPrefix(operationStart(gqlInfo.Request.Query), "mutation")
+}
+
+// operationStart returns the query with leading whitespace and '#' comment
+// lines stripped, so the operation keyword can be matched even when the query
+// begins with comments.
+func operationStart(query string) string {
+	for {
+		query = strings.TrimLeft(query, " \t\r\n")
+		if !strings.HasPrefix(query, "#") {
+			return query
+		}
+		i := strings.IndexByte(query, '\n')
+		if i < 0 {
+			return ""
+		}
+		query = query[i+1:]
+	}
 }
 
 func WithRetry(maxRetries int, initialBackoff time.Duration) clientv2.RequestInterceptor {

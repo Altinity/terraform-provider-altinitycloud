@@ -242,19 +242,26 @@ func GetAllowDeleteWhileDisconnectedAttribute(required, optional, computed bool)
 }
 
 func GetReservationsAttribute(required, optional, computed bool) rschema.SetAttribute {
+	// The default only takes effect on an Optional+Computed attribute (config may
+	// be null); on a Required attribute it can never fire, so skip it.
+	var planModifiers []planmodifier.Set
+	if computed {
+		planModifiers = []planmodifier.Set{
+			modifiers.DefaultSet(types.StringType, []attr.Value{
+				types.StringValue(string(client.NodeReservationClickhouse)),
+				types.StringValue(string(client.NodeReservationSystem)),
+				types.StringValue(string(client.NodeReservationZookeeper)),
+			}),
+		}
+	}
+
 	return rschema.SetAttribute{
 		ElementType:         types.StringType,
 		Required:            required,
 		Optional:            optional,
 		Computed:            computed,
 		MarkdownDescription: NODE_GROUP_RESERVATIONS_DESCRIPTION,
-		PlanModifiers: []planmodifier.Set{
-			modifiers.DefaultSet(types.StringType, []attr.Value{
-				types.StringValue(string(client.NodeReservationClickhouse)),
-				types.StringValue(string(client.NodeReservationSystem)),
-				types.StringValue(string(client.NodeReservationZookeeper)),
-			}),
-		},
+		PlanModifiers:       planModifiers,
 		Validators: []validator.Set{
 			setvalidator.SizeAtLeast(1),
 			setvalidator.ValueStringsAre(

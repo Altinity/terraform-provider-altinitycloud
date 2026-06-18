@@ -84,7 +84,7 @@ func (d *AWSEnvDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 			"node_groups":                     common.GetNodeGroupsAttribute(false, false, true),
 			"aws_account_id":                  getAWSAccountIDAttribute(false, false, true),
 			"region":                          common.GetRegionAttribute(false, false, true, common.AWS_REGION_DESCRIPTION),
-			"nat":                             getNATAttribute(false, true, true),
+			"nat":                             getNATAttribute(false, false, true),
 			"peering_connections":             getPeeringConnectionsAttribute(false, false, true),
 			"endpoints":                       getEndpointsAttribute(false, false, true),
 			"tags":                            getTagsAttribute(false, false, true),
