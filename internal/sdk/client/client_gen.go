@@ -30,6 +30,7 @@ type AWSEnvSpecFragment struct {
 	AWSAccountID                 string                                   "json:\"awsAccountID\" graphql:\"awsAccountID\""
 	PermissionsBoundaryPolicyArn *string                                  "json:\"permissionsBoundaryPolicyArn,omitempty\" graphql:\"permissionsBoundaryPolicyArn\""
 	ResourcePrefix               string                                   "json:\"resourcePrefix\" graphql:\"resourcePrefix\""
+	KmsKeyArn                    *string                                  "json:\"kmsKeyARN,omitempty\" graphql:\"kmsKeyARN\""
 	PeeringConnections           []*AWSEnvSpecFragment_PeeringConnections "json:\"peeringConnections\" graphql:\"peeringConnections\""
 	Endpoints                    []*AWSEnvSpecFragment_Endpoints          "json:\"endpoints\" graphql:\"endpoints\""
 	Tags                         []*AWSEnvSpecFragment_Tags               "json:\"tags\" graphql:\"tags\""
@@ -119,6 +120,12 @@ func (t *AWSEnvSpecFragment) GetResourcePrefix() string {
 		t = &AWSEnvSpecFragment{}
 	}
 	return t.ResourcePrefix
+}
+func (t *AWSEnvSpecFragment) GetKmsKeyArn() *string {
+	if t == nil {
+		t = &AWSEnvSpecFragment{}
+	}
+	return t.KmsKeyArn
 }
 func (t *AWSEnvSpecFragment) GetPeeringConnections() []*AWSEnvSpecFragment_PeeringConnections {
 	if t == nil {
@@ -811,9 +818,16 @@ func (t *AWSEnvSpecFragment_Tags) GetValue() string {
 }
 
 type AWSEnvSpecFragment_ExternalBuckets struct {
-	Name string "json:\"name\" graphql:\"name\""
+	KmsKeyArn *string "json:\"kmsKeyARN,omitempty\" graphql:\"kmsKeyARN\""
+	Name      string  "json:\"name\" graphql:\"name\""
 }
 
+func (t *AWSEnvSpecFragment_ExternalBuckets) GetKmsKeyArn() *string {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ExternalBuckets{}
+	}
+	return t.KmsKeyArn
+}
 func (t *AWSEnvSpecFragment_ExternalBuckets) GetName() string {
 	if t == nil {
 		t = &AWSEnvSpecFragment_ExternalBuckets{}
@@ -2198,9 +2212,16 @@ func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Tags) GetValue() string {
 }
 
 type GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ExternalBuckets struct {
-	Name string "json:\"name\" graphql:\"name\""
+	KmsKeyArn *string "json:\"kmsKeyARN,omitempty\" graphql:\"kmsKeyARN\""
+	Name      string  "json:\"name\" graphql:\"name\""
 }
 
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ExternalBuckets) GetKmsKeyArn() *string {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ExternalBuckets{}
+	}
+	return t.KmsKeyArn
+}
 func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ExternalBuckets) GetName() string {
 	if t == nil {
 		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ExternalBuckets{}
@@ -2788,9 +2809,16 @@ func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Tags) GetValue() stri
 }
 
 type CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ExternalBuckets struct {
-	Name string "json:\"name\" graphql:\"name\""
+	KmsKeyArn *string "json:\"kmsKeyARN,omitempty\" graphql:\"kmsKeyARN\""
+	Name      string  "json:\"name\" graphql:\"name\""
 }
 
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ExternalBuckets) GetKmsKeyArn() *string {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ExternalBuckets{}
+	}
+	return t.KmsKeyArn
+}
 func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ExternalBuckets) GetName() string {
 	if t == nil {
 		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ExternalBuckets{}
@@ -3224,9 +3252,16 @@ func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Tags) GetValue() stri
 }
 
 type UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ExternalBuckets struct {
-	Name string "json:\"name\" graphql:\"name\""
+	KmsKeyArn *string "json:\"kmsKeyARN,omitempty\" graphql:\"kmsKeyARN\""
+	Name      string  "json:\"name\" graphql:\"name\""
 }
 
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ExternalBuckets) GetKmsKeyArn() *string {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ExternalBuckets{}
+	}
+	return t.KmsKeyArn
+}
 func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ExternalBuckets) GetName() string {
 	if t == nil {
 		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ExternalBuckets{}
@@ -7373,6 +7408,7 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 	awsAccountID
 	permissionsBoundaryPolicyArn
 	resourcePrefix
+	kmsKeyARN
 	peeringConnections {
 		awsAccountID
 		vpcID
@@ -7390,6 +7426,7 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 	cloudConnect
 	externalBuckets {
 		name
+		kmsKeyARN
 	}
 	backups {
 		customBucket {
@@ -7539,6 +7576,7 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 	awsAccountID
 	permissionsBoundaryPolicyArn
 	resourcePrefix
+	kmsKeyARN
 	peeringConnections {
 		awsAccountID
 		vpcID
@@ -7556,6 +7594,7 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 	cloudConnect
 	externalBuckets {
 		name
+		kmsKeyARN
 	}
 	backups {
 		customBucket {
@@ -7658,6 +7697,7 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 	awsAccountID
 	permissionsBoundaryPolicyArn
 	resourcePrefix
+	kmsKeyARN
 	peeringConnections {
 		awsAccountID
 		vpcID
@@ -7675,6 +7715,7 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 	cloudConnect
 	externalBuckets {
 		name
+		kmsKeyARN
 	}
 	backups {
 		customBucket {

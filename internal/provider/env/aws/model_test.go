@@ -909,6 +909,7 @@ func TestAWSEnvResourceModel_toSDK(t *testing.T) {
 				Region:                       types.StringValue("us-east-1"),
 				PermissionsBoundaryPolicyArn: types.StringValue("arn:aws:iam::123456789012:policy/boundary"),
 				ResourcePrefix:               types.StringValue("altinity-"),
+				KmsKeyArn:                    types.StringValue("arn:aws:kms:us-east-1:123456789012:key/abc-123"),
 				NAT:                          types.BoolValue(true),
 				CIDR:                         types.StringValue("10.0.0.0/16"),
 				AWSAccountID:                 types.StringValue("123456789012"),
@@ -961,7 +962,8 @@ func TestAWSEnvResourceModel_toSDK(t *testing.T) {
 				},
 				ExternalBuckets: []AWSEnvExternalBucketModel{
 					{
-						Name: types.StringValue("external-bucket"),
+						Name:      types.StringValue("external-bucket"),
+						KmsKeyArn: types.StringValue("arn:aws:kms:us-east-1:123456789012:key/bucket-key"),
 					},
 				},
 			},
@@ -1002,6 +1004,15 @@ func TestAWSEnvResourceModel_toSDK(t *testing.T) {
 				}
 				if len(create.Spec.ExternalBuckets) != 1 {
 					t.Errorf("Create external buckets: expected 1, got %d", len(create.Spec.ExternalBuckets))
+				}
+				if create.Spec.KmsKeyArn == nil || *create.Spec.KmsKeyArn != "arn:aws:kms:us-east-1:123456789012:key/abc-123" {
+					t.Errorf("Create KMS key ARN: expected 'arn:aws:kms:us-east-1:123456789012:key/abc-123', got '%v'", create.Spec.KmsKeyArn)
+				}
+				if len(create.Spec.ExternalBuckets) == 1 && (create.Spec.ExternalBuckets[0].KmsKeyArn == nil || *create.Spec.ExternalBuckets[0].KmsKeyArn != "arn:aws:kms:us-east-1:123456789012:key/bucket-key") {
+					t.Errorf("Create external bucket KMS key ARN: expected 'arn:aws:kms:us-east-1:123456789012:key/bucket-key', got '%v'", create.Spec.ExternalBuckets[0].KmsKeyArn)
+				}
+				if len(update.Spec.ExternalBuckets) == 1 && (update.Spec.ExternalBuckets[0].KmsKeyArn == nil || *update.Spec.ExternalBuckets[0].KmsKeyArn != "arn:aws:kms:us-east-1:123456789012:key/bucket-key") {
+					t.Errorf("Update external bucket KMS key ARN: expected 'arn:aws:kms:us-east-1:123456789012:key/bucket-key', got '%v'", update.Spec.ExternalBuckets[0].KmsKeyArn)
 				}
 				if update.Name != "test-env" {
 					t.Errorf("Update name: expected 'test-env', got '%s'", update.Name)
@@ -1285,6 +1296,7 @@ func TestAWSEnvResourceModel_toModel(t *testing.T) {
 					LoadBalancingStrategy:        sdk.LoadBalancingStrategyRoundRobin,
 					ResourcePrefix:               "altinity-test-",
 					PermissionsBoundaryPolicyArn: &[]string{"arn:aws:iam::123456789012:policy/boundary"}[0],
+					KmsKeyArn:                    &[]string{"arn:aws:kms:us-east-1:123456789012:key/abc-123"}[0],
 					Zones:                        []string{"us-east-1a", "us-east-1b", "us-east-1c"},
 					LoadBalancers: sdk.AWSEnvSpecFragment_LoadBalancers{
 						Public: sdk.AWSEnvSpecFragment_LoadBalancers_Public{
@@ -1340,7 +1352,8 @@ func TestAWSEnvResourceModel_toModel(t *testing.T) {
 					},
 					ExternalBuckets: []*sdk.AWSEnvSpecFragment_ExternalBuckets{
 						{
-							Name: "external-bucket",
+							Name:      "external-bucket",
+							KmsKeyArn: &[]string{"arn:aws:kms:us-east-1:123456789012:key/bucket-key"}[0],
 						},
 					},
 					Tags: []*sdk.AWSEnvSpecFragment_Tags{
@@ -1385,6 +1398,9 @@ func TestAWSEnvResourceModel_toModel(t *testing.T) {
 				if model.PermissionsBoundaryPolicyArn.ValueString() != "arn:aws:iam::123456789012:policy/boundary" {
 					t.Errorf("PermissionsBoundaryPolicyArn: expected 'arn:aws:iam::123456789012:policy/boundary', got '%s'", model.PermissionsBoundaryPolicyArn.ValueString())
 				}
+				if model.KmsKeyArn.ValueString() != "arn:aws:kms:us-east-1:123456789012:key/abc-123" {
+					t.Errorf("KmsKeyArn: expected 'arn:aws:kms:us-east-1:123456789012:key/abc-123', got '%s'", model.KmsKeyArn.ValueString())
+				}
 				if model.CloudConnect.ValueBool() != true {
 					t.Errorf("CloudConnect: expected true, got %v", model.CloudConnect.ValueBool())
 				}
@@ -1424,6 +1440,9 @@ func TestAWSEnvResourceModel_toModel(t *testing.T) {
 				}
 				if model.ExternalBuckets[0].Name.ValueString() != "external-bucket" {
 					t.Errorf("External bucket name: expected 'external-bucket', got '%s'", model.ExternalBuckets[0].Name.ValueString())
+				}
+				if model.ExternalBuckets[0].KmsKeyArn.ValueString() != "arn:aws:kms:us-east-1:123456789012:key/bucket-key" {
+					t.Errorf("External bucket KMS key ARN: expected 'arn:aws:kms:us-east-1:123456789012:key/bucket-key', got '%s'", model.ExternalBuckets[0].KmsKeyArn.ValueString())
 				}
 
 				if len(model.Endpoints) != 1 {
