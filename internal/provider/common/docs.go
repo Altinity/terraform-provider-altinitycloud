@@ -132,7 +132,13 @@ const AWS_NODE_GROUP_NODE_TYPE_DESCRIPTION = `Instance type ([docs](https://aws.
 		Examples:
 		- "t4g.large"
 `
-const EXTERNAL_BUCKET_DESCRIPTION = "List of external S3 bucket to allow access to."
+const EXTERNAL_BUCKET_DESCRIPTION = `List of external S3 buckets to allow access to.
+
+		- Without a permissions boundary: listing the buckets here is enough, the environment's IAM roles are granted access to them.
+		- With a permissions boundary (` + "`enable_permissions_boundary = true`" + ` in the ` + "`altinitycloud_connect_aws`" + ` module): the same bucket names **must also** be passed to that module's ` + "`external_buckets`" + ` variable, otherwise the boundary caps the IAM roles and access is blocked (` + "`AccessDenied`" + ` on ` + "`s3:ListBucket`" + `) even when the bucket policy already grants it.
+
+		See the "AWS environment with external S3 buckets" example.
+`
 const EXTERNAL_BUCKET_NAME_DESCRIPTION = "External bucket name."
 const PEERING_CONNECTION_DESCRIPTION = "AWS environment VPC peering configuration."
 const PEERING_CONNECTION_ID_DESCRIPTION = "VPC peering connection ID."

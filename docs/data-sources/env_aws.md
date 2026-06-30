@@ -52,7 +52,12 @@ Bring Your Own Cloud (BYOC) AWS environment data source.
 - `datadog` (Attributes) Datadog agent configuration. (see [below for nested schema](#nestedatt--datadog))
 - `eks_logging` (Boolean) Enable/Disable EKS control plane logging to CloudWatch (default `false`).
 - `endpoints` (Attributes List) AWS environment VPC endpoint configuration (see [below for nested schema](#nestedatt--endpoints))
-- `external_buckets` (Attributes Set) List of external S3 bucket to allow access to. (see [below for nested schema](#nestedatt--external_buckets))
+- `external_buckets` (Attributes Set) List of external S3 buckets to allow access to.
+
+		- Without a permissions boundary: listing the buckets here is enough, the environment's IAM roles are granted access to them.
+		- With a permissions boundary (`enable_permissions_boundary = true` in the `altinitycloud_connect_aws` module): the same bucket names **must also** be passed to that module's `external_buckets` variable, otherwise the boundary caps the IAM roles and access is blocked (`AccessDenied` on `s3:ListBucket`) even when the bucket policy already grants it.
+
+		See the "AWS environment with external S3 buckets" example. (see [below for nested schema](#nestedatt--external_buckets))
 - `force_destroy` (Boolean) Locks the environment for accidental deletion when running `terraform destroy` command. Your environment will be deleted, only when setting this parameter to `true`. Once this parameter is set to `true`, there must be a successful `terraform apply` run (before running the `terraform destroy`) to update this value in the state. Without a successful `terraform apply` after this parameter is set, this flag will have no effect. (default `false`)
 - `force_destroy_clusters` (Boolean) By default, the destroy operation will not delete any provisioned clusters and the deletion will fail until the clusters get removed. Set to `true` to remove all provisioned clusters as part of the environment deletion process.
 - `iceberg` (Attributes) Iceberg configuration for Apache Iceberg table format support. (see [below for nested schema](#nestedatt--iceberg))
