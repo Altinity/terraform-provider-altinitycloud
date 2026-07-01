@@ -143,7 +143,13 @@ const AWS_NODE_GROUP_NODE_TYPE_DESCRIPTION = `Instance type ([docs](https://aws.
 		Examples:
 		- "t4g.large"
 `
-const EXTERNAL_BUCKET_DESCRIPTION = "List of external S3 bucket to allow access to."
+const EXTERNAL_BUCKET_DESCRIPTION = `List of external S3 buckets to allow access to.
+
+		- Without a permissions boundary: listing the buckets here is enough, the environment's IAM roles are granted access to them.
+		- With a permissions boundary (` + "`enable_permissions_boundary = true`" + ` in the ` + "`altinitycloud_connect_aws`" + ` module): the same bucket names **must also** be passed to that module's ` + "`external_buckets`" + ` variable, otherwise the boundary caps the IAM roles and access is blocked (` + "`AccessDenied`" + ` on ` + "`s3:ListBucket`" + `) even when the bucket policy already grants it.
+
+		See the "AWS environment with external S3 buckets" example.
+`
 const EXTERNAL_BUCKET_NAME_DESCRIPTION = "External bucket name."
 const EXTERNAL_BUCKET_KMS_KEY_ARN_DESCRIPTION = "Optional ARN of a customer-managed KMS key used to encrypt this bucket. When set, the ClickHouse IRSA role is granted KMS decrypt/encrypt permissions on the key so SSE-KMS-encrypted objects in the bucket can be read and written (e.g. when the bucket backs a ClickHouse external disk). The key is owned by the customer; bucket-level encryption is not managed by Altinity. The env-region constraint that applies to the env-level KMS key does not apply here — the key may be in any region from the env's perspective. S3 still requires the key to be in the bucket's region (or to be a KMS multi-region key with a replica in the bucket's region); that is the customer's responsibility and is not validated here."
 const PEERING_CONNECTION_DESCRIPTION = "AWS environment VPC peering configuration."
