@@ -1179,6 +1179,14 @@ type AzureEnvSpec {
   """
   loadBalancingStrategy: LoadBalancingStrategy!
   """
+  AKS Kubernetes support policy.
+  """
+  aksSupportPolicy: AKSSupportPolicy!
+  """
+  AKS SKU tier.
+  """
+  aksSKUTier: AKSSKUTier!
+  """
   List of node groups.
   At least one required.
   """
@@ -1478,6 +1486,16 @@ input CreateAzureEnvSpecInput {
   """
   loadBalancingStrategy: LoadBalancingStrategy
   """
+  AKS Kubernetes support policy.
+  STANDARD by default.
+  """
+  aksSupportPolicy: AKSSupportPolicy
+  """
+  AKS SKU tier.
+  FREE by default. PREMIUM is required when aksSupportPolicy is EXTENDED.
+  """
+  aksSKUTier: AKSSKUTier
+  """
   List of node groups.
   At least one required.
   """
@@ -1753,6 +1771,14 @@ input UpdateAzureEnvSpecInput {
   """
   loadBalancingStrategy: LoadBalancingStrategy
   """
+  AKS Kubernetes support policy. Empty value clears the override.
+  """
+  aksSupportPolicy: String
+  """
+  AKS SKU tier. Empty value clears the override.
+  """
+  aksSKUTier: String
+  """
   List of node groups.
   At least one required.
   """
@@ -1859,6 +1885,22 @@ enum LoadBalancingStrategy {
   Load balance traffic across all zones in round-robin fashion.
   """
   ROUND_ROBIN
+}
+
+"""
+AKS provider support policy.
+"""
+enum AKSSupportPolicy {
+  STANDARD
+  EXTENDED
+}
+
+"""
+Azure AKS SKU tier.
+"""
+enum AKSSKUTier {
+  FREE
+  PREMIUM
 }
 
 """

@@ -676,6 +676,10 @@ type AzureEnvSpec struct {
 	LoadBalancers *AzureEnvLoadBalancersSpec `json:"loadBalancers"`
 	// Load balancing strategy.
 	LoadBalancingStrategy LoadBalancingStrategy `json:"loadBalancingStrategy"`
+	// AKS Kubernetes support policy.
+	AksSupportPolicy AKSSupportPolicy `json:"aksSupportPolicy"`
+	// AKS SKU tier.
+	AksSKUTier AKSSKUTier `json:"aksSKUTier"`
 	// List of node groups.
 	// At least one required.
 	NodeGroups []*AzureEnvNodeGroupSpec `json:"nodeGroups"`
@@ -939,6 +943,12 @@ type CreateAzureEnvSpecInput struct {
 	// Load balancing strategy.
 	// ZONE_BEST_EFFORT by default.
 	LoadBalancingStrategy *LoadBalancingStrategy `json:"loadBalancingStrategy,omitempty"`
+	// AKS Kubernetes support policy.
+	// STANDARD by default.
+	AksSupportPolicy *AKSSupportPolicy `json:"aksSupportPolicy,omitempty"`
+	// AKS SKU tier.
+	// FREE by default. PREMIUM is required when aksSupportPolicy is EXTENDED.
+	AksSKUTier *AKSSKUTier `json:"aksSKUTier,omitempty"`
 	// List of node groups.
 	// At least one required.
 	NodeGroups []*AzureEnvNodeGroupSpecInput `json:"nodeGroups"`
@@ -2481,6 +2491,10 @@ type UpdateAzureEnvSpecInput struct {
 	// Load balancing strategy.
 	// ZONE_BEST_EFFORT by default.
 	LoadBalancingStrategy *LoadBalancingStrategy `json:"loadBalancingStrategy,omitempty"`
+	// AKS Kubernetes support policy. Empty value clears the override.
+	AksSupportPolicy *string `json:"aksSupportPolicy,omitempty"`
+	// AKS SKU tier. Empty value clears the override.
+	AksSKUTier *string `json:"aksSKUTier,omitempty"`
 	// List of node groups.
 	// At least one required.
 	NodeGroups []*AzureEnvNodeGroupSpecInput `json:"nodeGroups,omitempty"`
@@ -2760,6 +2774,118 @@ type UpdateK8SEnvSpecInput struct {
 	MetricsEndpoint *MetricsEndpointSpecInput `json:"metricsEndpoint,omitempty"`
 	// Datadog monitoring agent configuration.
 	Datadog *DatadogSpecInput `json:"datadog,omitempty"`
+}
+
+// Azure AKS SKU tier.
+type AKSSKUTier string
+
+const (
+	AKSSKUTierFree    AKSSKUTier = "FREE"
+	AKSSKUTierPremium AKSSKUTier = "PREMIUM"
+)
+
+var AllAKSSKUTier = []AKSSKUTier{
+	AKSSKUTierFree,
+	AKSSKUTierPremium,
+}
+
+func (e AKSSKUTier) IsValid() bool {
+	switch e {
+	case AKSSKUTierFree, AKSSKUTierPremium:
+		return true
+	}
+	return false
+}
+
+func (e AKSSKUTier) String() string {
+	return string(e)
+}
+
+func (e *AKSSKUTier) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = AKSSKUTier(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid AKSSKUTier", str)
+	}
+	return nil
+}
+
+func (e AKSSKUTier) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *AKSSKUTier) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e AKSSKUTier) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// AKS provider support policy.
+type AKSSupportPolicy string
+
+const (
+	AKSSupportPolicyStandard AKSSupportPolicy = "STANDARD"
+	AKSSupportPolicyExtended AKSSupportPolicy = "EXTENDED"
+)
+
+var AllAKSSupportPolicy = []AKSSupportPolicy{
+	AKSSupportPolicyStandard,
+	AKSSupportPolicyExtended,
+}
+
+func (e AKSSupportPolicy) IsValid() bool {
+	switch e {
+	case AKSSupportPolicyStandard, AKSSupportPolicyExtended:
+		return true
+	}
+	return false
+}
+
+func (e AKSSupportPolicy) String() string {
+	return string(e)
+}
+
+func (e *AKSSupportPolicy) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = AKSSupportPolicy(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid AKSSupportPolicy", str)
+	}
+	return nil
+}
+
+func (e AKSSupportPolicy) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *AKSSupportPolicy) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e AKSSupportPolicy) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
 }
 
 // Day of the week.
