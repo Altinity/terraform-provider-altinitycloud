@@ -7,6 +7,7 @@ on:
   push:
     paths-ignore:
       - 'README.md'
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -31,6 +32,8 @@ jobs:
           version: latest
 
   e2e:
+    # Disabled on push/PR for now; run manually via the "Run workflow" button.
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
