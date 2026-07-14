@@ -76,6 +76,7 @@ func (r *GCPEnvResource) Create(ctx context.Context, req resource.CreateRequest,
 		func(m common.NodeGroupsModel) string { return m.NodeType.ValueString() },
 		func(s *client.GCPEnvSpecFragment_NodeGroups) string { return s.NodeType },
 	)
+	resp.Diagnostics.Append(reorderNodeGroupZones(ctx, data.NodeGroups, apiResp.CreateGCPEnv.Spec.NodeGroups)...)
 	apiResp.CreateGCPEnv.Spec.Zones, diags = common.ReorderList(ctx, data.Zones, apiResp.CreateGCPEnv.Spec.Zones)
 	resp.Diagnostics.Append(diags...)
 	apiResp.CreateGCPEnv.Spec.Labels = common.ReorderByKey(data.Labels, apiResp.CreateGCPEnv.Spec.Labels,
@@ -131,6 +132,7 @@ func (r *GCPEnvResource) Read(ctx context.Context, req resource.ReadRequest, res
 		func(m common.NodeGroupsModel) string { return m.NodeType.ValueString() },
 		func(s *client.GCPEnvSpecFragment_NodeGroups) string { return s.NodeType },
 	)
+	resp.Diagnostics.Append(reorderNodeGroupZones(ctx, data.NodeGroups, apiResp.GCPEnv.Spec.NodeGroups)...)
 	apiResp.GCPEnv.Spec.Zones, diags = common.ReorderList(ctx, data.Zones, apiResp.GCPEnv.Spec.Zones)
 	resp.Diagnostics.Append(diags...)
 	apiResp.GCPEnv.Spec.Labels = common.ReorderByKey(data.Labels, apiResp.GCPEnv.Spec.Labels,
@@ -181,6 +183,7 @@ func (r *GCPEnvResource) Update(ctx context.Context, req resource.UpdateRequest,
 		func(m common.NodeGroupsModel) string { return m.NodeType.ValueString() },
 		func(s *client.GCPEnvSpecFragment_NodeGroups) string { return s.NodeType },
 	)
+	resp.Diagnostics.Append(reorderNodeGroupZones(ctx, data.NodeGroups, apiResp.UpdateGCPEnv.Spec.NodeGroups)...)
 	apiResp.UpdateGCPEnv.Spec.Zones, diags = common.ReorderList(ctx, data.Zones, apiResp.UpdateGCPEnv.Spec.Zones)
 	resp.Diagnostics.Append(diags...)
 	apiResp.UpdateGCPEnv.Spec.Labels = common.ReorderByKey(data.Labels, apiResp.UpdateGCPEnv.Spec.Labels,

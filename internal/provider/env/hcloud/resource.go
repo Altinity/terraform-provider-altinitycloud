@@ -76,6 +76,7 @@ func (r *HCloudEnvResource) Create(ctx context.Context, req resource.CreateReque
 		func(m NodeGroupsModel) string { return m.NodeType.ValueString() },
 		func(s *client.HCloudEnvSpecFragment_NodeGroups) string { return s.NodeType },
 	)
+	resp.Diagnostics.Append(reorderNodeGroupLocations(ctx, data.NodeGroups, apiResp.CreateHCloudEnv.Spec.NodeGroups)...)
 	apiResp.CreateHCloudEnv.Spec.Locations, diags = common.ReorderList(ctx, data.Locations, apiResp.CreateHCloudEnv.Spec.Locations)
 	resp.Diagnostics.Append(diags...)
 	data.Id = data.Name
@@ -123,6 +124,7 @@ func (r *HCloudEnvResource) Read(ctx context.Context, req resource.ReadRequest, 
 		func(m NodeGroupsModel) string { return m.NodeType.ValueString() },
 		func(s *client.HCloudEnvSpecFragment_NodeGroups) string { return s.NodeType },
 	)
+	resp.Diagnostics.Append(reorderNodeGroupLocations(ctx, data.NodeGroups, apiResp.HcloudEnv.Spec.NodeGroups)...)
 	apiResp.HcloudEnv.Spec.Locations, diags = common.ReorderList(ctx, data.Locations, apiResp.HcloudEnv.Spec.Locations)
 	resp.Diagnostics.Append(diags...)
 	diags = data.toModel(*apiResp.HcloudEnv)
@@ -165,6 +167,7 @@ func (r *HCloudEnvResource) Update(ctx context.Context, req resource.UpdateReque
 		func(m NodeGroupsModel) string { return m.NodeType.ValueString() },
 		func(s *client.HCloudEnvSpecFragment_NodeGroups) string { return s.NodeType },
 	)
+	resp.Diagnostics.Append(reorderNodeGroupLocations(ctx, data.NodeGroups, apiResp.UpdateHCloudEnv.Spec.NodeGroups)...)
 	apiResp.UpdateHCloudEnv.Spec.Locations, diags = common.ReorderList(ctx, data.Locations, apiResp.UpdateHCloudEnv.Spec.Locations)
 	resp.Diagnostics.Append(diags...)
 	data.Locations, diags = common.ListToModel(apiResp.UpdateHCloudEnv.Spec.Locations)

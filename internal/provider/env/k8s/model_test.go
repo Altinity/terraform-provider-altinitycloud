@@ -109,7 +109,7 @@ func TestReorderNodeGroups(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := reorderNodeGroups(tt.model, tt.apiNodeGroups)
+			result, _ := reorderNodeGroups(context.Background(), tt.model, tt.apiNodeGroups)
 
 			if len(result) != tt.expectedLength {
 				t.Errorf("Expected length %d, got %d", tt.expectedLength, len(result))
@@ -175,7 +175,7 @@ func TestReorderNodeGroupsSameTypeDistinctNames(t *testing.T) {
 		{NodeType: "t4g.large", Name: "ng-b", CapacityPerZone: 2},
 	}
 
-	result := reorderNodeGroups(model, api)
+	result, _ := reorderNodeGroups(context.Background(), model, api)
 
 	if len(result) != 2 {
 		t.Fatalf("expected 2 node groups, got %d", len(result))
@@ -185,6 +185,30 @@ func TestReorderNodeGroupsSameTypeDistinctNames(t *testing.T) {
 	}
 	if result[0].CapacityPerZone != 2 || result[1].CapacityPerZone != 1 {
 		t.Errorf("capacity mispaired: got ng-b=%d ng-a=%d (want 2, 1)", result[0].CapacityPerZone, result[1].CapacityPerZone)
+	}
+}
+
+func TestReorderNodeGroupZones(t *testing.T) {
+	model := []NodeGroupsModel{
+		{
+			Name:     types.StringValue("ng"),
+			NodeType: types.StringValue("t4g.large"),
+			Zones: types.ListValueMust(types.StringType, []attr.Value{
+				types.StringValue("us-east-1d"),
+				types.StringValue("us-east-1a"),
+			}),
+		},
+	}
+	api := []*client.K8SEnvSpecFragment_NodeGroups{
+		{NodeType: "t4g.large", Name: "ng", Zones: []string{"us-east-1a", "us-east-1d"}},
+	}
+
+	result, diags := reorderNodeGroups(context.Background(), model, api)
+	if diags.HasError() {
+		t.Fatalf("unexpected diagnostics: %v", diags)
+	}
+	if result[0].Zones[0] != "us-east-1d" || result[0].Zones[1] != "us-east-1a" {
+		t.Errorf("expected zones [us-east-1d us-east-1a], got %v", result[0].Zones)
 	}
 }
 

@@ -279,6 +279,15 @@ func wireguardPeersToSDK(ctx context.Context, peers []WireguardPeers) ([]*client
 	return sdkPeers, allDiags
 }
 
+func reorderNodeGroupLocations(ctx context.Context, model []NodeGroupsModel, items []*client.HCloudEnvSpecFragment_NodeGroups) diag.Diagnostics {
+	return common.ReorderNodeGroupZones(ctx, model, items,
+		func(m NodeGroupsModel) string { return m.NodeType.ValueString() },
+		func(s *client.HCloudEnvSpecFragment_NodeGroups) string { return s.NodeType },
+		func(m NodeGroupsModel) types.List { return m.Locations },
+		func(s *client.HCloudEnvSpecFragment_NodeGroups) *[]string { return &s.Locations },
+	)
+}
+
 func nodeGroupsToModel(nodeGroups []*client.HCloudEnvSpecFragment_NodeGroups) ([]NodeGroupsModel, diag.Diagnostics) {
 	var allDiags diag.Diagnostics
 	var modelNodeGroups []NodeGroupsModel

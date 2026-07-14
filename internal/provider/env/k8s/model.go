@@ -491,7 +491,8 @@ func tolerationKey(key, value, operator, effect string) string {
 	return key + "\x1f" + value + "\x1f" + operator + "\x1f" + effect
 }
 
-func reorderNodeGroups(model []NodeGroupsModel, items []*client.K8SEnvSpecFragment_NodeGroups) []*client.K8SEnvSpecFragment_NodeGroups {
+func reorderNodeGroups(ctx context.Context, model []NodeGroupsModel, items []*client.K8SEnvSpecFragment_NodeGroups) ([]*client.K8SEnvSpecFragment_NodeGroups, diag.Diagnostics) {
+	var allDiags diag.Diagnostics
 	ordered := make([]*client.K8SEnvSpecFragment_NodeGroups, 0, len(items))
 	used := make([]bool, len(items))
 
@@ -513,6 +514,11 @@ func reorderNodeGroups(model []NodeGroupsModel, items []*client.K8SEnvSpecFragme
 	for _, ng := range model {
 		for _, apiGroup := range ordered {
 			if nodeGroupMatches(ng, apiGroup) {
+				zones, diags := common.ReorderList(ctx, ng.Zones, apiGroup.Zones)
+				allDiags.Append(diags...)
+				if !diags.HasError() {
+					apiGroup.Zones = zones
+				}
 				apiGroup.Selector = common.ReorderByKey(ng.NodeSelector, apiGroup.Selector,
 					func(m common.KeyValueModel) string { return selectorKey(m.Key.ValueString(), m.Value.ValueString()) },
 					func(s *client.K8SEnvSpecFragment_NodeGroups_Selector) string { return selectorKey(s.Key, s.Value) },
@@ -530,5 +536,5 @@ func reorderNodeGroups(model []NodeGroupsModel, items []*client.K8SEnvSpecFragme
 		}
 	}
 
-	return ordered
+	return ordered, allDiags
 }

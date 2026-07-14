@@ -163,6 +163,32 @@ func TestReorderNodeGroups(t *testing.T) {
 	}
 }
 
+func TestReorderNodeGroupZones(t *testing.T) {
+	configZones := types.ListValueMust(types.StringType, []attr.Value{
+		types.StringValue("us-east-1d"),
+		types.StringValue("us-east-1a"),
+	})
+	model := []common.NodeGroupsModel{
+		{NodeType: types.StringValue("system"), Zones: configZones},
+		{NodeType: types.StringValue("user"), Zones: configZones},
+	}
+	api := []*sdk.AWSEnvSpecFragment_NodeGroups{
+		{NodeType: "system", Zones: []string{"us-east-1a", "us-east-1d"}},
+		{NodeType: "user", Zones: []string{"us-east-1a", "us-east-1d"}},
+	}
+
+	diags := reorderNodeGroupZones(context.Background(), model, api)
+	if diags.HasError() {
+		t.Fatalf("unexpected diagnostics: %v", diags)
+	}
+
+	for i, group := range api {
+		if group.Zones[0] != "us-east-1d" || group.Zones[1] != "us-east-1a" {
+			t.Errorf("node group %d: expected zones [us-east-1d us-east-1a], got %v", i, group.Zones)
+		}
+	}
+}
+
 func TestMaintenanceWindowsToModel(t *testing.T) {
 	tests := []struct {
 		name     string
