@@ -34,7 +34,7 @@ terraform {
   required_providers {
     altinitycloud = {
       source  = "altinity/altinitycloud"
-      version = "~> 0.6.1"
+      version = "~> 0.7.3"
     }
   }
 }
