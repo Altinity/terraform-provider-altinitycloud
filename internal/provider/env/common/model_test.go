@@ -130,6 +130,103 @@ func TestReorderByKeyDuplicateKeys(t *testing.T) {
 	})
 }
 
+func TestReorderNodeGroupZones(t *testing.T) {
+	type modelNG struct {
+		NodeType string
+		Zones    types.List
+	}
+	type apiNG struct {
+		NodeType string
+		Zones    []string
+	}
+
+	zonesList := func(zones ...string) types.List {
+		values := make([]attr.Value, len(zones))
+		for i, z := range zones {
+			values[i] = types.StringValue(z)
+		}
+		return types.ListValueMust(types.StringType, values)
+	}
+
+	run := func(t *testing.T, model []modelNG, items []*apiNG) {
+		t.Helper()
+		diags := ReorderNodeGroupZones(context.Background(), model, items,
+			func(m modelNG) string { return m.NodeType },
+			func(s *apiNG) string { return s.NodeType },
+			func(m modelNG) types.List { return m.Zones },
+			func(s *apiNG) *[]string { return &s.Zones },
+		)
+		if diags.HasError() {
+			t.Fatalf("unexpected diagnostics: %v", diags)
+		}
+	}
+
+	assertZones := func(t *testing.T, got, want []string) {
+		t.Helper()
+		if len(got) != len(want) {
+			t.Fatalf("expected zones %v, got %v", want, got)
+		}
+		for i := range want {
+			if got[i] != want[i] {
+				t.Fatalf("expected zones %v, got %v", want, got)
+			}
+		}
+	}
+
+	t.Run("reorders zones to model order per node group", func(t *testing.T) {
+		model := []modelNG{
+			{NodeType: "system", Zones: zonesList("us-east-1d", "us-east-1a")},
+			{NodeType: "user", Zones: zonesList("us-east-1d", "us-east-1a")},
+		}
+		items := []*apiNG{
+			{NodeType: "system", Zones: []string{"us-east-1a", "us-east-1d"}},
+			{NodeType: "user", Zones: []string{"us-east-1a", "us-east-1d"}},
+		}
+		run(t, model, items)
+		assertZones(t, items[0].Zones, []string{"us-east-1d", "us-east-1a"})
+		assertZones(t, items[1].Zones, []string{"us-east-1d", "us-east-1a"})
+	})
+
+	t.Run("null model zones keep API order", func(t *testing.T) {
+		model := []modelNG{{NodeType: "system", Zones: types.ListNull(types.StringType)}}
+		items := []*apiNG{{NodeType: "system", Zones: []string{"us-east-1b", "us-east-1a"}}}
+		run(t, model, items)
+		assertZones(t, items[0].Zones, []string{"us-east-1b", "us-east-1a"})
+	})
+
+	t.Run("API-only node group untouched", func(t *testing.T) {
+		model := []modelNG{{NodeType: "system", Zones: zonesList("us-east-1b", "us-east-1a")}}
+		items := []*apiNG{
+			{NodeType: "system", Zones: []string{"us-east-1a", "us-east-1b"}},
+			{NodeType: "extra", Zones: []string{"us-east-1c", "us-east-1a"}},
+		}
+		run(t, model, items)
+		assertZones(t, items[0].Zones, []string{"us-east-1b", "us-east-1a"})
+		assertZones(t, items[1].Zones, []string{"us-east-1c", "us-east-1a"})
+	})
+
+	t.Run("duplicate node types pair positionally", func(t *testing.T) {
+		model := []modelNG{
+			{NodeType: "t4g.large", Zones: zonesList("us-east-1b", "us-east-1a")},
+			{NodeType: "t4g.large", Zones: zonesList("us-east-1d", "us-east-1c")},
+		}
+		items := []*apiNG{
+			{NodeType: "t4g.large", Zones: []string{"us-east-1a", "us-east-1b"}},
+			{NodeType: "t4g.large", Zones: []string{"us-east-1c", "us-east-1d"}},
+		}
+		run(t, model, items)
+		assertZones(t, items[0].Zones, []string{"us-east-1b", "us-east-1a"})
+		assertZones(t, items[1].Zones, []string{"us-east-1d", "us-east-1c"})
+	})
+
+	t.Run("extra API zones appended after model order", func(t *testing.T) {
+		model := []modelNG{{NodeType: "system", Zones: zonesList("us-east-1d", "us-east-1a")}}
+		items := []*apiNG{{NodeType: "system", Zones: []string{"us-east-1a", "us-east-1b", "us-east-1d"}}}
+		run(t, model, items)
+		assertZones(t, items[0].Zones, []string{"us-east-1d", "us-east-1a", "us-east-1b"})
+	})
+}
+
 func TestReorderList(t *testing.T) {
 	tests := []struct {
 		name           string

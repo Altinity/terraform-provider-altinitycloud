@@ -67,6 +67,38 @@ func ReorderByKey[M any, S any](model []M, items []S, getModelKey func(M) string
 	return ordered
 }
 
+// Pairing mirrors ReorderByKey so both resolve the same model/item pairs; mutates items via itemList.
+func ReorderNodeGroupZones[M any, S any](
+	ctx context.Context,
+	model []M,
+	items []S,
+	getModelKey func(M) string,
+	getItemKey func(S) string,
+	modelList func(M) types.List,
+	itemList func(S) *[]string,
+) diag.Diagnostics {
+	var allDiags diag.Diagnostics
+	used := make([]bool, len(items))
+
+	for _, m := range model {
+		mk := getModelKey(m)
+		for i, item := range items {
+			if !used[i] && mk == getItemKey(item) {
+				used[i] = true
+				target := itemList(item)
+				reordered, diags := ReorderList(ctx, modelList(m), *target)
+				allDiags.Append(diags...)
+				if !diags.HasError() {
+					*target = reordered
+				}
+				break
+			}
+		}
+	}
+
+	return allDiags
+}
+
 func ReorderList(ctx context.Context, model types.List, input []string) ([]string, diag.Diagnostics) {
 	if model.IsUnknown() || model.IsNull() {
 		return input, nil

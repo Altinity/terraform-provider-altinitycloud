@@ -75,6 +75,7 @@ func (r *AWSEnvResource) Create(ctx context.Context, req resource.CreateRequest,
 		func(m common.NodeGroupsModel) string { return m.NodeType.ValueString() },
 		func(s *client.AWSEnvSpecFragment_NodeGroups) string { return s.NodeType },
 	)
+	resp.Diagnostics.Append(reorderNodeGroupZones(ctx, data.NodeGroups, apiResp.CreateAWSEnv.Spec.NodeGroups)...)
 	apiResp.CreateAWSEnv.Spec.Zones, diags = common.ReorderList(ctx, data.Zones, apiResp.CreateAWSEnv.Spec.Zones)
 	resp.Diagnostics.Append(diags...)
 	apiResp.CreateAWSEnv.Spec.Tags = common.ReorderByKey(data.Tags, apiResp.CreateAWSEnv.Spec.Tags,
@@ -130,6 +131,7 @@ func (r *AWSEnvResource) Read(ctx context.Context, req resource.ReadRequest, res
 		func(m common.NodeGroupsModel) string { return m.NodeType.ValueString() },
 		func(s *client.AWSEnvSpecFragment_NodeGroups) string { return s.NodeType },
 	)
+	resp.Diagnostics.Append(reorderNodeGroupZones(ctx, data.NodeGroups, apiResp.AWSEnv.Spec.NodeGroups)...)
 	apiResp.AWSEnv.Spec.Zones, diags = common.ReorderList(ctx, data.Zones, apiResp.AWSEnv.Spec.Zones)
 	resp.Diagnostics.Append(diags...)
 	apiResp.AWSEnv.Spec.Tags = common.ReorderByKey(data.Tags, apiResp.AWSEnv.Spec.Tags,
@@ -180,6 +182,7 @@ func (r *AWSEnvResource) Update(ctx context.Context, req resource.UpdateRequest,
 		func(m common.NodeGroupsModel) string { return m.NodeType.ValueString() },
 		func(s *client.AWSEnvSpecFragment_NodeGroups) string { return s.NodeType },
 	)
+	resp.Diagnostics.Append(reorderNodeGroupZones(ctx, data.NodeGroups, apiResp.UpdateAWSEnv.Spec.NodeGroups)...)
 	apiResp.UpdateAWSEnv.Spec.Zones, diags = common.ReorderList(ctx, data.Zones, apiResp.UpdateAWSEnv.Spec.Zones)
 	resp.Diagnostics.Append(diags...)
 	apiResp.UpdateAWSEnv.Spec.Tags = common.ReorderByKey(data.Tags, apiResp.UpdateAWSEnv.Spec.Tags,

@@ -53,7 +53,8 @@ func (r *K8SEnvResource) Create(ctx context.Context, req resource.CreateRequest,
 	}
 
 	// Reorder node groups  and zones to respect order in the user's configuration
-	apiResp.CreateK8SEnv.Spec.NodeGroups = reorderNodeGroups(data.NodeGroups, apiResp.CreateK8SEnv.Spec.NodeGroups)
+	apiResp.CreateK8SEnv.Spec.NodeGroups, diags = reorderNodeGroups(ctx, data.NodeGroups, apiResp.CreateK8SEnv.Spec.NodeGroups)
+	resp.Diagnostics.Append(diags...)
 	data.Id = data.Name
 	data.NodeGroups, diags = nodeGroupsToModel(apiResp.CreateK8SEnv.Spec.NodeGroups)
 	resp.Diagnostics.Append(diags...)
@@ -94,7 +95,8 @@ func (r *K8SEnvResource) Read(ctx context.Context, req resource.ReadRequest, res
 	}
 
 	// Reorder node groups  and zones to respect order in the user's configuration
-	apiResp.K8sEnv.Spec.NodeGroups = reorderNodeGroups(data.NodeGroups, apiResp.K8sEnv.Spec.NodeGroups)
+	apiResp.K8sEnv.Spec.NodeGroups, diags = reorderNodeGroups(ctx, data.NodeGroups, apiResp.K8sEnv.Spec.NodeGroups)
+	resp.Diagnostics.Append(diags...)
 	diags = data.toModel(apiResp.K8sEnv.Name, apiResp.K8sEnv.SpecRevision, *apiResp.K8sEnv.Spec)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
@@ -130,7 +132,8 @@ func (r *K8SEnvResource) Update(ctx context.Context, req resource.UpdateRequest,
 		return
 	}
 
-	apiResp.UpdateK8SEnv.Spec.NodeGroups = reorderNodeGroups(data.NodeGroups, apiResp.UpdateK8SEnv.Spec.NodeGroups)
+	apiResp.UpdateK8SEnv.Spec.NodeGroups, diags = reorderNodeGroups(ctx, data.NodeGroups, apiResp.UpdateK8SEnv.Spec.NodeGroups)
+	resp.Diagnostics.Append(diags...)
 	diags = data.toModel(name, apiResp.UpdateK8SEnv.SpecRevision, *apiResp.UpdateK8SEnv.Spec)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

@@ -76,6 +76,7 @@ func (r *AzureEnvResource) Create(ctx context.Context, req resource.CreateReques
 		func(m common.NodeGroupsModel) string { return m.NodeType.ValueString() },
 		func(s *client.AzureEnvSpecFragment_NodeGroups) string { return s.NodeType },
 	)
+	resp.Diagnostics.Append(reorderNodeGroupZones(ctx, data.NodeGroups, apiResp.CreateAzureEnv.Spec.NodeGroups)...)
 	apiResp.CreateAzureEnv.Spec.Zones, diags = common.ReorderList(ctx, data.Zones, apiResp.CreateAzureEnv.Spec.Zones)
 	resp.Diagnostics.Append(diags...)
 	apiResp.CreateAzureEnv.Spec.Tags = common.ReorderByKey(data.Tags, apiResp.CreateAzureEnv.Spec.Tags,
@@ -127,6 +128,7 @@ func (r *AzureEnvResource) Read(ctx context.Context, req resource.ReadRequest, r
 		func(m common.NodeGroupsModel) string { return m.NodeType.ValueString() },
 		func(s *client.AzureEnvSpecFragment_NodeGroups) string { return s.NodeType },
 	)
+	resp.Diagnostics.Append(reorderNodeGroupZones(ctx, data.NodeGroups, apiResp.AzureEnv.Spec.NodeGroups)...)
 	apiResp.AzureEnv.Spec.Zones, diags = common.ReorderList(ctx, data.Zones, apiResp.AzureEnv.Spec.Zones)
 	resp.Diagnostics.Append(diags...)
 	apiResp.AzureEnv.Spec.Tags = common.ReorderByKey(data.Tags, apiResp.AzureEnv.Spec.Tags,
@@ -173,6 +175,7 @@ func (r *AzureEnvResource) Update(ctx context.Context, req resource.UpdateReques
 		func(m common.NodeGroupsModel) string { return m.NodeType.ValueString() },
 		func(s *client.AzureEnvSpecFragment_NodeGroups) string { return s.NodeType },
 	)
+	resp.Diagnostics.Append(reorderNodeGroupZones(ctx, data.NodeGroups, apiResp.UpdateAzureEnv.Spec.NodeGroups)...)
 	apiResp.UpdateAzureEnv.Spec.Zones, diags = common.ReorderList(ctx, data.Zones, apiResp.UpdateAzureEnv.Spec.Zones)
 	resp.Diagnostics.Append(diags...)
 	apiResp.UpdateAzureEnv.Spec.Tags = common.ReorderByKey(data.Tags, apiResp.UpdateAzureEnv.Spec.Tags,

@@ -442,6 +442,15 @@ func nodeGroupsToSDK(ctx context.Context, nodeGroups []common.NodeGroupsModel) (
 	return sdkNodeGroups, allDiags
 }
 
+func reorderNodeGroupZones(ctx context.Context, model []common.NodeGroupsModel, items []*sdk.AWSEnvSpecFragment_NodeGroups) diag.Diagnostics {
+	return common.ReorderNodeGroupZones(ctx, model, items,
+		func(m common.NodeGroupsModel) string { return m.NodeType.ValueString() },
+		func(s *sdk.AWSEnvSpecFragment_NodeGroups) string { return s.NodeType },
+		func(m common.NodeGroupsModel) types.List { return m.Zones },
+		func(s *sdk.AWSEnvSpecFragment_NodeGroups) *[]string { return &s.Zones },
+	)
+}
+
 func nodeGroupsToModel(nodeGroups []*sdk.AWSEnvSpecFragment_NodeGroups) ([]common.NodeGroupsModel, diag.Diagnostics) {
 	var allDiags diag.Diagnostics
 	var modelNodeGroups []common.NodeGroupsModel
