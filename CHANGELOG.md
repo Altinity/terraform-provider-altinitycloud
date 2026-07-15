@@ -24,6 +24,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Sync GraphQL SDK [b73a8b7](https://github.com/Altinity/terraform-provider-altinitycloud/commit/b73a8b7), [aee7de6](https://github.com/Altinity/terraform-provider-altinitycloud/commit/aee7de6).
 - Bump github.com/vektah/gqlparser/v2 to `2.5.36` [#255](https://github.com/Altinity/terraform-provider-altinitycloud/pull/255).
 - Bump github.com/hashicorp/terraform-exec to `0.25.2` [#248](https://github.com/Altinity/terraform-provider-altinitycloud/pull/248).
+- Bump golang.org/x/crypto to `0.52.0` [#257](https://github.com/Altinity/terraform-provider-altinitycloud/pull/257).
+- Bump golang.org/x/net to `0.55.0` [#258](https://github.com/Altinity/terraform-provider-altinitycloud/pull/258).
 
 ## [0.7.2](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.7.1...v0.7.2)
 ### Fixed
