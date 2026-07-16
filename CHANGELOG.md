@@ -4,7 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.7.3](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.7.2...v0.7.3)
+## [0.7.4](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.7.2...v0.7.4)
+Re-release of 0.7.3, whose checksums recorded by the Terraform Registry do not match its release artifacts, breaking `terraform init`. Do not use 0.7.3.
+
 ### Added
 - Support customer-managed KMS keys in AWS environments: `kms_key_arn` at the environment level (encrypts Altinity-provisioned data buckets and EBS volumes) and per bucket in `external_buckets` [#236](https://github.com/Altinity/terraform-provider-altinitycloud/pull/236).
 - Validation rejecting duplicate bucket names in `external_buckets` [778c009](https://github.com/Altinity/terraform-provider-altinitycloud/commit/778c009).
@@ -26,6 +28,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bump github.com/hashicorp/terraform-exec to `0.25.2` [#248](https://github.com/Altinity/terraform-provider-altinitycloud/pull/248).
 - Bump golang.org/x/crypto to `0.52.0` [#257](https://github.com/Altinity/terraform-provider-altinitycloud/pull/257).
 - Bump golang.org/x/net to `0.55.0` [#258](https://github.com/Altinity/terraform-provider-altinitycloud/pull/258).
+
+## [0.7.3](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.7.2...v0.7.3)
+**Broken release — do not use.** The Terraform Registry checksums for this version do not match the published artifacts, so `terraform init` fails. Use [0.7.4](https://github.com/Altinity/terraform-provider-altinitycloud/releases/tag/v0.7.4) instead, which is identical.
 
 ## [0.7.2](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.7.1...v0.7.2)
 ### Fixed
