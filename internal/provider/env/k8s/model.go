@@ -156,8 +156,7 @@ func (model *K8SEnvResourceModel) toModel(name string, specRevision int64, spec 
 	model.CustomDomain = customDomain
 	model.CustomDomains = customDomains
 	model.LoadBalancingStrategy = types.StringValue(string(spec.LoadBalancingStrategy))
-	// Reorder custom node types to respect order in the user's configuration; the
-	// API may return them in a different order, which would otherwise drift.
+	// API may return list fields out of config order, which would drift.
 	spec.CustomNodeTypes = common.ReorderByKey(model.CustomNodeTypes, spec.CustomNodeTypes,
 		func(m NodeTypeModel) string { return m.Name.ValueString() },
 		func(s *client.K8SEnvSpecFragment_CustomNodeTypes) string { return s.Name },
@@ -168,7 +167,6 @@ func (model *K8SEnvResourceModel) toModel(name string, specRevision int64, spec 
 	model.NodeGroups = nodeGroups
 	model.LoadBalancers = loadBalancersToModel(spec.LoadBalancers, model.LoadBalancers)
 	model.Logs = logsToModel(spec.Logs)
-	// Reorder maintenance windows the API may return out of config order, to avoid drift.
 	spec.MaintenanceWindows = common.ReorderByKey(model.MaintenanceWindows, spec.MaintenanceWindows,
 		func(m common.MaintenanceWindowModel) string { return m.Name.ValueString() },
 		func(s *client.K8SEnvSpecFragment_MaintenanceWindows) string { return s.Name },
@@ -218,14 +216,8 @@ func reorderAnnotations(config, items []common.KeyValueModel) []common.KeyValueM
 
 func loadBalancersToModel(loadBalancers client.K8SEnvSpecFragment_LoadBalancers, config *LoadBalancersModel) *LoadBalancersModel {
 	model := &LoadBalancersModel{
-		Public: &PublicLoadBalancerModel{
-			Annotations: []common.KeyValueModel{},
-			Enabled:     types.BoolValue(false),
-		},
-		Internal: &InternalLoadBalancerModel{
-			Annotations: []common.KeyValueModel{},
-			Enabled:     types.BoolValue(false),
-		},
+		Public:   &PublicLoadBalancerModel{},
+		Internal: &InternalLoadBalancerModel{},
 	}
 
 	// TODO: Create helper to extract annotations and source ip ranges
@@ -467,10 +459,7 @@ func maintenanceWindowsToModel(input []*client.K8SEnvSpecFragment_MaintenanceWin
 	return maintenanceWindow
 }
 
-// nodeGroupMatches pairs a config node group with an API one. When the user
-// set a name it is the unique identity (so two groups sharing a node_type but
-// differing by name pair correctly); otherwise name is server-computed and may
-// differ from the node type, so we fall back to matching on node_type.
+// User-set name is the unique identity; otherwise name is server-computed, so match on node_type.
 func nodeGroupMatches(m NodeGroupsModel, s *client.K8SEnvSpecFragment_NodeGroups) bool {
 	if name := m.Name.ValueString(); name != "" {
 		return name == s.Name
@@ -478,11 +467,7 @@ func nodeGroupMatches(m NodeGroupsModel, s *client.K8SEnvSpecFragment_NodeGroups
 	return m.NodeType.ValueString() == s.NodeType
 }
 
-// reorderNodeGroups returns the API node groups in config order: each config
-// group pulls its match to the front, then any API-only groups follow.
-// selectorKey/tolerationKey build a composite identity from all fields so
-// entries that share a key (valid for both) reorder by full identity instead of
-// collapsing on key alone. \x1f (unit separator) can't appear in these values.
+// Composite identity from all fields so entries sharing a key don't collapse; \x1f can't appear in these values.
 func selectorKey(key, value string) string {
 	return key + "\x1f" + value
 }

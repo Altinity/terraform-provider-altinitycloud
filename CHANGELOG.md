@@ -4,8 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.5](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.7.4...v0.7.5)
+### Fixed
+- Fix `inconsistent result after apply` on `load_balancers.public/internal.annotations` in k8s environments when annotations are not set: the provider returned an empty list where the plan had null (regression in 0.7.3).
+
 ## [0.7.4](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.7.2...v0.7.4)
 Re-release of 0.7.3, whose checksums recorded by the Terraform Registry do not match its release artifacts, breaking `terraform init`. Do not use 0.7.3.
+
+**Known issue:** k8s environments fail with `inconsistent result after apply` on `load_balancers.*.annotations` when annotations are not set; fixed in 0.7.5.
 
 ### Added
 - Support customer-managed KMS keys in AWS environments: `kms_key_arn` at the environment level (encrypts Altinity-provisioned data buckets and EBS volumes) and per bucket in `external_buckets` [#236](https://github.com/Altinity/terraform-provider-altinitycloud/pull/236).

@@ -781,6 +781,23 @@ func TestLoadBalancersToModel(t *testing.T) {
 	}
 }
 
+// v0.7.3 regression: reordering must not turn nil (null) annotations into [].
+func TestLoadBalancersToModelNullAnnotationsStayNull(t *testing.T) {
+	config := &LoadBalancersModel{
+		Public:   &PublicLoadBalancerModel{Enabled: types.BoolValue(false)},
+		Internal: &InternalLoadBalancerModel{Enabled: types.BoolValue(false)},
+	}
+
+	result := loadBalancersToModel(client.K8SEnvSpecFragment_LoadBalancers{}, config)
+
+	if result.Public.Annotations != nil {
+		t.Errorf("Public annotations: expected nil, got %#v", result.Public.Annotations)
+	}
+	if result.Internal.Annotations != nil {
+		t.Errorf("Internal annotations: expected nil, got %#v", result.Internal.Annotations)
+	}
+}
+
 func TestNodeGroupsToSDK(t *testing.T) {
 	tests := []struct {
 		name     string

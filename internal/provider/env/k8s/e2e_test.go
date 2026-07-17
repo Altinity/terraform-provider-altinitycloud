@@ -9,18 +9,12 @@ import (
 	"github.com/altinity/terraform-provider-altinitycloud/internal/provider/test"
 )
 
-// TestE2EAltinityCloudEnvK8S drives create -> update against the dev control
-// plane using a dummy-prefixed env, asserting no drift after each apply. The
-// config exercises every settable field so the drift check validates the full
-// spec round-trip. Teardown is skipped (dev delete requires MFA).
+// Create -> update with every settable field, asserting no drift after each apply.
 func TestE2EAltinityCloudEnvK8S(t *testing.T) {
 	test.RunE2ELifecycle(t, "dummy-e2e-k8s-", k8sE2EConfig)
 }
 
-// k8sE2EConfig returns a BYOK env resource that sets every settable attribute.
-// capacity drives the mutable change exercised by the update step.
-//
-// Intentionally omitted: custom_domain (superseded by custom_domains).
+// capacity drives the update step; custom_domain omitted (superseded by custom_domains).
 func k8sE2EConfig(envName string, capacity int) string {
 	return fmt.Sprintf(`
 resource "%s" "dummy" {
@@ -134,6 +128,27 @@ resource "%s" "dummy" {
   force_destroy                   = true
   skip_deprovision_on_destroy     = true
   allow_delete_while_disconnected = true
+}
+`, RESOURCE_NAME, envName, capacity)
+}
+
+// Required attrs only: covers default/null round-trips the maximal config can't.
+func TestE2EAltinityCloudEnvK8SMinimal(t *testing.T) {
+	test.RunE2ELifecycle(t, "dummy-e2e-k8s-min-", k8sE2EMinimalConfig)
+}
+
+func k8sE2EMinimalConfig(envName string, capacity int) string {
+	return fmt.Sprintf(`
+resource "%s" "dummy" {
+  name         = "%s"
+  distribution = "CUSTOM"
+
+  node_groups = [{
+    node_type         = "small"
+    zones             = ["us-east-1a"]
+    capacity_per_zone = %d
+    reservations      = ["SYSTEM", "CLICKHOUSE", "ZOOKEEPER"]
+  }]
 }
 `, RESOURCE_NAME, envName, capacity)
 }

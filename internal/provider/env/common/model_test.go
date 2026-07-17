@@ -91,8 +91,31 @@ func TestReorderByKey(t *testing.T) {
 	}
 }
 
-// Duplicate keys (valid for tolerations, unnamed catalogs, same-named windows)
-// must not collapse to the first match or drop entries.
+// []T{} serializes as empty list, not null; nil must stay nil (v0.7.3 regression).
+func TestReorderByKeyNilPreserved(t *testing.T) {
+	type item struct{ Key string }
+	key := func(i item) string { return i.Key }
+
+	t.Run("nil items, empty model", func(t *testing.T) {
+		if got := ReorderByKey([]item(nil), []item(nil), key, key); got != nil {
+			t.Errorf("expected nil, got %#v", got)
+		}
+	})
+
+	t.Run("nil items, non-empty model", func(t *testing.T) {
+		if got := ReorderByKey([]item{{Key: "a"}}, []item(nil), key, key); got != nil {
+			t.Errorf("expected nil, got %#v", got)
+		}
+	})
+
+	t.Run("non-nil empty items stay non-nil", func(t *testing.T) {
+		if got := ReorderByKey([]item{{Key: "a"}}, []item{}, key, key); got == nil {
+			t.Error("expected non-nil empty slice, got nil")
+		}
+	})
+}
+
+// Duplicate keys must not collapse to the first match or drop entries.
 func TestReorderByKeyDuplicateKeys(t *testing.T) {
 	type item struct{ Key, Value string }
 

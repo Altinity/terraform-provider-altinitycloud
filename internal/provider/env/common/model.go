@@ -36,14 +36,13 @@ type MaintenanceWindowModel struct {
 	Days          []types.String `tfsdk:"days"`
 }
 
-// ReorderByKey returns items reordered to match the order of model, pairing by
-// key. Matching is positional: each model entry consumes the first not-yet-used
-// item with the same key, so duplicate keys (valid for e.g. tolerations or
-// unnamed catalogs) pair in config order instead of collapsing to the first
-// match. Every item is emitted exactly once; items with no model counterpart
-// are appended at the end. The result always has len(items) elements — no
-// duplication, no loss.
+// ReorderByKey returns items in model (config) order, pairing by key; unmatched
+// items go last, duplicate keys pair positionally, nil stays nil (null in state).
 func ReorderByKey[M any, S any](model []M, items []S, getModelKey func(M) string, getItemKey func(S) string) []S {
+	if len(items) == 0 {
+		return items
+	}
+
 	ordered := make([]S, 0, len(items))
 	used := make([]bool, len(items))
 
