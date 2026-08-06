@@ -272,3 +272,22 @@ func WriteE2EConfig(t *testing.T, workdir, resourceHCL string) {
 		t.Fatalf("failed to write main.tf: %s", err)
 	}
 }
+
+// E2EEnvDataSource renders a data source reading the env back, so the lifecycle
+// covers the read path too: a model/schema mismatch there crashes every read
+// without failing any write, which is how it went unnoticed from 0.6.0 to 0.7.5.
+// The postcondition proves API data actually landed in state.
+func E2EEnvDataSource(resourceName string) string {
+	return fmt.Sprintf(`
+data "%[1]s" "dummy" {
+  name = %[1]s.dummy.name
+
+  lifecycle {
+    postcondition {
+      condition     = self.spec_revision > 0
+      error_message = "env data source returned no spec_revision"
+    }
+  }
+}
+`, resourceName)
+}

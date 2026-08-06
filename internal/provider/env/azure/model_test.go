@@ -988,15 +988,15 @@ func TestMetricsEndpointToModel(t *testing.T) {
 	}
 }
 
-func TestAzureEnvResourceModel_toSDK(t *testing.T) {
+func TestAzureEnvModel_toSDK(t *testing.T) {
 	tests := []struct {
 		name     string
-		model    AzureEnvResourceModel
+		model    AzureEnvModel
 		validate func(t *testing.T, create client.CreateAzureEnvInput, update client.UpdateAzureEnvInput)
 	}{
 		{
 			name: "Complete model with all fields",
-			model: AzureEnvResourceModel{
+			model: AzureEnvModel{
 				Name:                  types.StringValue("test-azure-env"),
 				CustomDomain:          types.StringValue("custom.azure.example.com"),
 				LoadBalancingStrategy: types.StringValue("round_robin"),
@@ -1110,7 +1110,7 @@ func TestAzureEnvResourceModel_toSDK(t *testing.T) {
 		},
 		{
 			name: "Minimal model with required fields only",
-			model: AzureEnvResourceModel{
+			model: AzureEnvModel{
 				Name:                  types.StringValue("minimal-azure-env"),
 				Region:                types.StringValue("West US"),
 				CIDR:                  types.StringValue("172.16.0.0/16"),
@@ -1146,7 +1146,7 @@ func TestAzureEnvResourceModel_toSDK(t *testing.T) {
 		},
 		{
 			name: "Model with empty optional slices",
-			model: AzureEnvResourceModel{
+			model: AzureEnvModel{
 				Name:               types.StringValue("empty-slices"),
 				Region:             types.StringValue("North Europe"),
 				CIDR:               types.StringValue("192.168.0.0/16"),
@@ -1182,11 +1182,11 @@ func TestAzureEnvResourceModel_toSDK(t *testing.T) {
 	}
 }
 
-func TestAzureEnvResourceModel_toModel(t *testing.T) {
+func TestAzureEnvModel_toModel(t *testing.T) {
 	tests := []struct {
 		name     string
 		input    client.GetAzureEnv_AzureEnv
-		validate func(t *testing.T, model *AzureEnvResourceModel)
+		validate func(t *testing.T, model *AzureEnvModel)
 	}{
 		{
 			name: "Complete SDK response with all fields",
@@ -1255,7 +1255,7 @@ func TestAzureEnvResourceModel_toModel(t *testing.T) {
 					},
 				},
 			},
-			validate: func(t *testing.T, model *AzureEnvResourceModel) {
+			validate: func(t *testing.T, model *AzureEnvModel) {
 				if model.Name.ValueString() != "test-azure-environment" {
 					t.Errorf("Name: expected 'test-azure-environment', got '%s'", model.Name.ValueString())
 				}
@@ -1381,7 +1381,7 @@ func TestAzureEnvResourceModel_toModel(t *testing.T) {
 					},
 				},
 			},
-			validate: func(t *testing.T, model *AzureEnvResourceModel) {
+			validate: func(t *testing.T, model *AzureEnvModel) {
 				if model.Name.ValueString() != "minimal-azure-env" {
 					t.Errorf("Name: expected 'minimal-azure-env', got '%s'", model.Name.ValueString())
 				}
@@ -1442,7 +1442,7 @@ func TestAzureEnvResourceModel_toModel(t *testing.T) {
 					},
 				},
 			},
-			validate: func(t *testing.T, model *AzureEnvResourceModel) {
+			validate: func(t *testing.T, model *AzureEnvModel) {
 				if model.Name.ValueString() != "nil-fields-azure-env" {
 					t.Errorf("Name: expected 'nil-fields-azure-env', got '%s'", model.Name.ValueString())
 				}
@@ -1464,7 +1464,7 @@ func TestAzureEnvResourceModel_toModel(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			model := &AzureEnvResourceModel{}
+			model := &AzureEnvModel{}
 			diags := model.toModel(tt.input)
 			if diags.HasError() {
 				t.Fatalf("unexpected diagnostics: %v", diags)

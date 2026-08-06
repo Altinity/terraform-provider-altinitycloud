@@ -1203,15 +1203,15 @@ func TestMetricsEndpointToModel(t *testing.T) {
 	}
 }
 
-func TestHCloudEnvResourceModel_toSDK(t *testing.T) {
+func TestHCloudEnvModel_toSDK(t *testing.T) {
 	tests := []struct {
 		name     string
-		model    HCloudEnvResourceModel
+		model    HCloudEnvModel
 		validate func(t *testing.T, create client.CreateHCloudEnvInput, update client.UpdateHCloudEnvInput)
 	}{
 		{
 			name: "Complete model with all fields",
-			model: HCloudEnvResourceModel{
+			model: HCloudEnvModel{
 				Name:                  types.StringValue("test-hcloud-env"),
 				HCloudTokenEnc:        types.StringValue("encrypted-token-123"),
 				CustomDomain:          types.StringValue("custom.hcloud.example.com"),
@@ -1315,7 +1315,7 @@ func TestHCloudEnvResourceModel_toSDK(t *testing.T) {
 		},
 		{
 			name: "Minimal model with required fields only",
-			model: HCloudEnvResourceModel{
+			model: HCloudEnvModel{
 				Name:                  types.StringValue("minimal-hcloud-env"),
 				HCloudTokenEnc:        types.StringValue("minimal-token"),
 				NetworkZone:           types.StringValue("eu-central"),
@@ -1348,7 +1348,7 @@ func TestHCloudEnvResourceModel_toSDK(t *testing.T) {
 		},
 		{
 			name: "Model with empty optional slices",
-			model: HCloudEnvResourceModel{
+			model: HCloudEnvModel{
 				Name:               types.StringValue("empty-slices"),
 				HCloudTokenEnc:     types.StringValue("empty-token"),
 				NetworkZone:        types.StringValue("us-east"),
@@ -1383,11 +1383,11 @@ func TestHCloudEnvResourceModel_toSDK(t *testing.T) {
 	}
 }
 
-func TestHCloudEnvResourceModel_toModel(t *testing.T) {
+func TestHCloudEnvModel_toModel(t *testing.T) {
 	tests := []struct {
 		name     string
 		input    client.GetHCloudEnv_HcloudEnv
-		validate func(t *testing.T, model *HCloudEnvResourceModel)
+		validate func(t *testing.T, model *HCloudEnvModel)
 	}{
 		{
 			name: "Complete SDK response with all fields",
@@ -1448,7 +1448,7 @@ func TestHCloudEnvResourceModel_toModel(t *testing.T) {
 					},
 				},
 			},
-			validate: func(t *testing.T, model *HCloudEnvResourceModel) {
+			validate: func(t *testing.T, model *HCloudEnvModel) {
 				if model.Name.ValueString() != "test-hcloud-environment" {
 					t.Errorf("Name: expected 'test-hcloud-environment', got '%s'", model.Name.ValueString())
 				}
@@ -1549,7 +1549,7 @@ func TestHCloudEnvResourceModel_toModel(t *testing.T) {
 					WireguardPeers:     []*client.HCloudEnvSpecFragment_WireguardPeers{},
 				},
 			},
-			validate: func(t *testing.T, model *HCloudEnvResourceModel) {
+			validate: func(t *testing.T, model *HCloudEnvModel) {
 				if model.Name.ValueString() != "minimal-hcloud-env" {
 					t.Errorf("Name: expected 'minimal-hcloud-env', got '%s'", model.Name.ValueString())
 				}
@@ -1596,7 +1596,7 @@ func TestHCloudEnvResourceModel_toModel(t *testing.T) {
 					WireguardPeers:     []*client.HCloudEnvSpecFragment_WireguardPeers{},
 				},
 			},
-			validate: func(t *testing.T, model *HCloudEnvResourceModel) {
+			validate: func(t *testing.T, model *HCloudEnvModel) {
 				if model.Name.ValueString() != "nil-fields-hcloud-env" {
 					t.Errorf("Name: expected 'nil-fields-hcloud-env', got '%s'", model.Name.ValueString())
 				}
@@ -1618,7 +1618,7 @@ func TestHCloudEnvResourceModel_toModel(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			model := &HCloudEnvResourceModel{}
+			model := &HCloudEnvModel{}
 			diags := model.toModel(tt.input)
 			if diags.HasError() {
 				t.Fatalf("unexpected diagnostics: %v", diags)

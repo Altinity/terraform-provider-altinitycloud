@@ -51,7 +51,7 @@ func (d *AWSEnvDataSource) Configure(ctx context.Context, req datasource.Configu
 func (d *AWSEnvDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	tflog.Trace(ctx, "reading aws env state source")
 
-	var data AWSEnvResourceModel
+	var data AWSEnvDataSourceModel
 	diags := req.Config.Get(ctx, &data)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {

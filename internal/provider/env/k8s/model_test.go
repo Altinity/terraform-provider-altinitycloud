@@ -1841,15 +1841,15 @@ func TestMetricsToModel(t *testing.T) {
 	}
 }
 
-func TestK8SEnvResourceModel_toSDK(t *testing.T) {
+func TestK8SEnvModel_toSDK(t *testing.T) {
 	tests := []struct {
 		name     string
-		model    K8SEnvResourceModel
+		model    K8SEnvModel
 		validate func(t *testing.T, create client.CreateK8SEnvInput, update client.UpdateK8SEnvInput)
 	}{
 		{
 			name: "Complete model with all fields",
-			model: K8SEnvResourceModel{
+			model: K8SEnvModel{
 				Name:                  types.StringValue("test-k8s-env"),
 				CustomDomain:          types.StringValue("custom.k8s.example.com"),
 				LoadBalancingStrategy: types.StringValue("round_robin"),
@@ -1952,7 +1952,7 @@ func TestK8SEnvResourceModel_toSDK(t *testing.T) {
 		},
 		{
 			name: "Minimal model with required fields only",
-			model: K8SEnvResourceModel{
+			model: K8SEnvModel{
 				Name:                  types.StringValue("minimal-k8s-env"),
 				Distribution:          types.StringValue("GKE"),
 				LoadBalancingStrategy: types.StringValue("zone_best_effort"),
@@ -1982,7 +1982,7 @@ func TestK8SEnvResourceModel_toSDK(t *testing.T) {
 		},
 		{
 			name: "Model with empty optional slices",
-			model: K8SEnvResourceModel{
+			model: K8SEnvModel{
 				Name:               types.StringValue("empty-slices"),
 				Distribution:       types.StringValue("AKS"),
 				NodeGroups:         []NodeGroupsModel{},
@@ -2014,13 +2014,13 @@ func TestK8SEnvResourceModel_toSDK(t *testing.T) {
 	}
 }
 
-func TestK8SEnvResourceModel_toModel(t *testing.T) {
+func TestK8SEnvModel_toModel(t *testing.T) {
 	tests := []struct {
 		name         string
 		envName      string
 		specRevision int64
 		spec         client.K8SEnvSpecFragment
-		validate     func(t *testing.T, model *K8SEnvResourceModel)
+		validate     func(t *testing.T, model *K8SEnvModel)
 	}{
 		{
 			name:         "Complete spec with all fields",
@@ -2092,7 +2092,7 @@ func TestK8SEnvResourceModel_toModel(t *testing.T) {
 					},
 				},
 			},
-			validate: func(t *testing.T, model *K8SEnvResourceModel) {
+			validate: func(t *testing.T, model *K8SEnvModel) {
 				if model.Name.ValueString() != "test-k8s-environment" {
 					t.Errorf("Name: expected 'test-k8s-environment', got '%s'", model.Name.ValueString())
 				}
@@ -2202,7 +2202,7 @@ func TestK8SEnvResourceModel_toModel(t *testing.T) {
 				},
 				Metrics: client.K8SEnvSpecFragment_Metrics{},
 			},
-			validate: func(t *testing.T, model *K8SEnvResourceModel) {
+			validate: func(t *testing.T, model *K8SEnvModel) {
 				if model.Name.ValueString() != "minimal-k8s-env" {
 					t.Errorf("Name: expected 'minimal-k8s-env', got '%s'", model.Name.ValueString())
 				}
@@ -2250,7 +2250,7 @@ func TestK8SEnvResourceModel_toModel(t *testing.T) {
 				},
 				Metrics: client.K8SEnvSpecFragment_Metrics{},
 			},
-			validate: func(t *testing.T, model *K8SEnvResourceModel) {
+			validate: func(t *testing.T, model *K8SEnvModel) {
 				if model.Name.ValueString() != "nil-fields-k8s-env" {
 					t.Errorf("Name: expected 'nil-fields-k8s-env', got '%s'", model.Name.ValueString())
 				}
@@ -2269,7 +2269,7 @@ func TestK8SEnvResourceModel_toModel(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			model := &K8SEnvResourceModel{}
+			model := &K8SEnvModel{}
 			diags := model.toModel(tt.envName, tt.specRevision, tt.spec)
 			if diags.HasError() {
 				t.Fatalf("unexpected diagnostics: %v", diags)

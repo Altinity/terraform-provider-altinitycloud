@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-type AzureEnvResourceModel struct {
+type AzureEnvModel struct {
 	Id                    types.String                    `tfsdk:"id"`
 	Name                  types.String                    `tfsdk:"name"`
 	CustomDomain          types.String                    `tfsdk:"custom_domain"`
@@ -29,12 +29,21 @@ type AzureEnvResourceModel struct {
 	MetricsEndpoint       *MetricsEndpointModel           `tfsdk:"metrics_endpoint"`
 	Datadog               *common.DatadogModel            `tfsdk:"datadog"`
 
-	SpecRevision                 types.Int64    `tfsdk:"spec_revision"`
-	ForceDestroy                 types.Bool     `tfsdk:"force_destroy"`
-	ForceDestroyClusters         types.Bool     `tfsdk:"force_destroy_clusters"`
-	SkipDeprovisionOnDestroy     types.Bool     `tfsdk:"skip_deprovision_on_destroy"`
-	AllowDeleteWhileDisconnected types.Bool     `tfsdk:"allow_delete_while_disconnected"`
-	Timeouts                     timeouts.Value `tfsdk:"timeouts"`
+	SpecRevision                 types.Int64 `tfsdk:"spec_revision"`
+	ForceDestroy                 types.Bool  `tfsdk:"force_destroy"`
+	ForceDestroyClusters         types.Bool  `tfsdk:"force_destroy_clusters"`
+	SkipDeprovisionOnDestroy     types.Bool  `tfsdk:"skip_deprovision_on_destroy"`
+	AllowDeleteWhileDisconnected types.Bool  `tfsdk:"allow_delete_while_disconnected"`
+}
+
+// Split models: `timeouts` only exists on the resource schema and the framework requires an exact struct/schema match.
+type AzureEnvResourceModel struct {
+	AzureEnvModel
+	Timeouts timeouts.Value `tfsdk:"timeouts"`
+}
+
+type AzureEnvDataSourceModel struct {
+	AzureEnvModel
 }
 
 type PrivateLinkServiceModel struct {
@@ -61,7 +70,7 @@ type MetricsEndpointModel struct {
 	SourceIPRanges []types.String `tfsdk:"source_ip_ranges"`
 }
 
-func (e AzureEnvResourceModel) toSDK(ctx context.Context) (client.CreateAzureEnvInput, client.UpdateAzureEnvInput, diag.Diagnostics) {
+func (e AzureEnvModel) toSDK(ctx context.Context) (client.CreateAzureEnvInput, client.UpdateAzureEnvInput, diag.Diagnostics) {
 	var zones []string
 	var allDiags diag.Diagnostics
 	if !e.Zones.IsUnknown() && !e.Zones.IsNull() {
@@ -143,7 +152,7 @@ func (e AzureEnvResourceModel) toSDK(ctx context.Context) (client.CreateAzureEnv
 	return create, update, allDiags
 }
 
-func (model *AzureEnvResourceModel) toModel(env client.GetAzureEnv_AzureEnv) diag.Diagnostics {
+func (model *AzureEnvModel) toModel(env client.GetAzureEnv_AzureEnv) diag.Diagnostics {
 	var allDiags diag.Diagnostics
 	model.Name = types.StringValue(env.Name)
 	model.Region = types.StringValue(env.Spec.Region)

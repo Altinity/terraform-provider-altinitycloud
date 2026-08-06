@@ -51,7 +51,7 @@ func (d *K8SEnvDataSource) Configure(ctx context.Context, req datasource.Configu
 func (d *K8SEnvDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
 	tflog.Trace(ctx, "Reading aws env state source")
 
-	var data K8SEnvResourceModel
+	var data K8SEnvDataSourceModel
 	diags := req.Config.Get(ctx, &data)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
