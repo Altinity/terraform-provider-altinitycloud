@@ -114,6 +114,481 @@ type AWSEnvFilter struct {
 	Names []string `json:"names,omitempty"`
 }
 
+// AWS environment.
+type AWSEnvHosted struct {
+	// A globally-unique environment identifier.
+	Name string `json:"name"`
+	// Environment spec.
+	Spec *AWSEnvHostedSpec `json:"spec"`
+	// Spec revision (monotonically-increasing).
+	SpecRevision int64 `json:"specRevision"`
+	// Environment status.
+	Status *AWSEnvHostedStatus `json:"status"`
+}
+
+// AWS environment custom S3 bucket configuration.
+type AWSEnvHostedBackupsCustomBucketSpec struct {
+	// S3 bucket name.
+	Name string `json:"name"`
+	// S3 bucket region.
+	Region string `json:"region"`
+	// IAM role to assume for bucket access.
+	RoleArn string `json:"roleARN"`
+}
+
+// AWS environment custom S3 bucket configuration input.
+type AWSEnvHostedBackupsCustomBucketSpecInput struct {
+	// S3 bucket name.
+	Name string `json:"name"`
+	// S3 bucket region.
+	Region string `json:"region"`
+	// IAM role to assume for bucket access.
+	RoleArn string `json:"roleARN"`
+}
+
+// Backups configuration.
+type AWSEnvHostedBackupsSpec struct {
+	// Custom S3 bucket.
+	CustomBucket *AWSEnvHostedBackupsCustomBucketSpec `json:"customBucket,omitempty"`
+}
+
+// Backups configuration.
+type AWSEnvHostedBackupsSpecInput struct {
+	// Custom S3 bucket.
+	CustomBucket *AWSEnvHostedBackupsCustomBucketSpecInput `json:"customBucket,omitempty"`
+}
+
+// AWS environment VPC endpoint configuration.
+type AWSEnvHostedEndpointSpec struct {
+	// VPC endpoint service name in $endpoint_service_id.$region.vpce.amazonaws.com format.
+	ServiceName string `json:"serviceName"`
+	// By default, VPC endpoints get assigned $endpoint_service_id.$env_name.altinity.cloud DNS record.
+	// Alias allows to override DNS record name to $alias.$env_name.altinity.cloud.
+	Alias *string `json:"alias,omitempty"`
+}
+
+// AWS environment VPC endpoint configuration input.
+type AWSEnvHostedEndpointSpecInput struct {
+	// VPC endpoint service name (in $endpoint_service_id.$region.vpce.amazonaws.com format).
+	ServiceName string `json:"serviceName"`
+	// By default, VPC endpoints get assigned $endpoint_service_id.$env_name.altinity.cloud DNS record.
+	// Alias allows to override DNS record name to $alias.$env_name.altinity.cloud.
+	Alias *string `json:"alias,omitempty"`
+}
+
+// External S3 bucket to allow access to.
+type AWSEnvHostedExternalBucketSpec struct {
+	// External bucket name.
+	Name string `json:"name"`
+	// Optional ARN of a customer-managed KMS key used to encrypt this bucket.
+	//
+	// When set, the ClickHouse IRSA role is granted KMS decrypt/encrypt permissions
+	// on the key so SSE-KMS-encrypted objects in the bucket can be read and written
+	// (e.g. when the bucket backs a ClickHouse external disk). The key is owned by
+	// the customer; bucket-level encryption is not managed by Altinity.
+	//
+	// The env-region constraint that applies to the env-level KMS key does not
+	// apply here — the key may be in any region from the env's perspective.
+	// S3 still requires the key to be in the bucket's region (or to be a KMS
+	// multi-region key with a replica in the bucket's region); that is the
+	// customer's responsibility and is not validated here.
+	KmsKeyArn *string `json:"kmsKeyARN,omitempty"`
+}
+
+// External S3 bucket to allow access to.
+type AWSEnvHostedExternalBucketSpecInput struct {
+	// External bucket name.
+	Name string `json:"name"`
+	// ARN of a customer-managed KMS key used to encrypt this bucket.
+	//
+	// When set, grants the ClickHouse IRSA role KMS decrypt/encrypt permissions
+	// on the key. The env-region constraint that applies to the env-level KMS
+	// key does not apply here; S3's own bucket-region:key-region rule still
+	// applies and is the customer's responsibility.
+	KmsKeyArn *string `json:"kmsKeyARN,omitempty"`
+}
+
+// AWS environments query filter.
+type AWSEnvHostedFilter struct {
+	// Names of the environments to return.
+	// Names that don't match any of the existing environments are ignored.
+	Names []string `json:"names,omitempty"`
+}
+
+// Iceberg catalog configuration input.
+type AWSEnvHostedIcebergCatalogInputSpec struct {
+	// Catalog name.
+	// Empty name represents the default catalog.
+	Name *string `json:"name,omitempty"`
+	// Catalog type.
+	Type AWSEnvHostedIcebergCatalogTypeSpec `json:"type"`
+	// Custom S3 bucket name.
+	CustomS3Bucket *string `json:"customS3Bucket,omitempty"`
+	// Path within the custom S3 bucket.
+	CustomS3BucketPath *string `json:"customS3BucketPath,omitempty"`
+	// ARN of the S3 Tables bucket.
+	CustomS3TableBucketArn *string `json:"customS3TableBucketARN,omitempty"`
+	// AWS region for the catalog.
+	Region *string `json:"region,omitempty"`
+	// Whether anonymous access is enabled.
+	AnonymousAccessEnabled *bool `json:"anonymousAccessEnabled,omitempty"`
+	// Maintenance configuration.
+	Maintenance *AWSEnvHostedIcebergCatalogMaintenanceInputSpec `json:"maintenance,omitempty"`
+	// Table watch configurations.
+	Watches []*AWSEnvHostedIcebergCatalogWatchInputSpec `json:"watches,omitempty"`
+}
+
+// Iceberg catalog maintenance configuration input.
+type AWSEnvHostedIcebergCatalogMaintenanceInputSpec struct {
+	// Whether maintenance is enabled.
+	Enabled bool `json:"enabled"`
+}
+
+// Iceberg catalog maintenance configuration.
+type AWSEnvHostedIcebergCatalogMaintenanceSpec struct {
+	// Whether maintenance is enabled.
+	Enabled bool `json:"enabled"`
+}
+
+// Iceberg catalog configuration.
+type AWSEnvHostedIcebergCatalogSpec struct {
+	// Catalog name.
+	// Empty name represents the default catalog.
+	Name *string `json:"name,omitempty"`
+	// Catalog type.
+	Type AWSEnvHostedIcebergCatalogTypeSpec `json:"type"`
+	// Custom S3 bucket name.
+	CustomS3Bucket *string `json:"customS3Bucket,omitempty"`
+	// Path within the custom S3 bucket.
+	CustomS3BucketPath *string `json:"customS3BucketPath,omitempty"`
+	// ARN of the S3 Tables bucket.
+	CustomS3TableBucketArn *string `json:"customS3TableBucketARN,omitempty"`
+	// AWS region for the catalog.
+	Region *string `json:"region,omitempty"`
+	// Whether anonymous access is enabled.
+	AnonymousAccessEnabled *bool `json:"anonymousAccessEnabled,omitempty"`
+	// Maintenance configuration.
+	Maintenance *AWSEnvHostedIcebergCatalogMaintenanceSpec `json:"maintenance"`
+	// Table watch configurations.
+	Watches []*AWSEnvHostedIcebergCatalogWatchSpec `json:"watches"`
+}
+
+// Iceberg catalog watch configuration input.
+type AWSEnvHostedIcebergCatalogWatchInputSpec struct {
+	// Table name to watch.
+	Table string `json:"table"`
+	// Paths relative to table location to watch.
+	PathsRelativeToTableLocation []string `json:"pathsRelativeToTableLocation,omitempty"`
+}
+
+// Iceberg catalog watch configuration.
+type AWSEnvHostedIcebergCatalogWatchSpec struct {
+	// Table name to watch.
+	Table string `json:"table"`
+	// Paths relative to table location to watch.
+	PathsRelativeToTableLocation []string `json:"pathsRelativeToTableLocation"`
+}
+
+// Iceberg configuration input.
+type AWSEnvHostedIcebergInputSpec struct {
+	// List of Iceberg catalogs.
+	Catalogs []*AWSEnvHostedIcebergCatalogInputSpec `json:"catalogs,omitempty"`
+}
+
+// Iceberg configuration.
+type AWSEnvHostedIcebergSpec struct {
+	// List of Iceberg catalogs.
+	Catalogs []*AWSEnvHostedIcebergCatalogSpec `json:"catalogs"`
+}
+
+// Iceberg configuration update input.
+type AWSEnvHostedIcebergUpdateInputSpec struct {
+	// List of Iceberg catalogs to create or update.
+	Catalogs []*AWSEnvHostedIcebergCatalogInputSpec `json:"catalogs,omitempty"`
+	// List of catalog names to delete.
+	CatalogsToDelete []string `json:"catalogsToDelete,omitempty"`
+}
+
+// AWS environment internal load balancer configuration.
+type AWSEnvHostedLoadBalancerInternalSpec struct {
+	// True if load balancer is enabled,
+	// false otherwise.
+	Enabled bool `json:"enabled"`
+	// IP addresses/blocks to allow traffic from.
+	//
+	// 0.0.0.0/0 by default.
+	SourceIPRanges []string `json:"sourceIPRanges"`
+	// ARNs for AWS principals that are allowed to create VPC endpoints.
+	//
+	// Examples:
+	// - arn:aws:iam::$account_id:root
+	EndpointServiceAllowedPrincipals []string `json:"endpointServiceAllowedPrincipals"`
+	// List of supported regions for VPC endpoints.
+	//
+	// Example: ["us-east-1", "us-west-2"]
+	EndpointServiceSupportedRegions []string `json:"endpointServiceSupportedRegions"`
+}
+
+// AWS environment internal load balancer configuration input.
+type AWSEnvHostedLoadBalancerInternalSpecInput struct {
+	// True if load balancer is enabled,
+	// false otherwise.
+	//
+	// False by default.
+	Enabled *bool `json:"enabled,omitempty"`
+	// IP addresses/blocks to allow traffic from.
+	//
+	// 0.0.0.0/0 by default.
+	SourceIPRanges []string `json:"sourceIPRanges,omitempty"`
+	// ARNs for AWS principals that are allowed to create VPC endpoints.
+	//
+	// Examples:
+	// - arn:aws:iam::$account_id:root
+	EndpointServiceAllowedPrincipals []string `json:"endpointServiceAllowedPrincipals,omitempty"`
+	// List of supported regions for VPC endpoints.
+	//
+	// Example: ["us-east-1", "us-west-2"]
+	EndpointServiceSupportedRegions []string `json:"endpointServiceSupportedRegions,omitempty"`
+}
+
+// AWS environment internal load balancer status.
+type AWSEnvHostedLoadBalancerInternalStatus struct {
+	// VPC endpoint service name in $endpoint_service_id.$region.vpce.amazonaws.com format (if any).
+	EndpointServiceName *string `json:"endpointServiceName,omitempty"`
+}
+
+// AWS environment public load balancer configuration.
+type AWSEnvHostedLoadBalancerPublicSpec struct {
+	// True if load balancer is enabled,
+	// false otherwise.
+	Enabled bool `json:"enabled"`
+	// IP addresses/blocks to allow traffic from.
+	//
+	// 0.0.0.0/0 by default.
+	SourceIPRanges []string `json:"sourceIPRanges"`
+}
+
+// AWS environment public load balancer configuration input.
+type AWSEnvHostedLoadBalancerPublicSpecInput struct {
+	// True if load balancer is enabled,
+	// false otherwise.
+	//
+	// False by default.
+	Enabled *bool `json:"enabled,omitempty"`
+	// IP addresses/blocks to allow traffic from.
+	//
+	// 0.0.0.0/0 by default.
+	SourceIPRanges []string `json:"sourceIPRanges,omitempty"`
+}
+
+// AWS environment load balancers configuration.
+type AWSEnvHostedLoadBalancersSpec struct {
+	// Public load balancer configuration.
+	//
+	// Accessible via *.$env_name.altinity.cloud.
+	Public *AWSEnvHostedLoadBalancerPublicSpec `json:"public"`
+	// Internal load balancer configuration.
+	//
+	// Accessible via *.internal.$env_name.altinity.cloud.
+	Internal *AWSEnvHostedLoadBalancerInternalSpec `json:"internal"`
+}
+
+// AWS environment load balancers configuration input.
+type AWSEnvHostedLoadBalancersSpecInput struct {
+	// Public load balancer configuration.
+	//
+	// Accessible via *.$env_name.altinity.cloud.
+	Public *AWSEnvHostedLoadBalancerPublicSpecInput `json:"public,omitempty"`
+	// Internal load balancer configuration.
+	//
+	// Accessible via *.internal.$env_name.altinity.cloud.
+	Internal *AWSEnvHostedLoadBalancerInternalSpecInput `json:"internal,omitempty"`
+}
+
+// AWS environment load balancers status.
+type AWSEnvHostedLoadBalancersStatus struct {
+	// Status of internal load balancer.
+	Internal *AWSEnvHostedLoadBalancerInternalStatus `json:"internal"`
+}
+
+// AWS environment node group configuration.
+type AWSEnvHostedNodeGroupSpec struct {
+	// Unique (among environment node groups) node group identifier.
+	Name string `json:"name"`
+	// Instance type (https://aws.amazon.com/ec2/instance-types/).
+	//
+	// Example: "t4g.large"
+	NodeType string `json:"nodeType"`
+	// Availability zone ids.
+	ZoneIDs []string `json:"zoneIDs"`
+	// Maximum number of instances per availability zone.
+	CapacityPerZone int64 `json:"capacityPerZone"`
+	// Types of workload that are allowed to be scheduled onto the nodes that belong to this group.
+	Reservations []NodeReservation `json:"reservations"`
+}
+
+// AWS environment node group configuration input.
+type AWSEnvHostedNodeGroupSpecInput struct {
+	// Unique (among environment node groups) node group identifier.
+	//
+	// Defaults to $nodeType.
+	Name *string `json:"name,omitempty"`
+	// Instance type (https://aws.amazon.com/ec2/instance-types/).
+	NodeType string `json:"nodeType"`
+	// Availability zone ids.
+	//
+	// Defaults to environment zones.
+	ZoneIDs []string `json:"zoneIDs,omitempty"`
+	// Maximum number of instances per availability zone.
+	CapacityPerZone int64 `json:"capacityPerZone"`
+	// Types of workloads this group is reserved for.
+	// Defaults to all.
+	Reservations []NodeReservation `json:"reservations,omitempty"`
+}
+
+// AWS environment configuration.
+type AWSEnvHostedSpec struct {
+	// VPC CIDR block.
+	//
+	// Immutable.
+	Cidr string `json:"cidr"`
+	// AWS region (https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.RegionsAndAvailabilityZones.html#Concepts.RegionsAndAvailabilityZones.Regions).
+	//
+	// Example: "us-east-1"
+	//
+	// Immutable.
+	Region string `json:"region"`
+	// Explicit list of AWS availability zone ids (https://docs.aws.amazon.com/global-infrastructure/latest/regions/az-ids.html).
+	// At least 2 required.
+	//
+	// Example: ["usw2-az1", "usw2-az2"]
+	ZoneIDs []string `json:"zoneIDs"`
+	// Load balancers configuration.
+	LoadBalancers *AWSEnvHostedLoadBalancersSpec `json:"loadBalancers"`
+	// List of node groups.
+	// At least one required.
+	NodeGroups []*AWSEnvHostedNodeGroupSpec `json:"nodeGroups"`
+	// List of maintenance windows during which automatic maintenance is permitted.
+	// By default updates are applied as soon as they are available.
+	MaintenanceWindows []*MaintenanceWindowSpec `json:"maintenanceWindows"`
+	// Custom domains for TLS certificates.
+	//
+	// Order is preserved.
+	//
+	// Examples:
+	// - ["example.com"]
+	// - ["example.com", "foo.bar.com"]
+	//
+	// Before specifying custom domains, create the following DNS CNAME records
+	// (replace example.com with your domain):
+	//
+	// Required:
+	// - _acme-challenge.example.com. → $env_name.altinity.cloud.
+	//
+	// Public load balancer (if used):
+	// - example.com.                        → _.$env_name.altinity.cloud.
+	// - *.example.com.                      → _.$env_name.altinity.cloud.
+	//
+	// Internal load balancer (if used):
+	// - _acme-challenge.internal.example.com. → internal.$env_name.altinity.cloud.
+	// - internal.example.com.                 → _.internal.$env_name.altinity.cloud.
+	// - *.internal.example.com.               → _.internal.$env_name.altinity.cloud.
+	//
+	// VPC endpoint (if used):
+	// - _acme-challenge.vpce.example.com.   → vpce.$env_name.altinity.cloud.
+	// - vpce.example.com.                   → _.vpce.$env_name.altinity.cloud.
+	// - *.vpce.example.com.                 → _.vpce.$env_name.altinity.cloud.
+	CustomDomains []string `json:"customDomains"`
+	// VPC endpoints configuration.
+	Endpoints []*AWSEnvHostedEndpointSpec `json:"endpoints"`
+	// Prefix for AWS resources created by this environment.
+	ResourcePrefix string `json:"resourcePrefix"`
+	// List of external S3 buckets to allow access to.
+	ExternalBuckets []*AWSEnvHostedExternalBucketSpec `json:"externalBuckets"`
+	// Backups configuration.
+	Backups *AWSEnvHostedBackupsSpec `json:"backups,omitempty"`
+	// Iceberg configuration.
+	Iceberg *AWSEnvHostedIcebergSpec `json:"iceberg,omitempty"`
+	// Metrics endpoint configuration.
+	MetricsEndpoint *MetricsEndpointSpec `json:"metricsEndpoint"`
+	// Datadog agent configuration.
+	Datadog *DatadogSpec `json:"datadog"`
+	// ARN of the customer's KMS key for encrypting Altinity-provisioned data buckets
+	// and EBS volumes.
+	KmsKeyArn *string `json:"kmsKeyARN,omitempty"`
+}
+
+// AWS environment status.
+type AWSEnvHostedStatus struct {
+	// Applied spec revision (monotonically-increasing).
+	AppliedSpecRevision int64 `json:"appliedSpecRevision"`
+	// Status of load balancers.
+	LoadBalancers *AWSEnvHostedLoadBalancersStatus `json:"loadBalancers"`
+	// True indicates that environment is pending deletion.
+	PendingDelete bool `json:"pendingDelete"`
+	// Status errors.
+	Errors []*EnvStatusError `json:"errors"`
+}
+
+// AWS environment configuration update request input.
+type AWSEnvHostedUpdateSpecInput struct {
+	// Number of AWS availability zones.
+	// At least 2 required (if specified).
+	NumberOfZones *int64 `json:"numberOfZones,omitempty"`
+	// Explicit list of AWS availability zone ids (https://docs.aws.amazon.com/global-infrastructure/latest/regions/az-ids.html).
+	// At least 2 required (if specified).
+	//
+	// Example: ["usw2-az1", "usw2-az2"]
+	ZoneIDs []string `json:"zoneIDs,omitempty"`
+	// Load balancers configuration.
+	LoadBalancers *AWSEnvHostedLoadBalancersSpecInput `json:"loadBalancers,omitempty"`
+	// List of node groups.
+	NodeGroups []*AWSEnvHostedNodeGroupSpecInput `json:"nodeGroups,omitempty"`
+	// List of maintenance windows during which automatic maintenance is permitted.
+	// By default updates are applied as soon as they are available.
+	MaintenanceWindows []*MaintenanceWindowSpecInput `json:"maintenanceWindows,omitempty"`
+	// Custom domains for TLS certificates.
+	//
+	// Order is preserved.
+	//
+	// Examples:
+	// - ["example.com"]
+	// - ["example.com", "foo.bar.com"]
+	//
+	// Before specifying custom domains, create the following DNS CNAME records
+	// (replace example.com with your domain):
+	//
+	// Required:
+	// - _acme-challenge.example.com. → $env_name.altinity.cloud.
+	//
+	// Public load balancer (if used):
+	// - example.com.                        → _.$env_name.altinity.cloud.
+	// - *.example.com.                      → _.$env_name.altinity.cloud.
+	//
+	// Internal load balancer (if used):
+	// - _acme-challenge.internal.example.com. → internal.$env_name.altinity.cloud.
+	// - internal.example.com.                 → _.internal.$env_name.altinity.cloud.
+	// - *.internal.example.com.               → _.internal.$env_name.altinity.cloud.
+	//
+	// VPC endpoint (if used):
+	// - _acme-challenge.vpce.example.com.   → vpce.$env_name.altinity.cloud.
+	// - vpce.example.com.                   → _.vpce.$env_name.altinity.cloud.
+	// - *.vpce.example.com.                 → _.vpce.$env_name.altinity.cloud.
+	CustomDomains []string `json:"customDomains,omitempty"`
+	// VPC endpoints configuration.
+	Endpoints []*AWSEnvHostedEndpointSpecInput `json:"endpoints,omitempty"`
+	// List of external S3 buckets to allow access to.
+	ExternalBuckets []*AWSEnvHostedExternalBucketSpecInput `json:"externalBuckets,omitempty"`
+	// Backups configuration.
+	Backups *AWSEnvHostedBackupsSpecInput `json:"backups,omitempty"`
+	// Iceberg configuration.
+	Iceberg *AWSEnvHostedIcebergUpdateInputSpec `json:"iceberg,omitempty"`
+	// Metrics endpoint configuration.
+	MetricsEndpoint *MetricsEndpointSpecInput `json:"metricsEndpoint,omitempty"`
+	// Datadog monitoring agent configuration.
+	Datadog *DatadogSpecInput `json:"datadog,omitempty"`
+}
+
 // AWS environment internal load balancer configuration.
 type AWSEnvLoadBalancerInternalSpec struct {
 	// True if load balancer is enabled,
@@ -749,6 +1224,103 @@ type CodeGenEnvOutput struct {
 }
 
 // AWS environment create request input.
+type CreateAWSEnvHostedInput struct {
+	// A globally-unique environment identifier.
+	//
+	// Immutable.
+	Name string `json:"name"`
+	// Environment spec.
+	Spec *CreateAWSEnvHostedSpecInput `json:"spec"`
+}
+
+// AWS environment create request result.
+type CreateAWSEnvHostedResult struct {
+	// Mutation unique identifier.
+	MutationID string `json:"mutationId"`
+	// AWS environment active configuration.
+	Spec *AWSEnvHostedSpec `json:"spec"`
+	// Spec revision (monotonically-increasing).
+	SpecRevision int64 `json:"specRevision"`
+}
+
+// AWS environment configuration create request input.
+type CreateAWSEnvHostedSpecInput struct {
+	// AWS region (https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.RegionsAndAvailabilityZones.html#Concepts.RegionsAndAvailabilityZones.Regions).
+	//
+	// Example: "us-east-1"
+	//
+	// Immutable.
+	Region string `json:"region"`
+	// Number of AWS availability zones.
+	// At least 2 required.
+	//
+	// This field is optional if "zoneIDs" is specified.
+	NumberOfZones *int64 `json:"numberOfZones,omitempty"`
+	// Explicit list of AWS availability zones ids (https://docs.aws.amazon.com/global-infrastructure/latest/regions/az-ids.html).
+	// At least 2 required.
+	//
+	// Example: ["usw2-az1", "usw2-az2"]
+	//
+	// This field is optional if "numberOfZones" is specified.
+	ZoneIDs []string `json:"zoneIDs,omitempty"`
+	// Load balancers configuration.
+	LoadBalancers *AWSEnvHostedLoadBalancersSpecInput `json:"loadBalancers,omitempty"`
+	// List of node groups.
+	// At least one required.
+	NodeGroups []*AWSEnvHostedNodeGroupSpecInput `json:"nodeGroups"`
+	// List of maintenance windows during which automatic maintenance is permitted.
+	// By default updates are applied as soon as they are available.
+	MaintenanceWindows []*MaintenanceWindowSpecInput `json:"maintenanceWindows,omitempty"`
+	// Custom domains for TLS certificates.
+	//
+	// Order is preserved.
+	//
+	// Examples:
+	// - ["example.com"]
+	// - ["example.com", "foo.bar.com"]
+	//
+	// Before specifying custom domains, create the following DNS CNAME records
+	// (replace example.com with your domain):
+	//
+	// Required:
+	// - _acme-challenge.example.com. → $env_name.altinity.cloud.
+	//
+	// Public load balancer (if used):
+	// - example.com.                        → _.$env_name.altinity.cloud.
+	// - *.example.com.                      → _.$env_name.altinity.cloud.
+	//
+	// Internal load balancer (if used):
+	// - _acme-challenge.internal.example.com. → internal.$env_name.altinity.cloud.
+	// - internal.example.com.                 → _.internal.$env_name.altinity.cloud.
+	// - *.internal.example.com.               → _.internal.$env_name.altinity.cloud.
+	//
+	// VPC endpoint (if used):
+	// - _acme-challenge.vpce.example.com.   → vpce.$env_name.altinity.cloud.
+	// - vpce.example.com.                   → _.vpce.$env_name.altinity.cloud.
+	// - *.vpce.example.com.                 → _.vpce.$env_name.altinity.cloud.
+	CustomDomains []string `json:"customDomains,omitempty"`
+	// VPC endpoints configuration.
+	Endpoints []*AWSEnvHostedEndpointSpecInput `json:"endpoints,omitempty"`
+	// Prefix to apply to the names of AWS resources during creation.
+	//
+	// Immutable.
+	ResourcePrefix *string `json:"resourcePrefix,omitempty"`
+	// List of external S3 buckets to allow access to.
+	ExternalBuckets []*AWSEnvHostedExternalBucketSpecInput `json:"externalBuckets,omitempty"`
+	// Backups configuration.
+	Backups *AWSEnvHostedBackupsSpecInput `json:"backups,omitempty"`
+	// Iceberg configuration.
+	Iceberg *AWSEnvHostedIcebergInputSpec `json:"iceberg,omitempty"`
+	// Metrics endpoint configuration.
+	MetricsEndpoint *MetricsEndpointSpecInput `json:"metricsEndpoint,omitempty"`
+	// Datadog monitoring agent configuration.
+	Datadog *DatadogSpecInput `json:"datadog,omitempty"`
+	// ARN of the customer's KMS key for encrypting Altinity-provisioned data buckets
+	// and EBS volumes.
+	KmsKeyArn *string `json:"kmsKeyARN,omitempty"`
+}
+
+// AWS environment create request input.
 type CreateAWSEnvInput struct {
 	// A globally-unique environment identifier.
 	//
@@ -1316,6 +1888,27 @@ type DatadogSpecInput struct {
 	LogsEnabled *bool `json:"logsEnabled,omitempty"`
 	// Enable ClickHouse metrics collection.
 	MetricsEnabled *bool `json:"metricsEnabled,omitempty"`
+}
+
+// AWS environment delete request input.
+type DeleteAWSEnvHostedInput struct {
+	// The name of AWS environment to delete.
+	Name string `json:"name"`
+	// By default, delete mutation does not delete the env but rather marks it to be
+	// removed once it's deprovisioned (which may take some time).
+	// Set "force" to true to skip deprovisioning.
+	Force *bool `json:"force,omitempty"`
+	// By default, the delete operation will not delete any provisioned clusters and
+	// the deletion will fail until the clusters get removed.
+	// Set "forceDestroyClusters" to true remove all provisioned clusters as part of the environment deletion process.
+	ForceDestroyClusters *bool `json:"forceDestroyClusters,omitempty"`
+}
+
+// AWS environment delete request result.
+type DeleteAWSEnvHostedResult struct {
+	// Mutation unique identifier.
+	MutationID string `json:"mutationId"`
+	PendingMfa bool   `json:"pendingMFA"`
 }
 
 // AWS environment delete request input.
@@ -2435,6 +3028,27 @@ type Query struct {
 }
 
 // AWS environment update request input.
+type UpdateAWSEnvHostedInput struct {
+	// Environment name.
+	Name string `json:"name"`
+	// Environment spec.
+	Spec *AWSEnvHostedUpdateSpecInput `json:"spec"`
+	// Environment spec update strategy.
+	// MERGE by default.
+	UpdateStrategy *UpdateStrategy `json:"updateStrategy,omitempty"`
+}
+
+// AWS environment update request result.
+type UpdateAWSEnvHostedResult struct {
+	// Mutation unique identifier.
+	MutationID string `json:"mutationId"`
+	// AWS environment active configuration.
+	Spec *AWSEnvHostedSpec `json:"spec"`
+	// Spec revision (monotonically-increasing).
+	SpecRevision int64 `json:"specRevision"`
+}
+
+// AWS environment update request input.
 type UpdateAWSEnvInput struct {
 	// Environment name.
 	Name string `json:"name"`
@@ -2883,6 +3497,64 @@ func (e *AKSSupportPolicy) UnmarshalJSON(b []byte) error {
 }
 
 func (e AKSSupportPolicy) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// Iceberg catalog type.
+type AWSEnvHostedIcebergCatalogTypeSpec string
+
+const (
+	// S3 bucket-based catalog.
+	AWSEnvHostedIcebergCatalogTypeSpecS3 AWSEnvHostedIcebergCatalogTypeSpec = "S3"
+	// S3 Tables-based catalog.
+	AWSEnvHostedIcebergCatalogTypeSpecS3Table AWSEnvHostedIcebergCatalogTypeSpec = "S3_TABLE"
+)
+
+var AllAWSEnvHostedIcebergCatalogTypeSpec = []AWSEnvHostedIcebergCatalogTypeSpec{
+	AWSEnvHostedIcebergCatalogTypeSpecS3,
+	AWSEnvHostedIcebergCatalogTypeSpecS3Table,
+}
+
+func (e AWSEnvHostedIcebergCatalogTypeSpec) IsValid() bool {
+	switch e {
+	case AWSEnvHostedIcebergCatalogTypeSpecS3, AWSEnvHostedIcebergCatalogTypeSpecS3Table:
+		return true
+	}
+	return false
+}
+
+func (e AWSEnvHostedIcebergCatalogTypeSpec) String() string {
+	return string(e)
+}
+
+func (e *AWSEnvHostedIcebergCatalogTypeSpec) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = AWSEnvHostedIcebergCatalogTypeSpec(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid AWSEnvHostedIcebergCatalogTypeSpec", str)
+	}
+	return nil
+}
+
+func (e AWSEnvHostedIcebergCatalogTypeSpec) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *AWSEnvHostedIcebergCatalogTypeSpec) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e AWSEnvHostedIcebergCatalogTypeSpec) MarshalJSON() ([]byte, error) {
 	var buf bytes.Buffer
 	e.MarshalGQL(&buf)
 	return buf.Bytes(), nil

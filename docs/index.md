@@ -50,12 +50,13 @@ The value can be omitted if `ALTINITYCLOUD_API_TOKEN` environment variable is se
 
 ## Environment Management
 
-There are 2 types of environments supported by [Altinity.Cloud Anywhere](https://altinity.cloud/):
+There are 3 types of environments supported by [Altinity.Cloud Anywhere](https://altinity.cloud/):
 - BYOC: Bring Your Own Cloud,
   where you connect your *AWS/GCP/Azure/HCloud* account/project to Altinity.Cloud & everything (networking stack, compute, etc)
   is provisioned/managed inside your cloud account/project.
 - BYOK: Bring Your Own Kubernetes,
   where you connect a Kubernetes cluster. Altinity.Cloud manages the ClickHouse clusters, while you manage the rest.
+- Altinity-hosted, where the environment runs in a cloud account owned by Altinity and there is no account of yours to connect.
 
 See
 
@@ -69,6 +70,8 @@ See
   on how to create Bring Your Own Cloud (BYOC) HCloud environment.
 - [`altinitycloud_env_k8s` resource examples](resources/env_k8s#example-usage)
   on how to create Bring Your Own Kubernetes (BYOK) environment.
+- [`altinitycloud_env_aws_hosted` resource examples](resources/env_aws_hosted#example-usage)
+  on how to create an Altinity-hosted AWS environment.
 
 ### Asynchronous Provisioning
 
@@ -126,6 +129,7 @@ See the **Deprovision / Destroy** section in each environment resource for detai
 - [`altinitycloud_env_azure`](resources/env_azure#deprovision--destroy)
 - [`altinitycloud_env_hcloud`](resources/env_hcloud#deprovision--destroy)
 - [`altinitycloud_env_k8s`](resources/env_k8s#deprovision--destroy)
+- [`altinitycloud_env_aws_hosted`](resources/env_aws_hosted#deprovision--destroy)
 
 ## Support
 

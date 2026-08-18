@@ -85,6 +85,8 @@ sync:
 docs:
 	GOOS=$(OS) GOARCH=$(ARCH) go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs
 
+# The fetched schema is overwritten wholesale, so it must stay byte-identical to
+# GRAPHQL_SCHEMA_URL. API surface not yet served there goes in graphql.overlay.schema.
 .PHONY: sdk
 sdk:
 	@echo "Fetching GraphQL schema to ${GRAPHQL_SCHEMA_FILE}"

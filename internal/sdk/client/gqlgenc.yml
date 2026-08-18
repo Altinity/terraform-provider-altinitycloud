@@ -11,6 +11,7 @@ models:
     model: github.com/99designs/gqlgen/graphql.Int64
 schema:
   - "./graphql.schema"
+  - "./graphql.overlay.schema"
 query:
    - "./*.graphql"
 generate:

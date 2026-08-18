@@ -188,6 +188,115 @@ func (t *AWSEnvSpecFragment) GetDatadog() *AWSEnvSpecFragment_Datadog {
 	return &t.Datadog
 }
 
+type AWSEnvHostedSpecFragment struct {
+	Region             string                                         "json:\"region\" graphql:\"region\""
+	Cidr               string                                         "json:\"cidr\" graphql:\"cidr\""
+	ZoneIDs            []string                                       "json:\"zoneIDs\" graphql:\"zoneIDs\""
+	ResourcePrefix     string                                         "json:\"resourcePrefix\" graphql:\"resourcePrefix\""
+	KmsKeyArn          *string                                        "json:\"kmsKeyARN,omitempty\" graphql:\"kmsKeyARN\""
+	CustomDomains      []string                                       "json:\"customDomains\" graphql:\"customDomains\""
+	LoadBalancers      AWSEnvHostedSpecFragment_LoadBalancers         "json:\"loadBalancers\" graphql:\"loadBalancers\""
+	NodeGroups         []*AWSEnvHostedSpecFragment_NodeGroups         "json:\"nodeGroups\" graphql:\"nodeGroups\""
+	MaintenanceWindows []*AWSEnvHostedSpecFragment_MaintenanceWindows "json:\"maintenanceWindows\" graphql:\"maintenanceWindows\""
+	Endpoints          []*AWSEnvHostedSpecFragment_Endpoints          "json:\"endpoints\" graphql:\"endpoints\""
+	ExternalBuckets    []*AWSEnvHostedSpecFragment_ExternalBuckets    "json:\"externalBuckets\" graphql:\"externalBuckets\""
+	Backups            *AWSEnvHostedSpecFragment_Backups              "json:\"backups,omitempty\" graphql:\"backups\""
+	Iceberg            *AWSEnvHostedSpecFragment_Iceberg              "json:\"iceberg,omitempty\" graphql:\"iceberg\""
+	MetricsEndpoint    AWSEnvHostedSpecFragment_MetricsEndpoint       "json:\"metricsEndpoint\" graphql:\"metricsEndpoint\""
+	Datadog            AWSEnvHostedSpecFragment_Datadog               "json:\"datadog\" graphql:\"datadog\""
+}
+
+func (t *AWSEnvHostedSpecFragment) GetRegion() string {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment{}
+	}
+	return t.Region
+}
+func (t *AWSEnvHostedSpecFragment) GetCidr() string {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment{}
+	}
+	return t.Cidr
+}
+func (t *AWSEnvHostedSpecFragment) GetZoneIDs() []string {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment{}
+	}
+	return t.ZoneIDs
+}
+func (t *AWSEnvHostedSpecFragment) GetResourcePrefix() string {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment{}
+	}
+	return t.ResourcePrefix
+}
+func (t *AWSEnvHostedSpecFragment) GetKmsKeyArn() *string {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment{}
+	}
+	return t.KmsKeyArn
+}
+func (t *AWSEnvHostedSpecFragment) GetCustomDomains() []string {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment{}
+	}
+	return t.CustomDomains
+}
+func (t *AWSEnvHostedSpecFragment) GetLoadBalancers() *AWSEnvHostedSpecFragment_LoadBalancers {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment{}
+	}
+	return &t.LoadBalancers
+}
+func (t *AWSEnvHostedSpecFragment) GetNodeGroups() []*AWSEnvHostedSpecFragment_NodeGroups {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment{}
+	}
+	return t.NodeGroups
+}
+func (t *AWSEnvHostedSpecFragment) GetMaintenanceWindows() []*AWSEnvHostedSpecFragment_MaintenanceWindows {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment{}
+	}
+	return t.MaintenanceWindows
+}
+func (t *AWSEnvHostedSpecFragment) GetEndpoints() []*AWSEnvHostedSpecFragment_Endpoints {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment{}
+	}
+	return t.Endpoints
+}
+func (t *AWSEnvHostedSpecFragment) GetExternalBuckets() []*AWSEnvHostedSpecFragment_ExternalBuckets {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment{}
+	}
+	return t.ExternalBuckets
+}
+func (t *AWSEnvHostedSpecFragment) GetBackups() *AWSEnvHostedSpecFragment_Backups {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment{}
+	}
+	return t.Backups
+}
+func (t *AWSEnvHostedSpecFragment) GetIceberg() *AWSEnvHostedSpecFragment_Iceberg {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment{}
+	}
+	return t.Iceberg
+}
+func (t *AWSEnvHostedSpecFragment) GetMetricsEndpoint() *AWSEnvHostedSpecFragment_MetricsEndpoint {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment{}
+	}
+	return &t.MetricsEndpoint
+}
+func (t *AWSEnvHostedSpecFragment) GetDatadog() *AWSEnvHostedSpecFragment_Datadog {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment{}
+	}
+	return &t.Datadog
+}
+
 type AzureEnvSpecFragment struct {
 	LoadBalancers         AzureEnvSpecFragment_LoadBalancers         "json:\"loadBalancers\" graphql:\"loadBalancers\""
 	LoadBalancingStrategy LoadBalancingStrategy                      "json:\"loadBalancingStrategy\" graphql:\"loadBalancingStrategy\""
@@ -1003,6 +1112,381 @@ func (t *AWSEnvSpecFragment_Datadog) GetLogsEnabled() bool {
 func (t *AWSEnvSpecFragment_Datadog) GetMetricsEnabled() bool {
 	if t == nil {
 		t = &AWSEnvSpecFragment_Datadog{}
+	}
+	return t.MetricsEnabled
+}
+
+type AWSEnvHostedSpecFragment_LoadBalancers_Public struct {
+	Enabled        bool     "json:\"enabled\" graphql:\"enabled\""
+	SourceIPRanges []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
+}
+
+func (t *AWSEnvHostedSpecFragment_LoadBalancers_Public) GetEnabled() bool {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment_LoadBalancers_Public{}
+	}
+	return t.Enabled
+}
+func (t *AWSEnvHostedSpecFragment_LoadBalancers_Public) GetSourceIPRanges() []string {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment_LoadBalancers_Public{}
+	}
+	return t.SourceIPRanges
+}
+
+type AWSEnvHostedSpecFragment_LoadBalancers_Internal struct {
+	Enabled                          bool     "json:\"enabled\" graphql:\"enabled\""
+	EndpointServiceAllowedPrincipals []string "json:\"endpointServiceAllowedPrincipals\" graphql:\"endpointServiceAllowedPrincipals\""
+	EndpointServiceSupportedRegions  []string "json:\"endpointServiceSupportedRegions\" graphql:\"endpointServiceSupportedRegions\""
+	SourceIPRanges                   []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
+}
+
+func (t *AWSEnvHostedSpecFragment_LoadBalancers_Internal) GetEnabled() bool {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment_LoadBalancers_Internal{}
+	}
+	return t.Enabled
+}
+func (t *AWSEnvHostedSpecFragment_LoadBalancers_Internal) GetEndpointServiceAllowedPrincipals() []string {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment_LoadBalancers_Internal{}
+	}
+	return t.EndpointServiceAllowedPrincipals
+}
+func (t *AWSEnvHostedSpecFragment_LoadBalancers_Internal) GetEndpointServiceSupportedRegions() []string {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment_LoadBalancers_Internal{}
+	}
+	return t.EndpointServiceSupportedRegions
+}
+func (t *AWSEnvHostedSpecFragment_LoadBalancers_Internal) GetSourceIPRanges() []string {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment_LoadBalancers_Internal{}
+	}
+	return t.SourceIPRanges
+}
+
+type AWSEnvHostedSpecFragment_LoadBalancers struct {
+	Internal AWSEnvHostedSpecFragment_LoadBalancers_Internal "json:\"internal\" graphql:\"internal\""
+	Public   AWSEnvHostedSpecFragment_LoadBalancers_Public   "json:\"public\" graphql:\"public\""
+}
+
+func (t *AWSEnvHostedSpecFragment_LoadBalancers) GetInternal() *AWSEnvHostedSpecFragment_LoadBalancers_Internal {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment_LoadBalancers{}
+	}
+	return &t.Internal
+}
+func (t *AWSEnvHostedSpecFragment_LoadBalancers) GetPublic() *AWSEnvHostedSpecFragment_LoadBalancers_Public {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment_LoadBalancers{}
+	}
+	return &t.Public
+}
+
+type AWSEnvHostedSpecFragment_NodeGroups struct {
+	CapacityPerZone int64             "json:\"capacityPerZone\" graphql:\"capacityPerZone\""
+	Name            string            "json:\"name\" graphql:\"name\""
+	NodeType        string            "json:\"nodeType\" graphql:\"nodeType\""
+	Reservations    []NodeReservation "json:\"reservations\" graphql:\"reservations\""
+	ZoneIDs         []string          "json:\"zoneIDs\" graphql:\"zoneIDs\""
+}
+
+func (t *AWSEnvHostedSpecFragment_NodeGroups) GetCapacityPerZone() int64 {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment_NodeGroups{}
+	}
+	return t.CapacityPerZone
+}
+func (t *AWSEnvHostedSpecFragment_NodeGroups) GetName() string {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment_NodeGroups{}
+	}
+	return t.Name
+}
+func (t *AWSEnvHostedSpecFragment_NodeGroups) GetNodeType() string {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment_NodeGroups{}
+	}
+	return t.NodeType
+}
+func (t *AWSEnvHostedSpecFragment_NodeGroups) GetReservations() []NodeReservation {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment_NodeGroups{}
+	}
+	return t.Reservations
+}
+func (t *AWSEnvHostedSpecFragment_NodeGroups) GetZoneIDs() []string {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment_NodeGroups{}
+	}
+	return t.ZoneIDs
+}
+
+type AWSEnvHostedSpecFragment_MaintenanceWindows struct {
+	Days          []Day  "json:\"days\" graphql:\"days\""
+	Enabled       bool   "json:\"enabled\" graphql:\"enabled\""
+	Hour          int64  "json:\"hour\" graphql:\"hour\""
+	LengthInHours int64  "json:\"lengthInHours\" graphql:\"lengthInHours\""
+	Name          string "json:\"name\" graphql:\"name\""
+}
+
+func (t *AWSEnvHostedSpecFragment_MaintenanceWindows) GetDays() []Day {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment_MaintenanceWindows{}
+	}
+	return t.Days
+}
+func (t *AWSEnvHostedSpecFragment_MaintenanceWindows) GetEnabled() bool {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment_MaintenanceWindows{}
+	}
+	return t.Enabled
+}
+func (t *AWSEnvHostedSpecFragment_MaintenanceWindows) GetHour() int64 {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment_MaintenanceWindows{}
+	}
+	return t.Hour
+}
+func (t *AWSEnvHostedSpecFragment_MaintenanceWindows) GetLengthInHours() int64 {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment_MaintenanceWindows{}
+	}
+	return t.LengthInHours
+}
+func (t *AWSEnvHostedSpecFragment_MaintenanceWindows) GetName() string {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment_MaintenanceWindows{}
+	}
+	return t.Name
+}
+
+type AWSEnvHostedSpecFragment_Endpoints struct {
+	Alias       *string "json:\"alias,omitempty\" graphql:\"alias\""
+	ServiceName string  "json:\"serviceName\" graphql:\"serviceName\""
+}
+
+func (t *AWSEnvHostedSpecFragment_Endpoints) GetAlias() *string {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment_Endpoints{}
+	}
+	return t.Alias
+}
+func (t *AWSEnvHostedSpecFragment_Endpoints) GetServiceName() string {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment_Endpoints{}
+	}
+	return t.ServiceName
+}
+
+type AWSEnvHostedSpecFragment_ExternalBuckets struct {
+	KmsKeyArn *string "json:\"kmsKeyARN,omitempty\" graphql:\"kmsKeyARN\""
+	Name      string  "json:\"name\" graphql:\"name\""
+}
+
+func (t *AWSEnvHostedSpecFragment_ExternalBuckets) GetKmsKeyArn() *string {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment_ExternalBuckets{}
+	}
+	return t.KmsKeyArn
+}
+func (t *AWSEnvHostedSpecFragment_ExternalBuckets) GetName() string {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment_ExternalBuckets{}
+	}
+	return t.Name
+}
+
+type AWSEnvHostedSpecFragment_Backups_CustomBucket struct {
+	Name    string "json:\"name\" graphql:\"name\""
+	Region  string "json:\"region\" graphql:\"region\""
+	RoleArn string "json:\"roleARN\" graphql:\"roleARN\""
+}
+
+func (t *AWSEnvHostedSpecFragment_Backups_CustomBucket) GetName() string {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment_Backups_CustomBucket{}
+	}
+	return t.Name
+}
+func (t *AWSEnvHostedSpecFragment_Backups_CustomBucket) GetRegion() string {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment_Backups_CustomBucket{}
+	}
+	return t.Region
+}
+func (t *AWSEnvHostedSpecFragment_Backups_CustomBucket) GetRoleArn() string {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment_Backups_CustomBucket{}
+	}
+	return t.RoleArn
+}
+
+type AWSEnvHostedSpecFragment_Backups struct {
+	CustomBucket *AWSEnvHostedSpecFragment_Backups_CustomBucket "json:\"customBucket,omitempty\" graphql:\"customBucket\""
+}
+
+func (t *AWSEnvHostedSpecFragment_Backups) GetCustomBucket() *AWSEnvHostedSpecFragment_Backups_CustomBucket {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment_Backups{}
+	}
+	return t.CustomBucket
+}
+
+type AWSEnvHostedSpecFragment_Iceberg_Catalogs_Maintenance struct {
+	Enabled bool "json:\"enabled\" graphql:\"enabled\""
+}
+
+func (t *AWSEnvHostedSpecFragment_Iceberg_Catalogs_Maintenance) GetEnabled() bool {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment_Iceberg_Catalogs_Maintenance{}
+	}
+	return t.Enabled
+}
+
+type AWSEnvHostedSpecFragment_Iceberg_Catalogs_Watches struct {
+	PathsRelativeToTableLocation []string "json:\"pathsRelativeToTableLocation\" graphql:\"pathsRelativeToTableLocation\""
+	Table                        string   "json:\"table\" graphql:\"table\""
+}
+
+func (t *AWSEnvHostedSpecFragment_Iceberg_Catalogs_Watches) GetPathsRelativeToTableLocation() []string {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment_Iceberg_Catalogs_Watches{}
+	}
+	return t.PathsRelativeToTableLocation
+}
+func (t *AWSEnvHostedSpecFragment_Iceberg_Catalogs_Watches) GetTable() string {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment_Iceberg_Catalogs_Watches{}
+	}
+	return t.Table
+}
+
+type AWSEnvHostedSpecFragment_Iceberg_Catalogs struct {
+	AnonymousAccessEnabled *bool                                                 "json:\"anonymousAccessEnabled,omitempty\" graphql:\"anonymousAccessEnabled\""
+	CustomS3Bucket         *string                                               "json:\"customS3Bucket,omitempty\" graphql:\"customS3Bucket\""
+	CustomS3BucketPath     *string                                               "json:\"customS3BucketPath,omitempty\" graphql:\"customS3BucketPath\""
+	CustomS3TableBucketArn *string                                               "json:\"customS3TableBucketARN,omitempty\" graphql:\"customS3TableBucketARN\""
+	Maintenance            AWSEnvHostedSpecFragment_Iceberg_Catalogs_Maintenance "json:\"maintenance\" graphql:\"maintenance\""
+	Name                   *string                                               "json:\"name,omitempty\" graphql:\"name\""
+	Region                 *string                                               "json:\"region,omitempty\" graphql:\"region\""
+	Type                   AWSEnvHostedIcebergCatalogTypeSpec                    "json:\"type\" graphql:\"type\""
+	Watches                []*AWSEnvHostedSpecFragment_Iceberg_Catalogs_Watches  "json:\"watches\" graphql:\"watches\""
+}
+
+func (t *AWSEnvHostedSpecFragment_Iceberg_Catalogs) GetAnonymousAccessEnabled() *bool {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.AnonymousAccessEnabled
+}
+func (t *AWSEnvHostedSpecFragment_Iceberg_Catalogs) GetCustomS3Bucket() *string {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.CustomS3Bucket
+}
+func (t *AWSEnvHostedSpecFragment_Iceberg_Catalogs) GetCustomS3BucketPath() *string {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.CustomS3BucketPath
+}
+func (t *AWSEnvHostedSpecFragment_Iceberg_Catalogs) GetCustomS3TableBucketArn() *string {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.CustomS3TableBucketArn
+}
+func (t *AWSEnvHostedSpecFragment_Iceberg_Catalogs) GetMaintenance() *AWSEnvHostedSpecFragment_Iceberg_Catalogs_Maintenance {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment_Iceberg_Catalogs{}
+	}
+	return &t.Maintenance
+}
+func (t *AWSEnvHostedSpecFragment_Iceberg_Catalogs) GetName() *string {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.Name
+}
+func (t *AWSEnvHostedSpecFragment_Iceberg_Catalogs) GetRegion() *string {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.Region
+}
+func (t *AWSEnvHostedSpecFragment_Iceberg_Catalogs) GetType() *AWSEnvHostedIcebergCatalogTypeSpec {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment_Iceberg_Catalogs{}
+	}
+	return &t.Type
+}
+func (t *AWSEnvHostedSpecFragment_Iceberg_Catalogs) GetWatches() []*AWSEnvHostedSpecFragment_Iceberg_Catalogs_Watches {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.Watches
+}
+
+type AWSEnvHostedSpecFragment_Iceberg struct {
+	Catalogs []*AWSEnvHostedSpecFragment_Iceberg_Catalogs "json:\"catalogs\" graphql:\"catalogs\""
+}
+
+func (t *AWSEnvHostedSpecFragment_Iceberg) GetCatalogs() []*AWSEnvHostedSpecFragment_Iceberg_Catalogs {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment_Iceberg{}
+	}
+	return t.Catalogs
+}
+
+type AWSEnvHostedSpecFragment_MetricsEndpoint struct {
+	Enabled        bool     "json:\"enabled\" graphql:\"enabled\""
+	SourceIPRanges []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
+}
+
+func (t *AWSEnvHostedSpecFragment_MetricsEndpoint) GetEnabled() bool {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment_MetricsEndpoint{}
+	}
+	return t.Enabled
+}
+func (t *AWSEnvHostedSpecFragment_MetricsEndpoint) GetSourceIPRanges() []string {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment_MetricsEndpoint{}
+	}
+	return t.SourceIPRanges
+}
+
+type AWSEnvHostedSpecFragment_Datadog struct {
+	Domain         string "json:\"domain\" graphql:\"domain\""
+	Enabled        bool   "json:\"enabled\" graphql:\"enabled\""
+	LogsEnabled    bool   "json:\"logsEnabled\" graphql:\"logsEnabled\""
+	MetricsEnabled bool   "json:\"metricsEnabled\" graphql:\"metricsEnabled\""
+}
+
+func (t *AWSEnvHostedSpecFragment_Datadog) GetDomain() string {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment_Datadog{}
+	}
+	return t.Domain
+}
+func (t *AWSEnvHostedSpecFragment_Datadog) GetEnabled() bool {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment_Datadog{}
+	}
+	return t.Enabled
+}
+func (t *AWSEnvHostedSpecFragment_Datadog) GetLogsEnabled() bool {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment_Datadog{}
+	}
+	return t.LogsEnabled
+}
+func (t *AWSEnvHostedSpecFragment_Datadog) GetMetricsEnabled() bool {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment_Datadog{}
 	}
 	return t.MetricsEnabled
 }
@@ -3480,6 +3964,1321 @@ func (t *DeleteAWSEnv_DeleteAWSEnv) GetMutationID() string {
 func (t *DeleteAWSEnv_DeleteAWSEnv) GetPendingMfa() bool {
 	if t == nil {
 		t = &DeleteAWSEnv_DeleteAWSEnv{}
+	}
+	return t.PendingMfa
+}
+
+type GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers_Public struct {
+	Enabled        bool     "json:\"enabled\" graphql:\"enabled\""
+	SourceIPRanges []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
+}
+
+func (t *GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers_Public) GetEnabled() bool {
+	if t == nil {
+		t = &GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers_Public{}
+	}
+	return t.Enabled
+}
+func (t *GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers_Public) GetSourceIPRanges() []string {
+	if t == nil {
+		t = &GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers_Public{}
+	}
+	return t.SourceIPRanges
+}
+
+type GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers_Internal struct {
+	Enabled                          bool     "json:\"enabled\" graphql:\"enabled\""
+	EndpointServiceAllowedPrincipals []string "json:\"endpointServiceAllowedPrincipals\" graphql:\"endpointServiceAllowedPrincipals\""
+	EndpointServiceSupportedRegions  []string "json:\"endpointServiceSupportedRegions\" graphql:\"endpointServiceSupportedRegions\""
+	SourceIPRanges                   []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
+}
+
+func (t *GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers_Internal) GetEnabled() bool {
+	if t == nil {
+		t = &GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers_Internal{}
+	}
+	return t.Enabled
+}
+func (t *GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers_Internal) GetEndpointServiceAllowedPrincipals() []string {
+	if t == nil {
+		t = &GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers_Internal{}
+	}
+	return t.EndpointServiceAllowedPrincipals
+}
+func (t *GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers_Internal) GetEndpointServiceSupportedRegions() []string {
+	if t == nil {
+		t = &GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers_Internal{}
+	}
+	return t.EndpointServiceSupportedRegions
+}
+func (t *GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers_Internal) GetSourceIPRanges() []string {
+	if t == nil {
+		t = &GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers_Internal{}
+	}
+	return t.SourceIPRanges
+}
+
+type GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers struct {
+	Internal GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers_Internal "json:\"internal\" graphql:\"internal\""
+	Public   GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers_Public   "json:\"public\" graphql:\"public\""
+}
+
+func (t *GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers) GetInternal() *GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers_Internal {
+	if t == nil {
+		t = &GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers{}
+	}
+	return &t.Internal
+}
+func (t *GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers) GetPublic() *GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers_Public {
+	if t == nil {
+		t = &GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers{}
+	}
+	return &t.Public
+}
+
+type GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_NodeGroups struct {
+	CapacityPerZone int64             "json:\"capacityPerZone\" graphql:\"capacityPerZone\""
+	Name            string            "json:\"name\" graphql:\"name\""
+	NodeType        string            "json:\"nodeType\" graphql:\"nodeType\""
+	Reservations    []NodeReservation "json:\"reservations\" graphql:\"reservations\""
+	ZoneIDs         []string          "json:\"zoneIDs\" graphql:\"zoneIDs\""
+}
+
+func (t *GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_NodeGroups) GetCapacityPerZone() int64 {
+	if t == nil {
+		t = &GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_NodeGroups{}
+	}
+	return t.CapacityPerZone
+}
+func (t *GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_NodeGroups) GetName() string {
+	if t == nil {
+		t = &GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_NodeGroups{}
+	}
+	return t.Name
+}
+func (t *GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_NodeGroups) GetNodeType() string {
+	if t == nil {
+		t = &GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_NodeGroups{}
+	}
+	return t.NodeType
+}
+func (t *GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_NodeGroups) GetReservations() []NodeReservation {
+	if t == nil {
+		t = &GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_NodeGroups{}
+	}
+	return t.Reservations
+}
+func (t *GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_NodeGroups) GetZoneIDs() []string {
+	if t == nil {
+		t = &GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_NodeGroups{}
+	}
+	return t.ZoneIDs
+}
+
+type GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_MaintenanceWindows struct {
+	Days          []Day  "json:\"days\" graphql:\"days\""
+	Enabled       bool   "json:\"enabled\" graphql:\"enabled\""
+	Hour          int64  "json:\"hour\" graphql:\"hour\""
+	LengthInHours int64  "json:\"lengthInHours\" graphql:\"lengthInHours\""
+	Name          string "json:\"name\" graphql:\"name\""
+}
+
+func (t *GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_MaintenanceWindows) GetDays() []Day {
+	if t == nil {
+		t = &GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_MaintenanceWindows{}
+	}
+	return t.Days
+}
+func (t *GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_MaintenanceWindows) GetEnabled() bool {
+	if t == nil {
+		t = &GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_MaintenanceWindows{}
+	}
+	return t.Enabled
+}
+func (t *GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_MaintenanceWindows) GetHour() int64 {
+	if t == nil {
+		t = &GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_MaintenanceWindows{}
+	}
+	return t.Hour
+}
+func (t *GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_MaintenanceWindows) GetLengthInHours() int64 {
+	if t == nil {
+		t = &GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_MaintenanceWindows{}
+	}
+	return t.LengthInHours
+}
+func (t *GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_MaintenanceWindows) GetName() string {
+	if t == nil {
+		t = &GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_MaintenanceWindows{}
+	}
+	return t.Name
+}
+
+type GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Endpoints struct {
+	Alias       *string "json:\"alias,omitempty\" graphql:\"alias\""
+	ServiceName string  "json:\"serviceName\" graphql:\"serviceName\""
+}
+
+func (t *GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Endpoints) GetAlias() *string {
+	if t == nil {
+		t = &GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Endpoints{}
+	}
+	return t.Alias
+}
+func (t *GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Endpoints) GetServiceName() string {
+	if t == nil {
+		t = &GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Endpoints{}
+	}
+	return t.ServiceName
+}
+
+type GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_ExternalBuckets struct {
+	KmsKeyArn *string "json:\"kmsKeyARN,omitempty\" graphql:\"kmsKeyARN\""
+	Name      string  "json:\"name\" graphql:\"name\""
+}
+
+func (t *GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_ExternalBuckets) GetKmsKeyArn() *string {
+	if t == nil {
+		t = &GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_ExternalBuckets{}
+	}
+	return t.KmsKeyArn
+}
+func (t *GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_ExternalBuckets) GetName() string {
+	if t == nil {
+		t = &GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_ExternalBuckets{}
+	}
+	return t.Name
+}
+
+type GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Backups_CustomBucket struct {
+	Name    string "json:\"name\" graphql:\"name\""
+	Region  string "json:\"region\" graphql:\"region\""
+	RoleArn string "json:\"roleARN\" graphql:\"roleARN\""
+}
+
+func (t *GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Backups_CustomBucket) GetName() string {
+	if t == nil {
+		t = &GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Backups_CustomBucket{}
+	}
+	return t.Name
+}
+func (t *GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Backups_CustomBucket) GetRegion() string {
+	if t == nil {
+		t = &GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Backups_CustomBucket{}
+	}
+	return t.Region
+}
+func (t *GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Backups_CustomBucket) GetRoleArn() string {
+	if t == nil {
+		t = &GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Backups_CustomBucket{}
+	}
+	return t.RoleArn
+}
+
+type GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Backups struct {
+	CustomBucket *GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Backups_CustomBucket "json:\"customBucket,omitempty\" graphql:\"customBucket\""
+}
+
+func (t *GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Backups) GetCustomBucket() *GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Backups_CustomBucket {
+	if t == nil {
+		t = &GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Backups{}
+	}
+	return t.CustomBucket
+}
+
+type GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs_Maintenance struct {
+	Enabled bool "json:\"enabled\" graphql:\"enabled\""
+}
+
+func (t *GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs_Maintenance) GetEnabled() bool {
+	if t == nil {
+		t = &GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs_Maintenance{}
+	}
+	return t.Enabled
+}
+
+type GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs_Watches struct {
+	PathsRelativeToTableLocation []string "json:\"pathsRelativeToTableLocation\" graphql:\"pathsRelativeToTableLocation\""
+	Table                        string   "json:\"table\" graphql:\"table\""
+}
+
+func (t *GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs_Watches) GetPathsRelativeToTableLocation() []string {
+	if t == nil {
+		t = &GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs_Watches{}
+	}
+	return t.PathsRelativeToTableLocation
+}
+func (t *GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs_Watches) GetTable() string {
+	if t == nil {
+		t = &GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs_Watches{}
+	}
+	return t.Table
+}
+
+type GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs struct {
+	AnonymousAccessEnabled *bool                                                                                   "json:\"anonymousAccessEnabled,omitempty\" graphql:\"anonymousAccessEnabled\""
+	CustomS3Bucket         *string                                                                                 "json:\"customS3Bucket,omitempty\" graphql:\"customS3Bucket\""
+	CustomS3BucketPath     *string                                                                                 "json:\"customS3BucketPath,omitempty\" graphql:\"customS3BucketPath\""
+	CustomS3TableBucketArn *string                                                                                 "json:\"customS3TableBucketARN,omitempty\" graphql:\"customS3TableBucketARN\""
+	Maintenance            GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs_Maintenance "json:\"maintenance\" graphql:\"maintenance\""
+	Name                   *string                                                                                 "json:\"name,omitempty\" graphql:\"name\""
+	Region                 *string                                                                                 "json:\"region,omitempty\" graphql:\"region\""
+	Type                   AWSEnvHostedIcebergCatalogTypeSpec                                                      "json:\"type\" graphql:\"type\""
+	Watches                []*GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs_Watches  "json:\"watches\" graphql:\"watches\""
+}
+
+func (t *GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs) GetAnonymousAccessEnabled() *bool {
+	if t == nil {
+		t = &GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.AnonymousAccessEnabled
+}
+func (t *GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs) GetCustomS3Bucket() *string {
+	if t == nil {
+		t = &GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.CustomS3Bucket
+}
+func (t *GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs) GetCustomS3BucketPath() *string {
+	if t == nil {
+		t = &GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.CustomS3BucketPath
+}
+func (t *GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs) GetCustomS3TableBucketArn() *string {
+	if t == nil {
+		t = &GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.CustomS3TableBucketArn
+}
+func (t *GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs) GetMaintenance() *GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs_Maintenance {
+	if t == nil {
+		t = &GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs{}
+	}
+	return &t.Maintenance
+}
+func (t *GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs) GetName() *string {
+	if t == nil {
+		t = &GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.Name
+}
+func (t *GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs) GetRegion() *string {
+	if t == nil {
+		t = &GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.Region
+}
+func (t *GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs) GetType() *AWSEnvHostedIcebergCatalogTypeSpec {
+	if t == nil {
+		t = &GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs{}
+	}
+	return &t.Type
+}
+func (t *GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs) GetWatches() []*GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs_Watches {
+	if t == nil {
+		t = &GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.Watches
+}
+
+type GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg struct {
+	Catalogs []*GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs "json:\"catalogs\" graphql:\"catalogs\""
+}
+
+func (t *GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg) GetCatalogs() []*GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs {
+	if t == nil {
+		t = &GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg{}
+	}
+	return t.Catalogs
+}
+
+type GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_MetricsEndpoint struct {
+	Enabled        bool     "json:\"enabled\" graphql:\"enabled\""
+	SourceIPRanges []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
+}
+
+func (t *GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_MetricsEndpoint) GetEnabled() bool {
+	if t == nil {
+		t = &GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_MetricsEndpoint{}
+	}
+	return t.Enabled
+}
+func (t *GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_MetricsEndpoint) GetSourceIPRanges() []string {
+	if t == nil {
+		t = &GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_MetricsEndpoint{}
+	}
+	return t.SourceIPRanges
+}
+
+type GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Datadog struct {
+	Domain         string "json:\"domain\" graphql:\"domain\""
+	Enabled        bool   "json:\"enabled\" graphql:\"enabled\""
+	LogsEnabled    bool   "json:\"logsEnabled\" graphql:\"logsEnabled\""
+	MetricsEnabled bool   "json:\"metricsEnabled\" graphql:\"metricsEnabled\""
+}
+
+func (t *GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Datadog) GetDomain() string {
+	if t == nil {
+		t = &GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Datadog{}
+	}
+	return t.Domain
+}
+func (t *GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Datadog) GetEnabled() bool {
+	if t == nil {
+		t = &GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Datadog{}
+	}
+	return t.Enabled
+}
+func (t *GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Datadog) GetLogsEnabled() bool {
+	if t == nil {
+		t = &GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Datadog{}
+	}
+	return t.LogsEnabled
+}
+func (t *GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Datadog) GetMetricsEnabled() bool {
+	if t == nil {
+		t = &GetAWSEnvHosted_AWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Datadog{}
+	}
+	return t.MetricsEnabled
+}
+
+type GetAWSEnvHosted_AWSEnvHosted struct {
+	Name         string                    "json:\"name\" graphql:\"name\""
+	Spec         *AWSEnvHostedSpecFragment "json:\"spec\" graphql:\"spec\""
+	SpecRevision int64                     "json:\"specRevision\" graphql:\"specRevision\""
+}
+
+func (t *GetAWSEnvHosted_AWSEnvHosted) GetName() string {
+	if t == nil {
+		t = &GetAWSEnvHosted_AWSEnvHosted{}
+	}
+	return t.Name
+}
+func (t *GetAWSEnvHosted_AWSEnvHosted) GetSpec() *AWSEnvHostedSpecFragment {
+	if t == nil {
+		t = &GetAWSEnvHosted_AWSEnvHosted{}
+	}
+	return t.Spec
+}
+func (t *GetAWSEnvHosted_AWSEnvHosted) GetSpecRevision() int64 {
+	if t == nil {
+		t = &GetAWSEnvHosted_AWSEnvHosted{}
+	}
+	return t.SpecRevision
+}
+
+type GetAWSEnvHostedStatus_AWSEnvHosted_Status_LoadBalancers_Internal struct {
+	EndpointServiceName *string "json:\"endpointServiceName,omitempty\" graphql:\"endpointServiceName\""
+}
+
+func (t *GetAWSEnvHostedStatus_AWSEnvHosted_Status_LoadBalancers_Internal) GetEndpointServiceName() *string {
+	if t == nil {
+		t = &GetAWSEnvHostedStatus_AWSEnvHosted_Status_LoadBalancers_Internal{}
+	}
+	return t.EndpointServiceName
+}
+
+type GetAWSEnvHostedStatus_AWSEnvHosted_Status_LoadBalancers struct {
+	Internal GetAWSEnvHostedStatus_AWSEnvHosted_Status_LoadBalancers_Internal "json:\"internal\" graphql:\"internal\""
+}
+
+func (t *GetAWSEnvHostedStatus_AWSEnvHosted_Status_LoadBalancers) GetInternal() *GetAWSEnvHostedStatus_AWSEnvHosted_Status_LoadBalancers_Internal {
+	if t == nil {
+		t = &GetAWSEnvHostedStatus_AWSEnvHosted_Status_LoadBalancers{}
+	}
+	return &t.Internal
+}
+
+type GetAWSEnvHostedStatus_AWSEnvHosted_Status_Errors struct {
+	Code    EnvStatusErrorCode "json:\"code\" graphql:\"code\""
+	Message string             "json:\"message\" graphql:\"message\""
+}
+
+func (t *GetAWSEnvHostedStatus_AWSEnvHosted_Status_Errors) GetCode() *EnvStatusErrorCode {
+	if t == nil {
+		t = &GetAWSEnvHostedStatus_AWSEnvHosted_Status_Errors{}
+	}
+	return &t.Code
+}
+func (t *GetAWSEnvHostedStatus_AWSEnvHosted_Status_Errors) GetMessage() string {
+	if t == nil {
+		t = &GetAWSEnvHostedStatus_AWSEnvHosted_Status_Errors{}
+	}
+	return t.Message
+}
+
+type GetAWSEnvHostedStatus_AWSEnvHosted_Status struct {
+	AppliedSpecRevision int64                                                   "json:\"appliedSpecRevision\" graphql:\"appliedSpecRevision\""
+	Errors              []*GetAWSEnvHostedStatus_AWSEnvHosted_Status_Errors     "json:\"errors\" graphql:\"errors\""
+	LoadBalancers       GetAWSEnvHostedStatus_AWSEnvHosted_Status_LoadBalancers "json:\"loadBalancers\" graphql:\"loadBalancers\""
+	PendingDelete       bool                                                    "json:\"pendingDelete\" graphql:\"pendingDelete\""
+}
+
+func (t *GetAWSEnvHostedStatus_AWSEnvHosted_Status) GetAppliedSpecRevision() int64 {
+	if t == nil {
+		t = &GetAWSEnvHostedStatus_AWSEnvHosted_Status{}
+	}
+	return t.AppliedSpecRevision
+}
+func (t *GetAWSEnvHostedStatus_AWSEnvHosted_Status) GetErrors() []*GetAWSEnvHostedStatus_AWSEnvHosted_Status_Errors {
+	if t == nil {
+		t = &GetAWSEnvHostedStatus_AWSEnvHosted_Status{}
+	}
+	return t.Errors
+}
+func (t *GetAWSEnvHostedStatus_AWSEnvHosted_Status) GetLoadBalancers() *GetAWSEnvHostedStatus_AWSEnvHosted_Status_LoadBalancers {
+	if t == nil {
+		t = &GetAWSEnvHostedStatus_AWSEnvHosted_Status{}
+	}
+	return &t.LoadBalancers
+}
+func (t *GetAWSEnvHostedStatus_AWSEnvHosted_Status) GetPendingDelete() bool {
+	if t == nil {
+		t = &GetAWSEnvHostedStatus_AWSEnvHosted_Status{}
+	}
+	return t.PendingDelete
+}
+
+type GetAWSEnvHostedStatus_AWSEnvHosted struct {
+	Name         string                                    "json:\"name\" graphql:\"name\""
+	SpecRevision int64                                     "json:\"specRevision\" graphql:\"specRevision\""
+	Status       GetAWSEnvHostedStatus_AWSEnvHosted_Status "json:\"status\" graphql:\"status\""
+}
+
+func (t *GetAWSEnvHostedStatus_AWSEnvHosted) GetName() string {
+	if t == nil {
+		t = &GetAWSEnvHostedStatus_AWSEnvHosted{}
+	}
+	return t.Name
+}
+func (t *GetAWSEnvHostedStatus_AWSEnvHosted) GetSpecRevision() int64 {
+	if t == nil {
+		t = &GetAWSEnvHostedStatus_AWSEnvHosted{}
+	}
+	return t.SpecRevision
+}
+func (t *GetAWSEnvHostedStatus_AWSEnvHosted) GetStatus() *GetAWSEnvHostedStatus_AWSEnvHosted_Status {
+	if t == nil {
+		t = &GetAWSEnvHostedStatus_AWSEnvHosted{}
+	}
+	return &t.Status
+}
+
+type CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers_Public struct {
+	Enabled        bool     "json:\"enabled\" graphql:\"enabled\""
+	SourceIPRanges []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
+}
+
+func (t *CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers_Public) GetEnabled() bool {
+	if t == nil {
+		t = &CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers_Public{}
+	}
+	return t.Enabled
+}
+func (t *CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers_Public) GetSourceIPRanges() []string {
+	if t == nil {
+		t = &CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers_Public{}
+	}
+	return t.SourceIPRanges
+}
+
+type CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers_Internal struct {
+	Enabled                          bool     "json:\"enabled\" graphql:\"enabled\""
+	EndpointServiceAllowedPrincipals []string "json:\"endpointServiceAllowedPrincipals\" graphql:\"endpointServiceAllowedPrincipals\""
+	EndpointServiceSupportedRegions  []string "json:\"endpointServiceSupportedRegions\" graphql:\"endpointServiceSupportedRegions\""
+	SourceIPRanges                   []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
+}
+
+func (t *CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers_Internal) GetEnabled() bool {
+	if t == nil {
+		t = &CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers_Internal{}
+	}
+	return t.Enabled
+}
+func (t *CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers_Internal) GetEndpointServiceAllowedPrincipals() []string {
+	if t == nil {
+		t = &CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers_Internal{}
+	}
+	return t.EndpointServiceAllowedPrincipals
+}
+func (t *CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers_Internal) GetEndpointServiceSupportedRegions() []string {
+	if t == nil {
+		t = &CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers_Internal{}
+	}
+	return t.EndpointServiceSupportedRegions
+}
+func (t *CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers_Internal) GetSourceIPRanges() []string {
+	if t == nil {
+		t = &CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers_Internal{}
+	}
+	return t.SourceIPRanges
+}
+
+type CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers struct {
+	Internal CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers_Internal "json:\"internal\" graphql:\"internal\""
+	Public   CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers_Public   "json:\"public\" graphql:\"public\""
+}
+
+func (t *CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers) GetInternal() *CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers_Internal {
+	if t == nil {
+		t = &CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers{}
+	}
+	return &t.Internal
+}
+func (t *CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers) GetPublic() *CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers_Public {
+	if t == nil {
+		t = &CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers{}
+	}
+	return &t.Public
+}
+
+type CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_NodeGroups struct {
+	CapacityPerZone int64             "json:\"capacityPerZone\" graphql:\"capacityPerZone\""
+	Name            string            "json:\"name\" graphql:\"name\""
+	NodeType        string            "json:\"nodeType\" graphql:\"nodeType\""
+	Reservations    []NodeReservation "json:\"reservations\" graphql:\"reservations\""
+	ZoneIDs         []string          "json:\"zoneIDs\" graphql:\"zoneIDs\""
+}
+
+func (t *CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_NodeGroups) GetCapacityPerZone() int64 {
+	if t == nil {
+		t = &CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_NodeGroups{}
+	}
+	return t.CapacityPerZone
+}
+func (t *CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_NodeGroups) GetName() string {
+	if t == nil {
+		t = &CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_NodeGroups{}
+	}
+	return t.Name
+}
+func (t *CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_NodeGroups) GetNodeType() string {
+	if t == nil {
+		t = &CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_NodeGroups{}
+	}
+	return t.NodeType
+}
+func (t *CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_NodeGroups) GetReservations() []NodeReservation {
+	if t == nil {
+		t = &CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_NodeGroups{}
+	}
+	return t.Reservations
+}
+func (t *CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_NodeGroups) GetZoneIDs() []string {
+	if t == nil {
+		t = &CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_NodeGroups{}
+	}
+	return t.ZoneIDs
+}
+
+type CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_MaintenanceWindows struct {
+	Days          []Day  "json:\"days\" graphql:\"days\""
+	Enabled       bool   "json:\"enabled\" graphql:\"enabled\""
+	Hour          int64  "json:\"hour\" graphql:\"hour\""
+	LengthInHours int64  "json:\"lengthInHours\" graphql:\"lengthInHours\""
+	Name          string "json:\"name\" graphql:\"name\""
+}
+
+func (t *CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_MaintenanceWindows) GetDays() []Day {
+	if t == nil {
+		t = &CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_MaintenanceWindows{}
+	}
+	return t.Days
+}
+func (t *CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_MaintenanceWindows) GetEnabled() bool {
+	if t == nil {
+		t = &CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_MaintenanceWindows{}
+	}
+	return t.Enabled
+}
+func (t *CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_MaintenanceWindows) GetHour() int64 {
+	if t == nil {
+		t = &CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_MaintenanceWindows{}
+	}
+	return t.Hour
+}
+func (t *CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_MaintenanceWindows) GetLengthInHours() int64 {
+	if t == nil {
+		t = &CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_MaintenanceWindows{}
+	}
+	return t.LengthInHours
+}
+func (t *CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_MaintenanceWindows) GetName() string {
+	if t == nil {
+		t = &CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_MaintenanceWindows{}
+	}
+	return t.Name
+}
+
+type CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Endpoints struct {
+	Alias       *string "json:\"alias,omitempty\" graphql:\"alias\""
+	ServiceName string  "json:\"serviceName\" graphql:\"serviceName\""
+}
+
+func (t *CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Endpoints) GetAlias() *string {
+	if t == nil {
+		t = &CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Endpoints{}
+	}
+	return t.Alias
+}
+func (t *CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Endpoints) GetServiceName() string {
+	if t == nil {
+		t = &CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Endpoints{}
+	}
+	return t.ServiceName
+}
+
+type CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_ExternalBuckets struct {
+	KmsKeyArn *string "json:\"kmsKeyARN,omitempty\" graphql:\"kmsKeyARN\""
+	Name      string  "json:\"name\" graphql:\"name\""
+}
+
+func (t *CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_ExternalBuckets) GetKmsKeyArn() *string {
+	if t == nil {
+		t = &CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_ExternalBuckets{}
+	}
+	return t.KmsKeyArn
+}
+func (t *CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_ExternalBuckets) GetName() string {
+	if t == nil {
+		t = &CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_ExternalBuckets{}
+	}
+	return t.Name
+}
+
+type CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Backups_CustomBucket struct {
+	Name    string "json:\"name\" graphql:\"name\""
+	Region  string "json:\"region\" graphql:\"region\""
+	RoleArn string "json:\"roleARN\" graphql:\"roleARN\""
+}
+
+func (t *CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Backups_CustomBucket) GetName() string {
+	if t == nil {
+		t = &CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Backups_CustomBucket{}
+	}
+	return t.Name
+}
+func (t *CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Backups_CustomBucket) GetRegion() string {
+	if t == nil {
+		t = &CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Backups_CustomBucket{}
+	}
+	return t.Region
+}
+func (t *CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Backups_CustomBucket) GetRoleArn() string {
+	if t == nil {
+		t = &CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Backups_CustomBucket{}
+	}
+	return t.RoleArn
+}
+
+type CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Backups struct {
+	CustomBucket *CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Backups_CustomBucket "json:\"customBucket,omitempty\" graphql:\"customBucket\""
+}
+
+func (t *CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Backups) GetCustomBucket() *CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Backups_CustomBucket {
+	if t == nil {
+		t = &CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Backups{}
+	}
+	return t.CustomBucket
+}
+
+type CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs_Maintenance struct {
+	Enabled bool "json:\"enabled\" graphql:\"enabled\""
+}
+
+func (t *CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs_Maintenance) GetEnabled() bool {
+	if t == nil {
+		t = &CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs_Maintenance{}
+	}
+	return t.Enabled
+}
+
+type CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs_Watches struct {
+	PathsRelativeToTableLocation []string "json:\"pathsRelativeToTableLocation\" graphql:\"pathsRelativeToTableLocation\""
+	Table                        string   "json:\"table\" graphql:\"table\""
+}
+
+func (t *CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs_Watches) GetPathsRelativeToTableLocation() []string {
+	if t == nil {
+		t = &CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs_Watches{}
+	}
+	return t.PathsRelativeToTableLocation
+}
+func (t *CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs_Watches) GetTable() string {
+	if t == nil {
+		t = &CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs_Watches{}
+	}
+	return t.Table
+}
+
+type CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs struct {
+	AnonymousAccessEnabled *bool                                                                                            "json:\"anonymousAccessEnabled,omitempty\" graphql:\"anonymousAccessEnabled\""
+	CustomS3Bucket         *string                                                                                          "json:\"customS3Bucket,omitempty\" graphql:\"customS3Bucket\""
+	CustomS3BucketPath     *string                                                                                          "json:\"customS3BucketPath,omitempty\" graphql:\"customS3BucketPath\""
+	CustomS3TableBucketArn *string                                                                                          "json:\"customS3TableBucketARN,omitempty\" graphql:\"customS3TableBucketARN\""
+	Maintenance            CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs_Maintenance "json:\"maintenance\" graphql:\"maintenance\""
+	Name                   *string                                                                                          "json:\"name,omitempty\" graphql:\"name\""
+	Region                 *string                                                                                          "json:\"region,omitempty\" graphql:\"region\""
+	Type                   AWSEnvHostedIcebergCatalogTypeSpec                                                               "json:\"type\" graphql:\"type\""
+	Watches                []*CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs_Watches  "json:\"watches\" graphql:\"watches\""
+}
+
+func (t *CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs) GetAnonymousAccessEnabled() *bool {
+	if t == nil {
+		t = &CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.AnonymousAccessEnabled
+}
+func (t *CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs) GetCustomS3Bucket() *string {
+	if t == nil {
+		t = &CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.CustomS3Bucket
+}
+func (t *CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs) GetCustomS3BucketPath() *string {
+	if t == nil {
+		t = &CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.CustomS3BucketPath
+}
+func (t *CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs) GetCustomS3TableBucketArn() *string {
+	if t == nil {
+		t = &CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.CustomS3TableBucketArn
+}
+func (t *CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs) GetMaintenance() *CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs_Maintenance {
+	if t == nil {
+		t = &CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs{}
+	}
+	return &t.Maintenance
+}
+func (t *CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs) GetName() *string {
+	if t == nil {
+		t = &CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.Name
+}
+func (t *CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs) GetRegion() *string {
+	if t == nil {
+		t = &CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.Region
+}
+func (t *CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs) GetType() *AWSEnvHostedIcebergCatalogTypeSpec {
+	if t == nil {
+		t = &CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs{}
+	}
+	return &t.Type
+}
+func (t *CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs) GetWatches() []*CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs_Watches {
+	if t == nil {
+		t = &CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.Watches
+}
+
+type CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg struct {
+	Catalogs []*CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs "json:\"catalogs\" graphql:\"catalogs\""
+}
+
+func (t *CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg) GetCatalogs() []*CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs {
+	if t == nil {
+		t = &CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg{}
+	}
+	return t.Catalogs
+}
+
+type CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_MetricsEndpoint struct {
+	Enabled        bool     "json:\"enabled\" graphql:\"enabled\""
+	SourceIPRanges []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
+}
+
+func (t *CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_MetricsEndpoint) GetEnabled() bool {
+	if t == nil {
+		t = &CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_MetricsEndpoint{}
+	}
+	return t.Enabled
+}
+func (t *CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_MetricsEndpoint) GetSourceIPRanges() []string {
+	if t == nil {
+		t = &CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_MetricsEndpoint{}
+	}
+	return t.SourceIPRanges
+}
+
+type CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Datadog struct {
+	Domain         string "json:\"domain\" graphql:\"domain\""
+	Enabled        bool   "json:\"enabled\" graphql:\"enabled\""
+	LogsEnabled    bool   "json:\"logsEnabled\" graphql:\"logsEnabled\""
+	MetricsEnabled bool   "json:\"metricsEnabled\" graphql:\"metricsEnabled\""
+}
+
+func (t *CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Datadog) GetDomain() string {
+	if t == nil {
+		t = &CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Datadog{}
+	}
+	return t.Domain
+}
+func (t *CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Datadog) GetEnabled() bool {
+	if t == nil {
+		t = &CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Datadog{}
+	}
+	return t.Enabled
+}
+func (t *CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Datadog) GetLogsEnabled() bool {
+	if t == nil {
+		t = &CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Datadog{}
+	}
+	return t.LogsEnabled
+}
+func (t *CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Datadog) GetMetricsEnabled() bool {
+	if t == nil {
+		t = &CreateAWSEnvHosted_CreateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Datadog{}
+	}
+	return t.MetricsEnabled
+}
+
+type CreateAWSEnvHosted_CreateAWSEnvHosted struct {
+	MutationID   string                    "json:\"mutationId\" graphql:\"mutationId\""
+	Spec         *AWSEnvHostedSpecFragment "json:\"spec\" graphql:\"spec\""
+	SpecRevision int64                     "json:\"specRevision\" graphql:\"specRevision\""
+}
+
+func (t *CreateAWSEnvHosted_CreateAWSEnvHosted) GetMutationID() string {
+	if t == nil {
+		t = &CreateAWSEnvHosted_CreateAWSEnvHosted{}
+	}
+	return t.MutationID
+}
+func (t *CreateAWSEnvHosted_CreateAWSEnvHosted) GetSpec() *AWSEnvHostedSpecFragment {
+	if t == nil {
+		t = &CreateAWSEnvHosted_CreateAWSEnvHosted{}
+	}
+	return t.Spec
+}
+func (t *CreateAWSEnvHosted_CreateAWSEnvHosted) GetSpecRevision() int64 {
+	if t == nil {
+		t = &CreateAWSEnvHosted_CreateAWSEnvHosted{}
+	}
+	return t.SpecRevision
+}
+
+type UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers_Public struct {
+	Enabled        bool     "json:\"enabled\" graphql:\"enabled\""
+	SourceIPRanges []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
+}
+
+func (t *UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers_Public) GetEnabled() bool {
+	if t == nil {
+		t = &UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers_Public{}
+	}
+	return t.Enabled
+}
+func (t *UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers_Public) GetSourceIPRanges() []string {
+	if t == nil {
+		t = &UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers_Public{}
+	}
+	return t.SourceIPRanges
+}
+
+type UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers_Internal struct {
+	Enabled                          bool     "json:\"enabled\" graphql:\"enabled\""
+	EndpointServiceAllowedPrincipals []string "json:\"endpointServiceAllowedPrincipals\" graphql:\"endpointServiceAllowedPrincipals\""
+	EndpointServiceSupportedRegions  []string "json:\"endpointServiceSupportedRegions\" graphql:\"endpointServiceSupportedRegions\""
+	SourceIPRanges                   []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
+}
+
+func (t *UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers_Internal) GetEnabled() bool {
+	if t == nil {
+		t = &UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers_Internal{}
+	}
+	return t.Enabled
+}
+func (t *UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers_Internal) GetEndpointServiceAllowedPrincipals() []string {
+	if t == nil {
+		t = &UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers_Internal{}
+	}
+	return t.EndpointServiceAllowedPrincipals
+}
+func (t *UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers_Internal) GetEndpointServiceSupportedRegions() []string {
+	if t == nil {
+		t = &UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers_Internal{}
+	}
+	return t.EndpointServiceSupportedRegions
+}
+func (t *UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers_Internal) GetSourceIPRanges() []string {
+	if t == nil {
+		t = &UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers_Internal{}
+	}
+	return t.SourceIPRanges
+}
+
+type UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers struct {
+	Internal UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers_Internal "json:\"internal\" graphql:\"internal\""
+	Public   UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers_Public   "json:\"public\" graphql:\"public\""
+}
+
+func (t *UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers) GetInternal() *UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers_Internal {
+	if t == nil {
+		t = &UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers{}
+	}
+	return &t.Internal
+}
+func (t *UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers) GetPublic() *UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers_Public {
+	if t == nil {
+		t = &UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_LoadBalancers{}
+	}
+	return &t.Public
+}
+
+type UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_NodeGroups struct {
+	CapacityPerZone int64             "json:\"capacityPerZone\" graphql:\"capacityPerZone\""
+	Name            string            "json:\"name\" graphql:\"name\""
+	NodeType        string            "json:\"nodeType\" graphql:\"nodeType\""
+	Reservations    []NodeReservation "json:\"reservations\" graphql:\"reservations\""
+	ZoneIDs         []string          "json:\"zoneIDs\" graphql:\"zoneIDs\""
+}
+
+func (t *UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_NodeGroups) GetCapacityPerZone() int64 {
+	if t == nil {
+		t = &UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_NodeGroups{}
+	}
+	return t.CapacityPerZone
+}
+func (t *UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_NodeGroups) GetName() string {
+	if t == nil {
+		t = &UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_NodeGroups{}
+	}
+	return t.Name
+}
+func (t *UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_NodeGroups) GetNodeType() string {
+	if t == nil {
+		t = &UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_NodeGroups{}
+	}
+	return t.NodeType
+}
+func (t *UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_NodeGroups) GetReservations() []NodeReservation {
+	if t == nil {
+		t = &UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_NodeGroups{}
+	}
+	return t.Reservations
+}
+func (t *UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_NodeGroups) GetZoneIDs() []string {
+	if t == nil {
+		t = &UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_NodeGroups{}
+	}
+	return t.ZoneIDs
+}
+
+type UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_MaintenanceWindows struct {
+	Days          []Day  "json:\"days\" graphql:\"days\""
+	Enabled       bool   "json:\"enabled\" graphql:\"enabled\""
+	Hour          int64  "json:\"hour\" graphql:\"hour\""
+	LengthInHours int64  "json:\"lengthInHours\" graphql:\"lengthInHours\""
+	Name          string "json:\"name\" graphql:\"name\""
+}
+
+func (t *UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_MaintenanceWindows) GetDays() []Day {
+	if t == nil {
+		t = &UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_MaintenanceWindows{}
+	}
+	return t.Days
+}
+func (t *UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_MaintenanceWindows) GetEnabled() bool {
+	if t == nil {
+		t = &UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_MaintenanceWindows{}
+	}
+	return t.Enabled
+}
+func (t *UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_MaintenanceWindows) GetHour() int64 {
+	if t == nil {
+		t = &UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_MaintenanceWindows{}
+	}
+	return t.Hour
+}
+func (t *UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_MaintenanceWindows) GetLengthInHours() int64 {
+	if t == nil {
+		t = &UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_MaintenanceWindows{}
+	}
+	return t.LengthInHours
+}
+func (t *UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_MaintenanceWindows) GetName() string {
+	if t == nil {
+		t = &UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_MaintenanceWindows{}
+	}
+	return t.Name
+}
+
+type UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Endpoints struct {
+	Alias       *string "json:\"alias,omitempty\" graphql:\"alias\""
+	ServiceName string  "json:\"serviceName\" graphql:\"serviceName\""
+}
+
+func (t *UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Endpoints) GetAlias() *string {
+	if t == nil {
+		t = &UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Endpoints{}
+	}
+	return t.Alias
+}
+func (t *UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Endpoints) GetServiceName() string {
+	if t == nil {
+		t = &UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Endpoints{}
+	}
+	return t.ServiceName
+}
+
+type UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_ExternalBuckets struct {
+	KmsKeyArn *string "json:\"kmsKeyARN,omitempty\" graphql:\"kmsKeyARN\""
+	Name      string  "json:\"name\" graphql:\"name\""
+}
+
+func (t *UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_ExternalBuckets) GetKmsKeyArn() *string {
+	if t == nil {
+		t = &UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_ExternalBuckets{}
+	}
+	return t.KmsKeyArn
+}
+func (t *UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_ExternalBuckets) GetName() string {
+	if t == nil {
+		t = &UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_ExternalBuckets{}
+	}
+	return t.Name
+}
+
+type UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Backups_CustomBucket struct {
+	Name    string "json:\"name\" graphql:\"name\""
+	Region  string "json:\"region\" graphql:\"region\""
+	RoleArn string "json:\"roleARN\" graphql:\"roleARN\""
+}
+
+func (t *UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Backups_CustomBucket) GetName() string {
+	if t == nil {
+		t = &UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Backups_CustomBucket{}
+	}
+	return t.Name
+}
+func (t *UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Backups_CustomBucket) GetRegion() string {
+	if t == nil {
+		t = &UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Backups_CustomBucket{}
+	}
+	return t.Region
+}
+func (t *UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Backups_CustomBucket) GetRoleArn() string {
+	if t == nil {
+		t = &UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Backups_CustomBucket{}
+	}
+	return t.RoleArn
+}
+
+type UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Backups struct {
+	CustomBucket *UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Backups_CustomBucket "json:\"customBucket,omitempty\" graphql:\"customBucket\""
+}
+
+func (t *UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Backups) GetCustomBucket() *UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Backups_CustomBucket {
+	if t == nil {
+		t = &UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Backups{}
+	}
+	return t.CustomBucket
+}
+
+type UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs_Maintenance struct {
+	Enabled bool "json:\"enabled\" graphql:\"enabled\""
+}
+
+func (t *UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs_Maintenance) GetEnabled() bool {
+	if t == nil {
+		t = &UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs_Maintenance{}
+	}
+	return t.Enabled
+}
+
+type UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs_Watches struct {
+	PathsRelativeToTableLocation []string "json:\"pathsRelativeToTableLocation\" graphql:\"pathsRelativeToTableLocation\""
+	Table                        string   "json:\"table\" graphql:\"table\""
+}
+
+func (t *UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs_Watches) GetPathsRelativeToTableLocation() []string {
+	if t == nil {
+		t = &UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs_Watches{}
+	}
+	return t.PathsRelativeToTableLocation
+}
+func (t *UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs_Watches) GetTable() string {
+	if t == nil {
+		t = &UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs_Watches{}
+	}
+	return t.Table
+}
+
+type UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs struct {
+	AnonymousAccessEnabled *bool                                                                                            "json:\"anonymousAccessEnabled,omitempty\" graphql:\"anonymousAccessEnabled\""
+	CustomS3Bucket         *string                                                                                          "json:\"customS3Bucket,omitempty\" graphql:\"customS3Bucket\""
+	CustomS3BucketPath     *string                                                                                          "json:\"customS3BucketPath,omitempty\" graphql:\"customS3BucketPath\""
+	CustomS3TableBucketArn *string                                                                                          "json:\"customS3TableBucketARN,omitempty\" graphql:\"customS3TableBucketARN\""
+	Maintenance            UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs_Maintenance "json:\"maintenance\" graphql:\"maintenance\""
+	Name                   *string                                                                                          "json:\"name,omitempty\" graphql:\"name\""
+	Region                 *string                                                                                          "json:\"region,omitempty\" graphql:\"region\""
+	Type                   AWSEnvHostedIcebergCatalogTypeSpec                                                               "json:\"type\" graphql:\"type\""
+	Watches                []*UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs_Watches  "json:\"watches\" graphql:\"watches\""
+}
+
+func (t *UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs) GetAnonymousAccessEnabled() *bool {
+	if t == nil {
+		t = &UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.AnonymousAccessEnabled
+}
+func (t *UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs) GetCustomS3Bucket() *string {
+	if t == nil {
+		t = &UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.CustomS3Bucket
+}
+func (t *UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs) GetCustomS3BucketPath() *string {
+	if t == nil {
+		t = &UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.CustomS3BucketPath
+}
+func (t *UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs) GetCustomS3TableBucketArn() *string {
+	if t == nil {
+		t = &UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.CustomS3TableBucketArn
+}
+func (t *UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs) GetMaintenance() *UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs_Maintenance {
+	if t == nil {
+		t = &UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs{}
+	}
+	return &t.Maintenance
+}
+func (t *UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs) GetName() *string {
+	if t == nil {
+		t = &UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.Name
+}
+func (t *UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs) GetRegion() *string {
+	if t == nil {
+		t = &UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.Region
+}
+func (t *UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs) GetType() *AWSEnvHostedIcebergCatalogTypeSpec {
+	if t == nil {
+		t = &UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs{}
+	}
+	return &t.Type
+}
+func (t *UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs) GetWatches() []*UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs_Watches {
+	if t == nil {
+		t = &UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs{}
+	}
+	return t.Watches
+}
+
+type UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg struct {
+	Catalogs []*UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs "json:\"catalogs\" graphql:\"catalogs\""
+}
+
+func (t *UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg) GetCatalogs() []*UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg_Catalogs {
+	if t == nil {
+		t = &UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Iceberg{}
+	}
+	return t.Catalogs
+}
+
+type UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_MetricsEndpoint struct {
+	Enabled        bool     "json:\"enabled\" graphql:\"enabled\""
+	SourceIPRanges []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
+}
+
+func (t *UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_MetricsEndpoint) GetEnabled() bool {
+	if t == nil {
+		t = &UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_MetricsEndpoint{}
+	}
+	return t.Enabled
+}
+func (t *UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_MetricsEndpoint) GetSourceIPRanges() []string {
+	if t == nil {
+		t = &UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_MetricsEndpoint{}
+	}
+	return t.SourceIPRanges
+}
+
+type UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Datadog struct {
+	Domain         string "json:\"domain\" graphql:\"domain\""
+	Enabled        bool   "json:\"enabled\" graphql:\"enabled\""
+	LogsEnabled    bool   "json:\"logsEnabled\" graphql:\"logsEnabled\""
+	MetricsEnabled bool   "json:\"metricsEnabled\" graphql:\"metricsEnabled\""
+}
+
+func (t *UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Datadog) GetDomain() string {
+	if t == nil {
+		t = &UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Datadog{}
+	}
+	return t.Domain
+}
+func (t *UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Datadog) GetEnabled() bool {
+	if t == nil {
+		t = &UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Datadog{}
+	}
+	return t.Enabled
+}
+func (t *UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Datadog) GetLogsEnabled() bool {
+	if t == nil {
+		t = &UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Datadog{}
+	}
+	return t.LogsEnabled
+}
+func (t *UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Datadog) GetMetricsEnabled() bool {
+	if t == nil {
+		t = &UpdateAWSEnvHosted_UpdateAWSEnvHosted_Spec_AWSEnvHostedSpecFragment_Datadog{}
+	}
+	return t.MetricsEnabled
+}
+
+type UpdateAWSEnvHosted_UpdateAWSEnvHosted struct {
+	MutationID   string                    "json:\"mutationId\" graphql:\"mutationId\""
+	Spec         *AWSEnvHostedSpecFragment "json:\"spec\" graphql:\"spec\""
+	SpecRevision int64                     "json:\"specRevision\" graphql:\"specRevision\""
+}
+
+func (t *UpdateAWSEnvHosted_UpdateAWSEnvHosted) GetMutationID() string {
+	if t == nil {
+		t = &UpdateAWSEnvHosted_UpdateAWSEnvHosted{}
+	}
+	return t.MutationID
+}
+func (t *UpdateAWSEnvHosted_UpdateAWSEnvHosted) GetSpec() *AWSEnvHostedSpecFragment {
+	if t == nil {
+		t = &UpdateAWSEnvHosted_UpdateAWSEnvHosted{}
+	}
+	return t.Spec
+}
+func (t *UpdateAWSEnvHosted_UpdateAWSEnvHosted) GetSpecRevision() int64 {
+	if t == nil {
+		t = &UpdateAWSEnvHosted_UpdateAWSEnvHosted{}
+	}
+	return t.SpecRevision
+}
+
+type DeleteAWSEnvHosted_DeleteAWSEnvHosted struct {
+	MutationID string "json:\"mutationId\" graphql:\"mutationId\""
+	PendingMfa bool   "json:\"pendingMFA\" graphql:\"pendingMFA\""
+}
+
+func (t *DeleteAWSEnvHosted_DeleteAWSEnvHosted) GetMutationID() string {
+	if t == nil {
+		t = &DeleteAWSEnvHosted_DeleteAWSEnvHosted{}
+	}
+	return t.MutationID
+}
+func (t *DeleteAWSEnvHosted_DeleteAWSEnvHosted) GetPendingMfa() bool {
+	if t == nil {
+		t = &DeleteAWSEnvHosted_DeleteAWSEnvHosted{}
 	}
 	return t.PendingMfa
 }
@@ -7140,6 +8939,61 @@ func (t *DeleteAWSEnv) GetDeleteAWSEnv() *DeleteAWSEnv_DeleteAWSEnv {
 	return &t.DeleteAWSEnv
 }
 
+type GetAWSEnvHosted struct {
+	AWSEnvHosted *GetAWSEnvHosted_AWSEnvHosted "json:\"awsEnvHosted,omitempty\" graphql:\"awsEnvHosted\""
+}
+
+func (t *GetAWSEnvHosted) GetAWSEnvHosted() *GetAWSEnvHosted_AWSEnvHosted {
+	if t == nil {
+		t = &GetAWSEnvHosted{}
+	}
+	return t.AWSEnvHosted
+}
+
+type GetAWSEnvHostedStatus struct {
+	AWSEnvHosted *GetAWSEnvHostedStatus_AWSEnvHosted "json:\"awsEnvHosted,omitempty\" graphql:\"awsEnvHosted\""
+}
+
+func (t *GetAWSEnvHostedStatus) GetAWSEnvHosted() *GetAWSEnvHostedStatus_AWSEnvHosted {
+	if t == nil {
+		t = &GetAWSEnvHostedStatus{}
+	}
+	return t.AWSEnvHosted
+}
+
+type CreateAWSEnvHosted struct {
+	CreateAWSEnvHosted CreateAWSEnvHosted_CreateAWSEnvHosted "json:\"createAWSEnvHosted\" graphql:\"createAWSEnvHosted\""
+}
+
+func (t *CreateAWSEnvHosted) GetCreateAWSEnvHosted() *CreateAWSEnvHosted_CreateAWSEnvHosted {
+	if t == nil {
+		t = &CreateAWSEnvHosted{}
+	}
+	return &t.CreateAWSEnvHosted
+}
+
+type UpdateAWSEnvHosted struct {
+	UpdateAWSEnvHosted UpdateAWSEnvHosted_UpdateAWSEnvHosted "json:\"updateAWSEnvHosted\" graphql:\"updateAWSEnvHosted\""
+}
+
+func (t *UpdateAWSEnvHosted) GetUpdateAWSEnvHosted() *UpdateAWSEnvHosted_UpdateAWSEnvHosted {
+	if t == nil {
+		t = &UpdateAWSEnvHosted{}
+	}
+	return &t.UpdateAWSEnvHosted
+}
+
+type DeleteAWSEnvHosted struct {
+	DeleteAWSEnvHosted DeleteAWSEnvHosted_DeleteAWSEnvHosted "json:\"deleteAWSEnvHosted\" graphql:\"deleteAWSEnvHosted\""
+}
+
+func (t *DeleteAWSEnvHosted) GetDeleteAWSEnvHosted() *DeleteAWSEnvHosted_DeleteAWSEnvHosted {
+	if t == nil {
+		t = &DeleteAWSEnvHosted{}
+	}
+	return &t.DeleteAWSEnvHosted
+}
+
 type GetAzureEnv struct {
 	AzureEnv *GetAzureEnv_AzureEnv "json:\"azureEnv,omitempty\" graphql:\"azureEnv\""
 }
@@ -7785,6 +9639,384 @@ func (c *Client) DeleteAWSEnv(ctx context.Context, input DeleteAWSEnvInput, inte
 
 	var res DeleteAWSEnv
 	if err := c.Client.Post(ctx, "DeleteAWSEnv", DeleteAWSEnvDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const GetAWSEnvHostedDocument = `query GetAWSEnvHosted ($name: String!) {
+	awsEnvHosted(name: $name) {
+		name
+		spec {
+			... AWSEnvHostedSpecFragment
+		}
+		specRevision
+	}
+}
+fragment AWSEnvHostedSpecFragment on AWSEnvHostedSpec {
+	region
+	cidr
+	zoneIDs
+	resourcePrefix
+	kmsKeyARN
+	customDomains
+	loadBalancers {
+		public {
+			enabled
+			sourceIPRanges
+		}
+		internal {
+			enabled
+			sourceIPRanges
+			endpointServiceAllowedPrincipals
+			endpointServiceSupportedRegions
+		}
+	}
+	nodeGroups {
+		name
+		nodeType
+		zoneIDs
+		capacityPerZone
+		reservations
+	}
+	maintenanceWindows {
+		name
+		enabled
+		hour
+		lengthInHours
+		days
+	}
+	endpoints {
+		serviceName
+		alias
+	}
+	externalBuckets {
+		name
+		kmsKeyARN
+	}
+	backups {
+		customBucket {
+			name
+			region
+			roleARN
+		}
+	}
+	iceberg {
+		catalogs {
+			name
+			type
+			customS3Bucket
+			customS3BucketPath
+			customS3TableBucketARN
+			region
+			anonymousAccessEnabled
+			maintenance {
+				enabled
+			}
+			watches {
+				table
+				pathsRelativeToTableLocation
+			}
+		}
+	}
+	metricsEndpoint {
+		enabled
+		sourceIPRanges
+	}
+	datadog {
+		enabled
+		domain
+		logsEnabled
+		metricsEnabled
+	}
+}
+`
+
+func (c *Client) GetAWSEnvHosted(ctx context.Context, name string, interceptors ...clientv2.RequestInterceptor) (*GetAWSEnvHosted, error) {
+	vars := map[string]any{
+		"name": name,
+	}
+
+	var res GetAWSEnvHosted
+	if err := c.Client.Post(ctx, "GetAWSEnvHosted", GetAWSEnvHostedDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const GetAWSEnvHostedStatusDocument = `query GetAWSEnvHostedStatus ($name: String!) {
+	awsEnvHosted(name: $name) {
+		name
+		specRevision
+		status {
+			appliedSpecRevision
+			pendingDelete
+			loadBalancers {
+				internal {
+					endpointServiceName
+				}
+			}
+			errors {
+				code
+				message
+			}
+		}
+	}
+}
+`
+
+func (c *Client) GetAWSEnvHostedStatus(ctx context.Context, name string, interceptors ...clientv2.RequestInterceptor) (*GetAWSEnvHostedStatus, error) {
+	vars := map[string]any{
+		"name": name,
+	}
+
+	var res GetAWSEnvHostedStatus
+	if err := c.Client.Post(ctx, "GetAWSEnvHostedStatus", GetAWSEnvHostedStatusDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const CreateAWSEnvHostedDocument = `mutation CreateAWSEnvHosted ($input: CreateAWSEnvHostedInput!) {
+	createAWSEnvHosted(input: $input) {
+		mutationId
+		spec {
+			... AWSEnvHostedSpecFragment
+		}
+		specRevision
+	}
+}
+fragment AWSEnvHostedSpecFragment on AWSEnvHostedSpec {
+	region
+	cidr
+	zoneIDs
+	resourcePrefix
+	kmsKeyARN
+	customDomains
+	loadBalancers {
+		public {
+			enabled
+			sourceIPRanges
+		}
+		internal {
+			enabled
+			sourceIPRanges
+			endpointServiceAllowedPrincipals
+			endpointServiceSupportedRegions
+		}
+	}
+	nodeGroups {
+		name
+		nodeType
+		zoneIDs
+		capacityPerZone
+		reservations
+	}
+	maintenanceWindows {
+		name
+		enabled
+		hour
+		lengthInHours
+		days
+	}
+	endpoints {
+		serviceName
+		alias
+	}
+	externalBuckets {
+		name
+		kmsKeyARN
+	}
+	backups {
+		customBucket {
+			name
+			region
+			roleARN
+		}
+	}
+	iceberg {
+		catalogs {
+			name
+			type
+			customS3Bucket
+			customS3BucketPath
+			customS3TableBucketARN
+			region
+			anonymousAccessEnabled
+			maintenance {
+				enabled
+			}
+			watches {
+				table
+				pathsRelativeToTableLocation
+			}
+		}
+	}
+	metricsEndpoint {
+		enabled
+		sourceIPRanges
+	}
+	datadog {
+		enabled
+		domain
+		logsEnabled
+		metricsEnabled
+	}
+}
+`
+
+func (c *Client) CreateAWSEnvHosted(ctx context.Context, input CreateAWSEnvHostedInput, interceptors ...clientv2.RequestInterceptor) (*CreateAWSEnvHosted, error) {
+	vars := map[string]any{
+		"input": input,
+	}
+
+	var res CreateAWSEnvHosted
+	if err := c.Client.Post(ctx, "CreateAWSEnvHosted", CreateAWSEnvHostedDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const UpdateAWSEnvHostedDocument = `mutation UpdateAWSEnvHosted ($input: UpdateAWSEnvHostedInput!) {
+	updateAWSEnvHosted(input: $input) {
+		mutationId
+		spec {
+			... AWSEnvHostedSpecFragment
+		}
+		specRevision
+	}
+}
+fragment AWSEnvHostedSpecFragment on AWSEnvHostedSpec {
+	region
+	cidr
+	zoneIDs
+	resourcePrefix
+	kmsKeyARN
+	customDomains
+	loadBalancers {
+		public {
+			enabled
+			sourceIPRanges
+		}
+		internal {
+			enabled
+			sourceIPRanges
+			endpointServiceAllowedPrincipals
+			endpointServiceSupportedRegions
+		}
+	}
+	nodeGroups {
+		name
+		nodeType
+		zoneIDs
+		capacityPerZone
+		reservations
+	}
+	maintenanceWindows {
+		name
+		enabled
+		hour
+		lengthInHours
+		days
+	}
+	endpoints {
+		serviceName
+		alias
+	}
+	externalBuckets {
+		name
+		kmsKeyARN
+	}
+	backups {
+		customBucket {
+			name
+			region
+			roleARN
+		}
+	}
+	iceberg {
+		catalogs {
+			name
+			type
+			customS3Bucket
+			customS3BucketPath
+			customS3TableBucketARN
+			region
+			anonymousAccessEnabled
+			maintenance {
+				enabled
+			}
+			watches {
+				table
+				pathsRelativeToTableLocation
+			}
+		}
+	}
+	metricsEndpoint {
+		enabled
+		sourceIPRanges
+	}
+	datadog {
+		enabled
+		domain
+		logsEnabled
+		metricsEnabled
+	}
+}
+`
+
+func (c *Client) UpdateAWSEnvHosted(ctx context.Context, input UpdateAWSEnvHostedInput, interceptors ...clientv2.RequestInterceptor) (*UpdateAWSEnvHosted, error) {
+	vars := map[string]any{
+		"input": input,
+	}
+
+	var res UpdateAWSEnvHosted
+	if err := c.Client.Post(ctx, "UpdateAWSEnvHosted", UpdateAWSEnvHostedDocument, &res, vars, interceptors...); err != nil {
+		if c.Client.ParseDataWhenErrors {
+			return &res, err
+		}
+
+		return nil, err
+	}
+
+	return &res, nil
+}
+
+const DeleteAWSEnvHostedDocument = `mutation DeleteAWSEnvHosted ($input: DeleteAWSEnvHostedInput!) {
+	deleteAWSEnvHosted(input: $input) {
+		mutationId
+		pendingMFA
+	}
+}
+`
+
+func (c *Client) DeleteAWSEnvHosted(ctx context.Context, input DeleteAWSEnvHostedInput, interceptors ...clientv2.RequestInterceptor) (*DeleteAWSEnvHosted, error) {
+	vars := map[string]any{
+		"input": input,
+	}
+
+	var res DeleteAWSEnvHosted
+	if err := c.Client.Post(ctx, "DeleteAWSEnvHosted", DeleteAWSEnvHostedDocument, &res, vars, interceptors...); err != nil {
 		if c.Client.ParseDataWhenErrors {
 			return &res, err
 		}
@@ -9029,29 +11261,34 @@ func (c *Client) DeleteK8SEnv(ctx context.Context, input DeleteK8SEnvInput, inte
 }
 
 var DocumentOperationNames = map[string]string{
-	GetAWSEnvDocument:          "GetAWSEnv",
-	GetAWSEnvStatusDocument:    "GetAWSEnvStatus",
-	CreateAWSEnvDocument:       "CreateAWSEnv",
-	UpdateAWSEnvDocument:       "UpdateAWSEnv",
-	DeleteAWSEnvDocument:       "DeleteAWSEnv",
-	GetAzureEnvDocument:        "GetAzureEnv",
-	GetAzureEnvStatusDocument:  "GetAzureEnvStatus",
-	CreateAzureEnvDocument:     "CreateAzureEnv",
-	UpdateAzureEnvDocument:     "UpdateAzureEnv",
-	DeleteAzureEnvDocument:     "DeleteAzureEnv",
-	GetGCPEnvDocument:          "GetGCPEnv",
-	GetGCPEnvStatusDocument:    "GetGCPEnvStatus",
-	CreateGCPEnvDocument:       "CreateGCPEnv",
-	UpdateGCPEnvDocument:       "UpdateGCPEnv",
-	DeleteGCPEnvDocument:       "DeleteGCPEnv",
-	GetHCloudEnvDocument:       "GetHCloudEnv",
-	GetHCloudEnvStatusDocument: "GetHCloudEnvStatus",
-	CreateHCloudEnvDocument:    "CreateHCloudEnv",
-	UpdateHCloudEnvDocument:    "UpdateHCloudEnv",
-	DeleteHCloudEnvDocument:    "DeleteHCloudEnv",
-	GetK8SEnvDocument:          "GetK8SEnv",
-	GetK8SEnvStatusDocument:    "GetK8SEnvStatus",
-	CreateK8SEnvDocument:       "CreateK8SEnv",
-	UpdateK8SEnvDocument:       "UpdateK8SEnv",
-	DeleteK8SEnvDocument:       "DeleteK8SEnv",
+	GetAWSEnvDocument:             "GetAWSEnv",
+	GetAWSEnvStatusDocument:       "GetAWSEnvStatus",
+	CreateAWSEnvDocument:          "CreateAWSEnv",
+	UpdateAWSEnvDocument:          "UpdateAWSEnv",
+	DeleteAWSEnvDocument:          "DeleteAWSEnv",
+	GetAWSEnvHostedDocument:       "GetAWSEnvHosted",
+	GetAWSEnvHostedStatusDocument: "GetAWSEnvHostedStatus",
+	CreateAWSEnvHostedDocument:    "CreateAWSEnvHosted",
+	UpdateAWSEnvHostedDocument:    "UpdateAWSEnvHosted",
+	DeleteAWSEnvHostedDocument:    "DeleteAWSEnvHosted",
+	GetAzureEnvDocument:           "GetAzureEnv",
+	GetAzureEnvStatusDocument:     "GetAzureEnvStatus",
+	CreateAzureEnvDocument:        "CreateAzureEnv",
+	UpdateAzureEnvDocument:        "UpdateAzureEnv",
+	DeleteAzureEnvDocument:        "DeleteAzureEnv",
+	GetGCPEnvDocument:             "GetGCPEnv",
+	GetGCPEnvStatusDocument:       "GetGCPEnvStatus",
+	CreateGCPEnvDocument:          "CreateGCPEnv",
+	UpdateGCPEnvDocument:          "UpdateGCPEnv",
+	DeleteGCPEnvDocument:          "DeleteGCPEnv",
+	GetHCloudEnvDocument:          "GetHCloudEnv",
+	GetHCloudEnvStatusDocument:    "GetHCloudEnvStatus",
+	CreateHCloudEnvDocument:       "CreateHCloudEnv",
+	UpdateHCloudEnvDocument:       "UpdateHCloudEnv",
+	DeleteHCloudEnvDocument:       "DeleteHCloudEnv",
+	GetK8SEnvDocument:             "GetK8SEnv",
+	GetK8SEnvStatusDocument:       "GetK8SEnvStatus",
+	CreateK8SEnvDocument:          "CreateK8SEnv",
+	UpdateK8SEnvDocument:          "UpdateK8SEnv",
+	DeleteK8SEnvDocument:          "DeleteK8SEnv",
 }
