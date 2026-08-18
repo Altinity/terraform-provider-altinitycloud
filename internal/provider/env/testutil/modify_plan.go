@@ -17,6 +17,12 @@ type SpecRevResource interface {
 }
 
 func AssertModifyPlanSpecRevision(t *testing.T, r SpecRevResource) {
+	AssertModifyPlanSpecRevisionWithAttr(t, r, "custom_domain")
+}
+
+// mutableAttr must be an optional string attribute of r's schema; it is what the
+// two plans differ on, so a resource without "custom_domain" can pick its own.
+func AssertModifyPlanSpecRevisionWithAttr(t *testing.T, r SpecRevResource, mutableAttr string) {
 	t.Helper()
 	ctx := context.Background()
 
@@ -29,7 +35,11 @@ func AssertModifyPlanSpecRevision(t *testing.T, r SpecRevResource) {
 		t.Fatal("schema type is not a tftypes.Object")
 	}
 
-	build := func(customDomain string) tftypes.Value {
+	if _, ok := objType.AttributeTypes[mutableAttr]; !ok {
+		t.Fatalf("schema has no %q attribute to vary between plans", mutableAttr)
+	}
+
+	build := func(mutableValue string) tftypes.Value {
 		vals := map[string]tftypes.Value{}
 		for n, at := range objType.AttributeTypes {
 			switch n {
@@ -37,8 +47,8 @@ func AssertModifyPlanSpecRevision(t *testing.T, r SpecRevResource) {
 				vals[n] = tftypes.NewValue(at, "env")
 			case "spec_revision":
 				vals[n] = tftypes.NewValue(at, int64(100))
-			case "custom_domain":
-				vals[n] = tftypes.NewValue(at, customDomain)
+			case mutableAttr:
+				vals[n] = tftypes.NewValue(at, mutableValue)
 			default:
 				vals[n] = tftypes.NewValue(at, nil)
 			}

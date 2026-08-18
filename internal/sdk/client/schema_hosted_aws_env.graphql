@@ -1,0 +1,134 @@
+query GetHostedAWSEnv($name: String!) {
+  hostedAWSEnv(name: $name) {
+    name
+    spec {
+      ...HostedAWSEnvSpecFragment
+    }
+    specRevision
+  }
+}
+
+query GetHostedAWSEnvStatus($name: String!) {
+  hostedAWSEnv(name: $name) {
+    name
+    specRevision
+    status {
+      appliedSpecRevision
+      pendingDelete
+      loadBalancers {
+        internal {
+          endpointServiceName
+        }
+      }
+      errors {
+        code
+        message
+      }
+    }
+  }
+}
+
+mutation CreateHostedAWSEnv($input: CreateHostedAWSEnvInput!) {
+  createHostedAWSEnv(input: $input) {
+    mutationId
+    spec {
+      ...HostedAWSEnvSpecFragment
+    }
+    specRevision
+  }
+}
+
+mutation UpdateHostedAWSEnv($input: UpdateHostedAWSEnvInput!) {
+  updateHostedAWSEnv(input: $input) {
+    mutationId
+    spec {
+      ...HostedAWSEnvSpecFragment
+    }
+    specRevision
+  }
+}
+
+mutation DeleteHostedAWSEnv($input: DeleteHostedAWSEnvInput!) {
+  deleteHostedAWSEnv(input: $input) {
+    mutationId
+    pendingMFA
+  }
+}
+
+fragment HostedAWSEnvSpecFragment on HostedAWSEnvSpec {
+  region
+  cidr
+  zoneIDs
+  resourcePrefix
+  kmsKeyARN
+  customDomains
+  loadBalancers {
+    public {
+      enabled
+      sourceIPRanges
+    }
+    internal {
+      enabled
+      sourceIPRanges
+      endpointServiceAllowedPrincipals
+      endpointServiceSupportedRegions
+    }
+  }
+  nodeGroups {
+    name
+    nodeType
+    zoneIDs
+    capacityPerZone
+    reservations
+  }
+  maintenanceWindows {
+    name
+    enabled
+    hour
+    lengthInHours
+    days
+  }
+  endpoints {
+    serviceName
+    alias
+  }
+  externalBuckets {
+    name
+    kmsKeyARN
+  }
+  backups {
+    customBucket {
+      name
+      region
+      roleARN
+    }
+  }
+  iceberg {
+    catalogs {
+      name
+      type
+      customS3Bucket
+      customS3BucketPath
+      customS3TableBucketARN
+      region
+      anonymousAccessEnabled
+      maintenance {
+        enabled
+      }
+      watches {
+        table
+        pathsRelativeToTableLocation
+      }
+    }
+  }
+  metricsEndpoint {
+    enabled
+    sourceIPRanges
+  }
+  datadog {
+    enabled
+    domain
+    logsEnabled
+    metricsEnabled
+  }
+}

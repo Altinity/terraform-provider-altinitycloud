@@ -1,0 +1,60 @@
+---
+page_title: "{{.Name}} {{.Type}} - {{.ProviderName}}"
+subcategory: ""
+description: |-
+{{ .Description | plainmarkdown | trimspace | prefixlines "  " }}
+---
+
+# {{.Name}} ({{.Type}})
+
+{{ .Description | trimspace }}
+
+Unlike `altinitycloud_env_aws`, an Altinity-hosted environment runs in an AWS account owned by Altinity: there is no cloud connect certificate, no AWS account id and no peering configuration. Availability zones are addressed by their [zone id](https://docs.aws.amazon.com/global-infrastructure/latest/regions/az-ids.html) (`use1-az1`), not by zone name (`us-east-1a`).
+
+## Example Usage
+
+### Altinity-hosted AWS environment with Public Load Balancer:
+{{tffile "examples/resources/altinitycloud_hosted_env_aws/public/main.tf"}}
+
+### Altinity-hosted AWS environment accessible over VPC Endpoint:
+{{tffile "examples/resources/altinitycloud_hosted_env_aws/vpce/main.tf"}}
+
+### Altinity-hosted AWS environment with Iceberg catalogs:
+{{tffile "examples/resources/altinitycloud_hosted_env_aws/iceberg/main.tf"}}
+
+{{ .SchemaMarkdown | trimspace }}
+
+## Deprovision / Destroy
+
+By default, environments are protected against accidental deletion. The following attributes control the destroy behavior:
+
+- **`force_destroy`** - Must be set to `true` and applied **before** running `terraform destroy`. Acts as a safety lock to prevent accidental deletion. Without a successful `terraform apply` after setting this flag, `terraform destroy` will fail.
+
+- **`force_destroy_clusters`** - Set to `true` to automatically delete all provisioned clusters during the environment deletion. By default, `terraform destroy` will fail if there are active clusters in the environment.
+
+- **`skip_deprovision_on_destroy`** - Set to `true` to skip the cloud resource cleanup and delete the environment record immediately. Useful when the environment was created with an immutable misconfiguration (e.g. wrong region) and no cloud infrastructure was actually provisioned. **Use with caution**: any provisioned resources are left behind.
+
+- **`allow_delete_while_disconnected`** - Set to `true` to allow deletion when the environment is in a `DISCONNECTED` state. Commonly needed together with `skip_deprovision_on_destroy` when no infrastructure was created due to a configuration error; without this flag the destroy will always time out.
+
+### Typical destroy workflow
+
+1. Set `force_destroy = true` (and optionally `force_destroy_clusters = true`) in your configuration.
+2. Run `terraform apply` to update the state.
+3. Run `terraform destroy`.
+
+```hcl
+resource "altinitycloud_hosted_env_aws" "this" {
+  # ... other configuration ...
+
+  force_destroy          = true
+  force_destroy_clusters = true
+}
+```
+
+{{- if .HasImport }}
+## Import
+
+Import is supported using the following syntax:
+
+{{codefile "shell" .ImportFile}}
+{{- end }}
