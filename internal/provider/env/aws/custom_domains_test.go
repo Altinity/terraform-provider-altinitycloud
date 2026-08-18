@@ -20,7 +20,7 @@ func customDomainList(vals ...string) types.List {
 // toModel is state-aware: the field the user manages (per prior state) is refreshed
 // from the API, the other stays null. This prevents the API customDomains[0] echo
 // from flipping a list-managed env into a permanent diff on the deprecated scalar.
-func TestAWSEnvResourceModel_toModel_CustomDomains(t *testing.T) {
+func TestAWSEnvModel_toModel_CustomDomains(t *testing.T) {
 	apiSpec := func() *sdk.AWSEnvSpecFragment {
 		return &sdk.AWSEnvSpecFragment{
 			CustomDomain:          &[]string{"a.com"}[0],
@@ -30,7 +30,7 @@ func TestAWSEnvResourceModel_toModel_CustomDomains(t *testing.T) {
 	}
 
 	t.Run("list-managed prior -> refresh list, scalar null", func(t *testing.T) {
-		model := &AWSEnvResourceModel{CustomDomains: customDomainList("a.com", "b.com")}
+		model := &AWSEnvModel{CustomDomains: customDomainList("a.com", "b.com")}
 		diags := model.toModel(sdk.GetAWSEnv_AWSEnv{Name: "env", Spec: apiSpec()})
 		if diags.HasError() {
 			t.Fatalf("toModel: %v", diags)
@@ -46,7 +46,7 @@ func TestAWSEnvResourceModel_toModel_CustomDomains(t *testing.T) {
 	})
 
 	t.Run("scalar-managed prior -> mirror scalar, list null", func(t *testing.T) {
-		model := &AWSEnvResourceModel{} // prior custom_domains null
+		model := &AWSEnvModel{} // prior custom_domains null
 		diags := model.toModel(sdk.GetAWSEnv_AWSEnv{Name: "env", Spec: apiSpec()})
 		if diags.HasError() {
 			t.Fatalf("toModel: %v", diags)
@@ -61,9 +61,9 @@ func TestAWSEnvResourceModel_toModel_CustomDomains(t *testing.T) {
 }
 
 // toSDK wires the mutually-exclusive fields into both the create and update specs.
-func TestAWSEnvResourceModel_toSDK_CustomDomains(t *testing.T) {
-	base := func() AWSEnvResourceModel {
-		return AWSEnvResourceModel{
+func TestAWSEnvModel_toSDK_CustomDomains(t *testing.T) {
+	base := func() AWSEnvModel {
+		return AWSEnvModel{
 			Name:                  types.StringValue("env"),
 			Region:                types.StringValue("us-east-1"),
 			CIDR:                  types.StringValue("10.0.0.0/16"),

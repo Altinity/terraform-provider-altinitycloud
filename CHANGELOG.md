@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.6](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.7.5...v0.7.6)
+### Fixed
+- Fix `Value Conversion Error: mismatch between struct and object: Struct defines fields not found in object: timeouts` when reading any environment data source (`altinitycloud_env_aws`, `_gcp`, `_azure`, `_k8s`, `_hcloud`): the data sources reused the resource model, which carries the resource-only `timeouts` block. Regression in 0.6.0.
+
 ## [0.7.5](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.7.4...v0.7.5)
 ### Fixed
 - Fix `inconsistent result after apply` on `load_balancers.public/internal.annotations` in k8s environments when annotations are not set: the provider returned an empty list where the plan had null (regression in 0.7.3).

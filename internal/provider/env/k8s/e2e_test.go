@@ -129,7 +129,7 @@ resource "%s" "dummy" {
   skip_deprovision_on_destroy     = true
   allow_delete_while_disconnected = true
 }
-`, RESOURCE_NAME, envName, capacity)
+`, RESOURCE_NAME, envName, capacity) + test.E2EEnvDataSource(RESOURCE_NAME)
 }
 
 // Required attrs only: covers default/null round-trips the maximal config can't.
@@ -150,5 +150,5 @@ resource "%s" "dummy" {
     reservations      = ["SYSTEM", "CLICKHOUSE", "ZOOKEEPER"]
   }]
 }
-`, RESOURCE_NAME, envName, capacity)
+`, RESOURCE_NAME, envName, capacity) + test.E2EEnvDataSource(RESOURCE_NAME)
 }

@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-type HCloudEnvResourceModel struct {
+type HCloudEnvModel struct {
 	Id                    types.String                    `tfsdk:"id"`
 	Name                  types.String                    `tfsdk:"name"`
 	HCloudTokenEnc        types.String                    `tfsdk:"hcloud_token_enc"`
@@ -27,12 +27,21 @@ type HCloudEnvResourceModel struct {
 	MetricsEndpoint       *MetricsEndpointModel           `tfsdk:"metrics_endpoint"`
 	Datadog               *common.DatadogModel            `tfsdk:"datadog"`
 
-	SpecRevision                 types.Int64    `tfsdk:"spec_revision"`
-	ForceDestroy                 types.Bool     `tfsdk:"force_destroy"`
-	ForceDestroyClusters         types.Bool     `tfsdk:"force_destroy_clusters"`
-	SkipDeprovisionOnDestroy     types.Bool     `tfsdk:"skip_deprovision_on_destroy"`
-	AllowDeleteWhileDisconnected types.Bool     `tfsdk:"allow_delete_while_disconnected"`
-	Timeouts                     timeouts.Value `tfsdk:"timeouts"`
+	SpecRevision                 types.Int64 `tfsdk:"spec_revision"`
+	ForceDestroy                 types.Bool  `tfsdk:"force_destroy"`
+	ForceDestroyClusters         types.Bool  `tfsdk:"force_destroy_clusters"`
+	SkipDeprovisionOnDestroy     types.Bool  `tfsdk:"skip_deprovision_on_destroy"`
+	AllowDeleteWhileDisconnected types.Bool  `tfsdk:"allow_delete_while_disconnected"`
+}
+
+// Split models: `timeouts` only exists on the resource schema and the framework requires an exact struct/schema match.
+type HCloudEnvResourceModel struct {
+	HCloudEnvModel
+	Timeouts timeouts.Value `tfsdk:"timeouts"`
+}
+
+type HCloudEnvDataSourceModel struct {
+	HCloudEnvModel
 }
 
 type LoadBalancersModel struct {
@@ -69,7 +78,7 @@ type MetricsEndpointModel struct {
 	SourceIPRanges []types.String `tfsdk:"source_ip_ranges"`
 }
 
-func (e HCloudEnvResourceModel) toSDK(ctx context.Context) (client.CreateHCloudEnvInput, client.UpdateHCloudEnvInput, diag.Diagnostics) {
+func (e HCloudEnvModel) toSDK(ctx context.Context) (client.CreateHCloudEnvInput, client.UpdateHCloudEnvInput, diag.Diagnostics) {
 	var locations []string
 	var allDiags diag.Diagnostics
 	if !e.Locations.IsUnknown() && !e.Locations.IsNull() {
@@ -134,7 +143,7 @@ func (e HCloudEnvResourceModel) toSDK(ctx context.Context) (client.CreateHCloudE
 	return create, update, allDiags
 }
 
-func (model *HCloudEnvResourceModel) toModel(env client.GetHCloudEnv_HcloudEnv) diag.Diagnostics {
+func (model *HCloudEnvModel) toModel(env client.GetHCloudEnv_HcloudEnv) diag.Diagnostics {
 	var allDiags diag.Diagnostics
 
 	model.Name = types.StringValue(env.Name)

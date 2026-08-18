@@ -920,15 +920,15 @@ func TestNodeGroupsToModel(t *testing.T) {
 	}
 }
 
-func TestAWSEnvResourceModel_toSDK(t *testing.T) {
+func TestAWSEnvModel_toSDK(t *testing.T) {
 	tests := []struct {
 		name     string
-		model    AWSEnvResourceModel
+		model    AWSEnvModel
 		validate func(t *testing.T, create sdk.CreateAWSEnvInput, update sdk.UpdateAWSEnvInput)
 	}{
 		{
 			name: "Complete model with all fields",
-			model: AWSEnvResourceModel{
+			model: AWSEnvModel{
 				Name:                         types.StringValue("test-env"),
 				CustomDomain:                 types.StringValue("custom.example.com"),
 				LoadBalancingStrategy:        types.StringValue("round_robin"),
@@ -1061,7 +1061,7 @@ func TestAWSEnvResourceModel_toSDK(t *testing.T) {
 		},
 		{
 			name: "Minimal model with required fields only",
-			model: AWSEnvResourceModel{
+			model: AWSEnvModel{
 				Name:         types.StringValue("minimal-env"),
 				Region:       types.StringValue("us-west-2"),
 				CIDR:         types.StringValue("172.16.0.0/16"),
@@ -1093,7 +1093,7 @@ func TestAWSEnvResourceModel_toSDK(t *testing.T) {
 		},
 		{
 			name: "Model with empty optional slices",
-			model: AWSEnvResourceModel{
+			model: AWSEnvModel{
 				Name:               types.StringValue("empty-slices"),
 				Region:             types.StringValue("eu-west-1"),
 				CIDR:               types.StringValue("192.168.0.0/16"),
@@ -1127,7 +1127,7 @@ func TestAWSEnvResourceModel_toSDK(t *testing.T) {
 		},
 		{
 			name: "Complete model with backup storage",
-			model: AWSEnvResourceModel{
+			model: AWSEnvModel{
 				Name:                         types.StringValue("backup-env"),
 				CustomDomain:                 types.StringValue("backups.example.com"),
 				LoadBalancingStrategy:        types.StringValue("round_robin"),
@@ -1193,7 +1193,7 @@ func TestAWSEnvResourceModel_toSDK(t *testing.T) {
 		},
 		{
 			name: "Complete model with iceberg, metrics endpoint and eks logging",
-			model: AWSEnvResourceModel{
+			model: AWSEnvModel{
 				Name:         types.StringValue("iceberg-env"),
 				Region:       types.StringValue("us-east-1"),
 				CIDR:         types.StringValue("10.0.0.0/16"),
@@ -1303,11 +1303,11 @@ func TestAWSEnvResourceModel_toSDK(t *testing.T) {
 	}
 }
 
-func TestAWSEnvResourceModel_toModel(t *testing.T) {
+func TestAWSEnvModel_toModel(t *testing.T) {
 	tests := []struct {
 		name     string
 		input    sdk.GetAWSEnv_AWSEnv
-		validate func(t *testing.T, model *AWSEnvResourceModel)
+		validate func(t *testing.T, model *AWSEnvModel)
 	}{
 		{
 			name: "Complete SDK response with all fields",
@@ -1396,7 +1396,7 @@ func TestAWSEnvResourceModel_toModel(t *testing.T) {
 				},
 				SpecRevision: 42,
 			},
-			validate: func(t *testing.T, model *AWSEnvResourceModel) {
+			validate: func(t *testing.T, model *AWSEnvModel) {
 				if model.Name.ValueString() != "test-environment" {
 					t.Errorf("Name: expected 'test-environment', got '%s'", model.Name.ValueString())
 				}
@@ -1577,7 +1577,7 @@ func TestAWSEnvResourceModel_toModel(t *testing.T) {
 				},
 				SpecRevision: 1,
 			},
-			validate: func(t *testing.T, model *AWSEnvResourceModel) {
+			validate: func(t *testing.T, model *AWSEnvModel) {
 				if model.Name.ValueString() != "minimal-env" {
 					t.Errorf("Name: expected 'minimal-env', got '%s'", model.Name.ValueString())
 				}
@@ -1654,7 +1654,7 @@ func TestAWSEnvResourceModel_toModel(t *testing.T) {
 				},
 				SpecRevision: 5,
 			},
-			validate: func(t *testing.T, model *AWSEnvResourceModel) {
+			validate: func(t *testing.T, model *AWSEnvModel) {
 				if model.Name.ValueString() != "nil-fields-env" {
 					t.Errorf("Name: expected 'nil-fields-env', got '%s'", model.Name.ValueString())
 				}
@@ -1724,7 +1724,7 @@ func TestAWSEnvResourceModel_toModel(t *testing.T) {
 				},
 				SpecRevision: 10,
 			},
-			validate: func(t *testing.T, model *AWSEnvResourceModel) {
+			validate: func(t *testing.T, model *AWSEnvModel) {
 				if model.Name.ValueString() != "backup-test-environment" {
 					t.Errorf("Name: expected 'backup-test-environment', got '%s'", model.Name.ValueString())
 				}
@@ -1810,7 +1810,7 @@ func TestAWSEnvResourceModel_toModel(t *testing.T) {
 				},
 				SpecRevision: 15,
 			},
-			validate: func(t *testing.T, model *AWSEnvResourceModel) {
+			validate: func(t *testing.T, model *AWSEnvModel) {
 				if model.Name.ValueString() != "iceberg-test-environment" {
 					t.Errorf("Name: expected 'iceberg-test-environment', got '%s'", model.Name.ValueString())
 				}
@@ -1862,7 +1862,7 @@ func TestAWSEnvResourceModel_toModel(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			model := &AWSEnvResourceModel{}
+			model := &AWSEnvModel{}
 			diags := model.toModel(tt.input)
 			if diags.HasError() {
 				t.Fatalf("unexpected diagnostics: %v", diags)

@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-type GCPEnvResourceModel struct {
+type GCPEnvModel struct {
 	Id            types.String             `tfsdk:"id"`
 	Name          types.String             `tfsdk:"name"`
 	CustomDomain  types.String             `tfsdk:"custom_domain"`
@@ -31,12 +31,21 @@ type GCPEnvResourceModel struct {
 	MetricsEndpoint         *MetricsEndpointModel           `tfsdk:"metrics_endpoint"`
 	Datadog                 *common.DatadogModel            `tfsdk:"datadog"`
 
-	SpecRevision                 types.Int64    `tfsdk:"spec_revision"`
-	ForceDestroy                 types.Bool     `tfsdk:"force_destroy"`
-	ForceDestroyClusters         types.Bool     `tfsdk:"force_destroy_clusters"`
-	SkipDeprovisionOnDestroy     types.Bool     `tfsdk:"skip_deprovision_on_destroy"`
-	AllowDeleteWhileDisconnected types.Bool     `tfsdk:"allow_delete_while_disconnected"`
-	Timeouts                     timeouts.Value `tfsdk:"timeouts"`
+	SpecRevision                 types.Int64 `tfsdk:"spec_revision"`
+	ForceDestroy                 types.Bool  `tfsdk:"force_destroy"`
+	ForceDestroyClusters         types.Bool  `tfsdk:"force_destroy_clusters"`
+	SkipDeprovisionOnDestroy     types.Bool  `tfsdk:"skip_deprovision_on_destroy"`
+	AllowDeleteWhileDisconnected types.Bool  `tfsdk:"allow_delete_while_disconnected"`
+}
+
+// Split models: `timeouts` only exists on the resource schema and the framework requires an exact struct/schema match.
+type GCPEnvResourceModel struct {
+	GCPEnvModel
+	Timeouts timeouts.Value `tfsdk:"timeouts"`
+}
+
+type GCPEnvDataSourceModel struct {
+	GCPEnvModel
 }
 
 type LoadBalancersModel struct {
@@ -64,7 +73,7 @@ type MetricsEndpointModel struct {
 	SourceIPRanges []types.String `tfsdk:"source_ip_ranges"`
 }
 
-func (e GCPEnvResourceModel) toSDK(ctx context.Context) (sdk.CreateGCPEnvInput, sdk.UpdateGCPEnvInput, diag.Diagnostics) {
+func (e GCPEnvModel) toSDK(ctx context.Context) (sdk.CreateGCPEnvInput, sdk.UpdateGCPEnvInput, diag.Diagnostics) {
 	var zones []string
 	var allDiags diag.Diagnostics
 	if !e.Zones.IsUnknown() && !e.Zones.IsNull() {
@@ -150,7 +159,7 @@ func (e GCPEnvResourceModel) toSDK(ctx context.Context) (sdk.CreateGCPEnvInput, 
 	return create, update, allDiags
 }
 
-func (model *GCPEnvResourceModel) toModel(env sdk.GetGCPEnv_GCPEnv) diag.Diagnostics {
+func (model *GCPEnvModel) toModel(env sdk.GetGCPEnv_GCPEnv) diag.Diagnostics {
 	var allDiags diag.Diagnostics
 	model.Name = types.StringValue(env.Name)
 	model.Region = types.StringValue(env.Spec.Region)

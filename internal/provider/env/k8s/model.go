@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-type K8SEnvResourceModel struct {
+type K8SEnvModel struct {
 	Id                    types.String                    `tfsdk:"id"`
 	Name                  types.String                    `tfsdk:"name"`
 	CustomDomain          types.String                    `tfsdk:"custom_domain"`
@@ -24,12 +24,21 @@ type K8SEnvResourceModel struct {
 	Metrics               *MetricsModel                   `tfsdk:"metrics"`
 	MaintenanceWindows    []common.MaintenanceWindowModel `tfsdk:"maintenance_windows"`
 
-	SpecRevision                 types.Int64    `tfsdk:"spec_revision"`
-	ForceDestroy                 types.Bool     `tfsdk:"force_destroy"`
-	ForceDestroyClusters         types.Bool     `tfsdk:"force_destroy_clusters"`
-	SkipDeprovisionOnDestroy     types.Bool     `tfsdk:"skip_deprovision_on_destroy"`
-	AllowDeleteWhileDisconnected types.Bool     `tfsdk:"allow_delete_while_disconnected"`
-	Timeouts                     timeouts.Value `tfsdk:"timeouts"`
+	SpecRevision                 types.Int64 `tfsdk:"spec_revision"`
+	ForceDestroy                 types.Bool  `tfsdk:"force_destroy"`
+	ForceDestroyClusters         types.Bool  `tfsdk:"force_destroy_clusters"`
+	SkipDeprovisionOnDestroy     types.Bool  `tfsdk:"skip_deprovision_on_destroy"`
+	AllowDeleteWhileDisconnected types.Bool  `tfsdk:"allow_delete_while_disconnected"`
+}
+
+// Split models: `timeouts` only exists on the resource schema and the framework requires an exact struct/schema match.
+type K8SEnvResourceModel struct {
+	K8SEnvModel
+	Timeouts timeouts.Value `tfsdk:"timeouts"`
+}
+
+type K8SEnvDataSourceModel struct {
+	K8SEnvModel
 }
 
 type LogsModel struct {
@@ -94,7 +103,7 @@ type InternalLoadBalancerModel struct {
 	Annotations    []common.KeyValueModel `tfsdk:"annotations"`
 }
 
-func (e K8SEnvResourceModel) toSDK(ctx context.Context) (client.CreateK8SEnvInput, client.UpdateK8SEnvInput, diag.Diagnostics) {
+func (e K8SEnvModel) toSDK(ctx context.Context) (client.CreateK8SEnvInput, client.UpdateK8SEnvInput, diag.Diagnostics) {
 	var allDiags diag.Diagnostics
 
 	nodeGroups, diags := nodeGroupsToSDK(ctx, e.NodeGroups)
@@ -147,7 +156,7 @@ func (e K8SEnvResourceModel) toSDK(ctx context.Context) (client.CreateK8SEnvInpu
 	return create, update, allDiags
 }
 
-func (model *K8SEnvResourceModel) toModel(name string, specRevision int64, spec client.K8SEnvSpecFragment) diag.Diagnostics {
+func (model *K8SEnvModel) toModel(name string, specRevision int64, spec client.K8SEnvSpecFragment) diag.Diagnostics {
 	var allDiags diag.Diagnostics
 
 	model.Name = types.StringValue(name)

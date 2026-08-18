@@ -1088,15 +1088,15 @@ func TestMetricsEndpointToModel(t *testing.T) {
 	}
 }
 
-func TestGCPEnvResourceModel_toSDK(t *testing.T) {
+func TestGCPEnvModel_toSDK(t *testing.T) {
 	tests := []struct {
 		name     string
-		model    GCPEnvResourceModel
+		model    GCPEnvModel
 		validate func(t *testing.T, create sdk.CreateGCPEnvInput, update sdk.UpdateGCPEnvInput)
 	}{
 		{
 			name: "Complete model with all fields",
-			model: GCPEnvResourceModel{
+			model: GCPEnvModel{
 				Name:                  types.StringValue("test-gcp-env"),
 				CustomDomain:          types.StringValue("custom.gcp.example.com"),
 				LoadBalancingStrategy: types.StringValue("round_robin"),
@@ -1221,7 +1221,7 @@ func TestGCPEnvResourceModel_toSDK(t *testing.T) {
 		},
 		{
 			name: "Minimal model with required fields only",
-			model: GCPEnvResourceModel{
+			model: GCPEnvModel{
 				Name:                    types.StringValue("minimal-gcp-env"),
 				Region:                  types.StringValue("europe-west1"),
 				CIDR:                    types.StringValue("172.16.0.0/16"),
@@ -1254,7 +1254,7 @@ func TestGCPEnvResourceModel_toSDK(t *testing.T) {
 		},
 		{
 			name: "Model with empty optional slices",
-			model: GCPEnvResourceModel{
+			model: GCPEnvModel{
 				Name:                    types.StringValue("empty-slices"),
 				Region:                  types.StringValue("asia-east1"),
 				CIDR:                    types.StringValue("192.168.0.0/16"),
@@ -1299,11 +1299,11 @@ func TestGCPEnvResourceModel_toSDK(t *testing.T) {
 	}
 }
 
-func TestGCPEnvResourceModel_toModel(t *testing.T) {
+func TestGCPEnvModel_toModel(t *testing.T) {
 	tests := []struct {
 		name     string
 		input    sdk.GetGCPEnv_GCPEnv
-		validate func(t *testing.T, model *GCPEnvResourceModel)
+		validate func(t *testing.T, model *GCPEnvModel)
 	}{
 		{
 			name: "Complete SDK response with all fields",
@@ -1370,7 +1370,7 @@ func TestGCPEnvResourceModel_toModel(t *testing.T) {
 					},
 				},
 			},
-			validate: func(t *testing.T, model *GCPEnvResourceModel) {
+			validate: func(t *testing.T, model *GCPEnvModel) {
 				if model.Name.ValueString() != "test-gcp-environment" {
 					t.Errorf("Name: expected 'test-gcp-environment', got '%s'", model.Name.ValueString())
 				}
@@ -1500,7 +1500,7 @@ func TestGCPEnvResourceModel_toModel(t *testing.T) {
 					PrivateServiceConsumers: []string{},
 				},
 			},
-			validate: func(t *testing.T, model *GCPEnvResourceModel) {
+			validate: func(t *testing.T, model *GCPEnvModel) {
 				if model.Name.ValueString() != "minimal-gcp-env" {
 					t.Errorf("Name: expected 'minimal-gcp-env', got '%s'", model.Name.ValueString())
 				}
@@ -1560,7 +1560,7 @@ func TestGCPEnvResourceModel_toModel(t *testing.T) {
 					PrivateServiceConsumers: []string{},
 				},
 			},
-			validate: func(t *testing.T, model *GCPEnvResourceModel) {
+			validate: func(t *testing.T, model *GCPEnvModel) {
 				if model.Name.ValueString() != "nil-fields-gcp-env" {
 					t.Errorf("Name: expected 'nil-fields-gcp-env', got '%s'", model.Name.ValueString())
 				}
@@ -1582,7 +1582,7 @@ func TestGCPEnvResourceModel_toModel(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			model := &GCPEnvResourceModel{}
+			model := &GCPEnvModel{}
 			diags := model.toModel(tt.input)
 			if diags.HasError() {
 				t.Fatalf("unexpected diagnostics: %v", diags)

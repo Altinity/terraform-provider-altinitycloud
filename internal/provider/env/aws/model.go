@@ -10,7 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-type AWSEnvResourceModel struct {
+type AWSEnvModel struct {
 	Id                           types.String                    `tfsdk:"id"`
 	Name                         types.String                    `tfsdk:"name"`
 	CustomDomain                 types.String                    `tfsdk:"custom_domain"`
@@ -38,12 +38,21 @@ type AWSEnvResourceModel struct {
 	Datadog                      *common.DatadogModel            `tfsdk:"datadog"`
 	EksLogging                   types.Bool                      `tfsdk:"eks_logging"`
 
-	SpecRevision                 types.Int64    `tfsdk:"spec_revision"`
-	ForceDestroy                 types.Bool     `tfsdk:"force_destroy"`
-	ForceDestroyClusters         types.Bool     `tfsdk:"force_destroy_clusters"`
-	SkipDeprovisionOnDestroy     types.Bool     `tfsdk:"skip_deprovision_on_destroy"`
-	AllowDeleteWhileDisconnected types.Bool     `tfsdk:"allow_delete_while_disconnected"`
-	Timeouts                     timeouts.Value `tfsdk:"timeouts"`
+	SpecRevision                 types.Int64 `tfsdk:"spec_revision"`
+	ForceDestroy                 types.Bool  `tfsdk:"force_destroy"`
+	ForceDestroyClusters         types.Bool  `tfsdk:"force_destroy_clusters"`
+	SkipDeprovisionOnDestroy     types.Bool  `tfsdk:"skip_deprovision_on_destroy"`
+	AllowDeleteWhileDisconnected types.Bool  `tfsdk:"allow_delete_while_disconnected"`
+}
+
+// Split models: `timeouts` only exists on the resource schema and the framework requires an exact struct/schema match.
+type AWSEnvResourceModel struct {
+	AWSEnvModel
+	Timeouts timeouts.Value `tfsdk:"timeouts"`
+}
+
+type AWSEnvDataSourceModel struct {
+	AWSEnvModel
 }
 
 type LoadBalancersModel struct {
@@ -118,7 +127,7 @@ type AWSEnvMetricsEndpointModel struct {
 	SourceIPRanges []types.String `tfsdk:"source_ip_ranges"`
 }
 
-func (e AWSEnvResourceModel) toSDK(ctx context.Context) (sdk.CreateAWSEnvInput, sdk.UpdateAWSEnvInput, diag.Diagnostics) {
+func (e AWSEnvModel) toSDK(ctx context.Context) (sdk.CreateAWSEnvInput, sdk.UpdateAWSEnvInput, diag.Diagnostics) {
 	var zones []string
 	var allDiags diag.Diagnostics
 	if !e.Zones.IsUnknown() && !e.Zones.IsNull() {
@@ -233,7 +242,7 @@ func (e AWSEnvResourceModel) toSDK(ctx context.Context) (sdk.CreateAWSEnvInput, 
 	return create, update, allDiags
 }
 
-func (model *AWSEnvResourceModel) toModel(env sdk.GetAWSEnv_AWSEnv) diag.Diagnostics {
+func (model *AWSEnvModel) toModel(env sdk.GetAWSEnv_AWSEnv) diag.Diagnostics {
 	var allDiags diag.Diagnostics
 	model.Name = types.StringValue(env.Name)
 	model.CIDR = types.StringValue(env.Spec.Cidr)
