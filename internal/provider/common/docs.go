@@ -318,3 +318,15 @@ const EKS_LOGGING_DESCRIPTION = "Enable/Disable EKS control plane logging to Clo
 
 // Status verbose descriptions.
 const VERBOSE_DESCRIPTION = "When enabled, prints real-time provisioning progress to the terminal (default `true`). Disable in CI/CD or non-interactive environments."
+
+// Altinity-hosted environment descriptions.
+const HOSTED_AWS_ZONE_IDS_DESCRIPTION = `Explicit list of AWS availability zone ids. At least 2 required.
+
+		Examples:
+		- ["usw2-az1", "usw2-az2"]
+		- ["use1-az1", "use1-az2"]
+`
+const HOSTED_AWS_CIDR_DESCRIPTION = "VPC CIDR block assigned to the environment."
+const HOSTED_NODE_GROUP_ZONE_IDS_DESCRIPTION = "Availability zone ids the node group spans. Defaults to the environment zone ids."
+const HOSTED_RESOURCE_PREFIX_DESCRIPTION = "Prefix applied to the names of the cloud resources created for this environment. **[IMMUTABLE]**"
+const HOSTED_EXTERNAL_BUCKET_DESCRIPTION = "List of external S3 buckets to allow access to. The environment IAM roles are granted access to every bucket listed here."

@@ -10,22 +10,22 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 )
 
+// Passed explicitly instead of shrinking DeletePollInterval, so these tests can
+// stay parallel without racing on the package-level default.
+const testPollInterval = 50 * time.Millisecond
+
 func notFoundErr() error {
 	return fmt.Errorf(`{"networkErrors":null,"graphqlErrors":[{"message":"not found","path":["env"],"extensions":{"code":"NOT_FOUND"}}]}`)
 }
 
 func TestWaitForDeletion_NotFoundImmediate(t *testing.T) {
 	t.Parallel()
-	origInterval := DeletePollInterval
-	DeletePollInterval = 50 * time.Millisecond
-	defer func() { DeletePollInterval = origInterval }()
-
 	resp := &resource.DeleteResponse{}
 	check := func(ctx context.Context, name string) (bool, error) {
 		return false, notFoundErr()
 	}
 
-	WaitForDeletion(context.Background(), resp, "test-env", false, check, 5*time.Second, 1*time.Second)
+	waitForDeletion(context.Background(), resp, "test-env", false, check, 5*time.Second, 1*time.Second, testPollInterval)
 
 	if resp.Diagnostics.HasError() {
 		t.Errorf("unexpected error: %s", resp.Diagnostics.Errors())
@@ -34,10 +34,6 @@ func TestWaitForDeletion_NotFoundImmediate(t *testing.T) {
 
 func TestWaitForDeletion_DeletingThenNotFound(t *testing.T) {
 	t.Parallel()
-	origInterval := DeletePollInterval
-	DeletePollInterval = 50 * time.Millisecond
-	defer func() { DeletePollInterval = origInterval }()
-
 	var calls atomic.Int32
 	resp := &resource.DeleteResponse{}
 	check := func(ctx context.Context, name string) (bool, error) {
@@ -48,7 +44,7 @@ func TestWaitForDeletion_DeletingThenNotFound(t *testing.T) {
 		return false, notFoundErr()
 	}
 
-	WaitForDeletion(context.Background(), resp, "test-env", false, check, 5*time.Second, 1*time.Second)
+	waitForDeletion(context.Background(), resp, "test-env", false, check, 5*time.Second, 1*time.Second, testPollInterval)
 
 	if resp.Diagnostics.HasError() {
 		t.Errorf("unexpected error: %s", resp.Diagnostics.Errors())
@@ -57,17 +53,13 @@ func TestWaitForDeletion_DeletingThenNotFound(t *testing.T) {
 
 func TestWaitForDeletion_NoMfaNoPendingDelete_ReturnsDeleted(t *testing.T) {
 	t.Parallel()
-	origInterval := DeletePollInterval
-	DeletePollInterval = 50 * time.Millisecond
-	defer func() { DeletePollInterval = origInterval }()
-
 	resp := &resource.DeleteResponse{}
 	check := func(ctx context.Context, name string) (bool, error) {
 		return false, nil // pendingDelete=false, no error (not 404)
 	}
 
 	start := time.Now()
-	WaitForDeletion(context.Background(), resp, "test-env", false, check, 5*time.Second, 1*time.Second)
+	waitForDeletion(context.Background(), resp, "test-env", false, check, 5*time.Second, 1*time.Second, testPollInterval)
 	elapsed := time.Since(start)
 
 	if resp.Diagnostics.HasError() {
@@ -80,10 +72,6 @@ func TestWaitForDeletion_NoMfaNoPendingDelete_ReturnsDeleted(t *testing.T) {
 
 func TestWaitForDeletion_MfaPendingThenConfirmed(t *testing.T) {
 	t.Parallel()
-	origInterval := DeletePollInterval
-	DeletePollInterval = 50 * time.Millisecond
-	defer func() { DeletePollInterval = origInterval }()
-
 	var calls atomic.Int32
 	resp := &resource.DeleteResponse{}
 	check := func(ctx context.Context, name string) (bool, error) {
@@ -97,7 +85,7 @@ func TestWaitForDeletion_MfaPendingThenConfirmed(t *testing.T) {
 		return false, notFoundErr()
 	}
 
-	WaitForDeletion(context.Background(), resp, "test-env", true, check, 5*time.Second, 5*time.Second)
+	waitForDeletion(context.Background(), resp, "test-env", true, check, 5*time.Second, 5*time.Second, testPollInterval)
 
 	if resp.Diagnostics.HasError() {
 		t.Errorf("unexpected error: %s", resp.Diagnostics.Errors())
@@ -106,16 +94,12 @@ func TestWaitForDeletion_MfaPendingThenConfirmed(t *testing.T) {
 
 func TestWaitForDeletion_MfaTimeout(t *testing.T) {
 	t.Parallel()
-	origInterval := DeletePollInterval
-	DeletePollInterval = 50 * time.Millisecond
-	defer func() { DeletePollInterval = origInterval }()
-
 	resp := &resource.DeleteResponse{}
 	check := func(ctx context.Context, name string) (bool, error) {
 		return false, nil // pendingDelete stays false forever
 	}
 
-	WaitForDeletion(context.Background(), resp, "test-env", true, check, 5*time.Second, 200*time.Millisecond)
+	waitForDeletion(context.Background(), resp, "test-env", true, check, 5*time.Second, 200*time.Millisecond, testPollInterval)
 
 	if !resp.Diagnostics.HasError() {
 		t.Error("expected MFA timeout error, got none")
@@ -124,16 +108,12 @@ func TestWaitForDeletion_MfaTimeout(t *testing.T) {
 
 func TestWaitForDeletion_NonNotFoundError(t *testing.T) {
 	t.Parallel()
-	origInterval := DeletePollInterval
-	DeletePollInterval = 50 * time.Millisecond
-	defer func() { DeletePollInterval = origInterval }()
-
 	resp := &resource.DeleteResponse{}
 	check := func(ctx context.Context, name string) (bool, error) {
 		return false, fmt.Errorf("connection refused")
 	}
 
-	WaitForDeletion(context.Background(), resp, "test-env", false, check, 5*time.Second, 1*time.Second)
+	waitForDeletion(context.Background(), resp, "test-env", false, check, 5*time.Second, 1*time.Second, testPollInterval)
 
 	if !resp.Diagnostics.HasError() {
 		t.Error("expected error, got none")
@@ -142,10 +122,6 @@ func TestWaitForDeletion_NonNotFoundError(t *testing.T) {
 
 func TestWaitForDeletion_TransientErrorThenDeleted(t *testing.T) {
 	t.Parallel()
-	origInterval := DeletePollInterval
-	DeletePollInterval = 50 * time.Millisecond
-	defer func() { DeletePollInterval = origInterval }()
-
 	var calls atomic.Int32
 	resp := &resource.DeleteResponse{}
 	check := func(ctx context.Context, name string) (bool, error) {
@@ -159,12 +135,57 @@ func TestWaitForDeletion_TransientErrorThenDeleted(t *testing.T) {
 		return false, notFoundErr()
 	}
 
-	WaitForDeletion(context.Background(), resp, "test-env", false, check, 5*time.Second, 1*time.Second)
+	waitForDeletion(context.Background(), resp, "test-env", false, check, 5*time.Second, 1*time.Second, testPollInterval)
 
 	if resp.Diagnostics.HasError() {
 		t.Errorf("unexpected error: %s", resp.Diagnostics.Errors())
 	}
 	if calls.Load() < 3 {
 		t.Errorf("expected status check to run until not-found after 503, got %d calls", calls.Load())
+	}
+}
+
+func TestWaitForDeletion_ErrEnvNotFoundIsDeleted(t *testing.T) {
+	t.Parallel()
+	resp := &resource.DeleteResponse{}
+	check := func(ctx context.Context, name string) (bool, error) {
+		return false, ErrEnvNotFound
+	}
+
+	waitForDeletion(context.Background(), resp, "test-env", false, check, 5*time.Second, 1*time.Second, testPollInterval)
+
+	if resp.Diagnostics.HasError() {
+		t.Errorf("unexpected error: %s", resp.Diagnostics.Errors())
+	}
+}
+
+// A null env means gone, so a pendingMFA delete must finish instead of sitting in
+// PENDING_MFA until the MFA timeout (which returning (false, nil) would cause).
+func TestWaitForDeletion_ErrEnvNotFoundWithPendingMfaIsDeleted(t *testing.T) {
+	t.Parallel()
+	resp := &resource.DeleteResponse{}
+	check := func(ctx context.Context, name string) (bool, error) {
+		return false, ErrEnvNotFound
+	}
+
+	waitForDeletion(context.Background(), resp, "test-env", true, check, 5*time.Second, 200*time.Millisecond, testPollInterval)
+
+	if resp.Diagnostics.HasError() {
+		t.Errorf("unexpected error: %s", resp.Diagnostics.Errors())
+	}
+}
+
+// Wrapped sentinels must still count as deleted.
+func TestWaitForDeletion_WrappedErrEnvNotFoundIsDeleted(t *testing.T) {
+	t.Parallel()
+	resp := &resource.DeleteResponse{}
+	check := func(ctx context.Context, name string) (bool, error) {
+		return false, fmt.Errorf("polling env status: %w", ErrEnvNotFound)
+	}
+
+	waitForDeletion(context.Background(), resp, "test-env", true, check, 5*time.Second, 200*time.Millisecond, testPollInterval)
+
+	if resp.Diagnostics.HasError() {
+		t.Errorf("unexpected error: %s", resp.Diagnostics.Errors())
 	}
 }

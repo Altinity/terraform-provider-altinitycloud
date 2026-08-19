@@ -1,0 +1,1022 @@
+# Pending API surface not yet served by prod, layered on top of graphql.schema.
+# graphql.schema stays byte-identical to $GRAPHQL_SCHEMA_URL so 'make sdk' is idempotent.
+# Delete this file (and the gqlgenc.yml entry) once these types ship to prod.
+
+extend type Query {
+  """
+  List Altinity-hosted AWS environments.
+  """
+  awsEnvsHosted(filter: AWSEnvHostedFilter): [AWSEnvHosted!]!
+  """
+  Look up Altinity-hosted AWS environment.
+  This query returns null when the environment is not found.
+  """
+  awsEnvHosted(name: String!): AWSEnvHosted
+}
+
+"""
+AWS environments query filter.
+"""
+input AWSEnvHostedFilter {
+  """
+  Names of the environments to return.
+  Names that don't match any of the existing environments are ignored.
+  """
+  names: [String!]
+}
+
+"""
+AWS environment.
+"""
+type AWSEnvHosted {
+  """
+  A globally-unique environment identifier.
+  """
+  name: String!
+  """
+  Environment spec.
+  """
+  spec: AWSEnvHostedSpec!
+  """
+  Spec revision (monotonically-increasing).
+  """
+  specRevision: Int!
+  """
+  Environment status.
+  """
+  status: AWSEnvHostedStatus!
+}
+
+"""
+AWS environment configuration.
+"""
+type AWSEnvHostedSpec {
+  """
+  VPC CIDR block.
+
+  Immutable.
+  """
+  cidr: String!
+  """
+  AWS region (https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.RegionsAndAvailabilityZones.html#Concepts.RegionsAndAvailabilityZones.Regions).
+
+  Example: "us-east-1"
+
+  Immutable.
+  """
+  region: String!
+  """
+  Explicit list of AWS availability zone ids (https://docs.aws.amazon.com/global-infrastructure/latest/regions/az-ids.html).
+  At least 2 required.
+
+  Example: ["usw2-az1", "usw2-az2"]
+  """
+  zoneIDs: [String!]!
+  """
+  Load balancers configuration.
+  """
+  loadBalancers: AWSEnvHostedLoadBalancersSpec!
+  """
+  List of node groups.
+  At least one required.
+  """
+  nodeGroups: [AWSEnvHostedNodeGroupSpec!]!
+  """
+  List of maintenance windows during which automatic maintenance is permitted.
+  By default updates are applied as soon as they are available.
+  """
+  maintenanceWindows: [MaintenanceWindowSpec!]!
+  """
+  Custom domains for TLS certificates.
+
+  Order is preserved.
+
+  Examples:
+  - ["example.com"]
+  - ["example.com", "foo.bar.com"]
+
+  Before specifying custom domains, create the following DNS CNAME records
+  (replace example.com with your domain):
+
+  Required:
+  - _acme-challenge.example.com. → $env_name.altinity.cloud.
+
+  Public load balancer (if used):
+  - example.com.                        → _.$env_name.altinity.cloud.
+  - *.example.com.                      → _.$env_name.altinity.cloud.
+
+  Internal load balancer (if used):
+  - _acme-challenge.internal.example.com. → internal.$env_name.altinity.cloud.
+  - internal.example.com.                 → _.internal.$env_name.altinity.cloud.
+  - *.internal.example.com.               → _.internal.$env_name.altinity.cloud.
+
+  VPC endpoint (if used):
+  - _acme-challenge.vpce.example.com.   → vpce.$env_name.altinity.cloud.
+  - vpce.example.com.                   → _.vpce.$env_name.altinity.cloud.
+  - *.vpce.example.com.                 → _.vpce.$env_name.altinity.cloud.
+  """
+  customDomains: [String!]!
+  """
+  VPC endpoints configuration.
+  """
+  endpoints: [AWSEnvHostedEndpointSpec!]!
+  """
+  Prefix for AWS resources created by this environment.
+  """
+  resourcePrefix: String!
+  """
+  List of external S3 buckets to allow access to.
+  """
+  externalBuckets: [AWSEnvHostedExternalBucketSpec!]!
+  """
+  Backups configuration.
+  """
+  backups: AWSEnvHostedBackupsSpec
+  """
+  Iceberg configuration.
+  """
+  iceberg: AWSEnvHostedIcebergSpec
+  """
+  Metrics endpoint configuration.
+  """
+  metricsEndpoint: MetricsEndpointSpec!
+  """
+  Datadog agent configuration.
+  """
+  datadog: DatadogSpec!
+  """
+  ARN of the customer's KMS key for encrypting Altinity-provisioned data buckets
+  and EBS volumes.
+  """
+  kmsKeyARN: String
+}
+
+"""
+AWS environment load balancers configuration.
+"""
+type AWSEnvHostedLoadBalancersSpec {
+  """
+  Public load balancer configuration.
+
+  Accessible via *.$env_name.altinity.cloud.
+  """
+  public: AWSEnvHostedLoadBalancerPublicSpec!
+  """
+  Internal load balancer configuration.
+
+  Accessible via *.internal.$env_name.altinity.cloud.
+  """
+  internal: AWSEnvHostedLoadBalancerInternalSpec!
+}
+
+"""
+AWS environment public load balancer configuration.
+"""
+type AWSEnvHostedLoadBalancerPublicSpec {
+  """
+  True if load balancer is enabled,
+  false otherwise.
+  """
+  enabled: Boolean!
+  """
+  IP addresses/blocks to allow traffic from.
+
+  0.0.0.0/0 by default.
+  """
+  sourceIPRanges: [String!]!
+}
+
+"""
+AWS environment internal load balancer configuration.
+"""
+type AWSEnvHostedLoadBalancerInternalSpec {
+  """
+  True if load balancer is enabled,
+  false otherwise.
+  """
+  enabled: Boolean!
+  """
+  IP addresses/blocks to allow traffic from.
+
+  0.0.0.0/0 by default.
+  """
+  sourceIPRanges: [String!]!
+  """
+  ARNs for AWS principals that are allowed to create VPC endpoints.
+
+  Examples:
+  - arn:aws:iam::$account_id:root
+  """
+  endpointServiceAllowedPrincipals: [String!]!
+  """
+  List of supported regions for VPC endpoints.
+
+  Example: ["us-east-1", "us-west-2"]
+  """
+  endpointServiceSupportedRegions: [String!]!
+}
+
+"""
+AWS environment node group configuration.
+"""
+type AWSEnvHostedNodeGroupSpec {
+  """
+  Unique (among environment node groups) node group identifier.
+  """
+  name: String!
+  """
+  Instance type (https://aws.amazon.com/ec2/instance-types/).
+
+  Example: "t4g.large"
+  """
+  nodeType: String!
+  """
+  Availability zone ids.
+  """
+  zoneIDs: [String!]!
+  """
+  Maximum number of instances per availability zone.
+  """
+  capacityPerZone: Int!
+  """
+  Types of workload that are allowed to be scheduled onto the nodes that belong to this group.
+  """
+  reservations: [NodeReservation!]!
+}
+
+"""
+AWS environment VPC endpoint configuration.
+"""
+type AWSEnvHostedEndpointSpec {
+  """
+  VPC endpoint service name in $endpoint_service_id.$region.vpce.amazonaws.com format.
+  """
+  serviceName: String!
+  """
+  By default, VPC endpoints get assigned $endpoint_service_id.$env_name.altinity.cloud DNS record.
+  Alias allows to override DNS record name to $alias.$env_name.altinity.cloud.
+  """
+  alias: String
+}
+
+"""
+External S3 bucket to allow access to.
+"""
+type AWSEnvHostedExternalBucketSpec {
+  """
+  External bucket name.
+  """
+  name: String!
+  """
+  Optional ARN of a customer-managed KMS key used to encrypt this bucket.
+
+  When set, the ClickHouse IRSA role is granted KMS decrypt/encrypt permissions
+  on the key so SSE-KMS-encrypted objects in the bucket can be read and written
+  (e.g. when the bucket backs a ClickHouse external disk). The key is owned by
+  the customer; bucket-level encryption is not managed by Altinity.
+
+  The env-region constraint that applies to the env-level KMS key does not
+  apply here — the key may be in any region from the env's perspective.
+  S3 still requires the key to be in the bucket's region (or to be a KMS
+  multi-region key with a replica in the bucket's region); that is the
+  customer's responsibility and is not validated here.
+  """
+  kmsKeyARN: String
+}
+
+"""
+Backups configuration.
+"""
+type AWSEnvHostedBackupsSpec {
+  """
+  Custom S3 bucket.
+  """
+  customBucket: AWSEnvHostedBackupsCustomBucketSpec
+}
+
+"""
+AWS environment custom S3 bucket configuration.
+"""
+type AWSEnvHostedBackupsCustomBucketSpec {
+  """
+  S3 bucket name.
+  """
+  name: String!
+  """
+  S3 bucket region.
+  """
+  region: String!
+  """
+  IAM role to assume for bucket access.
+  """
+  roleARN: String!
+}
+
+"""
+AWS environment status.
+"""
+type AWSEnvHostedStatus {
+  """
+  Applied spec revision (monotonically-increasing).
+  """
+  appliedSpecRevision: Int!
+  """
+  Status of load balancers.
+  """
+  loadBalancers: AWSEnvHostedLoadBalancersStatus!
+  """
+  True indicates that environment is pending deletion.
+  """
+  pendingDelete: Boolean!
+  """
+  Status errors.
+  """
+  errors: [EnvStatusError!]!
+}
+
+"""
+AWS environment load balancers status.
+"""
+type AWSEnvHostedLoadBalancersStatus {
+  """
+  Status of internal load balancer.
+  """
+  internal: AWSEnvHostedLoadBalancerInternalStatus!
+}
+
+"""
+AWS environment internal load balancer status.
+"""
+type AWSEnvHostedLoadBalancerInternalStatus {
+  """
+  VPC endpoint service name in $endpoint_service_id.$region.vpce.amazonaws.com format (if any).
+  """
+  endpointServiceName: String
+}
+extend type Mutation {
+  """
+  Create Altinity-hosted AWS environment record.
+
+  Possible error codes:
+  - "CONFLICT" if environment name is already taken.
+  """
+  createAWSEnvHosted(input: CreateAWSEnvHostedInput!): CreateAWSEnvHostedResult!
+}
+
+"""
+AWS environment create request input.
+"""
+input CreateAWSEnvHostedInput {
+  """
+  A globally-unique environment identifier.
+
+  Immutable.
+  """
+  name: String!
+  """
+  Environment spec.
+  """
+  spec: CreateAWSEnvHostedSpecInput!
+}
+
+"""
+AWS environment configuration create request input.
+"""
+input CreateAWSEnvHostedSpecInput {
+  """
+  AWS region (https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/Concepts.RegionsAndAvailabilityZones.html#Concepts.RegionsAndAvailabilityZones.Regions).
+
+  Example: "us-east-1"
+
+  Immutable.
+  """
+  region: String!
+  """
+  Number of AWS availability zones.
+  At least 2 required.
+
+  This field is optional if "zoneIDs" is specified.
+  """
+  numberOfZones: Int
+  """
+  Explicit list of AWS availability zones ids (https://docs.aws.amazon.com/global-infrastructure/latest/regions/az-ids.html).
+  At least 2 required.
+
+  Example: ["usw2-az1", "usw2-az2"]
+
+  This field is optional if "numberOfZones" is specified.
+  """
+  zoneIDs: [String!]
+  """
+  Load balancers configuration.
+  """
+  loadBalancers: AWSEnvHostedLoadBalancersSpecInput
+  """
+  List of node groups.
+  At least one required.
+  """
+  nodeGroups: [AWSEnvHostedNodeGroupSpecInput!]!
+  """
+  List of maintenance windows during which automatic maintenance is permitted.
+  By default updates are applied as soon as they are available.
+  """
+  maintenanceWindows: [MaintenanceWindowSpecInput!]
+  """
+  Custom domains for TLS certificates.
+
+  Order is preserved.
+
+  Examples:
+  - ["example.com"]
+  - ["example.com", "foo.bar.com"]
+
+  Before specifying custom domains, create the following DNS CNAME records
+  (replace example.com with your domain):
+
+  Required:
+  - _acme-challenge.example.com. → $env_name.altinity.cloud.
+
+  Public load balancer (if used):
+  - example.com.                        → _.$env_name.altinity.cloud.
+  - *.example.com.                      → _.$env_name.altinity.cloud.
+
+  Internal load balancer (if used):
+  - _acme-challenge.internal.example.com. → internal.$env_name.altinity.cloud.
+  - internal.example.com.                 → _.internal.$env_name.altinity.cloud.
+  - *.internal.example.com.               → _.internal.$env_name.altinity.cloud.
+
+  VPC endpoint (if used):
+  - _acme-challenge.vpce.example.com.   → vpce.$env_name.altinity.cloud.
+  - vpce.example.com.                   → _.vpce.$env_name.altinity.cloud.
+  - *.vpce.example.com.                 → _.vpce.$env_name.altinity.cloud.
+  """
+  customDomains: [String!]
+  """
+  VPC endpoints configuration.
+  """
+  endpoints: [AWSEnvHostedEndpointSpecInput!]
+  """
+  Prefix to apply to the names of AWS resources during creation.
+
+  Immutable.
+  """
+  resourcePrefix: String
+  """
+  List of external S3 buckets to allow access to.
+  """
+  externalBuckets: [AWSEnvHostedExternalBucketSpecInput!]
+  """
+  Backups configuration.
+  """
+  backups: AWSEnvHostedBackupsSpecInput
+  """
+  Iceberg configuration.
+  """
+  iceberg: AWSEnvHostedIcebergInputSpec
+  """
+  Metrics endpoint configuration.
+  """
+  metricsEndpoint: MetricsEndpointSpecInput
+  """
+  Datadog monitoring agent configuration.
+  """
+  datadog: DatadogSpecInput
+  """
+  ARN of the customer's KMS key for encrypting Altinity-provisioned data buckets
+  and EBS volumes.
+  """
+  kmsKeyARN: String
+}
+
+
+"""
+AWS environment load balancers configuration input.
+"""
+input AWSEnvHostedLoadBalancersSpecInput {
+  """
+  Public load balancer configuration.
+
+  Accessible via *.$env_name.altinity.cloud.
+  """
+  public: AWSEnvHostedLoadBalancerPublicSpecInput
+  """
+  Internal load balancer configuration.
+
+  Accessible via *.internal.$env_name.altinity.cloud.
+  """
+  internal: AWSEnvHostedLoadBalancerInternalSpecInput
+}
+
+"""
+AWS environment public load balancer configuration input.
+"""
+input AWSEnvHostedLoadBalancerPublicSpecInput {
+  """
+  True if load balancer is enabled,
+  false otherwise.
+
+  False by default.
+  """
+  enabled: Boolean
+  """
+  IP addresses/blocks to allow traffic from.
+
+  0.0.0.0/0 by default.
+  """
+  sourceIPRanges: [String!]
+}
+
+"""
+AWS environment internal load balancer configuration input.
+"""
+input AWSEnvHostedLoadBalancerInternalSpecInput {
+  """
+  True if load balancer is enabled,
+  false otherwise.
+
+  False by default.
+  """
+  enabled: Boolean
+  """
+  IP addresses/blocks to allow traffic from.
+
+  0.0.0.0/0 by default.
+  """
+  sourceIPRanges: [String!]
+  """
+  ARNs for AWS principals that are allowed to create VPC endpoints.
+
+  Examples:
+  - arn:aws:iam::$account_id:root
+  """
+  endpointServiceAllowedPrincipals: [String!]
+
+  """
+  List of supported regions for VPC endpoints.
+
+  Example: ["us-east-1", "us-west-2"]
+  """
+  endpointServiceSupportedRegions: [String!]
+}
+
+"""
+AWS environment node group configuration input.
+"""
+input AWSEnvHostedNodeGroupSpecInput {
+  """
+  Unique (among environment node groups) node group identifier.
+
+  Defaults to $nodeType.
+  """
+  name: String
+  """
+  Instance type (https://aws.amazon.com/ec2/instance-types/).
+  """
+  nodeType: String!
+  """
+  Availability zone ids.
+
+  Defaults to environment zones.
+  """
+  zoneIDs: [String!]
+  """
+  Maximum number of instances per availability zone.
+  """
+  capacityPerZone: Int!
+  """
+  Types of workloads this group is reserved for.
+  Defaults to all.
+  """
+  reservations: [NodeReservation!]
+}
+
+"""
+AWS environment VPC endpoint configuration input.
+"""
+input AWSEnvHostedEndpointSpecInput {
+  """
+  VPC endpoint service name (in $endpoint_service_id.$region.vpce.amazonaws.com format).
+  """
+  serviceName: String!
+  """
+  By default, VPC endpoints get assigned $endpoint_service_id.$env_name.altinity.cloud DNS record.
+  Alias allows to override DNS record name to $alias.$env_name.altinity.cloud.
+  """
+  alias: String
+}
+
+"""
+External S3 bucket to allow access to.
+"""
+input AWSEnvHostedExternalBucketSpecInput {
+  """
+  External bucket name.
+  """
+  name: String!
+  """
+  ARN of a customer-managed KMS key used to encrypt this bucket.
+
+  When set, grants the ClickHouse IRSA role KMS decrypt/encrypt permissions
+  on the key. The env-region constraint that applies to the env-level KMS
+  key does not apply here; S3's own bucket-region:key-region rule still
+  applies and is the customer's responsibility.
+  """
+  kmsKeyARN: String
+}
+
+"""
+Backups configuration.
+"""
+input AWSEnvHostedBackupsSpecInput {
+  """
+  Custom S3 bucket.
+  """
+  customBucket: AWSEnvHostedBackupsCustomBucketSpecInput
+}
+
+"""
+AWS environment custom S3 bucket configuration input.
+"""
+input AWSEnvHostedBackupsCustomBucketSpecInput {
+  """
+  S3 bucket name.
+  """
+  name: String!
+  """
+  S3 bucket region.
+  """
+  region: String!
+  """
+  IAM role to assume for bucket access.
+  """
+  roleARN: String!
+}
+
+"""
+AWS environment create request result.
+"""
+type CreateAWSEnvHostedResult {
+  """
+  Mutation unique identifier.
+  """
+  mutationId: ID!
+  """
+  AWS environment active configuration.
+  """
+  spec: AWSEnvHostedSpec!
+  """
+  Spec revision (monotonically-increasing).
+  """
+  specRevision: Int!
+}
+extend type Mutation {
+  """
+  Marks Altinity-hosted AWS environment for removal (if exists; noop otherwise).
+
+  This triggers env deprovisioning which deletes all the data (except for backups),
+  as well as all provisioned AWS resources.
+  """
+  deleteAWSEnvHosted(input: DeleteAWSEnvHostedInput!): DeleteAWSEnvHostedResult!
+}
+
+"""
+AWS environment delete request input.
+"""
+input DeleteAWSEnvHostedInput {
+  """
+  The name of AWS environment to delete.
+  """
+  name: String!
+  """
+  By default, delete mutation does not delete the env but rather marks it to be
+  removed once it's deprovisioned (which may take some time).
+  Set "force" to true to skip deprovisioning.
+  """
+  force: Boolean = false
+  """
+  By default, the delete operation will not delete any provisioned clusters and
+  the deletion will fail until the clusters get removed.
+  Set "forceDestroyClusters" to true remove all provisioned clusters as part of the environment deletion process.
+  """
+  forceDestroyClusters: Boolean = false
+}
+
+"""
+AWS environment delete request result.
+"""
+type DeleteAWSEnvHostedResult {
+  """
+  Mutation unique identifier.
+  """
+  mutationId: ID!
+  pendingMFA: Boolean!
+}
+"""
+Iceberg configuration.
+"""
+type AWSEnvHostedIcebergSpec {
+  """
+  List of Iceberg catalogs.
+  """
+  catalogs: [AWSEnvHostedIcebergCatalogSpec!]!
+}
+
+"""
+Iceberg catalog type.
+"""
+enum AWSEnvHostedIcebergCatalogTypeSpec {
+  """
+  S3 bucket-based catalog.
+  """
+  S3
+  """
+  S3 Tables-based catalog.
+  """
+  S3_TABLE
+}
+
+"""
+Iceberg catalog configuration.
+"""
+type AWSEnvHostedIcebergCatalogSpec {
+  """
+  Catalog name.
+  Empty name represents the default catalog.
+  """
+  name: String
+  """
+  Catalog type.
+  """
+  type: AWSEnvHostedIcebergCatalogTypeSpec!
+  """
+  Custom S3 bucket name.
+  """
+  customS3Bucket: String
+  """
+  Path within the custom S3 bucket.
+  """
+  customS3BucketPath: String
+  """
+  ARN of the S3 Tables bucket.
+  """
+  customS3TableBucketARN: String
+  """
+  AWS region for the catalog.
+  """
+  region: String
+  """
+  Whether anonymous access is enabled.
+  """
+  anonymousAccessEnabled: Boolean
+  """
+  Maintenance configuration.
+  """
+  maintenance: AWSEnvHostedIcebergCatalogMaintenanceSpec!
+  """
+  Table watch configurations.
+  """
+  watches: [AWSEnvHostedIcebergCatalogWatchSpec!]!
+}
+
+"""
+Iceberg catalog maintenance configuration.
+"""
+type AWSEnvHostedIcebergCatalogMaintenanceSpec {
+  """
+  Whether maintenance is enabled.
+  """
+  enabled: Boolean!
+}
+
+"""
+Iceberg catalog watch configuration.
+"""
+type AWSEnvHostedIcebergCatalogWatchSpec {
+  """
+  Table name to watch.
+  """
+  table: String!
+  """
+  Paths relative to table location to watch.
+  """
+  pathsRelativeToTableLocation: [String!]!
+}
+
+"""
+Iceberg configuration input.
+"""
+input AWSEnvHostedIcebergInputSpec {
+  """
+  List of Iceberg catalogs.
+  """
+  catalogs: [AWSEnvHostedIcebergCatalogInputSpec!]
+}
+
+"""
+Iceberg catalog configuration input.
+"""
+input AWSEnvHostedIcebergCatalogInputSpec {
+  """
+  Catalog name.
+  Empty name represents the default catalog.
+  """
+  name: String
+  """
+  Catalog type.
+  """
+  type: AWSEnvHostedIcebergCatalogTypeSpec!
+  """
+  Custom S3 bucket name.
+  """
+  customS3Bucket: String
+  """
+  Path within the custom S3 bucket.
+  """
+  customS3BucketPath: String
+  """
+  ARN of the S3 Tables bucket.
+  """
+  customS3TableBucketARN: String
+  """
+  AWS region for the catalog.
+  """
+  region: String
+  """
+  Whether anonymous access is enabled.
+  """
+  anonymousAccessEnabled: Boolean
+  """
+  Maintenance configuration.
+  """
+  maintenance: AWSEnvHostedIcebergCatalogMaintenanceInputSpec
+  """
+  Table watch configurations.
+  """
+  watches: [AWSEnvHostedIcebergCatalogWatchInputSpec!]
+}
+
+"""
+Iceberg catalog maintenance configuration input.
+"""
+input AWSEnvHostedIcebergCatalogMaintenanceInputSpec {
+  """
+  Whether maintenance is enabled.
+  """
+  enabled: Boolean!
+}
+
+"""
+Iceberg catalog watch configuration input.
+"""
+input AWSEnvHostedIcebergCatalogWatchInputSpec {
+  """
+  Table name to watch.
+  """
+  table: String!
+  """
+  Paths relative to table location to watch.
+  """
+  pathsRelativeToTableLocation: [String!]
+}
+
+"""
+Iceberg configuration update input.
+"""
+input AWSEnvHostedIcebergUpdateInputSpec {
+  """
+  List of Iceberg catalogs to create or update.
+  """
+  catalogs: [AWSEnvHostedIcebergCatalogInputSpec!]
+  """
+  List of catalog names to delete.
+  """
+  catalogsToDelete: [String!]
+}
+extend type Mutation {
+  """
+  Update Altinity-hosted AWS environment record.
+  """
+  updateAWSEnvHosted(input: UpdateAWSEnvHostedInput!): UpdateAWSEnvHostedResult!
+}
+
+"""
+AWS environment update request input.
+"""
+input UpdateAWSEnvHostedInput {
+  """
+  Environment name.
+  """
+  name: String!
+  """
+  Environment spec.
+  """
+  spec: AWSEnvHostedUpdateSpecInput!
+  """
+  Environment spec update strategy.
+  MERGE by default.
+  """
+  updateStrategy: UpdateStrategy
+}
+
+"""
+AWS environment configuration update request input.
+"""
+input AWSEnvHostedUpdateSpecInput {
+  """
+  Number of AWS availability zones.
+  At least 2 required (if specified).
+  """
+  numberOfZones: Int
+  """
+  Explicit list of AWS availability zone ids (https://docs.aws.amazon.com/global-infrastructure/latest/regions/az-ids.html).
+  At least 2 required (if specified).
+
+  Example: ["usw2-az1", "usw2-az2"]
+  """
+  zoneIDs: [String!]
+  """
+  Load balancers configuration.
+  """
+  loadBalancers: AWSEnvHostedLoadBalancersSpecInput
+  """
+  List of node groups.
+  """
+  nodeGroups: [AWSEnvHostedNodeGroupSpecInput!]
+  """
+  List of maintenance windows during which automatic maintenance is permitted.
+  By default updates are applied as soon as they are available.
+  """
+  maintenanceWindows: [MaintenanceWindowSpecInput!]
+  """
+  Custom domains for TLS certificates.
+
+  Order is preserved.
+
+  Examples:
+  - ["example.com"]
+  - ["example.com", "foo.bar.com"]
+
+  Before specifying custom domains, create the following DNS CNAME records
+  (replace example.com with your domain):
+
+  Required:
+  - _acme-challenge.example.com. → $env_name.altinity.cloud.
+
+  Public load balancer (if used):
+  - example.com.                        → _.$env_name.altinity.cloud.
+  - *.example.com.                      → _.$env_name.altinity.cloud.
+
+  Internal load balancer (if used):
+  - _acme-challenge.internal.example.com. → internal.$env_name.altinity.cloud.
+  - internal.example.com.                 → _.internal.$env_name.altinity.cloud.
+  - *.internal.example.com.               → _.internal.$env_name.altinity.cloud.
+
+  VPC endpoint (if used):
+  - _acme-challenge.vpce.example.com.   → vpce.$env_name.altinity.cloud.
+  - vpce.example.com.                   → _.vpce.$env_name.altinity.cloud.
+  - *.vpce.example.com.                 → _.vpce.$env_name.altinity.cloud.
+  """
+  customDomains: [String!]
+  """
+  VPC endpoints configuration.
+  """
+  endpoints: [AWSEnvHostedEndpointSpecInput!]
+  """
+  List of external S3 buckets to allow access to.
+  """
+  externalBuckets: [AWSEnvHostedExternalBucketSpecInput!]
+  """
+  Backups configuration.
+  """
+  backups: AWSEnvHostedBackupsSpecInput
+  """
+  Iceberg configuration.
+  """
+  iceberg: AWSEnvHostedIcebergUpdateInputSpec
+  """
+  Metrics endpoint configuration.
+  """
+  metricsEndpoint: MetricsEndpointSpecInput
+  """
+  Datadog monitoring agent configuration.
+  """
+  datadog: DatadogSpecInput
+}
+
+"""
+AWS environment update request result.
+"""
+type UpdateAWSEnvHostedResult {
+  """
+  Mutation unique identifier.
+  """
+  mutationId: ID!
+  """
+  AWS environment active configuration.
+  """
+  spec: AWSEnvHostedSpec!
+  """
+  Spec revision (monotonically-increasing).
+  """
+  specRevision: Int!
+}

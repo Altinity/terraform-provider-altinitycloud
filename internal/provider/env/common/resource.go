@@ -2,6 +2,7 @@ package env
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -18,8 +19,15 @@ import (
 
 // StatusCheckFunc checks if the env is still being deleted.
 // Returns (pendingDelete bool, err error).
-// err should be the raw SDK error (not-found handling is done by the caller).
+// err should be the raw SDK error (not-found handling is done by the caller),
+// or ErrEnvNotFound when the query succeeded but returned no environment.
 type StatusCheckFunc func(ctx context.Context, name string) (bool, error)
+
+// ErrEnvNotFound reports an env that is already gone. A status query can succeed
+// and still return a null env, which carries no SDK error for IsNotFoundError to
+// recognize; returning (false, nil) instead would strand a pendingMFA delete in
+// PENDING_MFA until the MFA timeout, so callers return this to mean "deleted".
+var ErrEnvNotFound = errors.New("environment not found")
 
 var MFATimeout = 5 * time.Minute
 var DeleteTimeout = 60 * time.Minute
@@ -85,6 +93,12 @@ func (r *EnvResourceBase) ModifyPlan(ctx context.Context, req resource.ModifyPla
 }
 
 func WaitForDeletion(ctx context.Context, resp *resource.DeleteResponse, envName string, pendingMfa bool, checkStatus StatusCheckFunc, deleteTimeout time.Duration, mfaTimeout time.Duration) {
+	waitForDeletion(ctx, resp, envName, pendingMfa, checkStatus, deleteTimeout, mfaTimeout, DeletePollInterval)
+}
+
+// pollInterval is a parameter so tests can shorten it without mutating the
+// package-level default, which races when they run in parallel.
+func waitForDeletion(ctx context.Context, resp *resource.DeleteResponse, envName string, pendingMfa bool, checkStatus StatusCheckFunc, deleteTimeout time.Duration, mfaTimeout time.Duration, pollInterval time.Duration) {
 	if deleteTimeout == 0 {
 		deleteTimeout = DeleteTimeout
 	}
@@ -100,7 +114,7 @@ func WaitForDeletion(ctx context.Context, resp *resource.DeleteResponse, envName
 			pendingDelete, err := checkStatus(ctx, envName)
 			if err != nil {
 				notFound, _ := client.IsNotFoundError(err)
-				if notFound {
+				if notFound || errors.Is(err, ErrEnvNotFound) {
 					tflog.Trace(ctx, "deleted resource", map[string]interface{}{"name": envName})
 					return envName, "DELETED", nil
 				}
@@ -128,7 +142,7 @@ func WaitForDeletion(ctx context.Context, resp *resource.DeleteResponse, envName
 			return envName, "DELETING", nil
 		},
 		Timeout:      deleteTimeout,
-		PollInterval: DeletePollInterval,
+		PollInterval: pollInterval,
 	}
 
 	_, err := stateConf.WaitForStateContext(ctx)
