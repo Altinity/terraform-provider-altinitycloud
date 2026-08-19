@@ -11,17 +11,56 @@ Altinity-hosted AWS environment resource. The environment runs in an AWS account
 
 Unlike `altinitycloud_env_aws`, an Altinity-hosted environment runs in an AWS account owned by Altinity: there is no cloud connect certificate, no AWS account id and no peering configuration. Availability zones are addressed by their [zone id](https://docs.aws.amazon.com/global-infrastructure/latest/regions/az-ids.html) (`use1-az1`), not by zone name (`us-east-1a`).
 
-## Example Usage
+### Why zone ids
 
-### Altinity-hosted AWS environment with Public Load Balancer:
-```terraform
+Zone *names* are shuffled per AWS account: your `us-east-1a` and Altinity's `us-east-1a` are usually different physical datacenters. Zone *ids* are stable across every account, so `use1-az1` always refers to the same physical zone. Since the environment is provisioned in Altinity's account, only zone ids can express where it should run.
+
+The zone ids of a region are listed in the AWS console under EC2 → Settings, or can be read with the AWS provider:
+
+```hcl
+provider "aws" {
+  region = "us-east-1"
+}
+
+data "aws_availability_zones" "available" {
+  state = "available"
+
+  filter {
+    name   = "opt-in-status"
+    values = ["opt-in-not-required"]
+  }
+}
+
 locals {
-  zone_ids = ["use1-az1", "use1-az2"]
+  zone_ids = slice(data.aws_availability_zones.available.zone_ids, 0, 2)
 }
 
 resource "altinitycloud_env_aws_hosted" "this" {
   name     = "acme-staging"
   region   = "us-east-1"
+  zone_ids = local.zone_ids
+
+  # ... other configuration ...
+}
+```
+
+Two caveats before wiring this in:
+
+- It requires AWS credentials in the account running Terraform, which a hosted environment otherwise does not need at all.
+- The data source lists the zones *your* account can use. Which zones are available differs between accounts, so a zone id it returns is not guaranteed to be usable by Altinity's account. Prefer pinning the zone ids explicitly once you know they work.
+
+## Example Usage
+
+### Altinity-hosted AWS environment with Public Load Balancer:
+```terraform
+locals {
+  region   = "us-east-1"
+  zone_ids = ["use1-az1", "use1-az2"]
+}
+
+resource "altinitycloud_env_aws_hosted" "this" {
+  name     = "acme-staging"
+  region   = local.region
   zone_ids = local.zone_ids
 
   load_balancers = {
@@ -58,10 +97,15 @@ data "altinitycloud_env_aws_hosted_status" "this" {
 
 ### Altinity-hosted AWS environment accessible over VPC Endpoint:
 ```terraform
-resource "altinitycloud_env_aws_hosted" "this" {
-  name     = "acme-staging"
+locals {
   region   = "us-east-1"
   zone_ids = ["use1-az1", "use1-az2"]
+}
+
+resource "altinitycloud_env_aws_hosted" "this" {
+  name     = "acme-staging"
+  region   = local.region
+  zone_ids = local.zone_ids
 
   load_balancers = {
     internal = {
@@ -76,21 +120,31 @@ resource "altinitycloud_env_aws_hosted" "this" {
     {
       node_type         = "m6i.large"
       capacity_per_zone = 10
+      zone_ids          = local.zone_ids
       reservations      = ["SYSTEM", "ZOOKEEPER", "CLICKHOUSE"]
     }
   ]
+}
+
+// ⚠️ Environment provisioning is asynchronous.
+// Without this data source, Terraform cannot detect provisioning failures.
+// This data source waits until the environment is fully reconciled and reports errors.
+data "altinitycloud_env_aws_hosted_status" "this" {
+  name                           = altinitycloud_env_aws_hosted.this.name
+  wait_for_applied_spec_revision = altinitycloud_env_aws_hosted.this.spec_revision
 }
 ```
 
 ### Altinity-hosted AWS environment with access to external S3 buckets:
 ```terraform
 locals {
+  region   = "us-east-1"
   zone_ids = ["use1-az1", "use1-az2"]
 }
 
 resource "altinitycloud_env_aws_hosted" "this" {
   name     = "acme-staging"
-  region   = "us-east-1"
+  region   = local.region
   zone_ids = local.zone_ids
 
   load_balancers = {
@@ -240,15 +294,21 @@ data "altinitycloud_env_aws_hosted_status" "this" {
 
 ### Altinity-hosted AWS environment with Iceberg catalogs:
 ```terraform
-resource "altinitycloud_env_aws_hosted" "this" {
-  name     = "acme-staging"
+locals {
   region   = "us-east-1"
   zone_ids = ["use1-az1", "use1-az2"]
+}
+
+resource "altinitycloud_env_aws_hosted" "this" {
+  name     = "acme-staging"
+  region   = local.region
+  zone_ids = local.zone_ids
 
   node_groups = [
     {
       node_type         = "m6i.large"
       capacity_per_zone = 10
+      zone_ids          = local.zone_ids
       reservations      = ["SYSTEM", "ZOOKEEPER", "CLICKHOUSE"]
     }
   ]
@@ -260,7 +320,7 @@ resource "altinitycloud_env_aws_hosted" "this" {
         type                     = "S3"
         custom_s3_bucket         = "acme-iceberg"
         custom_s3_bucket_path    = "warehouse"
-        region                   = "us-east-1"
+        region                   = local.region
         anonymous_access_enabled = false
 
         maintenance = {
@@ -276,6 +336,14 @@ resource "altinitycloud_env_aws_hosted" "this" {
       }
     ]
   }
+}
+
+// ⚠️ Environment provisioning is asynchronous.
+// Without this data source, Terraform cannot detect provisioning failures.
+// This data source waits until the environment is fully reconciled and reports errors.
+data "altinitycloud_env_aws_hosted_status" "this" {
+  name                           = altinitycloud_env_aws_hosted.this.name
+  wait_for_applied_spec_revision = altinitycloud_env_aws_hosted.this.spec_revision
 }
 ```
 

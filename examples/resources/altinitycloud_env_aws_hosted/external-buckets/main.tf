@@ -1,10 +1,11 @@
 locals {
+  region   = "us-east-1"
   zone_ids = ["use1-az1", "use1-az2"]
 }
 
 resource "altinitycloud_env_aws_hosted" "this" {
   name     = "acme-staging"
-  region   = "us-east-1"
+  region   = local.region
   zone_ids = local.zone_ids
 
   load_balancers = {
