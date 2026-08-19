@@ -52,7 +52,6 @@ func IsNotFoundError(err error) (bool, error) {
 	return false, nil
 }
 
-// errorMapping defines a known error pattern and its user-friendly message template.
 type errorMapping struct {
 	Message         string // exact match on GraphQLError.Message
 	FriendlyMessage string // user-friendly message with %s for resource name
@@ -64,10 +63,13 @@ var knownErrors = []errorMapping{
 	{Message: "hosted env management not enabled", FriendlyMessage: "Altinity-hosted environments are not enabled for your account, ask Altinity support to enable them"},
 }
 
-// FormatError translates known GraphQL errors into user-friendly messages.
-// If the error is not recognized, it falls back to a clean representation
-// of the GraphQL error messages instead of the raw JSON string.
+// FormatError falls back to the parsed GraphQL messages rather than the raw JSON string.
 func FormatError(err error, resourceName string) string {
+	// ParseError reports (nil, nil) for a nil error, which every path below dereferences.
+	if err == nil {
+		return ""
+	}
+
 	parsedError, parseErr := ParseError(err)
 	if parseErr != nil {
 		return err.Error()
@@ -84,8 +86,6 @@ func FormatError(err error, resourceName string) string {
 		}
 	}
 
-	// Fallback: extract clean error messages from GraphQL errors
-	// and classify them based on the extension code or path context.
 	var messages []string
 	for _, gqlError := range parsedError.GraphqlErrors {
 		prefix := errorPrefix(gqlError)
@@ -102,9 +102,7 @@ func FormatError(err error, resourceName string) string {
 	return err.Error()
 }
 
-// errorPrefix returns a human-readable error category based on the GraphQL
-// error extensions code. When no code is present, it infers "Validation Error"
-// for mutation paths and defaults to "Error" otherwise.
+// errorPrefix infers "Validation Error" from a mutation path when there is no extensions code.
 func errorPrefix(gqlError GraphQLError) string {
 	if code, ok := gqlError.Extensions["code"]; ok {
 		switch code {
@@ -121,7 +119,6 @@ func errorPrefix(gqlError GraphQLError) string {
 		}
 	}
 
-	// No extension code: infer from mutation path (create/update/delete).
 	for _, p := range gqlError.Path {
 		s, ok := p.(string)
 		if !ok {
