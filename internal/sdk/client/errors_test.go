@@ -225,6 +225,19 @@ func TestIsActiveClustersError_Nil(t *testing.T) {
 	}
 }
 
+func TestIsActiveClustersError_ConflictAfterOtherConflict(t *testing.T) {
+	got, err := IsActiveClustersError(graphQLResponse(
+		codedErr("conflict", "CONFLICT"),
+		codedErr("environment has active ClickHouse/Zookeeper clusters (use forceDestroyClusters=true to force delete)", "CONFLICT"),
+	))
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if !got {
+		t.Error("expected true, got false")
+	}
+}
+
 func TestFormatError_HostedNotEnabled(t *testing.T) {
 	err := graphQLResponse(mutationErr("hosted env management not enabled", "createAWSEnvHosted"))
 	got := FormatError(err, "acme-staging")
