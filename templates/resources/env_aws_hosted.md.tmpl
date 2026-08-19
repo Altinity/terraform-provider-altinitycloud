@@ -19,8 +19,17 @@ Unlike `altinitycloud_env_aws`, an Altinity-hosted environment runs in an AWS ac
 ### Altinity-hosted AWS environment accessible over VPC Endpoint:
 {{tffile "examples/resources/altinitycloud_env_aws_hosted/vpce/main.tf"}}
 
+### Altinity-hosted AWS environment with access to external S3 buckets:
+{{tffile "examples/resources/altinitycloud_env_aws_hosted/external-buckets/main.tf"}}
+
+### Altinity-hosted AWS environment with backups on a custom S3 bucket:
+{{tffile "examples/resources/altinitycloud_env_aws_hosted/backups/main.tf"}}
+
 ### Altinity-hosted AWS environment with Iceberg catalogs:
 {{tffile "examples/resources/altinitycloud_env_aws_hosted/iceberg/main.tf"}}
+
+### Altinity-hosted AWS environment encrypted with a customer-managed KMS key:
+{{tffile "examples/resources/altinitycloud_env_aws_hosted/kms/main.tf"}}
 
 {{ .SchemaMarkdown | trimspace }}
 
