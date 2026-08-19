@@ -123,6 +123,12 @@ func (r *AzureEnvResource) Read(ctx context.Context, req resource.ReadRequest, r
 		return
 	}
 
+	if apiResp.AzureEnv == nil {
+		tflog.Trace(ctx, "removing resource from state", map[string]interface{}{"name": envName})
+		resp.State.RemoveResource(ctx)
+		return
+	}
+
 	// Reorder node groups, zones and tags to respect order in the user's configuration
 	apiResp.AzureEnv.Spec.NodeGroups = common.ReorderByKey(data.NodeGroups, apiResp.AzureEnv.Spec.NodeGroups,
 		func(m common.NodeGroupsModel) string { return m.NodeType.ValueString() },
@@ -207,11 +213,6 @@ func (r *AzureEnvResource) Delete(ctx context.Context, req resource.DeleteReques
 	}
 
 	envName := data.Name.ValueString()
-	resp.Diagnostics.Append(common.ValidateForceDestroy(envName, data.ForceDestroy.ValueBool())...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
 	envStatus, err := r.Client.GetAzureEnvStatus(ctx, envName)
 	if err != nil {
 		notFound, _ := client.IsNotFoundError(err)
@@ -220,6 +221,16 @@ func (r *AzureEnvResource) Delete(ctx context.Context, req resource.DeleteReques
 		} else {
 			clientsupport.AddClientError(&resp.Diagnostics, fmt.Sprintf("Unable to read env status %s, got error: %s", envName, err))
 		}
+		return
+	}
+
+	if envStatus.AzureEnv == nil {
+		tflog.Trace(ctx, "deleted resource", map[string]interface{}{"name": envName})
+		return
+	}
+
+	resp.Diagnostics.Append(common.ValidateForceDestroy(envName, data.ForceDestroy.ValueBool())...)
+	if resp.Diagnostics.HasError() {
 		return
 	}
 
@@ -260,6 +271,9 @@ func (r *AzureEnvResource) Delete(ctx context.Context, req resource.DeleteReques
 			status, err := r.Client.GetAzureEnvStatus(ctx, name)
 			if err != nil {
 				return false, err
+			}
+			if status.AzureEnv == nil {
+				return false, common.ErrEnvNotFound
 			}
 			return status.AzureEnv.Status.PendingDelete, nil
 		},
