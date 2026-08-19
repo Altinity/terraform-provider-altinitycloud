@@ -161,8 +161,9 @@ func IsActiveClustersError(err error) (bool, error) {
 	}
 
 	for _, gqlError := range parsedError.GraphqlErrors {
-		if code, ok := gqlError.Extensions["code"]; ok && code == "CONFLICT" {
-			return strings.Contains(gqlError.Message, "forceDestroyClusters=true"), nil
+		code, ok := gqlError.Extensions["code"]
+		if ok && code == "CONFLICT" && strings.Contains(gqlError.Message, "forceDestroyClusters=true") {
+			return true, nil
 		}
 	}
 
