@@ -167,3 +167,10 @@ func TestIsActiveClustersError_Nil(t *testing.T) {
 		t.Error("expected false for nil error")
 	}
 }
+
+func TestFormatError_NilError(t *testing.T) {
+	got := FormatError(nil, "test")
+	if got != "" {
+		t.Errorf("got: %q, want empty string", got)
+	}
+}

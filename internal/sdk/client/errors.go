@@ -67,6 +67,12 @@ var knownErrors = []errorMapping{
 // If the error is not recognized, it falls back to a clean representation
 // of the GraphQL error messages instead of the raw JSON string.
 func FormatError(err error, resourceName string) string {
+	// Must precede ParseError: it reports (nil, nil) for a nil error, and every
+	// path below dereferences either the parse result or the error itself.
+	if err == nil {
+		return ""
+	}
+
 	parsedError, parseErr := ParseError(err)
 	if parseErr != nil {
 		return err.Error()
