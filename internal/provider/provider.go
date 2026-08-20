@@ -30,6 +30,7 @@ import (
 
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
@@ -89,6 +90,14 @@ func (p *altinityCloudProvider) Configure(ctx context.Context, req provider.Conf
 	var data altinityCloudProviderModel
 
 	resp.Diagnostics.Append(req.Config.Get(ctx, &data)...)
+
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	requireKnown(&resp.Diagnostics, "api_token", data.ApiToken, ENV_VAR_API_TOKEN)
+	requireKnown(&resp.Diagnostics, "api_url", data.ApiURL, ENV_VAR_API_URL)
+	requireKnown(&resp.Diagnostics, "ca_crt", data.CACrt, "")
 
 	if resp.Diagnostics.HasError() {
 		return
@@ -199,6 +208,23 @@ func New(version string) func() provider.Provider {
 			version: version,
 		}
 	}
+}
+
+// requireKnown rejects a provider attribute whose value is not resolved yet.
+// Reading an unknown as "" would discard what the config set and silently fall
+// back to the environment, authenticating with credentials nobody asked for.
+func requireKnown(diags *diag.Diagnostics, attr string, value types.String, envVar string) {
+	if !value.IsUnknown() {
+		return
+	}
+
+	detail := fmt.Sprintf("%q is not known until apply, so the provider cannot be configured. "+
+		"Set it to a value that is known at plan time", attr)
+	if envVar != "" {
+		detail += fmt.Sprintf(", or omit it and set the %s environment variable", envVar)
+	}
+
+	diags.AddAttributeError(path.Root(attr), "Unknown Provider Configuration", detail+".")
 }
 
 func loadCertPool(cert string) (*x509.CertPool, error) {
