@@ -81,8 +81,4 @@ func (d *GCPEnvDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
-
-	if resp.Diagnostics.HasError() {
-		return
-	}
 }

@@ -7,7 +7,6 @@ import (
 )
 
 const (
-	charSetAlphaNum    = "abcdefghijklmnopqrstuvwxyz012346789"
 	charSetAlpha       = "abcdefghijklmnopqrstuvwxyz"
 	resourceNameLength = 10
 )
@@ -18,7 +17,7 @@ func GenerateRandomResourceName() string {
 
 	result := make([]byte, resourceNameLength)
 	for i := 0; i < resourceNameLength; i++ {
-		result[i] = charSetAlpha[randIntRange(rng, 0, len(charSetAlpha))]
+		result[i] = charSetAlpha[rng.Intn(len(charSetAlpha))]
 	}
 	return string(result)
 }
@@ -30,9 +29,4 @@ func GenerateRandomEnvName() string {
 	}
 
 	return envPrefix + "-dummy-" + GenerateRandomResourceName()
-}
-
-// randIntRange returns a random integer between min (inclusive) and max (exclusive).
-func randIntRange(rng *rand.Rand, minVal, maxVal int) int {
-	return minVal + rng.Intn(maxVal-minVal)
 }
