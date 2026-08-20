@@ -173,9 +173,9 @@ func GetLoadBalancingStrategyAttribute(required, optional, computed bool) rschem
 	}
 }
 
-func GetNodeGroupsAttribute(required, optional, computed bool) rschema.ListNestedAttribute {
+func GetNodeGroupsAttribute(required, optional, computed bool, nodeTypeDescription string) rschema.ListNestedAttribute {
 	return rschema.ListNestedAttribute{
-		NestedObject:        NodeGroupAttribute,
+		NestedObject:        GetNodeGroupAttribute(nodeTypeDescription),
 		Optional:            optional,
 		Required:            required,
 		Computed:            computed,
@@ -435,38 +435,40 @@ var KeyValueAttribute = rschema.NestedAttributeObject{
 	},
 }
 
-var NodeGroupAttribute = rschema.NestedAttributeObject{
-	Attributes: map[string]rschema.Attribute{
-		"name": rschema.StringAttribute{
-			Optional:            true,
-			Computed:            true,
-			MarkdownDescription: NODE_GROUP_NAME_DESCRIPTION,
-			Validators: []validator.String{
-				stringvalidator.LengthAtLeast(1),
+func GetNodeGroupAttribute(nodeTypeDescription string) rschema.NestedAttributeObject {
+	return rschema.NestedAttributeObject{
+		Attributes: map[string]rschema.Attribute{
+			"name": rschema.StringAttribute{
+				Optional:            true,
+				Computed:            true,
+				MarkdownDescription: NODE_GROUP_NAME_DESCRIPTION,
+				Validators: []validator.String{
+					stringvalidator.LengthAtLeast(1),
+				},
 			},
-		},
-		"node_type": rschema.StringAttribute{
-			Required:            true,
-			MarkdownDescription: NODE_GROUP_DESCRIPTION,
-		},
-		"capacity_per_zone": rschema.Int64Attribute{
-			Required:            true,
-			MarkdownDescription: NODE_GROUP_CAPACITY_PER_ZONE_DESCRIPTION,
-			Validators: []validator.Int64{
-				int64validator.AtLeast(1),
+			"node_type": rschema.StringAttribute{
+				Required:            true,
+				MarkdownDescription: nodeTypeDescription,
 			},
-		},
-		"zones": rschema.ListAttribute{
-			ElementType:         types.StringType,
-			Optional:            true,
-			Computed:            true,
-			MarkdownDescription: NODE_GROUP_ZONES_DESCRIPTION,
-			Validators: []validator.List{
-				listvalidator.SizeAtLeast(1),
+			"capacity_per_zone": rschema.Int64Attribute{
+				Required:            true,
+				MarkdownDescription: NODE_GROUP_CAPACITY_PER_ZONE_DESCRIPTION,
+				Validators: []validator.Int64{
+					int64validator.AtLeast(1),
+				},
 			},
+			"zones": rschema.ListAttribute{
+				ElementType:         types.StringType,
+				Optional:            true,
+				Computed:            true,
+				MarkdownDescription: NODE_GROUP_ZONES_DESCRIPTION,
+				Validators: []validator.List{
+					listvalidator.SizeAtLeast(1),
+				},
+			},
+			"reservations": GetReservationsAttribute(true, false, false),
 		},
-		"reservations": GetReservationsAttribute(true, false, false),
-	},
+	}
 }
 
 var EnabledAttribute = rschema.BoolAttribute{
