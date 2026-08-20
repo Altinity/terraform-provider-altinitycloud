@@ -108,7 +108,7 @@ func getResourcePrefixAttribute(required, optional, computed bool) rschema.Strin
 		Computed:            computed,
 		MarkdownDescription: common.HOSTED_RESOURCE_PREFIX_DESCRIPTION,
 		PlanModifiers: []planmodifier.String{
-			modifiers.ImmutableString("resource_prefix"),
+			modifiers.ImmutableString(),
 		},
 	}
 }
@@ -120,7 +120,7 @@ func getKmsKeyArnAttribute(required, optional, computed bool) rschema.StringAttr
 		Computed:            computed,
 		MarkdownDescription: common.KMS_KEY_ARN_DESCRIPTION,
 		PlanModifiers: []planmodifier.String{
-			modifiers.ImmutableString("kms_key_arn"),
+			modifiers.ImmutableString(),
 		},
 	}
 }

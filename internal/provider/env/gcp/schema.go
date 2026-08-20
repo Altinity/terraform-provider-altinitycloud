@@ -132,7 +132,7 @@ func getGCPProjectIDAttribute(required, optional, computed bool) rschema.StringA
 		Computed:            computed,
 		MarkdownDescription: common.GCP_PROJECT_ID_DESCRIPTION,
 		PlanModifiers: []planmodifier.String{
-			modifiers.ImmutableString("gcp_project_id"),
+			modifiers.ImmutableString(),
 		},
 	}
 }

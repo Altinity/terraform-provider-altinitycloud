@@ -131,7 +131,7 @@ func getAzureTenantIDAttribute(required, optional, computed bool) rschema.String
 		Computed:            computed,
 		MarkdownDescription: common.AZURE_TENANT_ID_DESCRIPTION,
 		PlanModifiers: []planmodifier.String{
-			modifiers.ImmutableString("tenant_id"),
+			modifiers.ImmutableString(),
 		},
 	}
 }
@@ -151,7 +151,7 @@ func getAzureSubscriptionIDAttribute(required, optional, computed bool) rschema.
 		Computed:            computed,
 		MarkdownDescription: common.AZURE_SUBSCRIPTION_ID_DESCRIPTION,
 		PlanModifiers: []planmodifier.String{
-			modifiers.ImmutableString("subscription_id"),
+			modifiers.ImmutableString(),
 		},
 	}
 }

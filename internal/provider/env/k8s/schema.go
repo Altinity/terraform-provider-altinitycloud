@@ -96,7 +96,7 @@ func getDistributionAttribute(required, optional, computed bool) rschema.StringA
 			),
 		},
 		PlanModifiers: []planmodifier.String{
-			modifiers.ImmutableString("distribution"),
+			modifiers.ImmutableString(),
 		},
 	}
 }
