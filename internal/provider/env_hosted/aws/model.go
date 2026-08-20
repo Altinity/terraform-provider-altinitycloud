@@ -27,7 +27,7 @@ type AWSEnvHostedResourceModel struct {
 	ExternalBuckets    []ExternalBucketModel           `tfsdk:"external_buckets"`
 	Backups            *BackupsModel                   `tfsdk:"backups"`
 	Iceberg            *IcebergModel                   `tfsdk:"iceberg"`
-	MetricsEndpoint    *hosted.MetricsEndpointModel    `tfsdk:"metrics_endpoint"`
+	MetricsEndpoint    *common.MetricsEndpointModel    `tfsdk:"metrics_endpoint"`
 	Datadog            *common.DatadogModel            `tfsdk:"datadog"`
 
 	SpecRevision                 types.Int64    `tfsdk:"spec_revision"`
@@ -135,7 +135,7 @@ func (e AWSEnvHostedResourceModel) toSDK(ctx context.Context) (sdk.CreateAWSEnvH
 	loadBalancers := loadBalancersToSDK(e.LoadBalancers)
 	maintenanceWindows := common.MaintenanceWindowsToSDK(e.MaintenanceWindows)
 	backups := backupsToSDK(e.Backups)
-	metricsEndpoint := hosted.MetricsEndpointToSDK(e.MetricsEndpoint)
+	metricsEndpoint := common.MetricsEndpointToSDK(e.MetricsEndpoint)
 	datadog := common.DatadogToSDK(e.Datadog)
 	catalogs := icebergCatalogsToSDK(e.Iceberg)
 
@@ -237,13 +237,13 @@ func (model *AWSEnvHostedResourceModel) applySpec(ctx context.Context, name stri
 	allDiags.Append(diags...)
 
 	model.LoadBalancers = loadBalancersToModel(spec.LoadBalancers)
-	model.MaintenanceWindows = maintenanceWindowsToModel(spec.MaintenanceWindows)
+	model.MaintenanceWindows = common.MaintenanceWindowsToModel(spec.MaintenanceWindows)
 	model.Endpoints = endpointsToModel(spec.Endpoints)
 	model.ExternalBuckets = externalBucketsToModel(spec.ExternalBuckets)
 	model.Backups = backupsToModel(spec.Backups)
 	model.Iceberg = icebergToModel(spec.Iceberg)
-	model.MetricsEndpoint = hosted.MetricsEndpointToModel(model.MetricsEndpoint, spec.MetricsEndpoint.Enabled, spec.MetricsEndpoint.SourceIPRanges)
-	model.Datadog = hosted.DatadogToModel(model.Datadog, spec.Datadog.Enabled, spec.Datadog.Domain, spec.Datadog.LogsEnabled, spec.Datadog.MetricsEnabled)
+	model.MetricsEndpoint = common.MetricsEndpointToModel(model.MetricsEndpoint, spec.MetricsEndpoint.Enabled, spec.MetricsEndpoint.SourceIPRanges)
+	model.Datadog = common.DatadogToModel(model.Datadog, spec.Datadog.Enabled, spec.Datadog.Domain, spec.Datadog.LogsEnabled, spec.Datadog.MetricsEnabled)
 
 	return allDiags
 }
@@ -337,26 +337,6 @@ func nodeGroupsToModel(nodeGroups []*sdk.AWSEnvHostedSpecFragment_NodeGroups) ([
 	}
 
 	return models, allDiags
-}
-
-func maintenanceWindowsToModel(input []*sdk.AWSEnvHostedSpecFragment_MaintenanceWindows) []common.MaintenanceWindowModel {
-	var maintenanceWindows []common.MaintenanceWindowModel
-	for _, mw := range input {
-		var days []types.String
-		for _, day := range mw.Days {
-			days = append(days, types.StringValue(string(day)))
-		}
-
-		maintenanceWindows = append(maintenanceWindows, common.MaintenanceWindowModel{
-			Name:          types.StringValue(mw.Name),
-			Enabled:       types.BoolValue(mw.Enabled),
-			Hour:          types.Int64Value(mw.Hour),
-			LengthInHours: types.Int64Value(mw.LengthInHours),
-			Days:          days,
-		})
-	}
-
-	return maintenanceWindows
 }
 
 func endpointsToModel(input []*sdk.AWSEnvHostedSpecFragment_Endpoints) []EndpointModel {

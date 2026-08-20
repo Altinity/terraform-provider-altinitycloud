@@ -558,11 +558,11 @@ func TestReorderIcebergNilSafe(t *testing.T) {
 }
 
 func TestMaintenanceWindowsToModel(t *testing.T) {
-	if got := maintenanceWindowsToModel(nil); got != nil {
+	if got := common.MaintenanceWindowsToModel[*sdk.AWSEnvHostedSpecFragment_MaintenanceWindows](nil); got != nil {
 		t.Errorf("got %v, want nil so an unconfigured attribute stays null", got)
 	}
 
-	got := maintenanceWindowsToModel([]*sdk.AWSEnvHostedSpecFragment_MaintenanceWindows{{
+	got := common.MaintenanceWindowsToModel([]*sdk.AWSEnvHostedSpecFragment_MaintenanceWindows{{
 		Name:          "weekly",
 		Enabled:       true,
 		Hour:          2,

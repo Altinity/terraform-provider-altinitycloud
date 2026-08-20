@@ -34,7 +34,7 @@ type AWSEnvModel struct {
 	ExternalBuckets              []AWSEnvExternalBucketModel     `tfsdk:"external_buckets"`
 	Backups                      *AWSEnvBackupsModel             `tfsdk:"backups"`
 	Iceberg                      *AWSEnvIcebergModel             `tfsdk:"iceberg"`
-	MetricsEndpoint              *AWSEnvMetricsEndpointModel     `tfsdk:"metrics_endpoint"`
+	MetricsEndpoint              *common.MetricsEndpointModel    `tfsdk:"metrics_endpoint"`
 	Datadog                      *common.DatadogModel            `tfsdk:"datadog"`
 	EksLogging                   types.Bool                      `tfsdk:"eks_logging"`
 
@@ -122,11 +122,6 @@ type AWSEnvIcebergCatalogWatchModel struct {
 	PathsRelativeToTableLocation []types.String `tfsdk:"paths_relative_to_table_location"`
 }
 
-type AWSEnvMetricsEndpointModel struct {
-	Enabled        types.Bool     `tfsdk:"enabled"`
-	SourceIPRanges []types.String `tfsdk:"source_ip_ranges"`
-}
-
 func (e AWSEnvModel) toSDK(ctx context.Context) (sdk.CreateAWSEnvInput, sdk.UpdateAWSEnvInput, diag.Diagnostics) {
 	var zones []string
 	var allDiags diag.Diagnostics
@@ -178,7 +173,7 @@ func (e AWSEnvModel) toSDK(ctx context.Context) (sdk.CreateAWSEnvInput, sdk.Upda
 	cloudConnect := e.CloudConnect.ValueBool()
 
 	iceberg := icebergToSDK(e.Iceberg)
-	metricsEndpoint := metricsEndpointToSDK(e.MetricsEndpoint)
+	metricsEndpoint := common.MetricsEndpointToSDK(e.MetricsEndpoint)
 	customDomain, customDomains, diags := common.CustomDomainsToSDK(ctx, e.CustomDomain, e.CustomDomains)
 	allDiags.Append(diags...)
 	datadog := common.DatadogToSDK(e.Datadog)
@@ -279,7 +274,7 @@ func (model *AWSEnvModel) toModel(env sdk.GetAWSEnv_AWSEnv) diag.Diagnostics {
 		func(m AWSEnvExternalBucketModel) string { return m.Name.ValueString() },
 		func(s *sdk.AWSEnvSpecFragment_ExternalBuckets) string { return s.Name },
 	)
-	model.MaintenanceWindows = maintenanceWindowsToModel(env.Spec.MaintenanceWindows)
+	model.MaintenanceWindows = common.MaintenanceWindowsToModel(env.Spec.MaintenanceWindows)
 	zones, diags := common.ListToModel(env.Spec.Zones)
 	allDiags.Append(diags...)
 	model.Zones = zones
@@ -335,8 +330,8 @@ func (model *AWSEnvModel) toModel(env sdk.GetAWSEnv_AWSEnv) diag.Diagnostics {
 	model.SpecRevision = types.Int64Value(env.SpecRevision)
 	model.CloudConnect = types.BoolValue(env.Spec.CloudConnect)
 	model.EksLogging = types.BoolValue(env.Spec.EksLogging)
-	model.MetricsEndpoint = metricsEndpointToModel(model.MetricsEndpoint, &env.Spec.MetricsEndpoint)
-	model.Datadog = datadogToModel(model.Datadog, &env.Spec.Datadog)
+	model.MetricsEndpoint = common.MetricsEndpointToModel(model.MetricsEndpoint, env.Spec.MetricsEndpoint.Enabled, env.Spec.MetricsEndpoint.SourceIPRanges)
+	model.Datadog = common.DatadogToModel(model.Datadog, env.Spec.Datadog.Enabled, env.Spec.Datadog.Domain, env.Spec.Datadog.LogsEnabled, env.Spec.Datadog.MetricsEnabled)
 
 	return allDiags
 }
@@ -479,26 +474,6 @@ func nodeGroupsToModel(nodeGroups []*sdk.AWSEnvSpecFragment_NodeGroups) ([]commo
 	}
 
 	return modelNodeGroups, allDiags
-}
-
-func maintenanceWindowsToModel(input []*sdk.AWSEnvSpecFragment_MaintenanceWindows) []common.MaintenanceWindowModel {
-	var maintenanceWindow []common.MaintenanceWindowModel
-	for _, mw := range input {
-		var days []types.String
-		for _, day := range mw.Days {
-			days = append(days, types.StringValue(string(day)))
-		}
-
-		maintenanceWindow = append(maintenanceWindow, common.MaintenanceWindowModel{
-			Name:          types.StringValue(mw.Name),
-			Enabled:       types.BoolValue(mw.Enabled),
-			Hour:          types.Int64Value(mw.Hour),
-			LengthInHours: types.Int64Value(mw.LengthInHours),
-			Days:          days,
-		})
-	}
-
-	return maintenanceWindow
 }
 
 func backupsToSDK(backups *AWSEnvBackupsModel) *sdk.AWSEnvBackupsSpecInput {
@@ -689,69 +664,4 @@ func icebergToModel(iceberg *sdk.AWSEnvSpecFragment_Iceberg) *AWSEnvIcebergModel
 	return &AWSEnvIcebergModel{
 		Catalogs: catalogs,
 	}
-}
-
-func metricsEndpointToSDK(endpoint *AWSEnvMetricsEndpointModel) *sdk.MetricsEndpointSpecInput {
-	if endpoint == nil {
-		return nil
-	}
-
-	var sourceIPRanges []string
-	for _, ip := range endpoint.SourceIPRanges {
-		sourceIPRanges = append(sourceIPRanges, ip.ValueString())
-	}
-
-	return &sdk.MetricsEndpointSpecInput{
-		Enabled:        endpoint.Enabled.ValueBoolPointer(),
-		SourceIPRanges: sourceIPRanges,
-	}
-}
-
-func metricsEndpointToModel(existing *AWSEnvMetricsEndpointModel, endpoint *sdk.AWSEnvSpecFragment_MetricsEndpoint) *AWSEnvMetricsEndpointModel {
-	if endpoint == nil {
-		return existing
-	}
-
-	// The API always returns a metrics_endpoint block. Keep state null when the
-	// user never configured it and it's disabled, to avoid a perpetual diff.
-	if existing == nil && !endpoint.Enabled {
-		return nil
-	}
-
-	var sourceIPRanges []types.String
-	for _, ip := range endpoint.SourceIPRanges {
-		sourceIPRanges = append(sourceIPRanges, types.StringValue(ip))
-	}
-
-	return &AWSEnvMetricsEndpointModel{
-		Enabled:        types.BoolValue(endpoint.Enabled),
-		SourceIPRanges: sourceIPRanges,
-	}
-}
-
-func datadogToModel(existing *common.DatadogModel, datadog *sdk.AWSEnvSpecFragment_Datadog) *common.DatadogModel {
-	if datadog == nil {
-		return existing
-	}
-
-	// The API always returns a datadog block (DatadogSpec!). Keep state null
-	// when the user never configured it and it's disabled, to avoid a perpetual diff.
-	if existing == nil && !datadog.Enabled {
-		return nil
-	}
-
-	model := &common.DatadogModel{
-		Enabled:        types.BoolValue(datadog.Enabled),
-		Domain:         types.StringValue(datadog.Domain),
-		LogsEnabled:    types.BoolValue(datadog.LogsEnabled),
-		MetricsEnabled: types.BoolValue(datadog.MetricsEnabled),
-	}
-
-	// enc_api_key is write-only; the API never returns it, so preserve the
-	// previously configured value.
-	if existing != nil {
-		model.EncAPIKey = existing.EncAPIKey
-	}
-
-	return model
 }
