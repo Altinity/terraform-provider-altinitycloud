@@ -5,8 +5,6 @@ import (
 	"fmt"
 
 	clientsupport "github.com/altinity/terraform-provider-altinitycloud/internal/provider/common"
-	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk"
-	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/client"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/crypto"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -14,13 +12,13 @@ import (
 )
 
 var _ resource.Resource = &SecretResource{}
+var _ resource.ResourceWithConfigure = &SecretResource{}
 
 func NewSecretResource() resource.Resource {
 	return &SecretResource{}
 }
 
 type SecretResource struct {
-	client *client.Client
 	crypto *crypto.Crypto
 }
 
@@ -29,22 +27,11 @@ func (r *SecretResource) Metadata(ctx context.Context, req resource.MetadataRequ
 }
 
 func (r *SecretResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
-	if req.ProviderData == nil {
-		return
-	}
-
-	sdk, ok := req.ProviderData.(*sdk.AltinityCloudSDK)
-
+	sdk, ok := clientsupport.SDKFromProviderData(req.ProviderData, &resp.Diagnostics)
 	if !ok {
-		resp.Diagnostics.AddError(
-			"Unexpected Resource Configure Type",
-			fmt.Sprintf("Expected *sdk.AltinityCloudSDK, got: %T. Please report this issue to the provider developers.", req.ProviderData),
-		)
-
 		return
 	}
 
-	r.client = sdk.Client
 	r.crypto = sdk.Crypto
 }
 

@@ -14,6 +14,7 @@ import (
 )
 
 var _ resource.Resource = &K8SEnvResource{}
+var _ resource.ResourceWithConfigure = &K8SEnvResource{}
 var _ resource.ResourceWithImportState = &K8SEnvResource{}
 
 func NewK8SEnvResource() resource.Resource {

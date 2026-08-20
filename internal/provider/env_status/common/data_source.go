@@ -7,7 +7,6 @@ import (
 	"time"
 
 	clientsupport "github.com/altinity/terraform-provider-altinitycloud/internal/provider/common"
-	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/client"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -22,18 +21,8 @@ type EnvStatusDataSourceBase struct {
 }
 
 func (d *EnvStatusDataSourceBase) Configure(ctx context.Context, req datasource.ConfigureRequest, resp *datasource.ConfigureResponse) {
-	if req.ProviderData == nil {
-		return
-	}
-
-	sdk, ok := req.ProviderData.(*sdk.AltinityCloudSDK)
-
+	sdk, ok := clientsupport.SDKFromProviderData(req.ProviderData, &resp.Diagnostics)
 	if !ok {
-		resp.Diagnostics.AddError(
-			"Unexpected Resource Configure Type",
-			fmt.Sprintf("Expected *sdk.AltinityCloudSDK, got: %T. Please report this issue to the provider developers.", req.ProviderData),
-		)
-
 		return
 	}
 

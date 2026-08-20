@@ -15,6 +15,7 @@ import (
 )
 
 var _ resource.Resource = &AWSEnvResource{}
+var _ resource.ResourceWithConfigure = &AWSEnvResource{}
 var _ resource.ResourceWithImportState = &AWSEnvResource{}
 var _ resource.ResourceWithValidateConfig = &AWSEnvResource{}
 

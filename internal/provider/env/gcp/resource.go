@@ -15,6 +15,7 @@ import (
 )
 
 var _ resource.Resource = &GCPEnvResource{}
+var _ resource.ResourceWithConfigure = &GCPEnvResource{}
 var _ resource.ResourceWithImportState = &GCPEnvResource{}
 var _ resource.ResourceWithValidateConfig = &GCPEnvResource{}
 
