@@ -4,26 +4,23 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 )
 
 var _ planmodifier.String = immutableStringModifier{}
 
-func ImmutableString(attributeName string) immutableStringModifier {
-	return immutableStringModifier{AttributeName: attributeName}
+func ImmutableString() immutableStringModifier {
+	return immutableStringModifier{}
 }
 
-type immutableStringModifier struct {
-	AttributeName string
-}
+type immutableStringModifier struct{}
 
 func (m immutableStringModifier) Description(_ context.Context) string {
-	return fmt.Sprintf("Attribute '%s' is immutable after creation.", m.AttributeName)
+	return "Attribute is immutable after creation."
 }
 
-func (m immutableStringModifier) MarkdownDescription(_ context.Context) string {
-	return fmt.Sprintf("Attribute `%s` is immutable after creation.", m.AttributeName)
+func (m immutableStringModifier) MarkdownDescription(ctx context.Context) string {
+	return m.Description(ctx)
 }
 
 func (m immutableStringModifier) PlanModifyString(ctx context.Context, req planmodifier.StringRequest, resp *planmodifier.StringResponse) {
@@ -38,7 +35,6 @@ func (m immutableStringModifier) PlanModifyString(ctx context.Context, req planm
 	}
 
 	if req.StateValue.ValueString() != req.PlanValue.ValueString() {
-		resp.Diagnostics.AddAttributeError(path.Root(m.AttributeName), "Immutable Attribute", fmt.Sprintf("%s is immutable and cannot be modified after creation.", m.AttributeName))
-		return
+		resp.Diagnostics.AddAttributeError(req.Path, "Immutable Attribute", fmt.Sprintf("%s is immutable and cannot be modified after creation.", req.Path))
 	}
 }
