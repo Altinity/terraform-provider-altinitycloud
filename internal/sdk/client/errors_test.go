@@ -167,3 +167,14 @@ func TestIsActiveClustersError_Nil(t *testing.T) {
 		t.Error("expected false for nil error")
 	}
 }
+
+func TestIsActiveClustersError_ConflictAfterOtherConflict(t *testing.T) {
+	rawErr := errors.New(`{"networkErrors":null,"graphqlErrors":[{"message":"conflict","path":["deleteAWSEnv"],"extensions":{"code":"CONFLICT"}},{"message":"env has active clusters, use forceDestroyClusters=true","path":["deleteAWSEnv"],"extensions":{"code":"CONFLICT"}}]}`)
+	got, err := IsActiveClustersError(rawErr)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if !got {
+		t.Error("expected true, got false")
+	}
+}
