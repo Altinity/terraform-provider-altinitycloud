@@ -1,37 +1,77 @@
 package client
 
 import (
-	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
+
+	"github.com/Yamashou/gqlgenc/clientv2"
+	"github.com/vektah/gqlparser/v2/ast"
 )
 
 type GraphQLError struct {
-	Message    string                 `json:"message"`
-	Path       []interface{}          `json:"path"` // GraphQL path elements are strings or list indices (ints)
-	Extensions map[string]interface{} `json:"extensions"`
+	Message    string
+	Path       []interface{} // GraphQL path elements are strings or list indices (ints)
+	Extensions map[string]interface{}
 }
 
 func (e GraphQLError) Error() string {
 	return fmt.Sprintf("GraphQL Error: %s", e.Message)
 }
 
+// ClientError is the projection of clientv2.ErrorResponse the helpers below work
+// on, so nothing outside this file depends on the SDK's error shape.
 type ClientError struct {
-	NetworkErrors interface{}    `json:"networkErrors"`
-	GraphqlErrors []GraphQLError `json:"graphqlErrors"`
+	NetworkError  *clientv2.HTTPError
+	GraphqlErrors []GraphQLError
 }
 
+// ParseError resolves the typed error clientv2 returns. Transport failures never
+// reach a response, so clientv2 wraps them plainly and there is nothing to read;
+// those are reported as an error rather than an empty ClientError.
 func ParseError(err error) (*ClientError, error) {
 	if err == nil {
 		return nil, nil
 	}
 
-	var errResp ClientError
-	if jsonErr := json.Unmarshal([]byte(err.Error()), &errResp); jsonErr != nil {
-		return nil, fmt.Errorf("error parsing: %v", jsonErr)
+	var errResp *clientv2.ErrorResponse
+	if !errors.As(err, &errResp) {
+		return nil, fmt.Errorf("not a GraphQL error response: %w", err)
 	}
 
-	return &errResp, nil
+	parsed := &ClientError{NetworkError: errResp.NetworkError}
+	if errResp.GqlErrors != nil {
+		for _, gqlErr := range *errResp.GqlErrors {
+			if gqlErr == nil {
+				continue
+			}
+			parsed.GraphqlErrors = append(parsed.GraphqlErrors, GraphQLError{
+				Message:    gqlErr.Message,
+				Path:       pathElements(gqlErr.Path),
+				Extensions: gqlErr.Extensions,
+			})
+		}
+	}
+
+	return parsed, nil
+}
+
+// pathElements flattens ast.PathName and ast.PathIndex to the plain string and int
+// that errorPrefix type-asserts on.
+func pathElements(path ast.Path) []interface{} {
+	var elements []interface{}
+	for _, element := range path {
+		switch v := element.(type) {
+		case ast.PathName:
+			elements = append(elements, string(v))
+		case ast.PathIndex:
+			elements = append(elements, int(v))
+		default:
+			elements = append(elements, element)
+		}
+	}
+
+	return elements
 }
 
 func IsNotFoundError(err error) (bool, error) {
@@ -94,8 +134,8 @@ func FormatError(err error, resourceName string) string {
 		return strings.Join(messages, "\n")
 	}
 
-	if parsedError.NetworkErrors != nil {
-		return formatNetworkErrors(parsedError.NetworkErrors)
+	if parsedError.NetworkError != nil {
+		return formatNetworkError(parsedError.NetworkError)
 	}
 
 	return err.Error()
@@ -135,20 +175,12 @@ func errorPrefix(gqlError GraphQLError) string {
 	return "Error"
 }
 
-func formatNetworkErrors(networkErrors interface{}) string {
-	switch v := networkErrors.(type) {
-	case string:
-		return fmt.Sprintf("Network error: %s", v)
-	case map[string]interface{}:
-		if msg, ok := v["message"]; ok {
-			return fmt.Sprintf("Network error: %v", msg)
-		}
-		raw, _ := json.Marshal(v)
-		return fmt.Sprintf("Network error: %s", raw)
-	default:
-		raw, _ := json.Marshal(v)
-		return fmt.Sprintf("Network error: %s", raw)
+func formatNetworkError(networkError *clientv2.HTTPError) string {
+	if networkError.Message == "" {
+		return fmt.Sprintf("Network error: HTTP %d", networkError.Code)
 	}
+
+	return fmt.Sprintf("Network error: %s", networkError.Message)
 }
 
 func IsActiveClustersError(err error) (bool, error) {
