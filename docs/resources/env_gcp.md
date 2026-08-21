@@ -252,7 +252,10 @@ data "altinitycloud_env_gcp_status" "this" {
 Required:
 
 - `capacity_per_zone` (Number) Maximum number of instances per availability zone.
-- `node_type` (String) List of node groups. At least one required.
+- `node_type` (String) Machine type ([docs](https://cloud.google.com/compute/docs/machine-resource)).
+
+		Examples:
+		- "e2-standard-2"
 - `reservations` (Set of String) Types of workload that are allowed to be scheduled onto the nodes that belong to this group.
 
 		Possible values:
@@ -544,7 +547,10 @@ data "altinitycloud_env_gcp_status" "this" {
 Required:
 
 - `capacity_per_zone` (Number) Maximum number of instances per availability zone.
-- `node_type` (String) List of node groups. At least one required.
+- `node_type` (String) Machine type ([docs](https://cloud.google.com/compute/docs/machine-resource)).
+
+		Examples:
+		- "e2-standard-2"
 - `reservations` (Set of String) Types of workload that are allowed to be scheduled onto the nodes that belong to this group.
 
 		Possible values:

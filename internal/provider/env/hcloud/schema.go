@@ -187,7 +187,7 @@ var nodeGroupAttribute = rschema.NestedAttributeObject{
 		},
 		"node_type": rschema.StringAttribute{
 			Required:            true,
-			MarkdownDescription: common.NODE_GROUP_DESCRIPTION,
+			MarkdownDescription: common.HCLOUD_NODE_GROUP_NODE_TYPE_DESCRIPTION,
 		},
 		"capacity_per_location": rschema.Int64Attribute{
 			Required:            true,
