@@ -4,7 +4,18 @@ import (
 	"errors"
 	"strings"
 	"testing"
+
+	"github.com/Yamashou/gqlgenc/clientv2"
+	"github.com/vektah/gqlparser/v2/gqlerror"
 )
+
+func activeClustersErr() error {
+	list := gqlerror.List{{
+		Message:    "env has active clusters, use forceDestroyClusters=true",
+		Extensions: map[string]interface{}{"code": "CONFLICT"},
+	}}
+	return &clientv2.ErrorResponse{GqlErrors: &list}
+}
 
 func TestValidateForceDestroy(t *testing.T) {
 	t.Parallel()
@@ -119,7 +130,7 @@ func TestFormatDeleteError(t *testing.T) {
 		contains string
 	}{
 		"active clusters error": {
-			err:      errors.New(`{"networkErrors":null,"graphqlErrors":[{"message":"env has active clusters, use forceDestroyClusters=true","path":["deleteAWSEnv"],"extensions":{"code":"CONFLICT"}}]}`),
+			err:      activeClustersErr(),
 			contains: "force_destroy_clusters=true",
 		},
 		"generic error": {

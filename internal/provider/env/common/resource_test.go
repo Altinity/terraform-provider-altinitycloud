@@ -7,15 +7,23 @@ import (
 	"testing"
 	"time"
 
+	"github.com/Yamashou/gqlgenc/clientv2"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
+	"github.com/vektah/gqlparser/v2/gqlerror"
 )
 
 // Passed explicitly instead of shrinking DeletePollInterval, so these tests can
 // stay parallel without racing on the package-level default.
 const testPollInterval = 50 * time.Millisecond
 
+// The real shape the SDK returns, so IsNotFoundError is exercised the way it is
+// called in production.
 func notFoundErr() error {
-	return fmt.Errorf(`{"networkErrors":null,"graphqlErrors":[{"message":"not found","path":["env"],"extensions":{"code":"NOT_FOUND"}}]}`)
+	list := gqlerror.List{{
+		Message:    "not found",
+		Extensions: map[string]interface{}{"code": "NOT_FOUND"},
+	}}
+	return &clientv2.ErrorResponse{GqlErrors: &list}
 }
 
 func TestWaitForDeletion_NotFoundImmediate(t *testing.T) {
