@@ -11,8 +11,3 @@ type NodeGroupsModel struct {
 	ZoneIDs         types.List   `tfsdk:"zone_ids"`
 	Reservations    types.Set    `tfsdk:"reservations"`
 }
-
-type MetricsEndpointModel struct {
-	Enabled        types.Bool     `tfsdk:"enabled"`
-	SourceIPRanges []types.String `tfsdk:"source_ip_ranges"`
-}

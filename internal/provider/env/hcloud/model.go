@@ -24,7 +24,7 @@ type HCloudEnvModel struct {
 	LoadBalancingStrategy types.String                    `tfsdk:"load_balancing_strategy"`
 	MaintenanceWindows    []common.MaintenanceWindowModel `tfsdk:"maintenance_windows"`
 	WireguardPeers        []WireguardPeers                `tfsdk:"wireguard_peers"`
-	MetricsEndpoint       *MetricsEndpointModel           `tfsdk:"metrics_endpoint"`
+	MetricsEndpoint       *common.MetricsEndpointModel    `tfsdk:"metrics_endpoint"`
 	Datadog               *common.DatadogModel            `tfsdk:"datadog"`
 
 	SpecRevision                 types.Int64 `tfsdk:"spec_revision"`
@@ -73,11 +73,6 @@ type WireguardPeers struct {
 	Endpoint   types.String `tfsdk:"endpoint"`
 }
 
-type MetricsEndpointModel struct {
-	Enabled        types.Bool     `tfsdk:"enabled"`
-	SourceIPRanges []types.String `tfsdk:"source_ip_ranges"`
-}
-
 func (e HCloudEnvModel) toSDK(ctx context.Context) (client.CreateHCloudEnvInput, client.UpdateHCloudEnvInput, diag.Diagnostics) {
 	var locations []string
 	var allDiags diag.Diagnostics
@@ -96,7 +91,7 @@ func (e HCloudEnvModel) toSDK(ctx context.Context) (client.CreateHCloudEnvInput,
 	allDiags.Append(diags...)
 
 	loadBalancingStrategy := (*client.LoadBalancingStrategy)(e.LoadBalancingStrategy.ValueStringPointer())
-	metricsEndpoint := metricsEndpointToSDK(e.MetricsEndpoint)
+	metricsEndpoint := common.MetricsEndpointToSDK(e.MetricsEndpoint)
 	datadog := common.DatadogToSDK(e.Datadog)
 	cloudConnect := false
 	customDomain, customDomains, diags := common.CustomDomainsToSDK(ctx, e.CustomDomain, e.CustomDomains)
@@ -165,7 +160,7 @@ func (model *HCloudEnvModel) toModel(env client.GetHCloudEnv_HcloudEnv) diag.Dia
 		func(m common.MaintenanceWindowModel) string { return m.Name.ValueString() },
 		func(s *client.HCloudEnvSpecFragment_MaintenanceWindows) string { return s.Name },
 	)
-	model.MaintenanceWindows = maintenanceWindowsToModel(env.Spec.MaintenanceWindows)
+	model.MaintenanceWindows = common.MaintenanceWindowsToModel(env.Spec.MaintenanceWindows)
 
 	locations, diags := common.ListToModel(env.Spec.Locations)
 	allDiags.Append(diags...)
@@ -179,8 +174,8 @@ func (model *HCloudEnvModel) toModel(env client.GetHCloudEnv_HcloudEnv) diag.Dia
 	allDiags.Append(diags...)
 	model.WireguardPeers = wireguardPeers
 
-	model.MetricsEndpoint = metricsEndpointToModel(model.MetricsEndpoint, &env.Spec.MetricsEndpoint)
-	model.Datadog = datadogToModel(model.Datadog, &env.Spec.Datadog)
+	model.MetricsEndpoint = common.MetricsEndpointToModel(model.MetricsEndpoint, env.Spec.MetricsEndpoint.Enabled, env.Spec.MetricsEndpoint.SourceIPRanges)
+	model.Datadog = common.DatadogToModel(model.Datadog, env.Spec.Datadog.Enabled, env.Spec.Datadog.Domain, env.Spec.Datadog.LogsEnabled, env.Spec.Datadog.MetricsEnabled)
 	model.SpecRevision = types.Int64Value(env.SpecRevision)
 
 	return allDiags
@@ -318,26 +313,6 @@ func nodeGroupsToModel(nodeGroups []*client.HCloudEnvSpecFragment_NodeGroups) ([
 	return modelNodeGroups, allDiags
 }
 
-func maintenanceWindowsToModel(input []*client.HCloudEnvSpecFragment_MaintenanceWindows) []common.MaintenanceWindowModel {
-	var maintenanceWindow []common.MaintenanceWindowModel
-	for _, mw := range input {
-		var days []types.String
-		for _, day := range mw.Days {
-			days = append(days, types.StringValue(string(day)))
-		}
-
-		maintenanceWindow = append(maintenanceWindow, common.MaintenanceWindowModel{
-			Name:          types.StringValue(mw.Name),
-			Enabled:       types.BoolValue(mw.Enabled),
-			Hour:          types.Int64Value(mw.Hour),
-			LengthInHours: types.Int64Value(mw.LengthInHours),
-			Days:          days,
-		})
-	}
-
-	return maintenanceWindow
-}
-
 func wireguardPeersToModel(input []*client.HCloudEnvSpecFragment_WireguardPeers) ([]WireguardPeers, diag.Diagnostics) {
 	var allDiags diag.Diagnostics
 	var peers []WireguardPeers
@@ -353,69 +328,4 @@ func wireguardPeersToModel(input []*client.HCloudEnvSpecFragment_WireguardPeers)
 	}
 
 	return peers, allDiags
-}
-
-func metricsEndpointToSDK(endpoint *MetricsEndpointModel) *client.MetricsEndpointSpecInput {
-	if endpoint == nil {
-		return nil
-	}
-
-	var sourceIPRanges []string
-	for _, ip := range endpoint.SourceIPRanges {
-		sourceIPRanges = append(sourceIPRanges, ip.ValueString())
-	}
-
-	return &client.MetricsEndpointSpecInput{
-		Enabled:        endpoint.Enabled.ValueBoolPointer(),
-		SourceIPRanges: sourceIPRanges,
-	}
-}
-
-func metricsEndpointToModel(existing *MetricsEndpointModel, endpoint *client.HCloudEnvSpecFragment_MetricsEndpoint) *MetricsEndpointModel {
-	if endpoint == nil {
-		return existing
-	}
-
-	// The API always returns a metrics_endpoint block. Keep state null when the
-	// user never configured it and it's disabled, to avoid a perpetual diff.
-	if existing == nil && !endpoint.Enabled {
-		return nil
-	}
-
-	var sourceIPRanges []types.String
-	for _, ip := range endpoint.SourceIPRanges {
-		sourceIPRanges = append(sourceIPRanges, types.StringValue(ip))
-	}
-
-	return &MetricsEndpointModel{
-		Enabled:        types.BoolValue(endpoint.Enabled),
-		SourceIPRanges: sourceIPRanges,
-	}
-}
-
-func datadogToModel(existing *common.DatadogModel, datadog *client.HCloudEnvSpecFragment_Datadog) *common.DatadogModel {
-	if datadog == nil {
-		return existing
-	}
-
-	// The API always returns a datadog block (DatadogSpec!). Keep state null
-	// when the user never configured it and it's disabled, to avoid a perpetual diff.
-	if existing == nil && !datadog.Enabled {
-		return nil
-	}
-
-	model := &common.DatadogModel{
-		Enabled:        types.BoolValue(datadog.Enabled),
-		Domain:         types.StringValue(datadog.Domain),
-		LogsEnabled:    types.BoolValue(datadog.LogsEnabled),
-		MetricsEnabled: types.BoolValue(datadog.MetricsEnabled),
-	}
-
-	// enc_api_key is write-only; the API never returns it, so preserve the
-	// previously configured value.
-	if existing != nil {
-		model.EncAPIKey = existing.EncAPIKey
-	}
-
-	return model
 }

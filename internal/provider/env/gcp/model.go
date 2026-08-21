@@ -28,7 +28,7 @@ type GCPEnvModel struct {
 	PeeringConnections      []GCPEnvPeeringConnectionModel  `tfsdk:"peering_connections"`
 	PrivateServiceConsumers types.List                      `tfsdk:"private_service_consumers"`
 	Labels                  []common.KeyValueModel          `tfsdk:"labels"`
-	MetricsEndpoint         *MetricsEndpointModel           `tfsdk:"metrics_endpoint"`
+	MetricsEndpoint         *common.MetricsEndpointModel    `tfsdk:"metrics_endpoint"`
 	Datadog                 *common.DatadogModel            `tfsdk:"datadog"`
 
 	SpecRevision                 types.Int64 `tfsdk:"spec_revision"`
@@ -68,11 +68,6 @@ type GCPEnvPeeringConnectionModel struct {
 	NetworkName types.String `tfsdk:"network_name"`
 }
 
-type MetricsEndpointModel struct {
-	Enabled        types.Bool     `tfsdk:"enabled"`
-	SourceIPRanges []types.String `tfsdk:"source_ip_ranges"`
-}
-
 func (e GCPEnvModel) toSDK(ctx context.Context) (sdk.CreateGCPEnvInput, sdk.UpdateGCPEnvInput, diag.Diagnostics) {
 	var zones []string
 	var allDiags diag.Diagnostics
@@ -86,7 +81,7 @@ func (e GCPEnvModel) toSDK(ctx context.Context) (sdk.CreateGCPEnvInput, sdk.Upda
 	nodeGroups, diags := nodeGroupsToSDK(ctx, e.NodeGroups)
 	allDiags.Append(diags...)
 	loadBalancingStrategy := (*sdk.LoadBalancingStrategy)(e.LoadBalancingStrategy.ValueStringPointer())
-	metricsEndpoint := metricsEndpointToSDK(e.MetricsEndpoint)
+	metricsEndpoint := common.MetricsEndpointToSDK(e.MetricsEndpoint)
 	datadog := common.DatadogToSDK(e.Datadog)
 	cloudConnect := false
 	customDomain, customDomains, diags := common.CustomDomainsToSDK(ctx, e.CustomDomain, e.CustomDomains)
@@ -189,7 +184,7 @@ func (model *GCPEnvModel) toModel(env sdk.GetGCPEnv_GCPEnv) diag.Diagnostics {
 		func(m common.KeyValueModel) string { return m.Key.ValueString() },
 		func(s *sdk.GCPEnvSpecFragment_Labels) string { return s.Key },
 	)
-	model.MaintenanceWindows = maintenanceWindowsToModel(env.Spec.MaintenanceWindows)
+	model.MaintenanceWindows = common.MaintenanceWindowsToModel(env.Spec.MaintenanceWindows)
 
 	zones, diags := common.ListToModel(env.Spec.Zones)
 	allDiags.Append(diags...)
@@ -199,8 +194,8 @@ func (model *GCPEnvModel) toModel(env sdk.GetGCPEnv_GCPEnv) diag.Diagnostics {
 	allDiags.Append(diags...)
 	model.PrivateServiceConsumers = psc
 
-	model.MetricsEndpoint = metricsEndpointToModel(model.MetricsEndpoint, &env.Spec.MetricsEndpoint)
-	model.Datadog = datadogToModel(model.Datadog, &env.Spec.Datadog)
+	model.MetricsEndpoint = common.MetricsEndpointToModel(model.MetricsEndpoint, env.Spec.MetricsEndpoint.Enabled, env.Spec.MetricsEndpoint.SourceIPRanges)
+	model.Datadog = common.DatadogToModel(model.Datadog, env.Spec.Datadog.Enabled, env.Spec.Datadog.Domain, env.Spec.Datadog.LogsEnabled, env.Spec.Datadog.MetricsEnabled)
 
 	var labels []common.KeyValueModel
 	for _, t := range env.Spec.Labels {
@@ -333,89 +328,4 @@ func nodeGroupsToModel(nodeGroups []*sdk.GCPEnvSpecFragment_NodeGroups) ([]commo
 	}
 
 	return modelNodeGroups, allDiags
-}
-
-func maintenanceWindowsToModel(input []*sdk.GCPEnvSpecFragment_MaintenanceWindows) []common.MaintenanceWindowModel {
-	var maintenanceWindow []common.MaintenanceWindowModel
-	for _, mw := range input {
-		var days []types.String
-		for _, day := range mw.Days {
-			days = append(days, types.StringValue(string(day)))
-		}
-
-		maintenanceWindow = append(maintenanceWindow, common.MaintenanceWindowModel{
-			Name:          types.StringValue(mw.Name),
-			Enabled:       types.BoolValue(mw.Enabled),
-			Hour:          types.Int64Value(mw.Hour),
-			LengthInHours: types.Int64Value(mw.LengthInHours),
-			Days:          days,
-		})
-	}
-
-	return maintenanceWindow
-}
-
-func metricsEndpointToSDK(endpoint *MetricsEndpointModel) *sdk.MetricsEndpointSpecInput {
-	if endpoint == nil {
-		return nil
-	}
-
-	var sourceIPRanges []string
-	for _, ip := range endpoint.SourceIPRanges {
-		sourceIPRanges = append(sourceIPRanges, ip.ValueString())
-	}
-
-	return &sdk.MetricsEndpointSpecInput{
-		Enabled:        endpoint.Enabled.ValueBoolPointer(),
-		SourceIPRanges: sourceIPRanges,
-	}
-}
-
-func metricsEndpointToModel(existing *MetricsEndpointModel, endpoint *sdk.GCPEnvSpecFragment_MetricsEndpoint) *MetricsEndpointModel {
-	if endpoint == nil {
-		return existing
-	}
-
-	// The API always returns a metrics_endpoint block. Keep state null when the
-	// user never configured it and it's disabled, to avoid a perpetual diff.
-	if existing == nil && !endpoint.Enabled {
-		return nil
-	}
-
-	var sourceIPRanges []types.String
-	for _, ip := range endpoint.SourceIPRanges {
-		sourceIPRanges = append(sourceIPRanges, types.StringValue(ip))
-	}
-
-	return &MetricsEndpointModel{
-		Enabled:        types.BoolValue(endpoint.Enabled),
-		SourceIPRanges: sourceIPRanges,
-	}
-}
-
-func datadogToModel(existing *common.DatadogModel, datadog *sdk.GCPEnvSpecFragment_Datadog) *common.DatadogModel {
-	if datadog == nil {
-		return existing
-	}
-
-	// The API always returns a datadog block (DatadogSpec!). Keep state null
-	// when the user never configured it and it's disabled, to avoid a perpetual diff.
-	if existing == nil && !datadog.Enabled {
-		return nil
-	}
-
-	model := &common.DatadogModel{
-		Enabled:        types.BoolValue(datadog.Enabled),
-		Domain:         types.StringValue(datadog.Domain),
-		LogsEnabled:    types.BoolValue(datadog.LogsEnabled),
-		MetricsEnabled: types.BoolValue(datadog.MetricsEnabled),
-	}
-
-	// enc_api_key is write-only; the API never returns it, so preserve the
-	// previously configured value.
-	if existing != nil {
-		model.EncAPIKey = existing.EncAPIKey
-	}
-
-	return model
 }

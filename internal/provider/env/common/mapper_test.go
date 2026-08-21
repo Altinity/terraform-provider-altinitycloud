@@ -275,3 +275,330 @@ func assertStrPtr(t *testing.T, field string, expected, got *string) {
 		t.Errorf("%s mismatch: expected %q, got %q", field, *expected, *got)
 	}
 }
+
+func TestMetricsEndpointToSDK(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    *MetricsEndpointModel
+		expected *client.MetricsEndpointSpecInput
+	}{
+		{
+			name:     "nil input",
+			input:    nil,
+			expected: nil,
+		},
+		{
+			name: "enabled with source ip ranges",
+			input: &MetricsEndpointModel{
+				Enabled:        types.BoolValue(true),
+				SourceIPRanges: []types.String{types.StringValue("10.0.0.0/8"), types.StringValue("192.168.1.0/24")},
+			},
+			expected: &client.MetricsEndpointSpecInput{
+				Enabled:        boolPtr(true),
+				SourceIPRanges: []string{"10.0.0.0/8", "192.168.1.0/24"},
+			},
+		},
+		{
+			name: "disabled with empty source ip ranges",
+			input: &MetricsEndpointModel{
+				Enabled:        types.BoolValue(false),
+				SourceIPRanges: []types.String{},
+			},
+			expected: &client.MetricsEndpointSpecInput{
+				Enabled:        boolPtr(false),
+				SourceIPRanges: nil,
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := MetricsEndpointToSDK(tt.input)
+
+			if (tt.expected == nil) != (got == nil) {
+				t.Fatalf("expected nil: %v, got nil: %v", tt.expected == nil, got == nil)
+			}
+			if tt.expected == nil {
+				return
+			}
+
+			assertBoolPtr(t, "Enabled", tt.expected.Enabled, got.Enabled)
+			assertStrings(t, "SourceIPRanges", tt.expected.SourceIPRanges, got.SourceIPRanges)
+		})
+	}
+}
+
+func TestMetricsEndpointToModel(t *testing.T) {
+	tests := []struct {
+		name           string
+		existing       *MetricsEndpointModel
+		enabled        bool
+		sourceIPRanges []string
+		expected       *MetricsEndpointModel
+	}{
+		{
+			name:           "enabled populates the block",
+			enabled:        true,
+			sourceIPRanges: []string{"10.0.0.0/8", "172.16.0.0/12"},
+			expected: &MetricsEndpointModel{
+				Enabled:        types.BoolValue(true),
+				SourceIPRanges: []types.String{types.StringValue("10.0.0.0/8"), types.StringValue("172.16.0.0/12")},
+			},
+		},
+		{
+			name:           "disabled and unconfigured stays null",
+			enabled:        false,
+			sourceIPRanges: []string{},
+			expected:       nil,
+		},
+		{
+			name:           "disabled but previously configured is preserved",
+			existing:       &MetricsEndpointModel{Enabled: types.BoolValue(false)},
+			enabled:        false,
+			sourceIPRanges: []string{},
+			expected: &MetricsEndpointModel{
+				Enabled:        types.BoolValue(false),
+				SourceIPRanges: nil,
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := MetricsEndpointToModel(tt.existing, tt.enabled, tt.sourceIPRanges)
+
+			if (tt.expected == nil) != (got == nil) {
+				t.Fatalf("expected nil: %v, got nil: %v", tt.expected == nil, got == nil)
+			}
+			if tt.expected == nil {
+				return
+			}
+
+			if tt.expected.Enabled.ValueBool() != got.Enabled.ValueBool() {
+				t.Errorf("Enabled: expected %v, got %v", tt.expected.Enabled.ValueBool(), got.Enabled.ValueBool())
+			}
+			if len(tt.expected.SourceIPRanges) != len(got.SourceIPRanges) {
+				t.Fatalf("SourceIPRanges count: expected %d, got %d", len(tt.expected.SourceIPRanges), len(got.SourceIPRanges))
+			}
+			for i, expected := range tt.expected.SourceIPRanges {
+				if expected.ValueString() != got.SourceIPRanges[i].ValueString() {
+					t.Errorf("SourceIPRanges[%d]: expected %q, got %q", i, expected.ValueString(), got.SourceIPRanges[i].ValueString())
+				}
+			}
+		})
+	}
+}
+
+func TestDatadogToModel(t *testing.T) {
+	tests := []struct {
+		name           string
+		existing       *DatadogModel
+		enabled        bool
+		domain         string
+		logsEnabled    bool
+		metricsEnabled bool
+		expected       *DatadogModel
+	}{
+		{
+			// Existing envs upgrading without a datadog block must not drift: the API
+			// always returns the block (disabled by default) but state stays null.
+			name:     "unconfigured and disabled stays nil",
+			domain:   "datadoghq.com",
+			expected: nil,
+		},
+		{
+			name:        "unconfigured but enabled out-of-band populates without api key",
+			enabled:     true,
+			domain:      "us3.datadoghq.com",
+			logsEnabled: true,
+			expected: &DatadogModel{
+				Enabled:        types.BoolValue(true),
+				EncAPIKey:      types.StringNull(),
+				Domain:         types.StringValue("us3.datadoghq.com"),
+				LogsEnabled:    types.BoolValue(true),
+				MetricsEnabled: types.BoolValue(false),
+			},
+		},
+		{
+			name:           "configured preserves write-only enc_api_key",
+			existing:       &DatadogModel{EncAPIKey: types.StringValue("enc-secret")},
+			enabled:        true,
+			domain:         "datadoghq.com",
+			metricsEnabled: true,
+			expected: &DatadogModel{
+				Enabled:        types.BoolValue(true),
+				EncAPIKey:      types.StringValue("enc-secret"),
+				Domain:         types.StringValue("datadoghq.com"),
+				LogsEnabled:    types.BoolValue(false),
+				MetricsEnabled: types.BoolValue(true),
+			},
+		},
+		{
+			name: "configured but disabled stays populated",
+			existing: &DatadogModel{
+				Enabled:   types.BoolValue(true),
+				EncAPIKey: types.StringValue("enc-secret"),
+			},
+			domain: "datadoghq.com",
+			expected: &DatadogModel{
+				Enabled:        types.BoolValue(false),
+				EncAPIKey:      types.StringValue("enc-secret"),
+				Domain:         types.StringValue("datadoghq.com"),
+				LogsEnabled:    types.BoolValue(false),
+				MetricsEnabled: types.BoolValue(false),
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := DatadogToModel(tt.existing, tt.enabled, tt.domain, tt.logsEnabled, tt.metricsEnabled)
+
+			if (tt.expected == nil) != (got == nil) {
+				t.Fatalf("expected nil: %v, got nil: %v", tt.expected == nil, got == nil)
+			}
+			if tt.expected == nil {
+				return
+			}
+
+			if tt.expected.Enabled.ValueBool() != got.Enabled.ValueBool() {
+				t.Errorf("Enabled: expected %v, got %v", tt.expected.Enabled.ValueBool(), got.Enabled.ValueBool())
+			}
+			if tt.expected.EncAPIKey.IsNull() != got.EncAPIKey.IsNull() {
+				t.Errorf("EncAPIKey null: expected %v, got %v", tt.expected.EncAPIKey.IsNull(), got.EncAPIKey.IsNull())
+			}
+			if tt.expected.EncAPIKey.ValueString() != got.EncAPIKey.ValueString() {
+				t.Errorf("EncAPIKey: expected %q, got %q", tt.expected.EncAPIKey.ValueString(), got.EncAPIKey.ValueString())
+			}
+			if tt.expected.Domain.ValueString() != got.Domain.ValueString() {
+				t.Errorf("Domain: expected %q, got %q", tt.expected.Domain.ValueString(), got.Domain.ValueString())
+			}
+			if tt.expected.LogsEnabled.ValueBool() != got.LogsEnabled.ValueBool() {
+				t.Errorf("LogsEnabled: expected %v, got %v", tt.expected.LogsEnabled.ValueBool(), got.LogsEnabled.ValueBool())
+			}
+			if tt.expected.MetricsEnabled.ValueBool() != got.MetricsEnabled.ValueBool() {
+				t.Errorf("MetricsEnabled: expected %v, got %v", tt.expected.MetricsEnabled.ValueBool(), got.MetricsEnabled.ValueBool())
+			}
+		})
+	}
+}
+
+func TestMaintenanceWindowsToModel(t *testing.T) {
+	type window struct {
+		name          string
+		enabled       bool
+		hour          int64
+		lengthInHours int64
+		days          []string
+	}
+
+	tests := []struct {
+		name     string
+		input    []*client.AWSEnvSpecFragment_MaintenanceWindows
+		expected []window
+	}{
+		{
+			name:     "nil input",
+			input:    nil,
+			expected: nil,
+		},
+		{
+			name:     "empty input",
+			input:    []*client.AWSEnvSpecFragment_MaintenanceWindows{},
+			expected: nil,
+		},
+		{
+			name: "single window",
+			input: []*client.AWSEnvSpecFragment_MaintenanceWindows{
+				{Name: "nightly-backup", Enabled: true, Hour: 3, LengthInHours: 2, Days: []client.Day{"friday"}},
+			},
+			expected: []window{
+				{name: "nightly-backup", enabled: true, hour: 3, lengthInHours: 2, days: []string{"friday"}},
+			},
+		},
+		{
+			name: "multiple windows keep order",
+			input: []*client.AWSEnvSpecFragment_MaintenanceWindows{
+				{Name: "weekly-maintenance", Hour: 2, LengthInHours: 4, Days: []client.Day{"saturday", "sunday"}},
+				{Name: "daily-maintenance", Hour: 1, LengthInHours: 1, Days: []client.Day{"monday", "tuesday", "wednesday"}},
+			},
+			expected: []window{
+				{name: "weekly-maintenance", hour: 2, lengthInHours: 4, days: []string{"saturday", "sunday"}},
+				{name: "daily-maintenance", hour: 1, lengthInHours: 1, days: []string{"monday", "tuesday", "wednesday"}},
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := MaintenanceWindowsToModel(tt.input)
+
+			// nil rather than empty: an empty list would show up as a diff.
+			if tt.expected == nil {
+				if got != nil {
+					t.Fatalf("expected nil, got %d windows", len(got))
+				}
+				return
+			}
+
+			if len(got) != len(tt.expected) {
+				t.Fatalf("expected %d windows, got %d", len(tt.expected), len(got))
+			}
+
+			for i, expected := range tt.expected {
+				if got[i].Name.ValueString() != expected.name {
+					t.Errorf("[%d] Name: expected %q, got %q", i, expected.name, got[i].Name.ValueString())
+				}
+				if got[i].Enabled.ValueBool() != expected.enabled {
+					t.Errorf("[%d] Enabled: expected %v, got %v", i, expected.enabled, got[i].Enabled.ValueBool())
+				}
+				if got[i].Hour.ValueInt64() != expected.hour {
+					t.Errorf("[%d] Hour: expected %d, got %d", i, expected.hour, got[i].Hour.ValueInt64())
+				}
+				if got[i].LengthInHours.ValueInt64() != expected.lengthInHours {
+					t.Errorf("[%d] LengthInHours: expected %d, got %d", i, expected.lengthInHours, got[i].LengthInHours.ValueInt64())
+				}
+				assertDays(t, i, expected.days, got[i].Days)
+			}
+		})
+	}
+}
+
+// A nil element must not panic: the generated getters are nil-safe, so it maps to
+// a zero-valued window.
+func TestMaintenanceWindowsToModelNilElement(t *testing.T) {
+	got := MaintenanceWindowsToModel([]*client.AWSEnvSpecFragment_MaintenanceWindows{nil})
+
+	if len(got) != 1 {
+		t.Fatalf("expected 1 window, got %d", len(got))
+	}
+	if got[0].Name.ValueString() != "" {
+		t.Errorf("expected an empty name, got %q", got[0].Name.ValueString())
+	}
+}
+
+func assertStrings(t *testing.T, field string, expected, got []string) {
+	t.Helper()
+
+	if len(expected) != len(got) {
+		t.Fatalf("%s count: expected %d, got %d", field, len(expected), len(got))
+	}
+	for i := range expected {
+		if expected[i] != got[i] {
+			t.Errorf("%s[%d]: expected %q, got %q", field, i, expected[i], got[i])
+		}
+	}
+}
+
+func assertDays(t *testing.T, index int, expected []string, got []types.String) {
+	t.Helper()
+
+	if len(expected) != len(got) {
+		t.Fatalf("[%d] Days count: expected %d, got %d", index, len(expected), len(got))
+	}
+	for i := range expected {
+		if expected[i] != got[i].ValueString() {
+			t.Errorf("[%d] Days[%d]: expected %q, got %q", index, i, expected[i], got[i].ValueString())
+		}
+	}
+}

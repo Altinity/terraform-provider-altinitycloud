@@ -143,3 +143,78 @@ func MaintenanceWindowsToSDK(maintenanceWindows []MaintenanceWindowModel) []*cli
 
 	return sdkMaintenanceWindows
 }
+
+func MetricsEndpointToSDK(endpoint *MetricsEndpointModel) *client.MetricsEndpointSpecInput {
+	if endpoint == nil {
+		return nil
+	}
+
+	return &client.MetricsEndpointSpecInput{
+		Enabled:        endpoint.Enabled.ValueBoolPointer(),
+		SourceIPRanges: ListStringToSDK(endpoint.SourceIPRanges),
+	}
+}
+
+// The API always returns a metrics endpoint block. Keep state null when the user
+// never configured it and it's disabled, to avoid a perpetual diff.
+func MetricsEndpointToModel(existing *MetricsEndpointModel, enabled bool, sourceIPRanges []string) *MetricsEndpointModel {
+	if existing == nil && !enabled {
+		return nil
+	}
+
+	return &MetricsEndpointModel{
+		Enabled:        types.BoolValue(enabled),
+		SourceIPRanges: ListStringToModel(sourceIPRanges),
+	}
+}
+
+// The API always returns a datadog block (DatadogSpec!), so the same null-preserving
+// rule as the metrics endpoint applies. enc_api_key is write-only and never returned.
+func DatadogToModel(existing *DatadogModel, enabled bool, domain string, logsEnabled, metricsEnabled bool) *DatadogModel {
+	if existing == nil && !enabled {
+		return nil
+	}
+
+	model := &DatadogModel{
+		Enabled:        types.BoolValue(enabled),
+		Domain:         types.StringValue(domain),
+		LogsEnabled:    types.BoolValue(logsEnabled),
+		MetricsEnabled: types.BoolValue(metricsEnabled),
+	}
+
+	if existing != nil {
+		model.EncAPIKey = existing.EncAPIKey
+	}
+
+	return model
+}
+
+// MaintenanceWindowFragment is the accessor set every generated env maintenance
+// window fragment exposes, which is what lets one mapper serve every provider.
+type MaintenanceWindowFragment interface {
+	GetName() string
+	GetEnabled() bool
+	GetHour() int64
+	GetLengthInHours() int64
+	GetDays() []client.Day
+}
+
+func MaintenanceWindowsToModel[T MaintenanceWindowFragment](input []T) []MaintenanceWindowModel {
+	var windows []MaintenanceWindowModel
+	for _, mw := range input {
+		var days []types.String
+		for _, day := range mw.GetDays() {
+			days = append(days, types.StringValue(string(day)))
+		}
+
+		windows = append(windows, MaintenanceWindowModel{
+			Name:          types.StringValue(mw.GetName()),
+			Enabled:       types.BoolValue(mw.GetEnabled()),
+			Hour:          types.Int64Value(mw.GetHour()),
+			LengthInHours: types.Int64Value(mw.GetLengthInHours()),
+			Days:          days,
+		})
+	}
+
+	return windows
+}
