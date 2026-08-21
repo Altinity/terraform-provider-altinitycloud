@@ -4,9 +4,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.7.6](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.7.5...v0.7.6)
+## [0.8.0](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.7.5...v0.8.0)
+### Added
+- New Altinity-hosted AWS environment: `altinitycloud_env_aws_hosted` resource plus `altinitycloud_env_aws_hosted` and `altinitycloud_env_aws_hosted_status` data sources. The environment runs in an Altinity-owned AWS account, so there is no cloud account of yours to connect. Supports `node_groups` (with `zone_ids`), `region`, `zone_ids`, `resource_prefix`, `kms_key_arn`, `backups`, `external_buckets`, `iceberg`, `endpoints`, `load_balancers`, `custom_domains`, `datadog`, `metrics_endpoint`, `maintenance_windows`, and the usual destroy guards (`force_destroy`, `force_destroy_clusters`, `skip_deprovision_on_destroy`, `allow_delete_while_disconnected`) [#265](https://github.com/Altinity/terraform-provider-altinitycloud/pull/265).
+- Documentation for the hosted environment: public and VPC-endpoint setup examples, Iceberg, external buckets, backups and KMS, and an explanation of AWS availability zone **ids** (e.g. `use1-az1`) vs. zone names [90c4da6](https://github.com/Altinity/terraform-provider-altinitycloud/commit/90c4da6), [8badf12](https://github.com/Altinity/terraform-provider-altinitycloud/commit/8badf12).
+
 ### Fixed
-- Fix `Value Conversion Error: mismatch between struct and object: Struct defines fields not found in object: timeouts` when reading any environment data source (`altinitycloud_env_aws`, `_gcp`, `_azure`, `_k8s`, `_hcloud`): the data sources reused the resource model, which carries the resource-only `timeouts` block. Regression in 0.6.0.
+- Fix `Value Conversion Error: mismatch between struct and object: Struct defines fields not found in object: timeouts` when reading any environment data source (`altinitycloud_env_aws`, `_gcp`, `_azure`, `_k8s`, `_hcloud`): the data sources reused the resource model, which carries the resource-only `timeouts` block. Regression in 0.6.0 [#263](https://github.com/Altinity/terraform-provider-altinitycloud/pull/263).
+- Bump google.golang.org/grpc to `1.83.0` to address GHSA-hrxh-6v49-42gf [#266](https://github.com/Altinity/terraform-provider-altinitycloud/pull/266).
+
+### Changed
+- Bump github.com/hashicorp/terraform-plugin-log to `0.11.0` [#262](https://github.com/Altinity/terraform-provider-altinitycloud/pull/262).
+- Bump github.com/stretchr/testify to `1.12.0` [#264](https://github.com/Altinity/terraform-provider-altinitycloud/pull/264).
 
 ## [0.7.5](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.7.4...v0.7.5)
 ### Fixed

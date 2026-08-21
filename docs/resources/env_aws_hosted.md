@@ -15,7 +15,7 @@ Unlike `altinitycloud_env_aws`, an Altinity-hosted environment runs in an AWS ac
 
 Zone *names* are shuffled per AWS account: your `us-east-1a` and Altinity's `us-east-1a` are usually different physical datacenters. Zone *ids* are stable across every account, so `use1-az1` always refers to the same physical zone. Since the environment is provisioned in Altinity's account, only zone ids can express where it should run.
 
-The zone ids of a region are listed in the AWS console under EC2 → Settings, or can be read with the AWS provider:
+For most setups the specific physical zones do not matter: pick any two in the region. They are listed in the AWS console under EC2 → Settings, or can be read with the AWS provider:
 
 ```hcl
 provider "aws" {
@@ -31,23 +31,36 @@ data "aws_availability_zones" "available" {
   }
 }
 
-locals {
-  zone_ids = slice(data.aws_availability_zones.available.zone_ids, 0, 2)
-}
-
 resource "altinitycloud_env_aws_hosted" "this" {
   name     = "acme-staging"
   region   = "us-east-1"
-  zone_ids = local.zone_ids
+  zone_ids = slice(data.aws_availability_zones.available.zone_ids, 0, 2)
 
   # ... other configuration ...
 }
 ```
 
-Two caveats before wiring this in:
+Zones *do* matter when you will connect from your own AWS account into the environment — for example a VPC endpoint. Endpoint ENIs must land in the same physical AZs as your subnets, so map the zone names you already use to ids:
 
-- It requires AWS credentials in the account running Terraform, which a hosted environment otherwise does not need at all.
-- The data source lists the zones *your* account can use. Which zones are available differs between accounts, so a zone id it returns is not guaranteed to be usable by Altinity's account. Prefer pinning the zone ids explicitly once you know they work.
+```hcl
+data "aws_availability_zone" "this" {
+  for_each = toset(["us-east-1a", "us-east-1b"])
+  name     = each.key
+}
+
+resource "altinitycloud_env_aws_hosted" "this" {
+  name     = "acme-staging"
+  region   = "us-east-1"
+  zone_ids = [for az in data.aws_availability_zone.this : az.zone_id]
+
+  # ... other configuration ...
+}
+```
+
+Two caveats before wiring either lookup in:
+
+- Looking them up with the AWS provider requires credentials in the account running Terraform, which a hosted environment otherwise does not need. If you are not matching zones to your VPC, skip the provider and pin the ids from the console.
+- Both list the zones *your* account can use. Which zones are available differs between accounts, so a zone id they return is not guaranteed to be usable by Altinity's account. Prefer pinning the zone ids explicitly once you know they work.
 
 ## Example Usage
 
