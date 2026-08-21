@@ -15,7 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Bump github.com/hashicorp/terraform-plugin-log to `0.11.0` [#262](https://github.com/Altinity/terraform-provider-altinitycloud/pull/262).
-- Bump github.com/stretchr/testify to `1.12.0` [#264](https://github.com/Altinity/terraform-provider-altinitycloud/pull/264).
+- Bump github.com/stretchr/testify to `1.12.1` [#264](https://github.com/Altinity/terraform-provider-altinitycloud/pull/264), [#274](https://github.com/Altinity/terraform-provider-altinitycloud/pull/274).
+- Bump github.com/hashicorp/terraform-exec to `0.25.3` [#275](https://github.com/Altinity/terraform-provider-altinitycloud/pull/275).
 
 ## [0.7.5](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.7.4...v0.7.5)
 ### Fixed
