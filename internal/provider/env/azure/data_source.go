@@ -81,8 +81,4 @@ func (d *AzureEnvDataSource) Read(ctx context.Context, req datasource.ReadReques
 
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
-
-	if resp.Diagnostics.HasError() {
-		return
-	}
 }

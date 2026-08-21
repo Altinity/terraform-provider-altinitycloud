@@ -103,13 +103,11 @@ const FORCE_DESTROY_DESCRIPTION = "Locks the environment for accidental deletion
 const FORCE_DESTROY_CLUSTERS_DESCRIPTION = "By default, the destroy operation will not delete any provisioned clusters and the deletion will fail until the clusters get removed. Set to `true` to remove all provisioned clusters as part of the environment deletion process."
 const SKIP_PROVISIONING_ON_DESTROY_DESCRIPTION = "Set to `true` will delete without waiting for environment deprovisioning. Use this with precaution, it may end up with dangling resources in your cloud provider (default `false`)."
 const ALLOW_DELETE_WHILE_DISCONNECTED_DESCRIPTION = "Set to `true` to allow deletion of the environment while it is disconnected from the cloud connect. If the the environment is not connected during the deletion process you will end up in a delete timeout (default `false`)."
-const STATUS_DESCRIPTION = "Environment status"
 const STATUS_SPEC_REVISION_DESCRIPTION = "Spec revision"
 const STATUS_APPLIED_SPEC_REVISION_DESCRIPTION = "Applied spec revision"
 const STATUS_WAIT_FOR_APPLIED_SPEC_REVISION_DESCRIPTION = "Use this attribute to wait for the environment to be fully provisioned. It will long pull environment status until it matches the applied spec revision."
 const STATUS_PENDING_DELETE_DESCRIPTION = "`true` indicates that environment is pending deletion"
 const STATUS_LOAD_BALANCERS_DESCRIPTION = "Load balancer status information."
-const STATUS_LOAD_BALANCERS_INTERNAL_DESCRIPTION = "Status of internal load balancer."
 const STATUS_LOAD_BALANCERS_ENDPOINT_SERVICE_NAME_DESCRIPTION = "VPC endpoint service name in $endpoint_service_id.$region.vpce.amazonaws.com format (if any)"
 
 // AWS descriptions.
@@ -156,7 +154,6 @@ const PEERING_CONNECTION_DESCRIPTION = "AWS environment VPC peering configuratio
 const PEERING_CONNECTION_ID_DESCRIPTION = "VPC peering connection ID."
 const PEERING_CONNECTION_VPC_ID_DESCRIPTION = "Target VPC ID."
 const PEERING_CONNECTION_VPC_REGION_DESCRIPTION = "Target VPC region (defaults to environment region)."
-const PEERING_CONNECTION_AWS_ACCOUNT_ID_DESCRIPTION = "Target VPC AWS account ID (defaults to environment AWS account ID)."
 const ENDPOINT_DESCRIPTION = "AWS environment VPC endpoint configuration"
 const ENDPOINT_SERVICE_NAME_DESCRIPTION = "VPC endpoint service name in $endpoint_service_id.$region.vpce.amazonaws.com format."
 const ENDPOINT_ALIAS_DESCRIPTION = "By default, VPC endpoints get assigned $endpoint_service_id.$env_name.altinity.cloud DNS record. Alias allows to override DNS record name to `$alias.$env_name.altinity.cloud`."
@@ -171,7 +168,6 @@ const AWS_BACKUPS_CUSTOM_BUCKET_DESCRIPTION = "Custom S3 bucket configuration fo
 const AWS_BACKUPS_BUCKET_DESCRIPTION = "S3 bucket name for backups"
 const AWS_BACKUPS_REGION_DESCRIPTION = "AWS region where the backup bucket is located"
 const AWS_BACKUPS_AUTH_DESCRIPTION = "Authentication configuration for backup bucket access"
-const AWS_BACKUPS_ROLE_ARN_DESCRIPTION = "IAM role ARN for backup bucket access"
 const AWS_RESOURCES_DESCRIPTION = "AWS resources associated with the environment."
 const AWS_RESOURCES_ID_DESCRIPTION = "AWS resource ID."
 const AWS_RESOURCES_ARN_DESCRIPTION = "AWS resource ARN."
@@ -203,7 +199,6 @@ const GCP_LABELS_DESCRIPTION = "Labels to apply to GCP resources."
 // K8S descriptions.
 const K8S_NODE_GROUP_NODE_TYPE_DESCRIPTION = "node.kubernetes.io/instance-type value."
 const K8S_NODE_GROUP_ZONES_DESCRIPTION = "topology.kubernetes.io/zone values. ⚠️ Existing zones cannot be removed or replaced once added; only new zones may be appended."
-const K8S_REGION_DESCRIPTION = "Cloud provider Region. Check possible available regions in your cloud provider documentation **[IMMUTABLE]**"
 const K8S_LOAD_BALANCER_ANNOTATIONS_DESCRIPTION = "List of annotations for the load balancer"
 const DISTRIBUTION_DESCRIPTION = `Kubernetes distribution. **[IMMUTABLE]**
 
@@ -296,9 +291,6 @@ const ICEBERG_CATALOG_MAINTENANCE_ENABLED_DESCRIPTION = "Whether maintenance is 
 const ICEBERG_CATALOG_WATCHES_DESCRIPTION = "Table watch configurations."
 const ICEBERG_CATALOG_WATCH_TABLE_DESCRIPTION = "Table name to watch."
 const ICEBERG_CATALOG_WATCH_PATHS_DESCRIPTION = "Paths relative to table location to watch."
-const ICEBERG_CATALOG_ROLE_ARN_DESCRIPTION = "IAM role ARN for BYOK environments."
-const ICEBERG_CATALOG_ASSUME_ROLE_ARN_RW_DESCRIPTION = "IAM role ARN to assume for read-write access."
-const ICEBERG_CATALOG_ASSUME_ROLE_ARN_RO_DESCRIPTION = "IAM role ARN to assume for read-only access."
 
 // Metrics Endpoint descriptions.
 const METRICS_ENDPOINT_DESCRIPTION = "Metrics endpoint configuration."

@@ -11,16 +11,6 @@ import (
 )
 
 // SetToModel/ListToModel always return non-null; unsafe for plain Optional attrs where null must stay null.
-func SetToModel(input []string) (types.Set, diag.Diagnostics) {
-	zones := []attr.Value{}
-	for _, str := range input {
-		zones = append(zones, types.StringValue(str))
-	}
-
-	list, diags := types.SetValue(types.StringType, zones)
-	return list, diags
-}
-
 func ListToModel(input []string) (types.List, diag.Diagnostics) {
 	zones := []attr.Value{}
 	for _, str := range input {
