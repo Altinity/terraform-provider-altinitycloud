@@ -49,7 +49,7 @@ func (d *AzureEnvDataSource) Configure(ctx context.Context, req datasource.Confi
 }
 
 func (d *AzureEnvDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	tflog.Trace(ctx, "reading Azure env state source")
+	tflog.Trace(ctx, "reading azure env data source")
 
 	var data AzureEnvDataSourceModel
 	diags := req.Config.Get(ctx, &data)
