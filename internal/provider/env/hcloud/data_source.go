@@ -49,7 +49,7 @@ func (d *HCloudEnvDataSource) Configure(ctx context.Context, req datasource.Conf
 }
 
 func (d *HCloudEnvDataSource) Read(ctx context.Context, req datasource.ReadRequest, resp *datasource.ReadResponse) {
-	tflog.Trace(ctx, "reading aws env state source")
+	tflog.Trace(ctx, "reading hcloud env data source")
 
 	var data HCloudEnvDataSourceModel
 	diags := req.Config.Get(ctx, &data)
