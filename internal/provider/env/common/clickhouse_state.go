@@ -1,13 +1,28 @@
 package env
 
 import (
+	"slices"
+
+	clientsupport "github.com/altinity/terraform-provider-altinitycloud/internal/provider/common"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-// prior carries the config/plan values so ordering and the write-only password
-// fields survive a refresh; pass nil from data sources, which have no prior.
+// Adopting clusters the config never declared would make the next plan delete them.
 func ClickHouseClustersToModel(prior []ClickHouseClusterModel, specs []ClickHouseClusterSpec) ([]ClickHouseClusterModel, diag.Diagnostics) {
+	if len(prior) == 0 {
+		return nil, nil
+	}
+	return clickHouseClustersToModel(prior, specs)
+}
+
+// Data sources are read-only, so there is no configuration intent to protect.
+func DataSourceClickHouseClustersToModel(specs []ClickHouseClusterSpec) ([]ClickHouseClusterModel, diag.Diagnostics) {
+	return clickHouseClustersToModel(nil, specs)
+}
+
+// prior carries config/plan values so ordering and passwords survive a refresh.
+func clickHouseClustersToModel(prior []ClickHouseClusterModel, specs []ClickHouseClusterSpec) ([]ClickHouseClusterModel, diag.Diagnostics) {
 	var allDiags diag.Diagnostics
 	if len(specs) == 0 {
 		return nil, allDiags
@@ -55,6 +70,17 @@ func ClickHouseClustersToModel(prior []ClickHouseClusterModel, specs []ClickHous
 }
 
 func ClickHouseKeepersToModel(prior []ClickHouseKeeperModel, specs []ClickHouseKeeperSpec) ([]ClickHouseKeeperModel, diag.Diagnostics) {
+	if len(prior) == 0 {
+		return nil, nil
+	}
+	return clickHouseKeepersToModel(prior, specs)
+}
+
+func DataSourceClickHouseKeepersToModel(specs []ClickHouseKeeperSpec) ([]ClickHouseKeeperModel, diag.Diagnostics) {
+	return clickHouseKeepersToModel(nil, specs)
+}
+
+func clickHouseKeepersToModel(prior []ClickHouseKeeperModel, specs []ClickHouseKeeperSpec) ([]ClickHouseKeeperModel, diag.Diagnostics) {
 	var allDiags diag.Diagnostics
 	if len(specs) == 0 {
 		return nil, allDiags
@@ -121,8 +147,7 @@ func clickHouseAdditionalDisksToModel(prior []ClickHouseAdditionalDiskModel, spe
 	return disks
 }
 
-// A detached Keeper comes back null, which only tells us it is disabled; the name
-// stays whatever the config asked for since the API ignores it in that state.
+// A null ref means detached; the name stays as configured since the API ignores it.
 func clickHouseKeeperRefToModel(prior *ClickHouseKeeperRefModel, name *string) *ClickHouseKeeperRefModel {
 	if name == nil {
 		priorName := types.StringValue("")
@@ -207,6 +232,11 @@ func clickHouseUsersToModel(prior []ClickHouseUserModel, specs []ClickHouseUserS
 
 	users := make([]ClickHouseUserModel, 0, len(specs))
 	for _, s := range specs {
+		// The config can never declare these, so state would not match the plan.
+		if slices.Contains(clientsupport.ReservedClickHouseUsers, s.Name) {
+			continue
+		}
+
 		p, hasPrior := priorByName[s.Name]
 
 		allowedCIDRs, diags := nullableListToModel(s.AllowedCIDRs)
@@ -214,9 +244,7 @@ func clickHouseUsersToModel(prior []ClickHouseUserModel, specs []ClickHouseUserS
 		databases, diags := nullableListToModel(s.Databases)
 		allDiags.Append(diags...)
 
-		// Passwords are never returned, so the config value is the only source of
-		// truth; password_type follows it to keep the pair consistent (the API can
-		// report PLAIN_TEXT, which is not a value the config may hold).
+		// Passwords are never returned, so the config value is the only source of truth.
 		passwordType := types.StringPointerValue(s.PasswordType)
 		passwordValue := types.StringNull()
 		if hasPrior {
@@ -254,9 +282,7 @@ func clickHouseSecretRefToModel(spec *ClickHouseSecretRefSpec) *ClickHouseSecret
 	}
 }
 
-// The API returns zones in its own order, so an immutable list attribute would
-// diff forever against the configured order. Mirrors ReorderList without needing
-// a context, since toModel has none.
+// The API returns zones in its own order; ctx-free because toModel has none.
 func reorderZones(prior types.List, zones []string) []string {
 	if prior.IsNull() || prior.IsUnknown() || len(zones) == 0 {
 		return zones
@@ -288,8 +314,7 @@ func reorderZones(prior types.List, zones []string) []string {
 	return ordered
 }
 
-// Optional attributes must stay null when the API reports an empty list, otherwise
-// the post-apply plan check fails on null vs [].
+// null vs [] fails the post-apply plan check on a plain Optional attribute.
 func nullableListToModel(input []string) (types.List, diag.Diagnostics) {
 	if len(input) == 0 {
 		return types.ListNull(types.StringType), nil

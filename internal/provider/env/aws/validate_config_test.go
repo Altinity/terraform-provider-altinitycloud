@@ -183,4 +183,30 @@ func TestAWSValidateConfigClickHouse(t *testing.T) {
 			t.Fatalf("errored: %v", resp.Diagnostics.Errors())
 		}
 	})
+
+	// Reflecting an unknown into *ClickHouseDiskModel is a hard provider error, and
+	// a nested attribute can be unknown while the element around it is not.
+	t.Run("an unknown nested attribute defers validation", func(t *testing.T) {
+		raw := buildConfig(t, cfg, map[string]func(tftypes.Type) tftypes.Value{
+			"clickhouse_clusters": func(at tftypes.Type) tftypes.Value {
+				lt, ok := at.(tftypes.List)
+				if !ok {
+					t.Fatalf("clickhouse_clusters is not a tftypes.List, got %T", at)
+				}
+				ot, ok := lt.ElementType.(tftypes.Object)
+				if !ok {
+					t.Fatalf("cluster element is not a tftypes.Object, got %T", lt.ElementType)
+				}
+
+				cluster := nullObject(t, ot, map[string]tftypes.Value{
+					"name": tftypes.NewValue(ot.AttributeTypes["name"], "ch"),
+					"disk": tftypes.NewValue(ot.AttributeTypes["disk"], tftypes.UnknownValue),
+				})
+				return tftypes.NewValue(lt, []tftypes.Value{cluster})
+			},
+		})
+		if resp := runValidate(t, raw, cfg); resp.Diagnostics.HasError() {
+			t.Fatalf("errored: %v", resp.Diagnostics.Errors())
+		}
+	})
 }

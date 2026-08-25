@@ -75,6 +75,21 @@ func TestValidateClickHouseConfig(t *testing.T) {
 		}
 	})
 
+	t.Run("a keeper name is required only while the keeper is enabled", func(t *testing.T) {
+		missing := minimalClusterModel("ch")
+		missing.Keeper = &ClickHouseKeeperRefModel{Enabled: types.BoolValue(true), Name: types.StringNull()}
+		if diags := ValidateClickHouseConfig([]ClickHouseClusterModel{missing}, []ClickHouseKeeperModel{keeperModel()}, nil); !diags.HasError() {
+			t.Error("expected an error for an enabled keeper with no name")
+		}
+
+		swarm := minimalClusterModel("ch")
+		swarm.Mode = types.StringValue("SWARM")
+		swarm.Keeper = &ClickHouseKeeperRefModel{Enabled: types.BoolValue(false), Name: types.StringNull()}
+		if diags := ValidateClickHouseConfig([]ClickHouseClusterModel{swarm}, nil, nil); diags.HasError() {
+			t.Errorf("a SWARM cluster without a Keeper needs no name: %v", diags.Errors())
+		}
+	})
+
 	// ValidateConfig runs before schema defaults, so an omitted `enabled` is null.
 	t.Run("an omitted keeper.enabled is the default, not an opt-out", func(t *testing.T) {
 		cluster := minimalClusterModel("ch")

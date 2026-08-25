@@ -368,7 +368,7 @@ func TestClickHouseClustersToModel(t *testing.T) {
 		spec := minimalClusterSpec("ch")
 		spec.Users = []ClickHouseUserSpec{{Name: "app", AllowedCIDRs: []string{}, Databases: []string{}}}
 
-		got, diags := ClickHouseClustersToModel(nil, []ClickHouseClusterSpec{spec})
+		got, diags := DataSourceClickHouseClustersToModel([]ClickHouseClusterSpec{spec})
 		if diags.HasError() {
 			t.Fatalf("unexpected diags: %v", diags)
 		}
@@ -387,7 +387,7 @@ func TestClickHouseClustersToModel(t *testing.T) {
 			{Key: "secret", Value: "", ValueFromSecret: &ClickHouseSecretRefSpec{Name: "s", Key: "k"}},
 		}
 
-		got, diags := ClickHouseClustersToModel(nil, []ClickHouseClusterSpec{spec})
+		got, diags := DataSourceClickHouseClustersToModel([]ClickHouseClusterSpec{spec})
 		if diags.HasError() {
 			t.Fatalf("unexpected diags: %v", diags)
 		}
@@ -430,7 +430,7 @@ func TestClickHouseClustersToModel(t *testing.T) {
 		spec := minimalClusterSpec("ch")
 		spec.Users = []ClickHouseUserSpec{{Name: "imported"}}
 
-		got, diags := ClickHouseClustersToModel(nil, []ClickHouseClusterSpec{spec})
+		got, diags := DataSourceClickHouseClustersToModel([]ClickHouseClusterSpec{spec})
 		if diags.HasError() {
 			t.Fatalf("unexpected diags: %v", diags)
 		}
@@ -483,6 +483,53 @@ func TestClickHouseClustersToModel(t *testing.T) {
 			t.Errorf("expected disks in config order, got %s first", got[0].AdditionalDisks[0].Name)
 		}
 	})
+}
+
+// Terraform owns only what the configuration declares; adopting the rest would
+// make the next plan propose deleting it.
+func TestClickHouseClustersAreNotAdoptedWithoutPriorState(t *testing.T) {
+	specs := []ClickHouseClusterSpec{minimalClusterSpec("console-made")}
+
+	got, diags := ClickHouseClustersToModel(nil, specs)
+	if diags.HasError() {
+		t.Fatalf("unexpected diags: %v", diags)
+	}
+	if got != nil {
+		t.Errorf("a resource that never declared clusters must not adopt them, got %#v", got)
+	}
+
+	keepers := []ClickHouseKeeperSpec{{Name: "console-made", Disk: ClickHouseDiskSpec{Size: 30}}}
+	gotKeepers, diags := ClickHouseKeepersToModel(nil, keepers)
+	if diags.HasError() {
+		t.Fatalf("unexpected diags: %v", diags)
+	}
+	if gotKeepers != nil {
+		t.Errorf("a resource that never declared Keepers must not adopt them, got %#v", gotKeepers)
+	}
+
+	fromDataSource, diags := DataSourceClickHouseClustersToModel(specs)
+	if diags.HasError() {
+		t.Fatalf("unexpected diags: %v", diags)
+	}
+	if len(fromDataSource) != 1 {
+		t.Errorf("a data source reports everything the API returns, got %#v", fromDataSource)
+	}
+}
+
+func TestClickHouseReservedUsersAreDropped(t *testing.T) {
+	spec := minimalClusterSpec("ch")
+	spec.Users = []ClickHouseUserSpec{{Name: "grafana"}, {Name: "app"}, {Name: "datadog"}}
+
+	prior := minimalClusterModel("ch")
+	prior.Users = []ClickHouseUserModel{{Name: types.StringValue("app")}}
+
+	got, diags := ClickHouseClustersToModel([]ClickHouseClusterModel{prior}, []ClickHouseClusterSpec{spec})
+	if diags.HasError() {
+		t.Fatalf("unexpected diags: %v", diags)
+	}
+	if len(got[0].Users) != 1 || got[0].Users[0].Name.ValueString() != "app" {
+		t.Errorf("platform-injected users must not reach state, got %#v", got[0].Users)
+	}
 }
 
 func TestClickHouseKeepersToModel(t *testing.T) {
@@ -582,7 +629,7 @@ func TestClickHouseZonesFollowConfigOrder(t *testing.T) {
 		spec := minimalClusterSpec("ch")
 		spec.Zones = []string{"us-east-1a", "us-east-1b"}
 
-		got, diags := ClickHouseClustersToModel(nil, []ClickHouseClusterSpec{spec})
+		got, diags := DataSourceClickHouseClustersToModel([]ClickHouseClusterSpec{spec})
 		if diags.HasError() {
 			t.Fatalf("unexpected diags: %v", diags)
 		}

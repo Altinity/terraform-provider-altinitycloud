@@ -3,9 +3,10 @@ package env
 import (
 	"context"
 	"fmt"
-	"sort"
+	"slices"
 
 	sdk "github.com/altinity/terraform-provider-altinitycloud/internal/sdk/client"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -72,8 +73,7 @@ func validateClickHouseKeeperRef(clusterPath path.Path, cluster ClickHouseCluste
 
 	keeperPath := clusterPath.AtName("keeper")
 
-	// ValidateConfig reads the raw config, before schema defaults are applied, so a
-	// null `enabled` is the Default(true) and not an opt-out.
+	// ValidateConfig reads the raw config, so a null `enabled` is the Default(true).
 	settled := !cluster.Keeper.Enabled.IsNull() && !cluster.Keeper.Enabled.IsUnknown()
 	if settled && !cluster.Keeper.Enabled.ValueBool() {
 		// An unknown mode may still turn out to be SWARM; a null one is STANDARD.
@@ -83,9 +83,16 @@ func validateClickHouseKeeperRef(clusterPath path.Path, cluster ClickHouseCluste
 		}
 		return diags
 	}
+	if cluster.Keeper.Enabled.IsUnknown() {
+		return diags
+	}
 
 	name, ok := knownString(cluster.Keeper.Name)
 	if !ok {
+		if cluster.Keeper.Name.IsNull() {
+			diags.AddAttributeError(keeperPath.AtName("name"), "Keeper Name Required",
+				fmt.Sprintf("Cluster %q coordinates through a Keeper, so `name` must name one of `clickhouse_keepers`.", cluster.Name.ValueString()))
+		}
 		return diags
 	}
 
@@ -97,8 +104,7 @@ func validateClickHouseKeeperRef(clusterPath path.Path, cluster ClickHouseCluste
 	return diags
 }
 
-// A cluster runs on nodes reserved for CLICKHOUSE and a Keeper on nodes reserved
-// for ZOOKEEPER, which is knowable from the configuration alone.
+// Knowable from the config alone: a cluster needs CLICKHOUSE, a Keeper ZOOKEEPER.
 func validateNodeGroupPlacement(attrPath path.Path, kind string, name, instanceType types.String, reservation sdk.NodeReservation, nodeGroups []NodeGroupsModel) diag.Diagnostics {
 	var diags diag.Diagnostics
 
@@ -117,8 +123,7 @@ func validateNodeGroupPlacement(attrPath path.Path, kind string, name, instanceT
 	return diags
 }
 
-// settled is false while any node group is still unknown, since a missing match
-// would then be a guess.
+// settled is false while any node group is unknown, when a miss would be a guess.
 func nodeGroupAccepts(instanceType, reservation string, nodeGroups []NodeGroupsModel) (accepts bool, settled bool) {
 	settled = true
 
@@ -164,8 +169,7 @@ func validateUniqueNames[T any](attrPath path.Path, kind string, items []T, key 
 	return diags
 }
 
-// Entries are matched by name, so a config change the API rejects as immutable is
-// caught here rather than halfway through an environment update.
+// Matched by name, so this catches immutable changes before the update starts.
 func ValidateClickHousePlan(stateClusters, planClusters []ClickHouseClusterModel, stateKeepers, planKeepers []ClickHouseKeeperModel) diag.Diagnostics {
 	var diags diag.Diagnostics
 
@@ -241,8 +245,7 @@ func ValidateClickHousePlan(stateClusters, planClusters []ClickHouseClusterModel
 	return diags
 }
 
-// The update API creates entries it cannot find by name, but its input carries no
-// mode, zones or storage class, so those would silently fall back to defaults.
+// The update input carries no mode, zones or storage class, so they fall back to defaults.
 func validateClusterAddedToExistingEnv(clusterPath path.Path, cluster ClickHouseClusterModel) diag.Diagnostics {
 	var diags diag.Diagnostics
 
@@ -273,8 +276,7 @@ func setOnlyAtEnvCreation(attrPath path.Path, name string, value types.String, k
 	return diags
 }
 
-// Bridges a list attribute into the string-shaped presence check above: only
-// whether the user set it matters.
+// Only whether the user set the list matters.
 func listPresence(list types.List) types.String {
 	if list.IsNull() || list.IsUnknown() {
 		return types.StringNull()
@@ -325,8 +327,7 @@ func immutableString(attrPath path.Path, name string, prior, planned types.Strin
 	return diags
 }
 
-// Zones are compared as a set: the API returns them in its own order and the
-// attribute is immutable anyway, so a pure reorder is not a change.
+// Compared as a set: the API picks the order and the attribute is immutable anyway.
 func immutableList(attrPath path.Path, name string, prior, planned types.List) diag.Diagnostics {
 	var diags diag.Diagnostics
 	if prior.IsNull() || prior.IsUnknown() || planned.IsNull() || planned.IsUnknown() {
@@ -339,7 +340,7 @@ func immutableList(attrPath path.Path, name string, prior, planned types.List) d
 		return diags
 	}
 
-	if !sameStrings(left, right) {
+	if !slices.Equal(left, right) {
 		diags.AddAttributeError(attrPath, "Immutable Attribute", fmt.Sprintf("%s is immutable and cannot be modified after creation.", name))
 	}
 
@@ -360,22 +361,7 @@ func growOnlyInt64(attrPath path.Path, name string, prior, planned types.Int64) 
 	return diags
 }
 
-func sameStrings(left, right []string) bool {
-	if len(left) != len(right) {
-		return false
-	}
-
-	for i := range left {
-		if left[i] != right[i] {
-			return false
-		}
-	}
-
-	return true
-}
-
-// settled is false when any element is unknown, which would otherwise shorten the
-// slice and read as a removed zone.
+// settled is false on an unknown element, which would read as a removed zone.
 func sortedStrings(list types.List) (values []string, settled bool) {
 	values = make([]string, 0, len(list.Elements()))
 
@@ -387,7 +373,7 @@ func sortedStrings(list types.List) (values []string, settled bool) {
 		values = append(values, s.ValueString())
 	}
 
-	sort.Strings(values)
+	slices.Sort(values)
 	return values, true
 }
 
@@ -398,15 +384,12 @@ func knownString(value types.String) (string, bool) {
 	return value.ValueString(), true
 }
 
-// tfsdk.Config, tfsdk.Plan and tfsdk.State all satisfy this, so the same narrow
-// read serves ValidateConfig and ModifyPlan.
+// tfsdk.Config, tfsdk.Plan and tfsdk.State all satisfy this.
 type ClickHouseAttributeSource interface {
 	GetAttribute(ctx context.Context, path path.Path, target interface{}) diag.Diagnostics
 }
 
-// Reads only the two ClickHouse attributes: a full Get panics when any nested
-// struct-pointer attribute elsewhere in the schema is unknown. Reports false when
-// the values are not settled enough to validate.
+// Narrow read: a full Get panics on any unknown nested struct-pointer attribute.
 func ReadClickHouse(ctx context.Context, src ClickHouseAttributeSource) ([]ClickHouseClusterModel, []ClickHouseKeeperModel, bool, diag.Diagnostics) {
 	var allDiags diag.Diagnostics
 
@@ -445,11 +428,48 @@ func ReadNestedList[T any](ctx context.Context, src ClickHouseAttributeSource, a
 	}
 
 	for _, element := range raw.Elements() {
-		if element.IsUnknown() {
+		if hasUnknown(element) {
 			return false, diags
 		}
 	}
 
 	diags.Append(src.GetAttribute(ctx, attrPath, out)...)
 	return !diags.HasError(), diags
+}
+
+// Silence would read as "nothing to flag", and deletion has no other notice.
+func WarnClickHouseChecksDeferred(diags *diag.Diagnostics) {
+	diags.AddAttributeWarning(clickHouseClustersPath, "ClickHouse Checks Deferred",
+		"Some ClickHouse values are only known at apply time, so the immutability, node group and deletion checks did not run for this plan.")
+}
+
+// A nested attribute can be unknown while the element around it is not.
+func hasUnknown(value attr.Value) bool {
+	if value.IsUnknown() {
+		return true
+	}
+	if value.IsNull() {
+		return false
+	}
+
+	switch v := value.(type) {
+	case types.Object:
+		for _, nested := range v.Attributes() {
+			if hasUnknown(nested) {
+				return true
+			}
+		}
+	case types.List:
+		return slices.ContainsFunc(v.Elements(), hasUnknown)
+	case types.Set:
+		return slices.ContainsFunc(v.Elements(), hasUnknown)
+	case types.Map:
+		for _, nested := range v.Elements() {
+			if hasUnknown(nested) {
+				return true
+			}
+		}
+	}
+
+	return false
 }

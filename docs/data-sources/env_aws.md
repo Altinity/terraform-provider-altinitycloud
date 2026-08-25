@@ -165,13 +165,10 @@ Optional:
 <a id="nestedatt--clickhouse_clusters--keeper"></a>
 ### Nested Schema for `clickhouse_clusters.keeper`
 
-Required:
-
-- `name` (String) Name of a `clickhouse_keepers` entry in this environment. Ignored when `enabled` is `false`.
-
 Optional:
 
 - `enabled` (Boolean) Whether the cluster coordinates through a Keeper at all. Only a `SWARM` cluster may set it to `false`.
+- `name` (String) Name of a `clickhouse_keepers` entry in this environment. Ignored when `enabled` is `false`.
 
 
 <a id="nestedatt--clickhouse_clusters--additional_disks"></a>

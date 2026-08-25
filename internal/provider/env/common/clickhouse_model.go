@@ -82,8 +82,7 @@ type ClickHouseSecretRefModel struct {
 	Key  types.String `tfsdk:"key"`
 }
 
-// Env-agnostic view of the read fragments, which gqlgenc generates per env. Each
-// env converts its own fragment into these so the model mapping is shared.
+// Env-agnostic view of the read fragments, which gqlgenc generates per env.
 type ClickHouseClusterSpec struct {
 	Name            string
 	Mode            string

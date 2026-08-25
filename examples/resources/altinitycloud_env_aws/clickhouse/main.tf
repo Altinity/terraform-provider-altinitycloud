@@ -115,8 +115,9 @@ resource "altinitycloud_env_aws" "this" {
           password_value = sha256("change-me")
         },
         {
-          name    = "reporting"
-          profile = "readonly"
+          name          = "reporting"
+          profile       = "readonly"
+          password_type = "SHA256_HEX"
           // The digest can also be read from a Kubernetes secret that already
           // exists in the environment namespace.
           password_value_from_secret = {

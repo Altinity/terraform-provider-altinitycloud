@@ -78,12 +78,14 @@ func (r *AWSEnvResource) ModifyPlan(ctx context.Context, req resource.ModifyPlan
 	planClusters, planKeepers, ok, diags := common.ReadClickHouse(ctx, req.Plan)
 	resp.Diagnostics.Append(diags...)
 	if !ok {
+		common.WarnClickHouseChecksDeferred(&resp.Diagnostics)
 		return
 	}
 
 	stateClusters, stateKeepers, ok, diags := common.ReadClickHouse(ctx, req.State)
 	resp.Diagnostics.Append(diags...)
 	if !ok {
+		common.WarnClickHouseChecksDeferred(&resp.Diagnostics)
 		return
 	}
 

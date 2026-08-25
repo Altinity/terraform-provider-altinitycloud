@@ -5,11 +5,9 @@ import (
 	sdk "github.com/altinity/terraform-provider-altinitycloud/internal/sdk/client"
 )
 
-// gqlgenc emits one fragment type per env, so each env lowers its own into the
-// shared spec structs and the model mapping stays in env/common.
+// gqlgenc emits one fragment type per env, so each env lowers its own into the shared spec structs.
 
-// Every disk fragment (cluster main, cluster additional, Keeper) carries the same
-// getters, so one constraint covers all three generated types.
+// One constraint for all three generated disk fragment types, which share these getters.
 type clickHouseDiskFragment interface {
 	GetName() string
 	GetSize() int64
@@ -147,8 +145,7 @@ func clickHouseDiskToSpec(disk clickHouseDiskFragment) common.ClickHouseDiskSpec
 	}
 }
 
-// Callers pass a typed pointer, so the nil check has to happen before it is boxed
-// into the interface.
+// The nil check has to happen before the pointer is boxed into the interface.
 func clickHouseSecretRefToSpec[T any, PT interface {
 	*T
 	clickHouseSecretRefFragment

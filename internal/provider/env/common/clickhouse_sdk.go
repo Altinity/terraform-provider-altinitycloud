@@ -8,8 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-// The API names a cluster's main volume and a Keeper's volume `default`, so it is
-// not part of the configuration.
+// The API names a cluster's main volume and a Keeper's volume `default`.
 const ClickHouseDefaultDiskName = "default"
 
 func ClickHouseClustersToSDK(ctx context.Context, clusters []ClickHouseClusterModel) ([]*sdk.ClickHouseClusterCreateSpecInput, diag.Diagnostics) {
@@ -131,8 +130,7 @@ func ClickHouseKeepersToUpdateSDK(keepers []ClickHouseKeeperModel) []*sdk.ClickH
 	return input
 }
 
-// Removal is never implicit for ClickHouse: an entry dropped from the config has
-// to be named in the matching *ToDelete list or the API keeps it.
+// An entry dropped from the config is kept by the API unless it is named here.
 func ClickHouseClusterNamesToDelete(prior, planned []ClickHouseClusterModel) []string {
 	return namesToDelete(prior, planned,
 		func(m ClickHouseClusterModel) string { return m.Name.ValueString() },
@@ -147,8 +145,7 @@ func ClickHouseKeeperNamesToDelete(prior, planned []ClickHouseKeeperModel) []str
 	)
 }
 
-// Fills the per-cluster *ToDelete lists by diffing prior state against the patch
-// entries already built from the plan.
+// Diffs prior state against the patch entries already built from the plan.
 func ApplyClickHouseClusterNestedDeletes(updates []*sdk.ClickHouseClusterUpdateSpecInput, prior []ClickHouseClusterModel) {
 	priorByName := make(map[string]ClickHouseClusterModel, len(prior))
 	for _, c := range prior {
@@ -332,9 +329,7 @@ func stringListToSDK(ctx context.Context, list types.List) ([]string, diag.Diagn
 	return values, diags
 }
 
-// A pointer method only maps null to nil: on an unknown value it hands back a
-// pointer to the zero value, which the API would read as an explicit "" or 0.
-// Every Optional+Computed attribute without a schema default is unknown in the plan.
+// A pointer method maps only null to nil: on unknown it returns a pointer to "" or 0.
 func knownStringPointer(value types.String) *string {
 	if value.IsUnknown() {
 		return nil

@@ -6,6 +6,7 @@ import (
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/client"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/objectvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	rschema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -14,6 +15,9 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
+
+// Platform-injected: the API rejects them on input and can return them in a read.
+var ReservedClickHouseUsers = []string{"grafana", "datadog"}
 
 var clickHouseNameRegex = regexp.MustCompile("^[a-z0-9][a-z0-9-]{0,13}[a-z0-9]$")
 var clickHouseDiskNameRegex = regexp.MustCompile("^disk[a-z0-9-]{0,12}$")
@@ -103,9 +107,13 @@ func GetClickHouseClustersAttribute(required, optional, computed bool) rschema.L
 							Default:             booldefault.StaticBool(true),
 							MarkdownDescription: CLICKHOUSE_CLUSTER_KEEPER_ENABLED_DESCRIPTION,
 						},
+						// Optional so a SWARM cluster without a Keeper need not invent an ignored name.
 						"name": rschema.StringAttribute{
-							Required:            true,
+							Optional:            true,
 							MarkdownDescription: CLICKHOUSE_CLUSTER_KEEPER_NAME_DESCRIPTION,
+							Validators: []validator.String{
+								stringvalidator.LengthAtLeast(1),
+							},
 						},
 					},
 				},
@@ -304,7 +312,7 @@ func getClickHouseUsersAttribute() rschema.ListNestedAttribute {
 					MarkdownDescription: CLICKHOUSE_USER_NAME_DESCRIPTION,
 					Validators: []validator.String{
 						stringvalidator.LengthAtLeast(1),
-						stringvalidator.NoneOf("grafana", "datadog"),
+						stringvalidator.NoneOf(ReservedClickHouseUsers...),
 					},
 				},
 				"profile": rschema.StringAttribute{
@@ -377,16 +385,18 @@ func getClickHouseUsersAttribute() rschema.ListNestedAttribute {
 						stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("password_value_from_secret")),
 					},
 				},
-				"password_value_from_secret": getClickHouseSecretRefAttribute(CLICKHOUSE_USER_PASSWORD_VALUE_FROM_SECRET_DESCRIPTION),
+				"password_value_from_secret": getClickHouseSecretRefAttribute(CLICKHOUSE_USER_PASSWORD_VALUE_FROM_SECRET_DESCRIPTION,
+					objectvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("password_type"))),
 			},
 		},
 	}
 }
 
-func getClickHouseSecretRefAttribute(description string) rschema.SingleNestedAttribute {
+func getClickHouseSecretRefAttribute(description string, validators ...validator.Object) rschema.SingleNestedAttribute {
 	return rschema.SingleNestedAttribute{
 		Optional:            true,
 		MarkdownDescription: description,
+		Validators:          validators,
 		Attributes: map[string]rschema.Attribute{
 			"name": rschema.StringAttribute{
 				Required:            true,

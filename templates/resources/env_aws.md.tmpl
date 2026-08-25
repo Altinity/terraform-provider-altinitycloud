@@ -53,6 +53,7 @@ AWS environments require the [terraform-altinitycloud-connect-aws](https://githu
 
 Clusters and Keepers are part of the environment spec, so they are declared inside the environment resource rather than as separate resources. A few behaviors are worth calling out:
 
+- **Terraform manages only what the configuration declares.** Clusters and Keepers created outside Terraform are not adopted into state on refresh, so they are never proposed for deletion. Declare one — entries are matched by name — to bring it under management. The data source reports everything the environment has, adopted or not.
 - **Removing an entry deletes it.** Clusters, Keepers, extra volumes, settings, profiles and users are matched by name. Dropping one from the configuration deletes it — along with its data — on the next apply, and renaming one is not a rename: the old entry is deleted and a new, empty one is created. The plan warns whenever an entry is about to be deleted.
 - **A cluster needs a node group to run on.** `instance_type` must match a node group with a `CLICKHOUSE` reservation, and a Keeper's `instance_type` must match one with a `ZOOKEEPER` reservation. A mismatch is rejected at plan time.
 - **Some attributes are immutable.** `mode`, `zones` and a volume's `storage_class` are fixed at creation, a volume's `size` can only grow, and a Keeper already running as a highly-available ensemble cannot be shrunk back to a single node. Changing any of them is rejected at plan time.
