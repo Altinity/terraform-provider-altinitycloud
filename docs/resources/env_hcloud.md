@@ -237,7 +237,11 @@ data "altinitycloud_env_hcloud_status" "this" {
 Required:
 
 - `capacity_per_location` (Number) Maximum number of instances per availability zone.
-- `node_type` (String) List of node groups. At least one required.
+- `node_type` (String) Server type ([docs](https://docs.hetzner.com/cloud/servers/overview)).
+
+		Examples:
+		- "cpx11"
+		- "ccx23"
 - `reservations` (Set of String) Types of workload that are allowed to be scheduled onto the nodes that belong to this group.
 
 		Possible values:

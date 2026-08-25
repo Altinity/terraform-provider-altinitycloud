@@ -193,6 +193,17 @@ const GCP_NODE_GROUP_NODE_TYPE_DESCRIPTION = `Machine type ([docs](https://cloud
 		Examples:
 		- "e2-standard-2"
 `
+const AZURE_NODE_GROUP_NODE_TYPE_DESCRIPTION = `VM size ([docs](https://learn.microsoft.com/en-us/azure/virtual-machines/sizes/overview)).
+
+		Examples:
+		- "Standard_B2s_v2"
+`
+const HCLOUD_NODE_GROUP_NODE_TYPE_DESCRIPTION = `Server type ([docs](https://docs.hetzner.com/cloud/servers/overview)).
+
+		Examples:
+		- "cpx11"
+		- "ccx23"
+`
 const GCP_PROJECT_ID_DESCRIPTION = "ID of the GCP project ([docs](https://support.google.com/googleapi/answer/7014113?hl=en#:~:text=The%20project%20ID%20is%20a,ID%20or%20create%20your%20own.)) in which to provision GCP resources. **[IMMUTABLE]**"
 const GCP_PEERING_CONNECTION_DESCRIPTION = "Network peering configuration."
 const GCP_PEERING_CONNECTION_PROJECT_ID_DESCRIPTION = "Target network's project ID."

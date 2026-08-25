@@ -235,7 +235,10 @@ data "altinitycloud_env_azure_status" "this" {
 Required:
 
 - `capacity_per_zone` (Number) Maximum number of instances per availability zone.
-- `node_type` (String) List of node groups. At least one required.
+- `node_type` (String) VM size ([docs](https://learn.microsoft.com/en-us/azure/virtual-machines/sizes/overview)).
+
+		Examples:
+		- "Standard_B2s_v2"
 - `reservations` (Set of String) Types of workload that are allowed to be scheduled onto the nodes that belong to this group.
 
 		Possible values:
