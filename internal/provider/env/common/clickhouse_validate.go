@@ -17,7 +17,7 @@ var clickHouseKeepersPath = path.Root("clickhouse_keepers")
 var nodeGroupsPath = path.Root("node_groups")
 
 // Cross-attribute rules the schema validators cannot express on their own.
-func ValidateClickHouseConfig(clusters []ClickHouseClusterModel, keepers []ClickHouseKeeperModel, nodeGroups []NodeGroupsModel) diag.Diagnostics {
+func ValidateClickHouseConfig(clusters []ClickHouseClusterModel, keepers []ClickHouseKeeperModel, nodeGroups []NodeGroupPlacement) diag.Diagnostics {
 	var diags diag.Diagnostics
 
 	keeperNames := make(map[string]bool, len(keepers))
@@ -105,7 +105,7 @@ func validateClickHouseKeeperRef(clusterPath path.Path, cluster ClickHouseCluste
 }
 
 // Knowable from the config alone: a cluster needs CLICKHOUSE, a Keeper ZOOKEEPER.
-func validateNodeGroupPlacement(attrPath path.Path, kind string, name, instanceType types.String, reservation sdk.NodeReservation, nodeGroups []NodeGroupsModel) diag.Diagnostics {
+func validateNodeGroupPlacement(attrPath path.Path, kind string, name, instanceType types.String, reservation sdk.NodeReservation, nodeGroups []NodeGroupPlacement) diag.Diagnostics {
 	var diags diag.Diagnostics
 
 	wanted, ok := knownString(instanceType)
@@ -124,7 +124,7 @@ func validateNodeGroupPlacement(attrPath path.Path, kind string, name, instanceT
 }
 
 // settled is false while any node group is unknown, when a miss would be a guess.
-func nodeGroupAccepts(instanceType, reservation string, nodeGroups []NodeGroupsModel) (accepts bool, settled bool) {
+func nodeGroupAccepts(instanceType, reservation string, nodeGroups []NodeGroupPlacement) (accepts bool, settled bool) {
 	settled = true
 
 	for _, ng := range nodeGroups {
@@ -416,11 +416,27 @@ func ReadClickHouse(ctx context.Context, src ClickHouseAttributeSource) ([]Click
 	return clusters, keepers, true, allDiags
 }
 
+// Only the fields the placement check needs, since each env models node groups
+// with its own struct.
+type NodeGroupPlacement struct {
+	NodeType     types.String
+	Reservations types.Set
+}
+
 // List-shaped node groups only; env_hcloud models them as a Set and needs its own read.
-func ReadNodeGroups(ctx context.Context, src ClickHouseAttributeSource) ([]NodeGroupsModel, bool, diag.Diagnostics) {
-	var nodeGroups []NodeGroupsModel
+func ReadNodeGroupPlacements[T any](ctx context.Context, src ClickHouseAttributeSource, placement func(T) NodeGroupPlacement) ([]NodeGroupPlacement, bool, diag.Diagnostics) {
+	var nodeGroups []T
 	ok, diags := ReadNestedList(ctx, src, nodeGroupsPath, &nodeGroups)
-	return nodeGroups, ok, diags
+	if !ok {
+		return nil, false, diags
+	}
+
+	placements := make([]NodeGroupPlacement, 0, len(nodeGroups))
+	for _, ng := range nodeGroups {
+		placements = append(placements, placement(ng))
+	}
+
+	return placements, true, diags
 }
 
 func ReadNestedList[T any](ctx context.Context, src ClickHouseAttributeSource, attrPath path.Path, out *[]T) (bool, diag.Diagnostics) {

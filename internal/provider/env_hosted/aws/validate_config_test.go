@@ -113,3 +113,45 @@ func TestHostedAWSValidateConfigUnknownNestedAttrs(t *testing.T) {
 		}
 	})
 }
+
+func TestHostedAWSValidateConfigClickHouse(t *testing.T) {
+	cfg := hostedAWSSchema(t)
+
+	clusterList := func(cluster map[string]any) func(tftypes.Type) tftypes.Value {
+		return func(at tftypes.Type) tftypes.Value {
+			lt, ok := at.(tftypes.List)
+			if !ok {
+				t.Fatalf("clickhouse_clusters is not a tftypes.List, got %T", at)
+			}
+			return tftypes.NewValue(lt, []tftypes.Value{objectWith(t, lt.ElementType, cluster)})
+		}
+	}
+
+	t.Run("a cluster referencing an undeclared keeper errors", func(t *testing.T) {
+		raw := buildConfig(t, cfg, map[string]func(tftypes.Type) tftypes.Value{
+			"clickhouse_clusters": clusterList(map[string]any{
+				"name": "ch",
+				"keeper": map[string]tftypes.Value{
+					"enabled": tftypes.NewValue(tftypes.Bool, true),
+					"name":    tftypes.NewValue(tftypes.String, "missing"),
+				},
+			}),
+		})
+		if resp := runValidate(t, raw, cfg); !resp.Diagnostics.HasError() {
+			t.Fatal("expected an error for a keeper that is not declared")
+		}
+	})
+
+	// Reflecting an unknown into *ClickHouseDiskModel is a hard provider error.
+	t.Run("an unknown nested attribute defers validation", func(t *testing.T) {
+		raw := buildConfig(t, cfg, map[string]func(tftypes.Type) tftypes.Value{
+			"clickhouse_clusters": clusterList(map[string]any{
+				"name": "ch",
+				"disk": tftypes.UnknownValue,
+			}),
+		})
+		if resp := runValidate(t, raw, cfg); resp.Diagnostics.HasError() {
+			t.Fatalf("errored: %v", resp.Diagnostics.Errors())
+		}
+	})
+}

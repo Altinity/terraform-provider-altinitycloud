@@ -19,18 +19,18 @@ func keeperModel() ClickHouseKeeperModel {
 	}
 }
 
-func nodeGroup(t *testing.T, nodeType string, reservations ...sdk.NodeReservation) NodeGroupsModel {
+func nodeGroup(t *testing.T, nodeType string, reservations ...sdk.NodeReservation) NodeGroupPlacement {
 	t.Helper()
 	set, diags := ReservationsToModel(reservations)
 	if diags.HasError() {
 		t.Fatalf("ReservationsToModel: %v", diags)
 	}
-	return NodeGroupsModel{NodeType: types.StringValue(nodeType), Reservations: set}
+	return NodeGroupPlacement{NodeType: types.StringValue(nodeType), Reservations: set}
 }
 
-func testNodeGroups(t *testing.T) []NodeGroupsModel {
+func testNodeGroups(t *testing.T) []NodeGroupPlacement {
 	t.Helper()
-	return []NodeGroupsModel{
+	return []NodeGroupPlacement{
 		nodeGroup(t, "m6i.large", sdk.NodeReservationClickhouse),
 		nodeGroup(t, "t4g.small", sdk.NodeReservationSystem, sdk.NodeReservationZookeeper),
 	}
@@ -175,7 +175,7 @@ func TestValidateClickHouseNodeGroupPlacement(t *testing.T) {
 	t.Run("the check is skipped while node groups are unsettled", func(t *testing.T) {
 		cluster := minimalClusterModel("ch")
 		cluster.InstanceType = types.StringValue("c7g.xlarge")
-		unsettled := []NodeGroupsModel{{NodeType: types.StringUnknown(), Reservations: types.SetNull(types.StringType)}}
+		unsettled := []NodeGroupPlacement{{NodeType: types.StringUnknown(), Reservations: types.SetNull(types.StringType)}}
 
 		diags := ValidateClickHouseConfig([]ClickHouseClusterModel{cluster}, []ClickHouseKeeperModel{keeperModel()}, unsettled)
 		if diags.HasError() {

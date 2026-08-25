@@ -72,10 +72,14 @@ func (d *AWSEnvHostedDataSource) Read(ctx context.Context, req datasource.ReadRe
 		return
 	}
 
-	// Data sources are read-only, so expose custom domains exactly as returned.
+	// Data sources are read-only, so expose everything exactly as returned.
 	customDomains, diags := common.ListToModel(apiResp.AWSEnvHosted.Spec.CustomDomains)
 	resp.Diagnostics.Append(diags...)
 	data.CustomDomains = customDomains
+	data.ClickHouseClusters, diags = common.DataSourceClickHouseClustersToModel(clickHouseClustersToSpec(apiResp.AWSEnvHosted.Spec.ClickHouseClusters))
+	resp.Diagnostics.Append(diags...)
+	data.ClickHouseKeepers, diags = common.DataSourceClickHouseKeepersToModel(clickHouseKeepersToSpec(apiResp.AWSEnvHosted.Spec.ClickHouseKeepers))
+	resp.Diagnostics.Append(diags...)
 	data.Id = data.Name
 
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)

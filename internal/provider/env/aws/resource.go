@@ -42,7 +42,9 @@ func (r *AWSEnvResource) ValidateConfig(ctx context.Context, req resource.Valida
 	}
 
 	// Unsettled node groups just drop the placement check; the rest still applies.
-	nodeGroups, ok, diags := common.ReadNodeGroups(ctx, req.Config)
+	nodeGroups, ok, diags := common.ReadNodeGroupPlacements(ctx, req.Config, func(ng common.NodeGroupsModel) common.NodeGroupPlacement {
+		return common.NodeGroupPlacement{NodeType: ng.NodeType, Reservations: ng.Reservations}
+	})
 	resp.Diagnostics.Append(diags...)
 	if !ok {
 		nodeGroups = nil

@@ -6,9 +6,12 @@ import (
 
 	clientsupport "github.com/altinity/terraform-provider-altinitycloud/internal/provider/common"
 	common "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env/common"
+	hosted "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env_hosted/common"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/client"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
+	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -30,19 +33,65 @@ func (r *AWSEnvHostedResource) Metadata(ctx context.Context, req resource.Metada
 }
 
 func (r *AWSEnvHostedResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
-	// Read only datadog: a full Config.Get panics on unknown nested struct-pointer attrs.
+	validateDatadogConfig(ctx, req.Config, &resp.Diagnostics)
+
+	clusters, keepers, ok, diags := common.ReadClickHouse(ctx, req.Config)
+	resp.Diagnostics.Append(diags...)
+	if !ok {
+		return
+	}
+
+	// Unsettled node groups just drop the placement check; the rest still applies.
+	nodeGroups, ok, diags := common.ReadNodeGroupPlacements(ctx, req.Config, func(ng hosted.NodeGroupsModel) common.NodeGroupPlacement {
+		return common.NodeGroupPlacement{NodeType: ng.NodeType, Reservations: ng.Reservations}
+	})
+	resp.Diagnostics.Append(diags...)
+	if !ok {
+		nodeGroups = nil
+	}
+
+	resp.Diagnostics.Append(common.ValidateClickHouseConfig(clusters, keepers, nodeGroups)...)
+}
+
+// Reads only datadog: a full Config.Get panics on unknown nested struct-pointer attrs.
+func validateDatadogConfig(ctx context.Context, config tfsdk.Config, diags *diag.Diagnostics) {
 	var datadogObj types.Object
-	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("datadog"), &datadogObj)...)
-	if resp.Diagnostics.HasError() || datadogObj.IsNull() || datadogObj.IsUnknown() {
+	diags.Append(config.GetAttribute(ctx, path.Root("datadog"), &datadogObj)...)
+	if diags.HasError() || datadogObj.IsNull() || datadogObj.IsUnknown() {
 		return
 	}
 
 	var datadog *common.DatadogModel
-	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("datadog"), &datadog)...)
-	if resp.Diagnostics.HasError() {
+	diags.Append(config.GetAttribute(ctx, path.Root("datadog"), &datadog)...)
+	if diags.HasError() {
 		return
 	}
-	resp.Diagnostics.Append(common.ValidateDatadog(datadog)...)
+	diags.Append(common.ValidateDatadog(datadog)...)
+}
+
+// ClickHouse entries are matched by name, so immutability is checked by pairing
+// plan against state rather than by index, which shifts when an entry is removed.
+func (r *AWSEnvHostedResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	r.EnvResourceBase.ModifyPlan(ctx, req, resp)
+	if resp.Diagnostics.HasError() || req.Plan.Raw.IsNull() || req.State.Raw.IsNull() {
+		return
+	}
+
+	planClusters, planKeepers, ok, diags := common.ReadClickHouse(ctx, req.Plan)
+	resp.Diagnostics.Append(diags...)
+	if !ok {
+		common.WarnClickHouseChecksDeferred(&resp.Diagnostics)
+		return
+	}
+
+	stateClusters, stateKeepers, ok, diags := common.ReadClickHouse(ctx, req.State)
+	resp.Diagnostics.Append(diags...)
+	if !ok {
+		common.WarnClickHouseChecksDeferred(&resp.Diagnostics)
+		return
+	}
+
+	resp.Diagnostics.Append(common.ValidateClickHousePlan(stateClusters, planClusters, stateKeepers, planKeepers)...)
 }
 
 func (r *AWSEnvHostedResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
@@ -124,6 +173,12 @@ func (r *AWSEnvHostedResource) Update(ctx context.Context, req resource.UpdateRe
 		return
 	}
 
+	var state *AWSEnvHostedResourceModel
+	resp.Diagnostics.Append(req.State.Get(ctx, &state)...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	envName := data.Name.ValueString()
 	tflog.Trace(ctx, "updating resource", map[string]interface{}{"name": envName})
 
@@ -132,6 +187,12 @@ func (r *AWSEnvHostedResource) Update(ctx context.Context, req resource.UpdateRe
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
+	// ClickHouse entries are patched by name, so anything dropped from the config
+	// has to be named explicitly or the API keeps it.
+	sdkEnv.Spec.ClickHouseClustersToDelete = common.ClickHouseClusterNamesToDelete(state.ClickHouseClusters, data.ClickHouseClusters)
+	sdkEnv.Spec.ClickHouseKeepersToDelete = common.ClickHouseKeeperNamesToDelete(state.ClickHouseKeepers, data.ClickHouseKeepers)
+	common.ApplyClickHouseClusterNestedDeletes(sdkEnv.Spec.ClickHouseClusters, state.ClickHouseClusters)
 
 	apiResp, err := r.Client.UpdateAWSEnvHosted(ctx, sdkEnv)
 	if err != nil {
