@@ -176,3 +176,10 @@ func TestFormatError_HostedNotEnabled(t *testing.T) {
 		t.Errorf("got: %s, want: %s", got, want)
 	}
 }
+
+func TestFormatError_NilError(t *testing.T) {
+	got := FormatError(nil, "test")
+	if got != "" {
+		t.Errorf("got: %q, want empty string", got)
+	}
+}
