@@ -10,6 +10,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	rschema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringdefault"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
@@ -38,6 +39,7 @@ func GetClickHouseClustersAttribute(required, optional, computed bool) rschema.L
 				"mode": rschema.StringAttribute{
 					Optional:            true,
 					Computed:            true,
+					Default:             stringdefault.StaticString(string(client.ClickHouseClusterModeSpecStandard)),
 					MarkdownDescription: CLICKHOUSE_CLUSTER_MODE_DESCRIPTION,
 					Validators: []validator.String{
 						stringvalidator.OneOf(

@@ -71,7 +71,11 @@ func validateClickHouseKeeperRef(clusterPath path.Path, cluster ClickHouseCluste
 	}
 
 	keeperPath := clusterPath.AtName("keeper")
-	if !cluster.Keeper.Enabled.IsUnknown() && !cluster.Keeper.Enabled.ValueBool() {
+
+	// ValidateConfig reads the raw config, before schema defaults are applied, so a
+	// null `enabled` is the Default(true) and not an opt-out.
+	settled := !cluster.Keeper.Enabled.IsNull() && !cluster.Keeper.Enabled.IsUnknown()
+	if settled && !cluster.Keeper.Enabled.ValueBool() {
 		// An unknown mode may still turn out to be SWARM; a null one is STANDARD.
 		if !cluster.Mode.IsUnknown() && cluster.Mode.ValueString() != string(sdk.ClickHouseClusterModeSpecSwarm) {
 			diags.AddAttributeError(keeperPath.AtName("enabled"), "Keeper Required",

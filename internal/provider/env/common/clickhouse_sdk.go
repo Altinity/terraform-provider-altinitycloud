@@ -27,22 +27,22 @@ func ClickHouseClustersToSDK(ctx context.Context, clusters []ClickHouseClusterMo
 		for _, d := range c.AdditionalDisks {
 			additionalDisks = append(additionalDisks, &sdk.ClickHouseDiskCreateSpecInput{
 				Name:         d.Name.ValueString(),
-				Size:         d.Size.ValueInt64Pointer(),
-				StorageClass: d.StorageClass.ValueStringPointer(),
-				Iops:         d.Iops.ValueInt64Pointer(),
-				Throughput:   d.Throughput.ValueInt64Pointer(),
+				Size:         knownInt64Pointer(d.Size),
+				StorageClass: knownStringPointer(d.StorageClass),
+				Iops:         knownInt64Pointer(d.Iops),
+				Throughput:   knownInt64Pointer(d.Throughput),
 			})
 		}
 
 		input = append(input, &sdk.ClickHouseClusterCreateSpecInput{
 			Name:            c.Name.ValueString(),
-			Mode:            (*sdk.ClickHouseClusterModeSpec)(c.Mode.ValueStringPointer()),
+			Mode:            (*sdk.ClickHouseClusterModeSpec)(knownStringPointer(c.Mode)),
 			Image:           c.Image.ValueString(),
 			InstanceType:    c.InstanceType.ValueString(),
 			Zones:           zones,
 			Shards:          c.Shards.ValueInt64(),
 			Replicas:        c.Replicas.ValueInt64(),
-			Stopped:         c.Stopped.ValueBoolPointer(),
+			Stopped:         knownBoolPointer(c.Stopped),
 			Disk:            clickHouseDiskToSDK(ClickHouseDefaultDiskName, c.Disk),
 			AdditionalDisks: additionalDisks,
 			Keeper:          clickHouseKeeperRefToSDK(c.Keeper),
@@ -68,19 +68,19 @@ func ClickHouseClustersToUpdateSDK(ctx context.Context, clusters []ClickHouseClu
 		for _, d := range c.AdditionalDisks {
 			additionalDisks = append(additionalDisks, &sdk.ClickHouseDiskUpdateSpecInput{
 				Name:       d.Name.ValueString(),
-				Size:       d.Size.ValueInt64Pointer(),
-				Iops:       d.Iops.ValueInt64Pointer(),
-				Throughput: d.Throughput.ValueInt64Pointer(),
+				Size:       knownInt64Pointer(d.Size),
+				Iops:       knownInt64Pointer(d.Iops),
+				Throughput: knownInt64Pointer(d.Throughput),
 			})
 		}
 
 		input = append(input, &sdk.ClickHouseClusterUpdateSpecInput{
 			Name:            c.Name.ValueString(),
-			Image:           c.Image.ValueStringPointer(),
-			InstanceType:    c.InstanceType.ValueStringPointer(),
-			Shards:          c.Shards.ValueInt64Pointer(),
-			Replicas:        c.Replicas.ValueInt64Pointer(),
-			Stopped:         c.Stopped.ValueBoolPointer(),
+			Image:           knownStringPointer(c.Image),
+			InstanceType:    knownStringPointer(c.InstanceType),
+			Shards:          knownInt64Pointer(c.Shards),
+			Replicas:        knownInt64Pointer(c.Replicas),
+			Stopped:         knownBoolPointer(c.Stopped),
 			Disk:            clickHouseDiskToUpdateSDK(ClickHouseDefaultDiskName, c.Disk),
 			AdditionalDisks: additionalDisks,
 			Keeper:          clickHouseKeeperRefToSDK(c.Keeper),
@@ -105,8 +105,8 @@ func ClickHouseKeepersToSDK(ctx context.Context, keepers []ClickHouseKeeperModel
 			Name:         k.Name.ValueString(),
 			InstanceType: k.InstanceType.ValueString(),
 			Zones:        zones,
-			Ha:           k.HA.ValueBoolPointer(),
-			Stopped:      k.Stopped.ValueBoolPointer(),
+			Ha:           knownBoolPointer(k.HA),
+			Stopped:      knownBoolPointer(k.Stopped),
 			Disk:         clickHouseDiskToSDK(ClickHouseDefaultDiskName, k.Disk),
 		})
 	}
@@ -121,9 +121,9 @@ func ClickHouseKeepersToUpdateSDK(keepers []ClickHouseKeeperModel) []*sdk.ClickH
 	for _, k := range keepers {
 		input = append(input, &sdk.ClickHouseKeeperUpdateSpecInput{
 			Name:         k.Name.ValueString(),
-			InstanceType: k.InstanceType.ValueStringPointer(),
-			Ha:           k.HA.ValueBoolPointer(),
-			Stopped:      k.Stopped.ValueBoolPointer(),
+			InstanceType: knownStringPointer(k.InstanceType),
+			Ha:           knownBoolPointer(k.HA),
+			Stopped:      knownBoolPointer(k.Stopped),
 			Disk:         clickHouseDiskToUpdateSDK(ClickHouseDefaultDiskName, k.Disk),
 		})
 	}
@@ -214,10 +214,10 @@ func clickHouseDiskToSDK(name string, disk *ClickHouseDiskModel) *sdk.ClickHouse
 
 	return &sdk.ClickHouseDiskCreateSpecInput{
 		Name:         name,
-		Size:         disk.Size.ValueInt64Pointer(),
-		StorageClass: disk.StorageClass.ValueStringPointer(),
-		Iops:         disk.Iops.ValueInt64Pointer(),
-		Throughput:   disk.Throughput.ValueInt64Pointer(),
+		Size:         knownInt64Pointer(disk.Size),
+		StorageClass: knownStringPointer(disk.StorageClass),
+		Iops:         knownInt64Pointer(disk.Iops),
+		Throughput:   knownInt64Pointer(disk.Throughput),
 	}
 }
 
@@ -228,9 +228,9 @@ func clickHouseDiskToUpdateSDK(name string, disk *ClickHouseDiskModel) *sdk.Clic
 
 	return &sdk.ClickHouseDiskUpdateSpecInput{
 		Name:       name,
-		Size:       disk.Size.ValueInt64Pointer(),
-		Iops:       disk.Iops.ValueInt64Pointer(),
-		Throughput: disk.Throughput.ValueInt64Pointer(),
+		Size:       knownInt64Pointer(disk.Size),
+		Iops:       knownInt64Pointer(disk.Iops),
+		Throughput: knownInt64Pointer(disk.Throughput),
 	}
 }
 
@@ -250,7 +250,7 @@ func clickHouseSettingsToSDK(settings []ClickHouseSettingModel) []*sdk.ClickHous
 	for _, s := range settings {
 		input = append(input, &sdk.ClickHouseSettingSpecInput{
 			Key:             s.Key.ValueString(),
-			Value:           s.Value.ValueStringPointer(),
+			Value:           knownStringPointer(s.Value),
 			ValueFromSecret: clickHouseSecretRefToSDK(s.ValueFromSecret),
 		})
 	}
@@ -294,16 +294,16 @@ func clickHouseUsersToSDK(ctx context.Context, users []ClickHouseUserModel) ([]*
 
 		input = append(input, &sdk.ClickHouseUserSpecInput{
 			Name:                        u.Name.ValueString(),
-			Profile:                     u.Profile.ValueStringPointer(),
-			Quota:                       u.Quota.ValueStringPointer(),
+			Profile:                     knownStringPointer(u.Profile),
+			Quota:                       knownStringPointer(u.Quota),
 			AllowedCIDRs:                allowedCIDRs,
 			Databases:                   databases,
-			AccessManagement:            u.AccessManagement.ValueBoolPointer(),
-			NamedCollectionControl:      u.NamedCollectionControl.ValueBoolPointer(),
-			ShowNamedCollections:        u.ShowNamedCollections.ValueBoolPointer(),
-			ShowNamedCollectionsSecrets: u.ShowNamedCollectionsSecrets.ValueBoolPointer(),
-			PasswordType:                (*sdk.ClickHouseUserPasswordTypeSpecInput)(u.PasswordType.ValueStringPointer()),
-			PasswordValue:               u.PasswordValue.ValueStringPointer(),
+			AccessManagement:            knownBoolPointer(u.AccessManagement),
+			NamedCollectionControl:      knownBoolPointer(u.NamedCollectionControl),
+			ShowNamedCollections:        knownBoolPointer(u.ShowNamedCollections),
+			ShowNamedCollectionsSecrets: knownBoolPointer(u.ShowNamedCollectionsSecrets),
+			PasswordType:                (*sdk.ClickHouseUserPasswordTypeSpecInput)(knownStringPointer(u.PasswordType)),
+			PasswordValue:               knownStringPointer(u.PasswordValue),
 			PasswordValueFromSecret:     clickHouseSecretRefToSDK(u.PasswordValueFromSecret),
 		})
 	}
@@ -330,4 +330,28 @@ func stringListToSDK(ctx context.Context, list types.List) ([]string, diag.Diagn
 	var values []string
 	diags := list.ElementsAs(ctx, &values, false)
 	return values, diags
+}
+
+// A pointer method only maps null to nil: on an unknown value it hands back a
+// pointer to the zero value, which the API would read as an explicit "" or 0.
+// Every Optional+Computed attribute without a schema default is unknown in the plan.
+func knownStringPointer(value types.String) *string {
+	if value.IsUnknown() {
+		return nil
+	}
+	return value.ValueStringPointer()
+}
+
+func knownInt64Pointer(value types.Int64) *int64 {
+	if value.IsUnknown() {
+		return nil
+	}
+	return value.ValueInt64Pointer()
+}
+
+func knownBoolPointer(value types.Bool) *bool {
+	if value.IsUnknown() {
+		return nil
+	}
+	return value.ValueBoolPointer()
 }

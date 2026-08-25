@@ -72,6 +72,61 @@ func TestClickHouseClustersToSDK(t *testing.T) {
 		}
 	})
 
+	// Every Optional+Computed attribute without a schema default is unknown in the
+	// plan, and a pointer method would turn that into an explicit "" or 0.
+	t.Run("unknown attributes are omitted, never sent as empty values", func(t *testing.T) {
+		model := minimalClusterModel("ch")
+		model.Mode = types.StringUnknown()
+		model.Zones = types.ListUnknown(types.StringType)
+		model.Disk = &ClickHouseDiskModel{
+			Size:         types.Int64Value(100),
+			StorageClass: types.StringUnknown(),
+			Iops:         types.Int64Unknown(),
+			Throughput:   types.Int64Unknown(),
+		}
+		model.Users = []ClickHouseUserModel{{
+			Name:    types.StringValue("app"),
+			Profile: types.StringUnknown(),
+			Quota:   types.StringUnknown(),
+		}}
+
+		got, diags := ClickHouseClustersToSDK(ctx, []ClickHouseClusterModel{model})
+		if diags.HasError() {
+			t.Fatalf("unexpected diags: %v", diags)
+		}
+
+		c := got[0]
+		if c.Mode != nil {
+			t.Errorf("an unknown mode must be omitted, got %q", *c.Mode)
+		}
+		if c.Zones != nil {
+			t.Errorf("unknown zones must be omitted, got %v", c.Zones)
+		}
+		if c.Disk.StorageClass != nil || c.Disk.Iops != nil || c.Disk.Throughput != nil {
+			t.Errorf("unknown disk attributes must be omitted, got %#v", c.Disk)
+		}
+		if c.Users[0].Profile != nil || c.Users[0].Quota != nil {
+			t.Errorf("unknown user attributes must be omitted, got %#v", c.Users[0])
+		}
+	})
+
+	t.Run("unknown attributes are omitted from the update input too", func(t *testing.T) {
+		model := minimalClusterModel("ch")
+		model.Disk = &ClickHouseDiskModel{
+			Size:       types.Int64Value(100),
+			Iops:       types.Int64Unknown(),
+			Throughput: types.Int64Unknown(),
+		}
+
+		got, diags := ClickHouseClustersToUpdateSDK(ctx, []ClickHouseClusterModel{model})
+		if diags.HasError() {
+			t.Fatalf("unexpected diags: %v", diags)
+		}
+		if got[0].Disk.Iops != nil || got[0].Disk.Throughput != nil {
+			t.Errorf("unknown disk attributes must be omitted, got %#v", got[0].Disk)
+		}
+	})
+
 	t.Run("full cluster round trips every field", func(t *testing.T) {
 		model := minimalClusterModel("ch")
 		model.Mode = types.StringValue("SWARM")

@@ -75,6 +75,17 @@ func TestValidateClickHouseConfig(t *testing.T) {
 		}
 	})
 
+	// ValidateConfig runs before schema defaults, so an omitted `enabled` is null.
+	t.Run("an omitted keeper.enabled is the default, not an opt-out", func(t *testing.T) {
+		cluster := minimalClusterModel("ch")
+		cluster.Keeper = &ClickHouseKeeperRefModel{Enabled: types.BoolNull(), Name: types.StringValue("keeper")}
+
+		diags := ValidateClickHouseConfig([]ClickHouseClusterModel{cluster}, []ClickHouseKeeperModel{keeperModel()}, nil)
+		if diags.HasError() {
+			t.Fatalf("a cluster that omits `enabled` still coordinates through a Keeper: %v", diags.Errors())
+		}
+	})
+
 	t.Run("duplicate names are rejected", func(t *testing.T) {
 		clusters := []ClickHouseClusterModel{minimalClusterModel("ch"), minimalClusterModel("ch")}
 		if diags := ValidateClickHouseConfig(clusters, []ClickHouseKeeperModel{keeperModel()}, nil); !diags.HasError() {
