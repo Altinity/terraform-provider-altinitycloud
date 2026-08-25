@@ -167,3 +167,12 @@ func TestIsActiveClustersError_Nil(t *testing.T) {
 		t.Error("expected false for nil error")
 	}
 }
+
+func TestFormatError_HostedNotEnabled(t *testing.T) {
+	rawErr := errors.New(`{"networkErrors":null,"graphqlErrors":[{"message":"hosted env management not enabled","path":["createAWSEnvHosted"]}]}`)
+	got := FormatError(rawErr, "acme-staging")
+	want := "Altinity-hosted environments are not enabled for your account, ask Altinity support to enable them"
+	if got != want {
+		t.Errorf("got: %s, want: %s", got, want)
+	}
+}

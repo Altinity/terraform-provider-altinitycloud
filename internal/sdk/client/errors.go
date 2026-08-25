@@ -61,6 +61,7 @@ type errorMapping struct {
 var knownErrors = []errorMapping{
 	{Message: "conflict", FriendlyMessage: "environment '%s' already exists"},
 	{Message: "Invalid API token", FriendlyMessage: "invalid API token, please verify your credentials. You can get an Anywhere API token at https://acm.altinity.cloud/account"},
+	{Message: "hosted env management not enabled", FriendlyMessage: "Altinity-hosted environments are not enabled for your account, ask Altinity support to enable them"},
 }
 
 // FormatError translates known GraphQL errors into user-friendly messages.
