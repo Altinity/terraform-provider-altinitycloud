@@ -336,7 +336,7 @@ const HOSTED_RESOURCE_PREFIX_DESCRIPTION = "Prefix applied to the names of the c
 const HOSTED_EXTERNAL_BUCKET_DESCRIPTION = "List of external S3 buckets to allow access to. The environment IAM roles are granted access to every bucket listed here."
 
 const CLICKHOUSE_CLUSTERS_DESCRIPTION = "ClickHouse clusters running in this environment."
-const CLICKHOUSE_CLUSTER_NAME_DESCRIPTION = "Cluster identifier, unique within the environment. 2-15 chars, lowercase alphanumerics and hyphens, must start and end with an alphanumeric. Immutable."
+const CLICKHOUSE_CLUSTER_NAME_DESCRIPTION = "Cluster identifier, unique within the environment. 2-15 chars, lowercase alphanumerics and hyphens, must start and end with an alphanumeric. Changing it is not a rename: the old cluster is deleted along with its data and a new, empty one is created."
 const CLICKHOUSE_CLUSTER_MODE_DESCRIPTION = `Cluster topology mode. Immutable.
 
 		Possible values:
@@ -359,14 +359,14 @@ const CLICKHOUSE_CLUSTER_PROFILE_NAME_DESCRIPTION = "Profile name, unique within
 const CLICKHOUSE_CLUSTER_USERS_DESCRIPTION = "ClickHouse users. Passwords are never returned by the API."
 
 const CLICKHOUSE_KEEPERS_DESCRIPTION = "ClickHouse Keepers running in this environment."
-const CLICKHOUSE_KEEPER_NAME_DESCRIPTION = "Keeper identifier, unique within the environment. 2-15 chars, lowercase alphanumerics and hyphens, must start and end with an alphanumeric. Immutable."
+const CLICKHOUSE_KEEPER_NAME_DESCRIPTION = "Keeper identifier, unique within the environment. 2-15 chars, lowercase alphanumerics and hyphens, must start and end with an alphanumeric. Changing it is not a rename: the old Keeper is deleted along with its data and a new, empty one is created."
 const CLICKHOUSE_KEEPER_INSTANCE_TYPE_DESCRIPTION = "Machine type for the Keeper nodes. Must match a node group with a `ZOOKEEPER` reservation."
 const CLICKHOUSE_KEEPER_ZONES_DESCRIPTION = "Zones the Keeper is spread across. All environment zones by default. Immutable."
 const CLICKHOUSE_KEEPER_HA_DESCRIPTION = "`true` for a 3-node highly-available ensemble, `false` for a single node. An ensemble already running as HA cannot be shrunk back to a single node."
 const CLICKHOUSE_KEEPER_STOPPED_DESCRIPTION = "Whether the Keeper is kept stopped."
 
 const CLICKHOUSE_DISK_DESCRIPTION = "Main data volume. The underlying volume is deleted along with the resource that owns it."
-const CLICKHOUSE_DISK_NAME_DESCRIPTION = "Volume identifier. Must start with `disk` and cannot exceed 16 characters. Immutable."
+const CLICKHOUSE_DISK_NAME_DESCRIPTION = "Volume identifier. Must start with `disk` and cannot exceed 16 characters. Changing it is not a rename: the old volume is deleted along with its data and a new, empty one is created."
 const CLICKHOUSE_DISK_SIZE_DESCRIPTION = "Size in GiB. Can only be increased, never decreased. 10240 maximum on Hetzner Cloud."
 const CLICKHOUSE_DISK_STORAGE_CLASS_DESCRIPTION = "Storage class backing the volume. Environment default when omitted. Immutable."
 const CLICKHOUSE_DISK_IOPS_DESCRIPTION = "Provisioned IOPS. Honored only by storage classes that support it, such as AWS `gp3` and `io2`."
