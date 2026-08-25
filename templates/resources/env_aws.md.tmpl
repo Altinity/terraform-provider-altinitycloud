@@ -35,6 +35,9 @@ AWS environments require the [terraform-altinitycloud-connect-aws](https://githu
 ### AWS environment with VPC peering:
 {{tffile "examples/resources/altinitycloud_env_aws/peering/main.tf"}}
 
+### AWS environment with ClickHouse clusters:
+{{tffile "examples/resources/altinitycloud_env_aws/clickhouse/main.tf"}}
+
 ### AWS environment with Iceberg catalogs:
 {{tffile "examples/resources/altinitycloud_env_aws/iceberg/main.tf"}}
 
@@ -45,6 +48,16 @@ AWS environments require the [terraform-altinitycloud-connect-aws](https://githu
 {{tffile "examples/resources/altinitycloud_env_aws/datadog/main.tf"}}
 
 {{ .SchemaMarkdown | trimspace }}
+
+## ClickHouse clusters and Keepers
+
+Clusters and Keepers are part of the environment spec, so they are declared inside the environment resource rather than as separate resources. A few behaviors are worth calling out:
+
+- **Removing an entry deletes it.** Clusters, Keepers, extra volumes, settings, profiles and users are matched by name. Dropping one from the configuration deletes it — along with its data — on the next apply.
+- **A cluster needs a node group to run on.** `instance_type` must match a node group with a `CLICKHOUSE` reservation, and a Keeper's `instance_type` must match one with a `ZOOKEEPER` reservation.
+- **Some attributes are immutable.** `name`, `mode`, `zones` and a volume's `storage_class` are fixed at creation. A volume's `size` can only grow, and a Keeper already running as a highly-available ensemble cannot be shrunk back to a single node. These are rejected at plan time.
+- **Passwords are never returned by the API.** `password_value` holds a digest in the form declared by `password_type`, and its value is kept from the configuration and never refreshed. Prefer `password_value_from_secret` to keep the digest out of the Terraform state.
+- **Only a `SWARM` cluster may run without a Keeper.** Every `STANDARD` cluster must reference a Keeper declared in `clickhouse_keepers`.
 
 ## Deprovision / Destroy
 

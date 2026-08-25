@@ -83,7 +83,9 @@ sync:
 
 .PHONY: docs
 docs:
-	GOOS=$(OS) GOARCH=$(ARCH) go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs
+	# --provider-name is explicit: tfplugindocs otherwise derives it from the
+	# directory name, which breaks in a git worktree.
+	GOOS=$(OS) GOARCH=$(ARCH) go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs generate --provider-name terraform-provider-altinitycloud
 
 # The fetched schema is overwritten wholesale, so it must stay byte-identical to
 # GRAPHQL_SCHEMA_URL.

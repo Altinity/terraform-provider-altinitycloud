@@ -454,6 +454,154 @@ output "peering_connection_id" {
 }
 ```
 
+### AWS environment with ClickHouse clusters:
+```terraform
+resource "altinitycloud_env_certificate" "this" {
+  env_name = "acme-staging"
+}
+
+locals {
+  zones = ["us-east-1a", "us-east-1b"]
+}
+
+provider "aws" {
+  region = "us-east-1"
+}
+
+module "altinitycloud_connect_aws" {
+  source = "altinity/connect-aws/altinitycloud"
+  pem    = altinitycloud_env_certificate.this.pem
+}
+
+resource "altinitycloud_env_aws" "this" {
+  name           = altinitycloud_env_certificate.this.env_name
+  aws_account_id = "123456789012"
+  region         = "us-east-1"
+  zones          = local.zones
+  cidr           = "10.67.0.0/21"
+  load_balancers = {
+    public = {
+      enabled          = true
+      source_ip_ranges = ["0.0.0.0/0"]
+    }
+  }
+  node_groups = [
+    {
+      node_type         = "t4g.large"
+      capacity_per_zone = 10
+      zones             = local.zones
+      reservations      = ["SYSTEM"]
+    },
+    {
+      node_type         = "t4g.small"
+      capacity_per_zone = 3
+      zones             = local.zones
+      reservations      = ["ZOOKEEPER"]
+    },
+    {
+      node_type         = "m6i.large"
+      capacity_per_zone = 10
+      zones             = local.zones
+      reservations      = ["CLICKHOUSE"]
+    }
+  ]
+
+  // The instance type of a Keeper must match a node group with a ZOOKEEPER reservation.
+  clickhouse_keepers = [
+    {
+      name          = "keeper"
+      instance_type = "t4g.small"
+      ha            = true
+      disk = {
+        size = 30
+      }
+    }
+  ]
+
+  // The instance type of a cluster must match a node group with a CLICKHOUSE reservation.
+  clickhouse_clusters = [
+    {
+      name          = "analytics"
+      image         = "altinity/clickhouse-server:24.8.14.10459.altinitystable"
+      instance_type = "m6i.large"
+      shards        = 2
+      replicas      = 2
+
+      keeper = {
+        name = "keeper"
+      }
+
+      disk = {
+        size          = 500
+        storage_class = "gp3"
+        iops          = 3000
+        throughput    = 125
+      }
+
+      additional_disks = [
+        {
+          name = "disk1"
+          size = 1000
+        }
+      ]
+
+      settings = [
+        {
+          key   = "max_concurrent_queries"
+          value = "200"
+        }
+      ]
+
+      profiles = [
+        {
+          name = "readonly"
+          settings = [
+            {
+              key   = "readonly"
+              value = "1"
+            }
+          ]
+        }
+      ]
+
+      users = [
+        {
+          name           = "app"
+          allowed_cidrs  = ["10.67.0.0/21"]
+          databases      = ["analytics"]
+          password_type  = "SHA256_HEX"
+          password_value = sha256("change-me")
+        },
+        {
+          name    = "reporting"
+          profile = "readonly"
+          // The digest can also be read from a Kubernetes secret that already
+          // exists in the environment namespace.
+          password_value_from_secret = {
+            name = "clickhouse-users"
+            key  = "reporting"
+          }
+        }
+      ]
+    }
+  ]
+
+  cloud_connect = true
+  depends_on = [
+    // "depends_on" is here to enforce "this resource, then altinitycloud_connect_aws" order on destroy.
+    module.altinitycloud_connect_aws
+  ]
+}
+
+// ⚠️ Environment provisioning is asynchronous.
+// Without this data source, Terraform cannot detect provisioning failures.
+// This data source waits until the environment is fully reconciled and reports errors.
+data "altinitycloud_env_aws_status" "this" {
+  name                           = altinitycloud_env_aws.this.name
+  wait_for_applied_spec_revision = altinitycloud_env_aws.this.spec_revision
+}
+```
+
 ### AWS environment with Iceberg catalogs:
 ```terraform
 resource "altinitycloud_env_certificate" "this" {
@@ -783,6 +931,8 @@ data "altinitycloud_env_aws_status" "this" {
 
 - `allow_delete_while_disconnected` (Boolean) Set to `true` to allow deletion of the environment while it is disconnected from the cloud connect. If the the environment is not connected during the deletion process you will end up in a delete timeout (default `false`).
 - `backups` (Attributes) Configuration for backup storage (see [below for nested schema](#nestedatt--backups))
+- `clickhouse_clusters` (Attributes List) ClickHouse clusters running in this environment. (see [below for nested schema](#nestedatt--clickhouse_clusters))
+- `clickhouse_keepers` (Attributes List) ClickHouse Keepers running in this environment. (see [below for nested schema](#nestedatt--clickhouse_keepers))
 - `cloud_connect` (Boolean) `true` indicates that cloud resources are to be managed via altinity/cloud-connect and `false` means direct management (default `true`). **[IMMUTABLE]**
 - `custom_domain` (String, Deprecated) Deprecated. Use `custom_domains` instead.
 - `custom_domains` (List of String) Custom domains.
@@ -885,6 +1035,196 @@ Required:
 - `name` (String) S3 bucket name for backups
 - `region` (String) AWS region where the backup bucket is located
 - `role_arn` (String) Authentication configuration for backup bucket access
+
+
+
+<a id="nestedatt--clickhouse_clusters"></a>
+### Nested Schema for `clickhouse_clusters`
+
+Required:
+
+- `disk` (Attributes) Main data volume. The underlying volume is deleted along with the resource that owns it. (see [below for nested schema](#nestedatt--clickhouse_clusters--disk))
+- `image` (String) Server image, tag included. Environments hosted by Altinity accept `altinity/clickhouse-server` images only.
+- `instance_type` (String) Machine type for the cluster nodes. Must match a node group with a `CLICKHOUSE` reservation.
+- `keeper` (Attributes) Keeper the cluster coordinates through. Only a `SWARM` cluster may run with it disabled. (see [below for nested schema](#nestedatt--clickhouse_clusters--keeper))
+- `name` (String) Cluster identifier, unique within the environment. 2-15 chars, lowercase alphanumerics and hyphens, must start and end with an alphanumeric. Immutable.
+- `replicas` (Number) Number of replicas per shard.
+- `shards` (Number) Number of shards.
+
+Optional:
+
+- `additional_disks` (Attributes List) Extra data volumes beside the main one, each under its own name. 8 maximum. (see [below for nested schema](#nestedatt--clickhouse_clusters--additional_disks))
+- `mode` (String) Cluster topology mode. Immutable.
+
+		Possible values:
+		- "STANDARD" (default, nodes hold data)
+		- "SWARM" (nodes are labelled as swarm workers and shards reconcile fully in parallel)
+- `profiles` (Attributes List) Settings profiles users can be assigned to. (see [below for nested schema](#nestedatt--clickhouse_clusters--profiles))
+- `settings` (Attributes List) Server-level settings applied to every node. (see [below for nested schema](#nestedatt--clickhouse_clusters--settings))
+- `stopped` (Boolean) Whether the cluster is kept stopped.
+- `users` (Attributes List) ClickHouse users. Passwords are never returned by the API. (see [below for nested schema](#nestedatt--clickhouse_clusters--users))
+- `zones` (List of String) Zones the cluster is spread across. All environment zones by default. Immutable.
+
+<a id="nestedatt--clickhouse_clusters--disk"></a>
+### Nested Schema for `clickhouse_clusters.disk`
+
+Required:
+
+- `size` (Number) Size in GiB. Can only be increased, never decreased. 10240 maximum on Hetzner Cloud.
+
+Optional:
+
+- `iops` (Number) Provisioned IOPS. Honored only by storage classes that support it, such as AWS `gp3` and `io2`.
+- `storage_class` (String) Storage class backing the volume. Environment default when omitted. Immutable.
+- `throughput` (Number) Provisioned throughput in MiB/s. Honored only by storage classes that support it, such as AWS `gp3`.
+
+
+<a id="nestedatt--clickhouse_clusters--keeper"></a>
+### Nested Schema for `clickhouse_clusters.keeper`
+
+Required:
+
+- `name` (String) Name of a `clickhouse_keepers` entry in this environment. Ignored when `enabled` is `false`.
+
+Optional:
+
+- `enabled` (Boolean) Whether the cluster coordinates through a Keeper at all. Only a `SWARM` cluster may set it to `false`.
+
+
+<a id="nestedatt--clickhouse_clusters--additional_disks"></a>
+### Nested Schema for `clickhouse_clusters.additional_disks`
+
+Required:
+
+- `name` (String) Volume identifier. Must start with `disk` and cannot exceed 16 characters. Immutable.
+- `size` (Number) Size in GiB. Can only be increased, never decreased. 10240 maximum on Hetzner Cloud.
+
+Optional:
+
+- `iops` (Number) Provisioned IOPS. Honored only by storage classes that support it, such as AWS `gp3` and `io2`.
+- `storage_class` (String) Storage class backing the volume. Environment default when omitted. Immutable.
+- `throughput` (Number) Provisioned throughput in MiB/s. Honored only by storage classes that support it, such as AWS `gp3`.
+
+
+<a id="nestedatt--clickhouse_clusters--profiles"></a>
+### Nested Schema for `clickhouse_clusters.profiles`
+
+Required:
+
+- `name` (String) Profile name, unique within the cluster. Referenced by a user's `profile`.
+
+Optional:
+
+- `settings` (Attributes List) Server-level settings applied to every node. (see [below for nested schema](#nestedatt--clickhouse_clusters--profiles--settings))
+
+<a id="nestedatt--clickhouse_clusters--profiles--settings"></a>
+### Nested Schema for `clickhouse_clusters.profiles.settings`
+
+Required:
+
+- `key` (String) Setting name, for example `max_concurrent_queries`.
+
+Optional:
+
+- `value` (String) Literal value. Mutually exclusive with `value_from_secret`.
+- `value_from_secret` (Attributes) Value read from a Kubernetes secret instead of being stored in the spec. Mutually exclusive with `value`. (see [below for nested schema](#nestedatt--clickhouse_clusters--profiles--settings--value_from_secret))
+
+<a id="nestedatt--clickhouse_clusters--profiles--settings--value_from_secret"></a>
+### Nested Schema for `clickhouse_clusters.profiles.settings.value_from_secret`
+
+Required:
+
+- `key` (String) Key within the secret.
+- `name` (String) Name of a Kubernetes secret in the environment's namespace. The secret must already exist; the platform never creates it.
+
+
+
+
+<a id="nestedatt--clickhouse_clusters--settings"></a>
+### Nested Schema for `clickhouse_clusters.settings`
+
+Required:
+
+- `key` (String) Setting name, for example `max_concurrent_queries`.
+
+Optional:
+
+- `value` (String) Literal value. Mutually exclusive with `value_from_secret`.
+- `value_from_secret` (Attributes) Value read from a Kubernetes secret instead of being stored in the spec. Mutually exclusive with `value`. (see [below for nested schema](#nestedatt--clickhouse_clusters--settings--value_from_secret))
+
+<a id="nestedatt--clickhouse_clusters--settings--value_from_secret"></a>
+### Nested Schema for `clickhouse_clusters.settings.value_from_secret`
+
+Required:
+
+- `key` (String) Key within the secret.
+- `name` (String) Name of a Kubernetes secret in the environment's namespace. The secret must already exist; the platform never creates it.
+
+
+
+<a id="nestedatt--clickhouse_clusters--users"></a>
+### Nested Schema for `clickhouse_clusters.users`
+
+Required:
+
+- `name` (String) User name, unique within the cluster. `grafana` and `datadog` are reserved for platform-injected users.
+
+Optional:
+
+- `access_management` (Boolean) Whether the user can manage access control: roles, users, grants.
+- `allowed_cidrs` (List of String) CIDRs the user may connect from. Unrestricted when omitted.
+- `databases` (List of String) Databases the user is granted access to. All databases when omitted.
+- `named_collection_control` (Boolean) Whether the user can create and drop named collections.
+- `password_type` (String) Form the password is supplied in. Required whenever a password value is set.
+
+		Possible values:
+		- "SHA256_HEX"
+		- "DOUBLE_SHA1_HEX"
+- `password_value` (String, Sensitive) Password digest, in the form declared by `password_type`. The API never returns it, so the value is kept from the configuration and never refreshed.
+- `password_value_from_secret` (Attributes) Password digest read from a Kubernetes secret, as an alternative to `password_value`. (see [below for nested schema](#nestedatt--clickhouse_clusters--users--password_value_from_secret))
+- `profile` (String) Settings profile assigned to this user. Must be one of the cluster's `profiles` or a profile ClickHouse ships with.
+- `quota` (String) Quota assigned to this user.
+- `show_named_collections` (Boolean) Whether the user can list named collections.
+- `show_named_collections_secrets` (Boolean) Whether the user can read secrets stored in named collections.
+
+<a id="nestedatt--clickhouse_clusters--users--password_value_from_secret"></a>
+### Nested Schema for `clickhouse_clusters.users.password_value_from_secret`
+
+Required:
+
+- `key` (String) Key within the secret.
+- `name` (String) Name of a Kubernetes secret in the environment's namespace. The secret must already exist; the platform never creates it.
+
+
+
+
+<a id="nestedatt--clickhouse_keepers"></a>
+### Nested Schema for `clickhouse_keepers`
+
+Required:
+
+- `disk` (Attributes) Main data volume. The underlying volume is deleted along with the resource that owns it. (see [below for nested schema](#nestedatt--clickhouse_keepers--disk))
+- `instance_type` (String) Machine type for the Keeper nodes. Must match a node group with a `ZOOKEEPER` reservation.
+- `name` (String) Keeper identifier, unique within the environment. 2-15 chars, lowercase alphanumerics and hyphens, must start and end with an alphanumeric. Immutable.
+
+Optional:
+
+- `ha` (Boolean) `true` for a 3-node highly-available ensemble, `false` for a single node. An ensemble already running as HA cannot be shrunk back to a single node.
+- `stopped` (Boolean) Whether the Keeper is kept stopped.
+- `zones` (List of String) Zones the Keeper is spread across. All environment zones by default. Immutable.
+
+<a id="nestedatt--clickhouse_keepers--disk"></a>
+### Nested Schema for `clickhouse_keepers.disk`
+
+Required:
+
+- `size` (Number) Size in GiB. Can only be increased, never decreased. 10240 maximum on Hetzner Cloud.
+
+Optional:
+
+- `iops` (Number) Provisioned IOPS. Honored only by storage classes that support it, such as AWS `gp3` and `io2`.
+- `storage_class` (String) Storage class backing the volume. Environment default when omitted. Immutable.
+- `throughput` (Number) Provisioned throughput in MiB/s. Honored only by storage classes that support it, such as AWS `gp3`.
 
 
 
@@ -1069,6 +1409,16 @@ Required:
 Optional:
 
 - `delete` (String) A string that can be [parsed as a duration](https://pkg.go.dev/time#ParseDuration) consisting of numbers and unit suffixes, such as "30s" or "2h45m". Valid time units are "s" (seconds), "m" (minutes), "h" (hours). Setting a timeout for a Delete operation is only applicable if changes are saved into state before the destroy operation occurs.
+
+## ClickHouse clusters and Keepers
+
+Clusters and Keepers are part of the environment spec, so they are declared inside the environment resource rather than as separate resources. A few behaviors are worth calling out:
+
+- **Removing an entry deletes it.** Clusters, Keepers, extra volumes, settings, profiles and users are matched by name. Dropping one from the configuration deletes it — along with its data — on the next apply.
+- **A cluster needs a node group to run on.** `instance_type` must match a node group with a `CLICKHOUSE` reservation, and a Keeper's `instance_type` must match one with a `ZOOKEEPER` reservation.
+- **Some attributes are immutable.** `name`, `mode`, `zones` and a volume's `storage_class` are fixed at creation. A volume's `size` can only grow, and a Keeper already running as a highly-available ensemble cannot be shrunk back to a single node. These are rejected at plan time.
+- **Passwords are never returned by the API.** `password_value` holds a digest in the form declared by `password_type`, and its value is kept from the configuration and never refreshed. Prefer `password_value_from_secret` to keep the digest out of the Terraform state.
+- **Only a `SWARM` cluster may run without a Keeper.** Every `STANDARD` cluster must reference a Keeper declared in `clickhouse_keepers`.
 
 ## Deprovision / Destroy
 
