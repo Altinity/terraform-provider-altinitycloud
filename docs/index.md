@@ -58,6 +58,8 @@ There are 3 types of environments supported by [Altinity.Cloud Anywhere](https:/
   where you connect a Kubernetes cluster. Altinity.Cloud manages the ClickHouse clusters, while you manage the rest.
 - Altinity-hosted, where the environment runs in a cloud account owned by Altinity and there is no account of yours to connect.
 
+~> **Note:** Altinity-hosted environments are disabled by default. Contact Altinity support (see [Support](#support)) to have them enabled for your account before using `altinitycloud_env_aws_hosted`.
+
 See
 
 - [`altinitycloud_env_aws` resource examples](resources/env_aws#example-usage)

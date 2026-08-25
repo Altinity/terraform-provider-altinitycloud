@@ -3,11 +3,14 @@ page_title: "altinitycloud_env_aws_hosted_status Data Source - terraform-provide
 subcategory: ""
 description: |-
   Altinity-hosted AWS environment status data source. It will long pool the status until matching_spec is true. Use this data source to wait for the environment is fully provisioned.
+  ~> Note: Altinity-hosted environments are disabled by default. Contact Altinity support to have them enabled for your account.
 ---
 
 # altinitycloud_env_aws_hosted_status (Data Source)
 
 Altinity-hosted AWS environment status data source. It will long pool the status until `matching_spec` is `true`. Use this data source to wait for the environment is fully provisioned.
+
+~> **Note:** Altinity-hosted environments are disabled by default. Contact Altinity support to have them enabled for your account.
 
 ## Example Usage
 

@@ -3,11 +3,14 @@ page_title: "altinitycloud_env_aws_hosted Resource - terraform-provider-altinity
 subcategory: ""
 description: |-
   Altinity-hosted AWS environment resource. The environment runs in an AWS account owned by Altinity.
+  ~> Note: Altinity-hosted environments are disabled by default. Contact Altinity support to have them enabled for your account.
 ---
 
 # altinitycloud_env_aws_hosted (Resource)
 
 Altinity-hosted AWS environment resource. The environment runs in an AWS account owned by Altinity.
+
+~> **Note:** Altinity-hosted environments are disabled by default. Contact Altinity support to have them enabled for your account.
 
 Unlike `altinitycloud_env_aws`, an Altinity-hosted environment runs in an AWS account owned by Altinity: there is no cloud connect certificate, no AWS account id and no peering configuration. Availability zones are addressed by their [zone id](https://docs.aws.amazon.com/global-infrastructure/latest/regions/az-ids.html) (`use1-az1`), not by zone name (`us-east-1a`).
 
