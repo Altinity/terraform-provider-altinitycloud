@@ -58,50 +58,6 @@ func TestCIDRValidator(t *testing.T) {
 	}
 }
 
-func TestCIDRWithMaxPrefixValidator(t *testing.T) {
-	t.Parallel()
-
-	tests := map[string]struct {
-		value     string
-		maxPrefix int
-		expectErr bool
-	}{
-		"/16 with max /21 (ok)": {
-			value: "10.0.0.0/16", maxPrefix: 21, expectErr: false,
-		},
-		"/21 with max /21 (ok)": {
-			value: "10.0.0.0/21", maxPrefix: 21, expectErr: false,
-		},
-		"/24 with max /21 (rejected)": {
-			value: "10.0.0.0/24", maxPrefix: 21, expectErr: true,
-		},
-		"/28 with max /21 (rejected)": {
-			value: "10.0.0.0/28", maxPrefix: 21, expectErr: true,
-		},
-		"invalid CIDR with max prefix": {
-			value: "999.0.0.0/16", maxPrefix: 21, expectErr: true,
-		},
-	}
-
-	for name, tc := range tests {
-		t.Run(name, func(t *testing.T) {
-			t.Parallel()
-			req := validator.StringRequest{
-				Path:        path.Root("test"),
-				ConfigValue: types.StringValue(tc.value),
-			}
-			resp := &validator.StringResponse{}
-			CIDRWithMaxPrefix(tc.maxPrefix).ValidateString(context.Background(), req, resp)
-			if tc.expectErr && !resp.Diagnostics.HasError() {
-				t.Error("expected error, got none")
-			}
-			if !tc.expectErr && resp.Diagnostics.HasError() {
-				t.Errorf("unexpected error: %s", resp.Diagnostics.Errors())
-			}
-		})
-	}
-}
-
 func TestPrivateCIDRWithMaxPrefixValidator(t *testing.T) {
 	t.Parallel()
 
@@ -127,8 +83,20 @@ func TestPrivateCIDRWithMaxPrefixValidator(t *testing.T) {
 		"172.32.x outside /12 range": {
 			value: "172.32.0.0/21", expectErr: true,
 		},
+		"prefix equal to the max (ok)": {
+			value: "10.0.0.0/21", expectErr: false,
+		},
+		"prefix larger than the max (ok)": {
+			value: "10.0.0.0/16", expectErr: false,
+		},
 		"prefix too small still rejected": {
 			value: "10.0.0.0/24", expectErr: true,
+		},
+		"much smaller prefix rejected": {
+			value: "10.0.0.0/28", expectErr: true,
+		},
+		"invalid CIDR rejected": {
+			value: "999.0.0.0/16", expectErr: true,
 		},
 	}
 
@@ -165,7 +133,7 @@ func TestCIDRValidator_NullAndUnknown(t *testing.T) {
 				ConfigValue: val,
 			}
 			resp := &validator.StringResponse{}
-			CIDRWithMaxPrefix(21).ValidateString(context.Background(), req, resp)
+			PrivateCIDRWithMaxPrefix(21).ValidateString(context.Background(), req, resp)
 			if resp.Diagnostics.HasError() {
 				t.Errorf("unexpected error for %s value: %s", name, resp.Diagnostics.Errors())
 			}

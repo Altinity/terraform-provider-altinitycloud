@@ -8,11 +8,9 @@ import (
 	"crypto/sha256"
 	"crypto/tls"
 	"crypto/x509"
-	"encoding/hex"
 	"encoding/pem"
 	"fmt"
 	"net/http"
-	"strings"
 
 	sdkHttp "github.com/altinity/terraform-provider-altinitycloud/internal/sdk/http"
 )
@@ -55,34 +53,6 @@ func (c *Crypto) Encrypt(ctx context.Context, pem string, value string) (string,
 	}
 
 	return v, nil
-}
-
-func (c *Crypto) Decrypt(pkPem string, value string) (string, error) {
-	block, _ := pem.Decode([]byte(pkPem))
-	if block == nil {
-		return "", fmt.Errorf("failed to decode PEM block from private key")
-	}
-	pk, err := x509.ParsePKCS1PrivateKey(block.Bytes)
-	if err != nil {
-		return "", err
-	}
-	parts := strings.SplitN(value, ".", 2)
-	if len(parts) != 2 {
-		return "", fmt.Errorf("malformed encrypted value: expected format \"fingerprint.ciphertext\"")
-	}
-	if parts[0] != fingerprint(&pk.PublicKey) {
-		return "", fmt.Errorf("token encrypted with unknown key: %s", parts[0])
-	}
-	hash := sha256.New()
-	enc, err := hex.DecodeString(parts[1])
-	if err != nil {
-		return "", err
-	}
-	cleartext, err := rsa.DecryptOAEP(hash, rand.Reader, pk, enc, nil)
-	if err != nil {
-		return "", err
-	}
-	return string(cleartext), nil
 }
 
 func (c *Crypto) fetchPublicKey(ctx context.Context, tlsCert tls.Certificate) (pem []byte, err error) {

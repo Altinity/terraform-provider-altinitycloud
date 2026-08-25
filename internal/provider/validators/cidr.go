@@ -19,12 +19,6 @@ func CIDR() validator.String {
 	return &cidrValidator{}
 }
 
-// CIDRWithMaxPrefix returns a validator that checks the value is a valid CIDR
-// and that the prefix length is at most maxPrefix (e.g. 21 means /21 or larger network).
-func CIDRWithMaxPrefix(maxPrefix int) validator.String {
-	return &cidrValidator{maxPrefix: maxPrefix}
-}
-
 // PrivateCIDRWithMaxPrefix returns a validator that checks the value is a valid CIDR,
 // that the prefix length is at most maxPrefix, and that the IP is in a private
 // RFC 1918 range (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16).
