@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.1](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.8.0...v0.8.1)
+### Fixed
+- Document `node_type` on the attribute itself instead of on the `node_groups` list, so the accepted instance/VM/server types and the links to the cloud provider's size docs show up where they apply (all environments) [#278](https://github.com/Altinity/terraform-provider-altinitycloud/pull/278).
+- Correct misleading log and error strings: `Unable generate certificate` in `altinitycloud_env_certificate` and `reading <cloud> env state source` in every environment data source [#281](https://github.com/Altinity/terraform-provider-altinitycloud/pull/281).
+- Guard error formatting against a nil error, which panicked instead of returning an empty message [#269](https://github.com/Altinity/terraform-provider-altinitycloud/pull/269).
+
+### Changed
+- Altinity-hosted environments now say that the feature has to be enabled per account: a note on the `altinitycloud_env_aws_hosted` resource, data source and status pages, and the API's `hosted env management not enabled` rejection surfaced as a message pointing to Altinity support instead of the raw validation error [#282](https://github.com/Altinity/terraform-provider-altinitycloud/pull/282).
+
 ## [0.8.0](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.7.5...v0.8.0)
 ### Added
 - New Altinity-hosted AWS environment: `altinitycloud_env_aws_hosted` resource plus `altinitycloud_env_aws_hosted` and `altinitycloud_env_aws_hosted_status` data sources. The environment runs in an Altinity-owned AWS account, so there is no cloud account of yours to connect. Supports `node_groups` (with `zone_ids`), `region`, `zone_ids`, `resource_prefix`, `kms_key_arn`, `backups`, `external_buckets`, `iceberg`, `endpoints`, `load_balancers`, `custom_domains`, `datadog`, `metrics_endpoint`, `maintenance_windows`, and the usual destroy guards (`force_destroy`, `force_destroy_clusters`, `skip_deprovision_on_destroy`, `allow_delete_while_disconnected`) [#265](https://github.com/Altinity/terraform-provider-altinitycloud/pull/265).
