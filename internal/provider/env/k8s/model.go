@@ -180,7 +180,7 @@ func (model *K8SEnvModel) toModel(name string, specRevision int64, spec client.K
 		func(m common.MaintenanceWindowModel) string { return m.Name.ValueString() },
 		func(s *client.K8SEnvSpecFragment_MaintenanceWindows) string { return s.Name },
 	)
-	model.MaintenanceWindows = maintenanceWindowsToModel(spec.MaintenanceWindows)
+	model.MaintenanceWindows = common.MaintenanceWindowsToModel(spec.MaintenanceWindows)
 	model.Metrics = metricsToModel(spec.Metrics)
 	model.Distribution = types.StringValue(string(spec.Distribution))
 	model.SpecRevision = types.Int64Value(specRevision)
@@ -446,26 +446,6 @@ func metricsToModel(metrics client.K8SEnvSpecFragment_Metrics) *MetricsModel {
 	return &MetricsModel{
 		RetentionPeriodInDays: types.Int64PointerValue(metrics.RetentionPeriodInDays),
 	}
-}
-
-func maintenanceWindowsToModel(input []*client.K8SEnvSpecFragment_MaintenanceWindows) []common.MaintenanceWindowModel {
-	var maintenanceWindow []common.MaintenanceWindowModel
-	for _, mw := range input {
-		var days []types.String
-		for _, day := range mw.Days {
-			days = append(days, types.StringValue(string(day)))
-		}
-
-		maintenanceWindow = append(maintenanceWindow, common.MaintenanceWindowModel{
-			Name:          types.StringValue(mw.Name),
-			Enabled:       types.BoolValue(mw.Enabled),
-			Hour:          types.Int64Value(mw.Hour),
-			LengthInHours: types.Int64Value(mw.LengthInHours),
-			Days:          days,
-		})
-	}
-
-	return maintenanceWindow
 }
 
 // User-set name is the unique identity; otherwise name is server-computed, so match on node_type.

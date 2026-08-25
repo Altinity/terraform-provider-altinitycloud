@@ -20,6 +20,11 @@ type NodeGroupsModel struct {
 	Reservations    types.Set    `tfsdk:"reservations"`
 }
 
+type MetricsEndpointModel struct {
+	Enabled        types.Bool     `tfsdk:"enabled"`
+	SourceIPRanges []types.String `tfsdk:"source_ip_ranges"`
+}
+
 type DatadogModel struct {
 	Enabled        types.Bool   `tfsdk:"enabled"`
 	EncAPIKey      types.String `tfsdk:"enc_api_key"`
