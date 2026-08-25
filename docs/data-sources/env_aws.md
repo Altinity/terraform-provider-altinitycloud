@@ -130,7 +130,7 @@ Required:
 - `image` (String) Server image, tag included. Environments hosted by Altinity accept `altinity/clickhouse-server` images only.
 - `instance_type` (String) Machine type for the cluster nodes. Must match a node group with a `CLICKHOUSE` reservation.
 - `keeper` (Attributes) Keeper the cluster coordinates through. Only a `SWARM` cluster may run with it disabled. (see [below for nested schema](#nestedatt--clickhouse_clusters--keeper))
-- `name` (String) Cluster identifier, unique within the environment. 2-15 chars, lowercase alphanumerics and hyphens, must start and end with an alphanumeric. Immutable.
+- `name` (String) Cluster identifier, unique within the environment. 2-15 chars, lowercase alphanumerics and hyphens, must start and end with an alphanumeric. Changing it is not a rename: the old cluster is deleted along with its data and a new, empty one is created.
 - `replicas` (Number) Number of replicas per shard.
 - `shards` (Number) Number of shards.
 
@@ -176,7 +176,7 @@ Optional:
 
 Required:
 
-- `name` (String) Volume identifier. Must start with `disk` and cannot exceed 16 characters. Immutable.
+- `name` (String) Volume identifier. Must start with `disk` and cannot exceed 16 characters. Changing it is not a rename: the old volume is deleted along with its data and a new, empty one is created.
 - `size` (Number) Size in GiB. Can only be increased, never decreased. 10240 maximum on Hetzner Cloud.
 
 Optional:
@@ -285,7 +285,7 @@ Required:
 
 - `disk` (Attributes) Main data volume. The underlying volume is deleted along with the resource that owns it. (see [below for nested schema](#nestedatt--clickhouse_keepers--disk))
 - `instance_type` (String) Machine type for the Keeper nodes. Must match a node group with a `ZOOKEEPER` reservation.
-- `name` (String) Keeper identifier, unique within the environment. 2-15 chars, lowercase alphanumerics and hyphens, must start and end with an alphanumeric. Immutable.
+- `name` (String) Keeper identifier, unique within the environment. 2-15 chars, lowercase alphanumerics and hyphens, must start and end with an alphanumeric. Changing it is not a rename: the old Keeper is deleted along with its data and a new, empty one is created.
 
 Optional:
 

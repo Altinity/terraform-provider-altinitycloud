@@ -429,6 +429,35 @@ func TestValidateClickHousePlanWarnsOnDeletion(t *testing.T) {
 		}
 	})
 
+	t.Run("dropping an additional volume warns", func(t *testing.T) {
+		state := minimalClusterModel("ch")
+		state.AdditionalDisks = []ClickHouseAdditionalDiskModel{{Name: types.StringValue("disk1"), Size: types.Int64Value(50)}}
+
+		plan := state
+		plan.AdditionalDisks = nil
+
+		diags := ValidateClickHousePlan([]ClickHouseClusterModel{state}, []ClickHouseClusterModel{plan}, nil, nil)
+		if diags.HasError() {
+			t.Fatalf("deletion is allowed: %v", diags.Errors())
+		}
+		if len(diags.Warnings()) != 1 {
+			t.Errorf("expected 1 warning, got %d: %v", len(diags.Warnings()), diags.Warnings())
+		}
+	})
+
+	t.Run("renaming an additional volume warns about the data left behind", func(t *testing.T) {
+		state := minimalClusterModel("ch")
+		state.AdditionalDisks = []ClickHouseAdditionalDiskModel{{Name: types.StringValue("disk1"), Size: types.Int64Value(50)}}
+
+		plan := state
+		plan.AdditionalDisks = []ClickHouseAdditionalDiskModel{{Name: types.StringValue("disk2"), Size: types.Int64Value(50)}}
+
+		diags := ValidateClickHousePlan([]ClickHouseClusterModel{state}, []ClickHouseClusterModel{plan}, nil, nil)
+		if len(diags.Warnings()) != 1 {
+			t.Errorf("expected 1 warning, got %d: %v", len(diags.Warnings()), diags.Warnings())
+		}
+	})
+
 	t.Run("an unchanged plan warns about nothing", func(t *testing.T) {
 		cluster := minimalClusterModel("ch")
 		diags := ValidateClickHousePlan([]ClickHouseClusterModel{cluster}, []ClickHouseClusterModel{cluster}, nil, nil)

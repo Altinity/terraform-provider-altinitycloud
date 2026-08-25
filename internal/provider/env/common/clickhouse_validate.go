@@ -197,8 +197,11 @@ func ValidateClickHousePlan(stateClusters, planClusters []ClickHouseClusterModel
 		for _, d := range prior.AdditionalDisks {
 			priorDisks[d.Name.ValueString()] = d
 		}
+		plannedDisks := make(map[string]bool, len(c.AdditionalDisks))
 		for j, d := range c.AdditionalDisks {
 			diskPath := clusterPath.AtName("additional_disks").AtListIndex(j)
+			plannedDisks[d.Name.ValueString()] = true
+
 			priorDisk, ok := priorDisks[d.Name.ValueString()]
 			if !ok {
 				diags.Append(setOnlyAtEnvCreation(diskPath.AtName("storage_class"), "storage_class", d.StorageClass, "volume")...)
@@ -207,6 +210,9 @@ func ValidateClickHousePlan(stateClusters, planClusters []ClickHouseClusterModel
 			diags.Append(immutableString(diskPath.AtName("storage_class"), "storage_class", priorDisk.StorageClass, d.StorageClass)...)
 			diags.Append(growOnlyInt64(diskPath.AtName("size"), "size", priorDisk.Size, d.Size)...)
 		}
+
+		diags.Append(warnClickHouseDeletions(clusterPath.AtName("additional_disks"), "Volume", prior.AdditionalDisks, plannedDisks,
+			func(d ClickHouseAdditionalDiskModel) types.String { return d.Name })...)
 	}
 
 	priorKeepers := make(map[string]ClickHouseKeeperModel, len(stateKeepers))
