@@ -37,6 +37,8 @@ type AWSEnvModel struct {
 	MetricsEndpoint              *AWSEnvMetricsEndpointModel     `tfsdk:"metrics_endpoint"`
 	Datadog                      *common.DatadogModel            `tfsdk:"datadog"`
 	EksLogging                   types.Bool                      `tfsdk:"eks_logging"`
+	ClickHouseClusters           []common.ClickHouseClusterModel `tfsdk:"clickhouse_clusters"`
+	ClickHouseKeepers            []common.ClickHouseKeeperModel  `tfsdk:"clickhouse_keepers"`
 
 	SpecRevision                 types.Int64 `tfsdk:"spec_revision"`
 	ForceDestroy                 types.Bool  `tfsdk:"force_destroy"`
@@ -183,6 +185,13 @@ func (e AWSEnvModel) toSDK(ctx context.Context) (sdk.CreateAWSEnvInput, sdk.Upda
 	allDiags.Append(diags...)
 	datadog := common.DatadogToSDK(e.Datadog)
 
+	clickHouseClusters, diags := common.ClickHouseClustersToSDK(ctx, e.ClickHouseClusters)
+	allDiags.Append(diags...)
+	clickHouseKeepers, diags := common.ClickHouseKeepersToSDK(ctx, e.ClickHouseKeepers)
+	allDiags.Append(diags...)
+	clickHouseClustersUpdate, diags := common.ClickHouseClustersToUpdateSDK(ctx, e.ClickHouseClusters)
+	allDiags.Append(diags...)
+
 	create := sdk.CreateAWSEnvInput{
 		Name: e.Name.ValueString(),
 		Spec: &sdk.CreateAWSEnvSpecInput{
@@ -210,6 +219,8 @@ func (e AWSEnvModel) toSDK(ctx context.Context) (sdk.CreateAWSEnvInput, sdk.Upda
 			MetricsEndpoint:              metricsEndpoint,
 			Datadog:                      datadog,
 			EksLogging:                   e.EksLogging.ValueBoolPointer(),
+			ClickHouseClusters:           clickHouseClusters,
+			ClickHouseKeepers:            clickHouseKeepers,
 		},
 	}
 
@@ -236,6 +247,8 @@ func (e AWSEnvModel) toSDK(ctx context.Context) (sdk.CreateAWSEnvInput, sdk.Upda
 			MetricsEndpoint:       metricsEndpoint,
 			Datadog:               datadog,
 			EksLogging:            e.EksLogging.ValueBoolPointer(),
+			ClickHouseClusters:    clickHouseClustersUpdate,
+			ClickHouseKeepers:     common.ClickHouseKeepersToUpdateSDK(e.ClickHouseKeepers),
 		},
 	}
 
@@ -337,6 +350,13 @@ func (model *AWSEnvModel) toModel(env sdk.GetAWSEnv_AWSEnv) diag.Diagnostics {
 	model.EksLogging = types.BoolValue(env.Spec.EksLogging)
 	model.MetricsEndpoint = metricsEndpointToModel(model.MetricsEndpoint, &env.Spec.MetricsEndpoint)
 	model.Datadog = datadogToModel(model.Datadog, &env.Spec.Datadog)
+
+	clickHouseClusters, diags := common.ClickHouseClustersToModel(model.ClickHouseClusters, clickHouseClustersToSpec(env.Spec.ClickHouseClusters))
+	allDiags.Append(diags...)
+	model.ClickHouseClusters = clickHouseClusters
+	clickHouseKeepers, diags := common.ClickHouseKeepersToModel(model.ClickHouseKeepers, clickHouseKeepersToSpec(env.Spec.ClickHouseKeepers))
+	allDiags.Append(diags...)
+	model.ClickHouseKeepers = clickHouseKeepers
 
 	return allDiags
 }

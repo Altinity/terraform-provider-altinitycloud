@@ -54,6 +54,8 @@ func (r *AWSEnvResource) Schema(ctx context.Context, req resource.SchemaRequest,
 			"metrics_endpoint":                common.GetMetricsEndpointAttribute(false, true, true),
 			"datadog":                         common.GetDatadogAttribute(false, true, false),
 			"eks_logging":                     getEksLoggingAttribute(false, true, true),
+			"clickhouse_clusters":             common.GetClickHouseClustersAttribute(false, true, false),
+			"clickhouse_keepers":              common.GetClickHouseKeepersAttribute(false, true, false),
 
 			"spec_revision":                   common.SpecRevisionAttribute,
 			"force_destroy":                   common.GetForceDestroyAttribute(false, true, true),
@@ -99,6 +101,8 @@ func (d *AWSEnvDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 			"metrics_endpoint":                common.GetMetricsEndpointAttribute(false, false, true),
 			"datadog":                         common.GetDatadogAttribute(false, false, true),
 			"eks_logging":                     getEksLoggingAttribute(false, false, true),
+			"clickhouse_clusters":             common.GetClickHouseClustersAttribute(false, false, true),
+			"clickhouse_keepers":              common.GetClickHouseKeepersAttribute(false, false, true),
 			"spec_revision":                   common.SpecRevisionAttribute,
 
 			// these options are not used in data sources,

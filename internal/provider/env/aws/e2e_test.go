@@ -144,6 +144,74 @@ resource "%s" "dummy" {
     source_ip_ranges = ["0.0.0.0/0"]
   }
 
+  clickhouse_keepers = [{
+    name          = "keeper1"
+    instance_type = "t4g.large"
+    zones         = ["us-east-1a", "us-east-1b"]
+    ha            = true
+    stopped       = false
+    disk = {
+      size          = 30
+      storage_class = "gp3"
+    }
+  }]
+
+  clickhouse_clusters = [{
+    name          = "cluster1"
+    mode          = "STANDARD"
+    image         = "altinity/clickhouse-server:24.8.14.10459.altinitystable"
+    instance_type = "m6i.large"
+    zones         = ["us-east-1a", "us-east-1b"]
+    shards        = 1
+    replicas      = 2
+    stopped       = false
+
+    keeper = {
+      enabled = true
+      name    = "keeper1"
+    }
+
+    disk = {
+      size          = 100
+      storage_class = "gp3"
+      iops          = 3000
+      throughput    = 125
+    }
+
+    additional_disks = [{
+      name          = "disk1"
+      size          = 50
+      storage_class = "gp3"
+    }]
+
+    settings = [{
+      key   = "max_concurrent_queries"
+      value = "200"
+    }]
+
+    profiles = [{
+      name = "readonly"
+      settings = [{
+        key   = "readonly"
+        value = "1"
+      }]
+    }]
+
+    users = [{
+      name                           = "app"
+      profile                        = "readonly"
+      quota                          = "default"
+      allowed_cidrs                  = ["10.0.0.0/8"]
+      databases                      = ["analytics"]
+      access_management              = false
+      named_collection_control       = false
+      show_named_collections         = false
+      show_named_collections_secrets = false
+      password_type                  = "SHA256_HEX"
+      password_value                 = "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8"
+    }]
+  }]
+
   force_destroy                   = true
   skip_deprovision_on_destroy     = true
   allow_delete_while_disconnected = true
