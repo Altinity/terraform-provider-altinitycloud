@@ -139,7 +139,7 @@ func GetCIDRAttribute(required, optional, computed bool) rschema.StringAttribute
 			validators.PrivateCIDRWithMaxPrefix(21),
 		},
 		PlanModifiers: []planmodifier.String{
-			modifiers.ImmutableString("cidr"),
+			modifiers.ImmutableString(),
 		},
 	}
 }
@@ -193,7 +193,7 @@ func GetRegionAttribute(required, optional, computed bool, description string) r
 		Computed:            computed,
 		MarkdownDescription: description,
 		PlanModifiers: []planmodifier.String{
-			modifiers.ImmutableString("region"),
+			modifiers.ImmutableString(),
 		},
 		Validators: []validator.String{
 			stringvalidator.LengthAtLeast(1),

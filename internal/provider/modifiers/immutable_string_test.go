@@ -2,8 +2,11 @@ package modifiers
 
 import (
 	"context"
+	"strings"
 	"testing"
 
+	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/tfsdk"
 	"github.com/hashicorp/terraform-plugin-framework/types"
@@ -86,7 +89,7 @@ func TestImmutableString_PlanModifyString(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 			resp := &planmodifier.StringResponse{PlanValue: tc.req.PlanValue}
-			ImmutableString("region").PlanModifyString(context.Background(), tc.req, resp)
+			ImmutableString().PlanModifyString(context.Background(), tc.req, resp)
 
 			if tc.expectErr && !resp.Diagnostics.HasError() {
 				t.Error("expected error diagnostic, got none")
@@ -102,3 +105,38 @@ func TestImmutableString_PlanModifyString(t *testing.T) {
 }
 
 func ptr[T any](v T) *T { return &v }
+
+// The modifier used to take the attribute name as a string, so a shared schema
+// helper reused for a differently named attribute reported the wrong path.
+func TestImmutableString_DiagnosticUsesRequestPath(t *testing.T) {
+	t.Parallel()
+
+	req := planmodifier.StringRequest{
+		Path:        path.Root("network_zone"),
+		StateValue:  types.StringValue("eu-central"),
+		PlanValue:   types.StringValue("us-east"),
+		ConfigValue: types.StringValue("us-east"),
+		Plan: tfsdk.Plan{
+			Raw: tftypes.NewValue(tftypes.Object{AttributeTypes: map[string]tftypes.Type{}}, map[string]tftypes.Value{}),
+		},
+	}
+
+	resp := &planmodifier.StringResponse{PlanValue: req.PlanValue}
+	ImmutableString().PlanModifyString(context.Background(), req, resp)
+
+	errs := resp.Diagnostics.Errors()
+	if len(errs) != 1 {
+		t.Fatalf("expected 1 error, got %d: %v", len(errs), errs)
+	}
+
+	withPath, ok := errs[0].(diag.DiagnosticWithPath)
+	if !ok {
+		t.Fatal("expected a diagnostic carrying a path")
+	}
+	if got := withPath.Path().String(); got != "network_zone" {
+		t.Errorf("diagnostic path: got %q, want %q", got, "network_zone")
+	}
+	if !strings.Contains(errs[0].Detail(), "network_zone") {
+		t.Errorf("detail should name the attribute, got: %s", errs[0].Detail())
+	}
+}

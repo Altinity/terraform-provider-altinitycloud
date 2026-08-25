@@ -86,7 +86,7 @@ func TestImmutableBool_PlanModifyBool(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 			resp := &planmodifier.BoolResponse{PlanValue: tc.req.PlanValue}
-			ImmutableBool("internal").PlanModifyBool(context.Background(), tc.req, resp)
+			ImmutableBool().PlanModifyBool(context.Background(), tc.req, resp)
 
 			if tc.expectErr && !resp.Diagnostics.HasError() {
 				t.Error("expected error diagnostic, got none")

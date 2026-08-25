@@ -173,7 +173,7 @@ func getAWSAccountIDAttribute(required, optional, computed bool) rschema.StringA
 		Computed:            computed,
 		MarkdownDescription: common.AWS_ACCOUNT_ID_DESCRIPTION,
 		PlanModifiers: []planmodifier.String{
-			modifiers.ImmutableString("aws_account_id"),
+			modifiers.ImmutableString(),
 		},
 		Validators: []validator.String{
 			stringvalidator.RegexMatches(regexp.MustCompile(`^\d{12}$`),
@@ -234,7 +234,7 @@ func getCloudConnectAttribute(required, optional, computed bool) rschema.BoolAtt
 		MarkdownDescription: common.CLOUD_CONNECT_DESCRIPTION,
 		Default:             booldefault.StaticBool(true),
 		PlanModifiers: []planmodifier.Bool{
-			modifiers.ImmutableBool("cloud_connect"),
+			modifiers.ImmutableBool(),
 		},
 	}
 }
@@ -256,7 +256,7 @@ func getNATAttribute(required, optional, computed bool) rschema.BoolAttribute {
 		MarkdownDescription: common.NAT_DESCRIPTION,
 		Default:             booldefault.StaticBool(false),
 		PlanModifiers: []planmodifier.Bool{
-			modifiers.ImmutableBool("nat"),
+			modifiers.ImmutableBool(),
 		},
 	}
 }
@@ -267,7 +267,7 @@ func getPermissionsBoundaryPolicyArnAttribute(required, optional, computed bool)
 		Optional: optional,
 		Computed: computed,
 		PlanModifiers: []planmodifier.String{
-			modifiers.ImmutableString("permissions_boundary_policy_arn"),
+			modifiers.ImmutableString(),
 		},
 		MarkdownDescription: common.PERMISSIONS_BOUNDARY_POLICY_ARN_DESCRIPTION,
 	}
@@ -279,7 +279,7 @@ func getKmsKeyArnAttribute(required, optional, computed bool) rschema.StringAttr
 		Optional: optional,
 		Computed: computed,
 		PlanModifiers: []planmodifier.String{
-			modifiers.ImmutableString("kms_key_arn"),
+			modifiers.ImmutableString(),
 		},
 		MarkdownDescription: common.KMS_KEY_ARN_DESCRIPTION,
 	}
@@ -291,7 +291,7 @@ func getResourcePrefixAttribute(required, optional, computed bool) rschema.Strin
 		Optional: optional,
 		Computed: computed,
 		PlanModifiers: []planmodifier.String{
-			modifiers.ImmutableString("resource_prefix"),
+			modifiers.ImmutableString(),
 		},
 		MarkdownDescription: common.RESOURCE_PREFIX_DESCRIPTION,
 	}
