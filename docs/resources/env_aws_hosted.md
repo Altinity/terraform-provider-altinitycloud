@@ -222,8 +222,17 @@ provider "aws" {
   region = local.region
 }
 
+// Objects get SSE-S3 by default; see the `kms` example for a customer-managed key.
 resource "aws_s3_bucket" "backups" {
   bucket = local.backup_bucket
+}
+
+resource "aws_s3_bucket_public_access_block" "backups" {
+  bucket                  = aws_s3_bucket.backups.id
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
 }
 
 // The environment runs in Altinity's account, so it reaches the bucket by
