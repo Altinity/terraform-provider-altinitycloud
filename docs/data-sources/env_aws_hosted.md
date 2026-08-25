@@ -4,11 +4,14 @@ page_title: "altinitycloud_env_aws_hosted Data Source - terraform-provider-altin
 subcategory: ""
 description: |-
   Altinity-hosted AWS environment data source.
+  ~> Note: Altinity-hosted environments are disabled by default. Contact Altinity support to have them enabled for your account.
 ---
 
 # altinitycloud_env_aws_hosted (Data Source)
 
 Altinity-hosted AWS environment data source.
+
+~> **Note:** Altinity-hosted environments are disabled by default. Contact Altinity support to have them enabled for your account.
 
 
 

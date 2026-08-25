@@ -26,7 +26,7 @@ import (
 
 func (r *AWSEnvHostedResource) Schema(ctx context.Context, req resource.SchemaRequest, resp *resource.SchemaResponse) {
 	resp.Schema = rschema.Schema{
-		MarkdownDescription: heredoc.Doc(`Altinity-hosted AWS environment resource. The environment runs in an AWS account owned by Altinity.`),
+		MarkdownDescription: heredoc.Doc(`Altinity-hosted AWS environment resource. The environment runs in an AWS account owned by Altinity.`) + "\n\n" + common.HOSTED_DISABLED_BY_DEFAULT_DESCRIPTION,
 		Attributes: map[string]rschema.Attribute{
 			"id":                  common.IDAttribute,
 			"name":                common.NameAttribute,
@@ -62,7 +62,7 @@ func (r *AWSEnvHostedResource) Schema(ctx context.Context, req resource.SchemaRe
 
 func (d *AWSEnvHostedDataSource) Schema(ctx context.Context, req datasource.SchemaRequest, resp *datasource.SchemaResponse) {
 	resp.Schema = dschema.Schema{
-		MarkdownDescription: heredoc.Doc(`Altinity-hosted AWS environment data source.`),
+		MarkdownDescription: heredoc.Doc(`Altinity-hosted AWS environment data source.`) + "\n\n" + common.HOSTED_DISABLED_BY_DEFAULT_DESCRIPTION,
 		Attributes: map[string]dschema.Attribute{
 			"id":                  common.IDAttribute,
 			"name":                common.NameAttribute,

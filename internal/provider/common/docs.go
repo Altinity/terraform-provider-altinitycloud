@@ -320,6 +320,7 @@ const EKS_LOGGING_DESCRIPTION = "Enable/Disable EKS control plane logging to Clo
 const VERBOSE_DESCRIPTION = "When enabled, prints real-time provisioning progress to the terminal (default `true`). Disable in CI/CD or non-interactive environments."
 
 // Altinity-hosted environment descriptions.
+const HOSTED_DISABLED_BY_DEFAULT_DESCRIPTION = "~> **Note:** Altinity-hosted environments are disabled by default. Contact Altinity support to have them enabled for your account."
 const HOSTED_AWS_ZONE_IDS_DESCRIPTION = `Explicit list of AWS availability zone ids. At least 2 required.
 
 		Examples:
