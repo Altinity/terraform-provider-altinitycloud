@@ -37,9 +37,18 @@ func (r *AWSEnvResource) ValidateConfig(ctx context.Context, req resource.Valida
 
 	clusters, keepers, ok, diags := common.ReadClickHouse(ctx, req.Config)
 	resp.Diagnostics.Append(diags...)
-	if ok {
-		resp.Diagnostics.Append(common.ValidateClickHouseConfig(clusters, keepers)...)
+	if !ok {
+		return
 	}
+
+	// Unsettled node groups just drop the placement check; the rest still applies.
+	nodeGroups, ok, diags := common.ReadNodeGroups(ctx, req.Config)
+	resp.Diagnostics.Append(diags...)
+	if !ok {
+		nodeGroups = nil
+	}
+
+	resp.Diagnostics.Append(common.ValidateClickHouseConfig(clusters, keepers, nodeGroups)...)
 }
 
 // Reads only datadog: a full Config.Get panics on unknown nested struct-pointer attrs.

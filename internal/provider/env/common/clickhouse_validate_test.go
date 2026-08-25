@@ -3,17 +3,36 @@ package env
 import (
 	"testing"
 
+	sdk "github.com/altinity/terraform-provider-altinitycloud/internal/sdk/client"
+	"github.com/hashicorp/terraform-plugin-framework/attr"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
 func keeperModel() ClickHouseKeeperModel {
 	return ClickHouseKeeperModel{
 		Name:         types.StringValue("keeper"),
-		InstanceType: types.StringValue("m6i.large"),
+		InstanceType: types.StringValue("t4g.small"),
 		Zones:        types.ListNull(types.StringType),
 		HA:           types.BoolValue(true),
 		Stopped:      types.BoolValue(false),
 		Disk:         &ClickHouseDiskModel{Size: types.Int64Value(30)},
+	}
+}
+
+func nodeGroup(t *testing.T, nodeType string, reservations ...sdk.NodeReservation) NodeGroupsModel {
+	t.Helper()
+	set, diags := ReservationsToModel(reservations)
+	if diags.HasError() {
+		t.Fatalf("ReservationsToModel: %v", diags)
+	}
+	return NodeGroupsModel{NodeType: types.StringValue(nodeType), Reservations: set}
+}
+
+func testNodeGroups(t *testing.T) []NodeGroupsModel {
+	t.Helper()
+	return []NodeGroupsModel{
+		nodeGroup(t, "m6i.large", sdk.NodeReservationClickhouse),
+		nodeGroup(t, "t4g.small", sdk.NodeReservationSystem, sdk.NodeReservationZookeeper),
 	}
 }
 
@@ -22,6 +41,7 @@ func TestValidateClickHouseConfig(t *testing.T) {
 		diags := ValidateClickHouseConfig(
 			[]ClickHouseClusterModel{minimalClusterModel("ch")},
 			[]ClickHouseKeeperModel{keeperModel()},
+			testNodeGroups(t),
 		)
 		if diags.HasError() {
 			t.Fatalf("unexpected errors: %v", diags.Errors())
@@ -29,7 +49,7 @@ func TestValidateClickHouseConfig(t *testing.T) {
 	})
 
 	t.Run("an undeclared keeper is rejected", func(t *testing.T) {
-		diags := ValidateClickHouseConfig([]ClickHouseClusterModel{minimalClusterModel("ch")}, nil)
+		diags := ValidateClickHouseConfig([]ClickHouseClusterModel{minimalClusterModel("ch")}, nil, nil)
 		if !diags.HasError() {
 			t.Fatal("expected an error for a keeper that is not declared")
 		}
@@ -38,26 +58,44 @@ func TestValidateClickHouseConfig(t *testing.T) {
 	t.Run("only a SWARM cluster may run without a keeper", func(t *testing.T) {
 		standard := minimalClusterModel("ch")
 		standard.Keeper = &ClickHouseKeeperRefModel{Enabled: types.BoolValue(false), Name: types.StringValue("")}
-		if diags := ValidateClickHouseConfig([]ClickHouseClusterModel{standard}, nil); !diags.HasError() {
+		if diags := ValidateClickHouseConfig([]ClickHouseClusterModel{standard}, nil, nil); !diags.HasError() {
 			t.Error("expected an error for a STANDARD cluster with the keeper disabled")
 		}
 
 		swarm := standard
 		swarm.Mode = types.StringValue("SWARM")
-		if diags := ValidateClickHouseConfig([]ClickHouseClusterModel{swarm}, nil); diags.HasError() {
+		if diags := ValidateClickHouseConfig([]ClickHouseClusterModel{swarm}, nil, nil); diags.HasError() {
 			t.Errorf("unexpected errors for a SWARM cluster: %v", diags.Errors())
+		}
+
+		unknownMode := standard
+		unknownMode.Mode = types.StringUnknown()
+		if diags := ValidateClickHouseConfig([]ClickHouseClusterModel{unknownMode}, nil, nil); diags.HasError() {
+			t.Errorf("an unknown mode may still turn out to be SWARM: %v", diags.Errors())
 		}
 	})
 
 	t.Run("duplicate names are rejected", func(t *testing.T) {
 		clusters := []ClickHouseClusterModel{minimalClusterModel("ch"), minimalClusterModel("ch")}
-		if diags := ValidateClickHouseConfig(clusters, []ClickHouseKeeperModel{keeperModel()}); !diags.HasError() {
+		if diags := ValidateClickHouseConfig(clusters, []ClickHouseKeeperModel{keeperModel()}, nil); !diags.HasError() {
 			t.Error("expected an error for duplicate cluster names")
 		}
 
 		keepers := []ClickHouseKeeperModel{keeperModel(), keeperModel()}
-		if diags := ValidateClickHouseConfig(nil, keepers); !diags.HasError() {
+		if diags := ValidateClickHouseConfig(nil, keepers, nil); !diags.HasError() {
 			t.Error("expected an error for duplicate keeper names")
+		}
+	})
+
+	t.Run("unknown names are not duplicates of each other", func(t *testing.T) {
+		a := minimalClusterModel("a")
+		a.Name = types.StringUnknown()
+		b := minimalClusterModel("b")
+		b.Name = types.StringUnknown()
+
+		diags := ValidateClickHouseConfig([]ClickHouseClusterModel{a, b}, []ClickHouseKeeperModel{keeperModel()}, nil)
+		if diags.HasError() {
+			t.Errorf("two unknown names are not known to collide: %v", diags.Errors())
 		}
 	})
 
@@ -80,9 +118,52 @@ func TestValidateClickHouseConfig(t *testing.T) {
 			},
 		}}
 
-		diags := ValidateClickHouseConfig([]ClickHouseClusterModel{cluster}, []ClickHouseKeeperModel{keeperModel()})
+		diags := ValidateClickHouseConfig([]ClickHouseClusterModel{cluster}, []ClickHouseKeeperModel{keeperModel()}, nil)
 		if len(diags.Errors()) != 4 {
 			t.Errorf("expected 4 duplicate errors, got %d: %v", len(diags.Errors()), diags.Errors())
+		}
+	})
+}
+
+func TestValidateClickHouseNodeGroupPlacement(t *testing.T) {
+	t.Run("an instance type without a matching reservation is rejected", func(t *testing.T) {
+		cluster := minimalClusterModel("ch")
+		cluster.InstanceType = types.StringValue("t4g.small") // reserved for ZOOKEEPER, not CLICKHOUSE
+
+		diags := ValidateClickHouseConfig([]ClickHouseClusterModel{cluster}, []ClickHouseKeeperModel{keeperModel()}, testNodeGroups(t))
+		if !diags.HasError() {
+			t.Error("expected an error for a cluster on a node group without a CLICKHOUSE reservation")
+		}
+	})
+
+	t.Run("an instance type absent from every node group is rejected", func(t *testing.T) {
+		keeper := keeperModel()
+		keeper.InstanceType = types.StringValue("c7g.xlarge")
+
+		diags := ValidateClickHouseConfig(nil, []ClickHouseKeeperModel{keeper}, testNodeGroups(t))
+		if !diags.HasError() {
+			t.Error("expected an error for a Keeper with no matching node group")
+		}
+	})
+
+	t.Run("the check is skipped while node groups are unsettled", func(t *testing.T) {
+		cluster := minimalClusterModel("ch")
+		cluster.InstanceType = types.StringValue("c7g.xlarge")
+		unsettled := []NodeGroupsModel{{NodeType: types.StringUnknown(), Reservations: types.SetNull(types.StringType)}}
+
+		diags := ValidateClickHouseConfig([]ClickHouseClusterModel{cluster}, []ClickHouseKeeperModel{keeperModel()}, unsettled)
+		if diags.HasError() {
+			t.Errorf("an unknown node group cannot rule out a match: %v", diags.Errors())
+		}
+	})
+
+	t.Run("the check is skipped when no node groups were read", func(t *testing.T) {
+		cluster := minimalClusterModel("ch")
+		cluster.InstanceType = types.StringValue("c7g.xlarge")
+
+		diags := ValidateClickHouseConfig([]ClickHouseClusterModel{cluster}, []ClickHouseKeeperModel{keeperModel()}, nil)
+		if diags.HasError() {
+			t.Errorf("unexpected errors: %v", diags.Errors())
 		}
 	})
 }
@@ -120,6 +201,25 @@ func TestValidateClickHousePlan(t *testing.T) {
 		changed.Zones = testList(t, "us-east-1a", "us-east-1c")
 		if diags := ValidateClickHousePlan([]ClickHouseClusterModel{state}, []ClickHouseClusterModel{changed}, nil, nil); !diags.HasError() {
 			t.Error("expected an error when zones change")
+		}
+	})
+
+	t.Run("an unknown zone element defers the comparison", func(t *testing.T) {
+		state := minimalClusterModel("ch")
+		state.Zones = testList(t, "us-east-1a", "us-east-1b")
+
+		plan := state
+		partial, diags := types.ListValue(types.StringType, []attr.Value{
+			types.StringValue("us-east-1a"),
+			types.StringUnknown(),
+		})
+		if diags.HasError() {
+			t.Fatalf("ListValue: %v", diags)
+		}
+		plan.Zones = partial
+
+		if diags := ValidateClickHousePlan([]ClickHouseClusterModel{state}, []ClickHouseClusterModel{plan}, nil, nil); diags.HasError() {
+			t.Errorf("an unknown element cannot be compared yet: %v", diags.Errors())
 		}
 	})
 
@@ -176,12 +276,6 @@ func TestValidateClickHousePlan(t *testing.T) {
 		}
 	})
 
-	t.Run("a new cluster has nothing to compare against", func(t *testing.T) {
-		if diags := ValidateClickHousePlan(nil, []ClickHouseClusterModel{minimalClusterModel("ch")}, nil, nil); diags.HasError() {
-			t.Errorf("unexpected errors: %v", diags.Errors())
-		}
-	})
-
 	t.Run("an HA keeper cannot be shrunk back to a single node", func(t *testing.T) {
 		state := keeperModel()
 		plan := state
@@ -207,6 +301,113 @@ func TestValidateClickHousePlan(t *testing.T) {
 
 		if diags := ValidateClickHousePlan([]ClickHouseClusterModel{state}, []ClickHouseClusterModel{plan}, nil, nil); diags.HasError() {
 			t.Errorf("unknown values cannot be compared yet: %v", diags.Errors())
+		}
+	})
+}
+
+// The update input carries no mode, zones or storage class, so an entry added to
+// an existing environment would silently come up with the defaults.
+func TestValidateClickHousePlanEntriesAddedToExistingEnv(t *testing.T) {
+	existing := minimalClusterModel("existing")
+
+	t.Run("a plain new cluster is allowed", func(t *testing.T) {
+		added := minimalClusterModel("added")
+		added.Mode = types.StringUnknown()
+		added.Zones = types.ListUnknown(types.StringType)
+		added.Disk = &ClickHouseDiskModel{Size: types.Int64Value(100), StorageClass: types.StringUnknown()}
+
+		diags := ValidateClickHousePlan([]ClickHouseClusterModel{existing}, []ClickHouseClusterModel{existing, added}, nil, nil)
+		if diags.HasError() {
+			t.Fatalf("unexpected errors: %v", diags.Errors())
+		}
+	})
+
+	t.Run("an explicit STANDARD mode is allowed, since that is what would be created", func(t *testing.T) {
+		added := minimalClusterModel("added")
+		added.Mode = types.StringValue("STANDARD")
+
+		diags := ValidateClickHousePlan([]ClickHouseClusterModel{existing}, []ClickHouseClusterModel{existing, added}, nil, nil)
+		if diags.HasError() {
+			t.Errorf("unexpected errors: %v", diags.Errors())
+		}
+	})
+
+	t.Run("mode, zones and storage_class are rejected", func(t *testing.T) {
+		added := minimalClusterModel("added")
+		added.Mode = types.StringValue("SWARM")
+		added.Zones = testList(t, "us-east-1a")
+		added.Disk = &ClickHouseDiskModel{Size: types.Int64Value(100), StorageClass: types.StringValue("gp3")}
+
+		diags := ValidateClickHousePlan([]ClickHouseClusterModel{existing}, []ClickHouseClusterModel{existing, added}, nil, nil)
+		if len(diags.Errors()) != 3 {
+			t.Errorf("expected 3 errors, got %d: %v", len(diags.Errors()), diags.Errors())
+		}
+	})
+
+	t.Run("a volume added to an existing cluster cannot pick a storage class", func(t *testing.T) {
+		plan := existing
+		plan.AdditionalDisks = []ClickHouseAdditionalDiskModel{{
+			Name:         types.StringValue("disk1"),
+			Size:         types.Int64Value(50),
+			StorageClass: types.StringValue("gp3"),
+		}}
+
+		diags := ValidateClickHousePlan([]ClickHouseClusterModel{existing}, []ClickHouseClusterModel{plan}, nil, nil)
+		if !diags.HasError() {
+			t.Error("expected an error for a new volume with an explicit storage class")
+		}
+	})
+
+	t.Run("a new keeper cannot pick zones or a storage class", func(t *testing.T) {
+		added := keeperModel()
+		added.Name = types.StringValue("added")
+		added.Zones = testList(t, "us-east-1a")
+		added.Disk = &ClickHouseDiskModel{Size: types.Int64Value(30), StorageClass: types.StringValue("gp3")}
+
+		diags := ValidateClickHousePlan(nil, nil, []ClickHouseKeeperModel{keeperModel()}, []ClickHouseKeeperModel{keeperModel(), added})
+		if len(diags.Errors()) != 2 {
+			t.Errorf("expected 2 errors, got %d: %v", len(diags.Errors()), diags.Errors())
+		}
+	})
+}
+
+func TestValidateClickHousePlanWarnsOnDeletion(t *testing.T) {
+	t.Run("dropping a cluster warns without blocking", func(t *testing.T) {
+		diags := ValidateClickHousePlan(
+			[]ClickHouseClusterModel{minimalClusterModel("gone")},
+			nil, nil, nil,
+		)
+		if diags.HasError() {
+			t.Fatalf("deletion is allowed: %v", diags.Errors())
+		}
+		if len(diags.Warnings()) != 1 {
+			t.Errorf("expected 1 warning, got %d: %v", len(diags.Warnings()), diags.Warnings())
+		}
+	})
+
+	t.Run("renaming warns about the entry left behind", func(t *testing.T) {
+		diags := ValidateClickHousePlan(
+			[]ClickHouseClusterModel{minimalClusterModel("old")},
+			[]ClickHouseClusterModel{minimalClusterModel("new")},
+			nil, nil,
+		)
+		if len(diags.Warnings()) != 1 {
+			t.Errorf("expected 1 warning, got %d: %v", len(diags.Warnings()), diags.Warnings())
+		}
+	})
+
+	t.Run("dropping a keeper warns", func(t *testing.T) {
+		diags := ValidateClickHousePlan(nil, nil, []ClickHouseKeeperModel{keeperModel()}, nil)
+		if len(diags.Warnings()) != 1 {
+			t.Errorf("expected 1 warning, got %d: %v", len(diags.Warnings()), diags.Warnings())
+		}
+	})
+
+	t.Run("an unchanged plan warns about nothing", func(t *testing.T) {
+		cluster := minimalClusterModel("ch")
+		diags := ValidateClickHousePlan([]ClickHouseClusterModel{cluster}, []ClickHouseClusterModel{cluster}, nil, nil)
+		if len(diags.Warnings()) != 0 {
+			t.Errorf("expected no warnings, got %v", diags.Warnings())
 		}
 	})
 }

@@ -459,4 +459,78 @@ func TestClickHouseKeepersToModel(t *testing.T) {
 			t.Errorf("unexpected disk: %#v", got[0].Disk)
 		}
 	})
+
+	t.Run("zones follow config order", func(t *testing.T) {
+		prior := []ClickHouseKeeperModel{{
+			Name:  types.StringValue("keeper"),
+			Zones: testList(t, "us-east-1b", "us-east-1a"),
+		}}
+		specs := []ClickHouseKeeperSpec{{Name: "keeper", Zones: []string{"us-east-1a", "us-east-1b"}}}
+
+		got, diags := ClickHouseKeepersToModel(prior, specs)
+		if diags.HasError() {
+			t.Fatalf("unexpected diags: %v", diags)
+		}
+		assertZones(t, got[0].Zones, "us-east-1b", "us-east-1a")
+	})
+}
+
+func assertZones(t *testing.T, got types.List, want ...string) {
+	t.Helper()
+	elements := got.Elements()
+	if len(elements) != len(want) {
+		t.Fatalf("expected %d zones, got %v", len(want), got)
+	}
+	for i, w := range want {
+		s, ok := elements[i].(types.String)
+		if !ok {
+			t.Fatalf("zone %d is not a types.String: %T", i, elements[i])
+		}
+		if s.ValueString() != w {
+			t.Errorf("zone %d: got %q, want %q", i, s.ValueString(), w)
+		}
+	}
+}
+
+// The API returns zones in its own order, which would diff forever against an
+// immutable list attribute.
+func TestClickHouseZonesFollowConfigOrder(t *testing.T) {
+	t.Run("cluster zones are reordered against prior state", func(t *testing.T) {
+		prior := minimalClusterModel("ch")
+		prior.Zones = testList(t, "us-east-1c", "us-east-1a", "us-east-1b")
+
+		spec := minimalClusterSpec("ch")
+		spec.Zones = []string{"us-east-1a", "us-east-1b", "us-east-1c"}
+
+		got, diags := ClickHouseClustersToModel([]ClickHouseClusterModel{prior}, []ClickHouseClusterSpec{spec})
+		if diags.HasError() {
+			t.Fatalf("unexpected diags: %v", diags)
+		}
+		assertZones(t, got[0].Zones, "us-east-1c", "us-east-1a", "us-east-1b")
+	})
+
+	t.Run("zones the config never named go last", func(t *testing.T) {
+		prior := minimalClusterModel("ch")
+		prior.Zones = testList(t, "us-east-1b")
+
+		spec := minimalClusterSpec("ch")
+		spec.Zones = []string{"us-east-1a", "us-east-1b"}
+
+		got, diags := ClickHouseClustersToModel([]ClickHouseClusterModel{prior}, []ClickHouseClusterSpec{spec})
+		if diags.HasError() {
+			t.Fatalf("unexpected diags: %v", diags)
+		}
+		assertZones(t, got[0].Zones, "us-east-1b", "us-east-1a")
+	})
+
+	t.Run("without prior state the API order is kept", func(t *testing.T) {
+		spec := minimalClusterSpec("ch")
+		spec.Zones = []string{"us-east-1a", "us-east-1b"}
+
+		got, diags := ClickHouseClustersToModel(nil, []ClickHouseClusterSpec{spec})
+		if diags.HasError() {
+			t.Fatalf("unexpected diags: %v", diags)
+		}
+		assertZones(t, got[0].Zones, "us-east-1a", "us-east-1b")
+	})
 }

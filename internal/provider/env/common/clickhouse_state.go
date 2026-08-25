@@ -27,7 +27,7 @@ func ClickHouseClustersToModel(prior []ClickHouseClusterModel, specs []ClickHous
 	for _, s := range specs {
 		p := priorByName[s.Name]
 
-		zones, diags := ListToModel(s.Zones)
+		zones, diags := ListToModel(reorderZones(p.Zones, s.Zones))
 		allDiags.Append(diags...)
 
 		users, diags := clickHouseUsersToModel(p.Users, s.Users)
@@ -65,9 +65,14 @@ func ClickHouseKeepersToModel(prior []ClickHouseKeeperModel, specs []ClickHouseK
 		func(s ClickHouseKeeperSpec) string { return s.Name },
 	)
 
+	priorByName := make(map[string]ClickHouseKeeperModel, len(prior))
+	for _, k := range prior {
+		priorByName[k.Name.ValueString()] = k
+	}
+
 	keepers := make([]ClickHouseKeeperModel, 0, len(specs))
 	for _, s := range specs {
-		zones, diags := ListToModel(s.Zones)
+		zones, diags := ListToModel(reorderZones(priorByName[s.Name].Zones, s.Zones))
 		allDiags.Append(diags...)
 
 		keepers = append(keepers, ClickHouseKeeperModel{
@@ -247,6 +252,40 @@ func clickHouseSecretRefToModel(spec *ClickHouseSecretRefSpec) *ClickHouseSecret
 		Name: types.StringValue(spec.Name),
 		Key:  types.StringValue(spec.Key),
 	}
+}
+
+// The API returns zones in its own order, so an immutable list attribute would
+// diff forever against the configured order. Mirrors ReorderList without needing
+// a context, since toModel has none.
+func reorderZones(prior types.List, zones []string) []string {
+	if prior.IsNull() || prior.IsUnknown() || len(zones) == 0 {
+		return zones
+	}
+
+	ordered := make([]string, 0, len(zones))
+	used := make(map[string]bool, len(zones))
+
+	for _, element := range prior.Elements() {
+		s, ok := element.(types.String)
+		if !ok || s.IsUnknown() || s.IsNull() {
+			continue
+		}
+		for _, zone := range zones {
+			if !used[zone] && zone == s.ValueString() {
+				ordered = append(ordered, zone)
+				used[zone] = true
+				break
+			}
+		}
+	}
+
+	for _, zone := range zones {
+		if !used[zone] {
+			ordered = append(ordered, zone)
+		}
+	}
+
+	return ordered
 }
 
 // Optional attributes must stay null when the API reports an empty list, otherwise

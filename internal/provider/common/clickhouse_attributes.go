@@ -14,7 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-var clickHouseNameRegex = regexp.MustCompile("^[a-z0-9]([a-z0-9-]{0,13}[a-z0-9])?$")
+var clickHouseNameRegex = regexp.MustCompile("^[a-z0-9][a-z0-9-]{0,13}[a-z0-9]$")
 var clickHouseDiskNameRegex = regexp.MustCompile("^disk[a-z0-9-]{0,12}$")
 
 func GetClickHouseClustersAttribute(required, optional, computed bool) rschema.ListNestedAttribute {
