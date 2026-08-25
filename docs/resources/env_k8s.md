@@ -204,6 +204,8 @@ data "altinitycloud_env_k8s_status" "this" {
 
 The Altinity Terraform module for EKS makes it easy to set up an EKS Kubernetes cluster for a Bring Your Own Kubernetes (BYOK) environment.
 
+> The module defaults favor getting an environment running quickly, not a hardened cluster. The Kubernetes API endpoint is public and reachable from `0.0.0.0/0`, and envelope encryption of Kubernetes secrets is off. Before using this in production, set `eks_public_access_cidrs` to the ranges you administer the cluster from and `eks_enable_secrets_encryption = true`.
+
 ```terraform
 locals {
   env_name                 = "acme-staging"
