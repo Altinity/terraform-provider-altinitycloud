@@ -29,6 +29,8 @@ type AWSEnvHostedResourceModel struct {
 	Iceberg            *IcebergModel                   `tfsdk:"iceberg"`
 	MetricsEndpoint    *hosted.MetricsEndpointModel    `tfsdk:"metrics_endpoint"`
 	Datadog            *common.DatadogModel            `tfsdk:"datadog"`
+	ClickHouseClusters []common.ClickHouseClusterModel `tfsdk:"clickhouse_clusters"`
+	ClickHouseKeepers  []common.ClickHouseKeeperModel  `tfsdk:"clickhouse_keepers"`
 
 	SpecRevision                 types.Int64    `tfsdk:"spec_revision"`
 	ForceDestroy                 types.Bool     `tfsdk:"force_destroy"`
@@ -146,6 +148,13 @@ func (e AWSEnvHostedResourceModel) toSDK(ctx context.Context) (sdk.CreateAWSEnvH
 		icebergUpdate = &sdk.AWSEnvHostedIcebergUpdateInputSpec{Catalogs: catalogs}
 	}
 
+	clickHouseClusters, diags := common.ClickHouseClustersToSDK(ctx, e.ClickHouseClusters)
+	allDiags.Append(diags...)
+	clickHouseKeepers, diags := common.ClickHouseKeepersToSDK(ctx, e.ClickHouseKeepers)
+	allDiags.Append(diags...)
+	clickHouseClustersUpdate, diags := common.ClickHouseClustersToUpdateSDK(ctx, e.ClickHouseClusters)
+	allDiags.Append(diags...)
+
 	create := sdk.CreateAWSEnvHostedInput{
 		Name: e.Name.ValueString(),
 		Spec: &sdk.CreateAWSEnvHostedSpecInput{
@@ -163,6 +172,8 @@ func (e AWSEnvHostedResourceModel) toSDK(ctx context.Context) (sdk.CreateAWSEnvH
 			Iceberg:            iceberg,
 			MetricsEndpoint:    metricsEndpoint,
 			Datadog:            datadog,
+			ClickHouseClusters: clickHouseClusters,
+			ClickHouseKeepers:  clickHouseKeepers,
 		},
 	}
 
@@ -182,6 +193,8 @@ func (e AWSEnvHostedResourceModel) toSDK(ctx context.Context) (sdk.CreateAWSEnvH
 			Iceberg:            icebergUpdate,
 			MetricsEndpoint:    metricsEndpoint,
 			Datadog:            datadog,
+			ClickHouseClusters: clickHouseClustersUpdate,
+			ClickHouseKeepers:  common.ClickHouseKeepersToUpdateSDK(e.ClickHouseKeepers),
 		},
 	}
 
@@ -244,6 +257,11 @@ func (model *AWSEnvHostedResourceModel) applySpec(ctx context.Context, name stri
 	model.Iceberg = icebergToModel(spec.Iceberg)
 	model.MetricsEndpoint = hosted.MetricsEndpointToModel(model.MetricsEndpoint, spec.MetricsEndpoint.Enabled, spec.MetricsEndpoint.SourceIPRanges)
 	model.Datadog = hosted.DatadogToModel(model.Datadog, spec.Datadog.Enabled, spec.Datadog.Domain, spec.Datadog.LogsEnabled, spec.Datadog.MetricsEnabled)
+
+	model.ClickHouseClusters, diags = common.ClickHouseClustersToModel(model.ClickHouseClusters, clickHouseClustersToSpec(spec.ClickHouseClusters))
+	allDiags.Append(diags...)
+	model.ClickHouseKeepers, diags = common.ClickHouseKeepersToModel(model.ClickHouseKeepers, clickHouseKeepersToSpec(spec.ClickHouseKeepers))
+	allDiags.Append(diags...)
 
 	return allDiags
 }

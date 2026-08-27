@@ -76,6 +76,9 @@ Two caveats before wiring either lookup in:
 ### Altinity-hosted AWS environment with backups on a custom S3 bucket:
 {{tffile "examples/resources/altinitycloud_env_aws_hosted/backups/main.tf"}}
 
+### Altinity-hosted AWS environment with ClickHouse clusters:
+{{tffile "examples/resources/altinitycloud_env_aws_hosted/clickhouse/main.tf"}}
+
 ### Altinity-hosted AWS environment with Iceberg catalogs:
 {{tffile "examples/resources/altinitycloud_env_aws_hosted/iceberg/main.tf"}}
 
@@ -83,6 +86,19 @@ Two caveats before wiring either lookup in:
 {{tffile "examples/resources/altinitycloud_env_aws_hosted/kms/main.tf"}}
 
 {{ .SchemaMarkdown | trimspace }}
+
+## ClickHouse clusters and Keepers
+
+Clusters and Keepers are part of the environment spec, so they are declared inside the environment resource rather than as separate resources. A few behaviors are worth calling out:
+
+- **Terraform manages only what the configuration declares.** Clusters and Keepers created outside Terraform are not adopted into state on refresh, so they are never proposed for deletion. Declare one — entries are matched by name — to bring it under management. The data source reports everything the environment has, adopted or not.
+- **Removing an entry deletes it.** Clusters, Keepers, extra volumes, settings, profiles and users are matched by name. Dropping one from the configuration deletes it — along with its data — on the next apply, and renaming one is not a rename: the old entry is deleted and a new, empty one is created. The plan warns whenever an entry is about to be deleted.
+- **Only `altinity/clickhouse-server` images are accepted.** Altinity-hosted environments reject any other `image`.
+- **A cluster needs a node group to run on.** `instance_type` must match a node group with a `CLICKHOUSE` reservation, and a Keeper's `instance_type` must match one with a `ZOOKEEPER` reservation. A mismatch is rejected at plan time.
+- **Some attributes are immutable.** `mode`, `zones` and a volume's `storage_class` are fixed at creation, a volume's `size` can only grow, and a Keeper already running as a highly-available ensemble cannot be shrunk back to a single node. Changing any of them is rejected at plan time.
+- **`mode`, `zones` and `storage_class` can only be set when the environment is created.** An entry added to an existing environment goes through the update API, whose input carries none of the three, so it would come up with the defaults. Setting them on a newly added entry is rejected at plan time.
+- **Passwords are never returned by the API.** `password_value` holds a digest in the form declared by `password_type`, and its value is kept from the configuration and never refreshed. Prefer `password_value_from_secret` to keep the digest out of the Terraform state.
+- **Only a `SWARM` cluster may run without a Keeper.** Every `STANDARD` cluster must reference a Keeper declared in `clickhouse_keepers`.
 
 ## Deprovision / Destroy
 
