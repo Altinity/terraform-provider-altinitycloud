@@ -186,6 +186,10 @@ type AWSEnvSpec {
   """
   eksLogging: Boolean!
   """
+  IAM principals granted access to the EKS API.
+  """
+  eksAccessEntries: [AWSEnvEKSAccessEntrySpec!]!
+  """
   Metrics endpoint configuration.
   """
   metricsEndpoint: MetricsEndpointSpec!
@@ -372,6 +376,38 @@ type AWSResource {
   Resource ID.
   """
   id: String!
+}
+
+"""
+IAM principal granted access to the environment's EKS API.
+"""
+type AWSEnvEKSAccessEntrySpec {
+  """
+  ARN of the IAM role or user.
+  """
+  principalARN: String!
+  """
+  Access granted to the principal.
+  """
+  accessLevel: AWSEnvEKSAccessLevel!
+}
+
+"""
+Access an IAM principal is granted on the EKS API.
+"""
+enum AWSEnvEKSAccessLevel {
+  """
+  Full cluster administration.
+  """
+  ADMIN
+  """
+  Read and write access to namespaced resources.
+  """
+  READ_WRITE
+  """
+  Read-only access.
+  """
+  READ_ONLY
 }
 
 """
@@ -669,6 +705,10 @@ input CreateAWSEnvSpecInput {
   """
   eksLogging: Boolean
   """
+  IAM principals to grant access to the EKS API. 8 maximum.
+  """
+  eksAccessEntries: [AWSEnvEKSAccessEntrySpecInput!]
+  """
   Metrics endpoint configuration.
   """
   metricsEndpoint: MetricsEndpointSpecInput
@@ -845,6 +885,20 @@ input AWSEnvEndpointSpecInput {
   Set to true to enable Private DNS for this endpoint. False by default.
   """
   privateDNS: Boolean
+}
+
+"""
+IAM principal to grant access to the environment's EKS API.
+"""
+input AWSEnvEKSAccessEntrySpecInput {
+  """
+  ARN of the IAM role or user. Service-linked roles are rejected by EKS and cannot be used.
+  """
+  principalARN: String!
+  """
+  Access to grant the principal.
+  """
+  accessLevel: AWSEnvEKSAccessLevel!
 }
 
 """
@@ -2124,6 +2178,10 @@ input AWSEnvUpdateSpecInput {
   Enable/Disable EKS control plane logging to CloudWatch.
   """
   eksLogging: Boolean
+  """
+  IAM principals to grant access to the EKS API. Replaces the current list. 8 maximum.
+  """
+  eksAccessEntries: [AWSEnvEKSAccessEntrySpecInput!]
   """
   Metrics endpoint configuration.
   """

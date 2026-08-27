@@ -53,6 +53,22 @@ type AWSEnvBackupsSpecInput struct {
 	CustomBucket *AWSEnvBackupsCustomBucketSpecInput `json:"customBucket,omitempty"`
 }
 
+// IAM principal granted access to the environment's EKS API.
+type AWSEnvEKSAccessEntrySpec struct {
+	// ARN of the IAM role or user.
+	PrincipalArn string `json:"principalARN"`
+	// Access granted to the principal.
+	AccessLevel AWSEnvEKSAccessLevel `json:"accessLevel"`
+}
+
+// IAM principal to grant access to the environment's EKS API.
+type AWSEnvEKSAccessEntrySpecInput struct {
+	// ARN of the IAM role or user. Service-linked roles are rejected by EKS and cannot be used.
+	PrincipalArn string `json:"principalARN"`
+	// Access to grant the principal.
+	AccessLevel AWSEnvEKSAccessLevel `json:"accessLevel"`
+}
+
 // AWS environment VPC endpoint configuration.
 type AWSEnvEndpointSpec struct {
 	// VPC endpoint service name in $endpoint_service_id.$region.vpce.amazonaws.com format.
@@ -888,6 +904,8 @@ type AWSEnvSpec struct {
 	Iceberg *IcebergSpec `json:"iceberg,omitempty"`
 	// Enable/Disable EKS control plane logging to CloudWatch.
 	EksLogging bool `json:"eksLogging"`
+	// IAM principals granted access to the EKS API.
+	EksAccessEntries []*AWSEnvEKSAccessEntrySpec `json:"eksAccessEntries"`
 	// Metrics endpoint configuration.
 	MetricsEndpoint *MetricsEndpointSpec `json:"metricsEndpoint"`
 	// Datadog agent configuration.
@@ -980,6 +998,8 @@ type AWSEnvUpdateSpecInput struct {
 	Iceberg *IcebergUpdateInputSpec `json:"iceberg,omitempty"`
 	// Enable/Disable EKS control plane logging to CloudWatch.
 	EksLogging *bool `json:"eksLogging,omitempty"`
+	// IAM principals to grant access to the EKS API. Replaces the current list. 8 maximum.
+	EksAccessEntries []*AWSEnvEKSAccessEntrySpecInput `json:"eksAccessEntries,omitempty"`
 	// Metrics endpoint configuration.
 	MetricsEndpoint *MetricsEndpointSpecInput `json:"metricsEndpoint,omitempty"`
 	// Datadog monitoring agent configuration.
@@ -1799,6 +1819,8 @@ type CreateAWSEnvSpecInput struct {
 	Iceberg *IcebergInputSpec `json:"iceberg,omitempty"`
 	// Enable/Disable EKS control plane logging to CloudWatch.
 	EksLogging *bool `json:"eksLogging,omitempty"`
+	// IAM principals to grant access to the EKS API. 8 maximum.
+	EksAccessEntries []*AWSEnvEKSAccessEntrySpecInput `json:"eksAccessEntries,omitempty"`
 	// Metrics endpoint configuration.
 	MetricsEndpoint *MetricsEndpointSpecInput `json:"metricsEndpoint,omitempty"`
 	// Datadog monitoring agent configuration.
@@ -3914,6 +3936,67 @@ func (e *AKSSupportPolicy) UnmarshalJSON(b []byte) error {
 }
 
 func (e AKSSupportPolicy) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// Access an IAM principal is granted on the EKS API.
+type AWSEnvEKSAccessLevel string
+
+const (
+	// Full cluster administration.
+	AWSEnvEKSAccessLevelAdmin AWSEnvEKSAccessLevel = "ADMIN"
+	// Read and write access to namespaced resources.
+	AWSEnvEKSAccessLevelReadWrite AWSEnvEKSAccessLevel = "READ_WRITE"
+	// Read-only access.
+	AWSEnvEKSAccessLevelReadOnly AWSEnvEKSAccessLevel = "READ_ONLY"
+)
+
+var AllAWSEnvEKSAccessLevel = []AWSEnvEKSAccessLevel{
+	AWSEnvEKSAccessLevelAdmin,
+	AWSEnvEKSAccessLevelReadWrite,
+	AWSEnvEKSAccessLevelReadOnly,
+}
+
+func (e AWSEnvEKSAccessLevel) IsValid() bool {
+	switch e {
+	case AWSEnvEKSAccessLevelAdmin, AWSEnvEKSAccessLevelReadWrite, AWSEnvEKSAccessLevelReadOnly:
+		return true
+	}
+	return false
+}
+
+func (e AWSEnvEKSAccessLevel) String() string {
+	return string(e)
+}
+
+func (e *AWSEnvEKSAccessLevel) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = AWSEnvEKSAccessLevel(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid AWSEnvEKSAccessLevel", str)
+	}
+	return nil
+}
+
+func (e AWSEnvEKSAccessLevel) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *AWSEnvEKSAccessLevel) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e AWSEnvEKSAccessLevel) MarshalJSON() ([]byte, error) {
 	var buf bytes.Buffer
 	e.MarshalGQL(&buf)
 	return buf.Bytes(), nil
