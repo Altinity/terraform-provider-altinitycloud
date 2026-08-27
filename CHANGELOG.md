@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.2](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.8.1...v0.8.2)
+### Fixed
+- Provider attributes that are not known until apply (e.g. `api_token` wired from a resource created in the same apply) are now rejected with an `Unknown Provider Configuration` error instead of being read as an empty string and silently falling back to the `ALTINITYCLOUD_API_TOKEN` / `ALTINITYCLOUD_API_URL` environment variables, authenticating against an unintended account [#271](https://github.com/Altinity/terraform-provider-altinitycloud/pull/271).
+- Immutable-attribute errors now report the attribute path the plan modifier actually ran on, instead of a hand-written name that could drift from the schema or mislabel a reused attribute [#272](https://github.com/Altinity/terraform-provider-altinitycloud/pull/272).
+- Bump golang.org/x/mod to `0.40.0` to address CVE-2026-56864, along with golang.org/x/net `0.58.0`, golang.org/x/crypto `0.55.0`, golang.org/x/text `0.41.0`, golang.org/x/sync `0.22.0`, golang.org/x/sys `0.47.0` and golang.org/x/tools `0.49.0` [#288](https://github.com/Altinity/terraform-provider-altinitycloud/pull/288).
+
+### Changed
+- `api_url` and `ca_crt` no longer appear in the provider's documented schema; they are internal knobs for dev and self-hosted control planes. Both still work in HCL [3345d72](https://github.com/Altinity/terraform-provider-altinitycloud/commit/3345d72).
+- The `altinitycloud_env_aws_hosted` backups example now blocks public access on the backups bucket, and documents it [#284](https://github.com/Altinity/terraform-provider-altinitycloud/pull/284).
+- The `altinitycloud_env_k8s` docs flag the EKS module's quickstart defaults (public API endpoint, no secrets encryption) so they are not copied into production as-is [#285](https://github.com/Altinity/terraform-provider-altinitycloud/pull/285).
+- Sync GraphQL SDK [2ae5935](https://github.com/Altinity/terraform-provider-altinitycloud/commit/2ae5935).
+
 ## [0.8.1](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.8.0...v0.8.1)
 ### Fixed
 - Document `node_type` on the attribute itself instead of on the `node_groups` list, so the accepted instance/VM/server types and the links to the cloud provider's size docs show up where they apply (all environments) [#278](https://github.com/Altinity/terraform-provider-altinitycloud/pull/278).
