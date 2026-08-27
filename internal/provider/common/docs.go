@@ -334,3 +334,65 @@ const HOSTED_AWS_CIDR_DESCRIPTION = "VPC CIDR block assigned to the environment.
 const HOSTED_NODE_GROUP_ZONE_IDS_DESCRIPTION = "Availability zone ids the node group spans. Defaults to the environment zone ids."
 const HOSTED_RESOURCE_PREFIX_DESCRIPTION = "Prefix applied to the names of the cloud resources created for this environment. **[IMMUTABLE]**"
 const HOSTED_EXTERNAL_BUCKET_DESCRIPTION = "List of external S3 buckets to allow access to. The environment IAM roles are granted access to every bucket listed here."
+
+const CLICKHOUSE_CLUSTERS_DESCRIPTION = "ClickHouse clusters running in this environment."
+const CLICKHOUSE_CLUSTER_NAME_DESCRIPTION = "Cluster identifier, unique within the environment. 2-15 chars, lowercase alphanumerics and hyphens, must start and end with an alphanumeric. Changing it is not a rename: the old cluster is deleted along with its data and a new, empty one is created."
+const CLICKHOUSE_CLUSTER_MODE_DESCRIPTION = `Cluster topology mode. Immutable.
+
+		Possible values:
+		- "STANDARD" (default, nodes hold data)
+		- "SWARM" (nodes are labelled as swarm workers and shards reconcile fully in parallel)
+`
+const CLICKHOUSE_CLUSTER_IMAGE_DESCRIPTION = "Server image, tag included. Environments hosted by Altinity accept `altinity/clickhouse-server` images only."
+const CLICKHOUSE_CLUSTER_INSTANCE_TYPE_DESCRIPTION = "Machine type for the cluster nodes. Must match a node group with a `CLICKHOUSE` reservation."
+const CLICKHOUSE_CLUSTER_ZONES_DESCRIPTION = "Zones the cluster is spread across. All environment zones by default. Immutable."
+const CLICKHOUSE_CLUSTER_SHARDS_DESCRIPTION = "Number of shards."
+const CLICKHOUSE_CLUSTER_REPLICAS_DESCRIPTION = "Number of replicas per shard."
+const CLICKHOUSE_CLUSTER_STOPPED_DESCRIPTION = "Whether the cluster is kept stopped."
+const CLICKHOUSE_CLUSTER_ADDITIONAL_DISKS_DESCRIPTION = "Extra data volumes beside the main one, each under its own name. 8 maximum."
+const CLICKHOUSE_CLUSTER_KEEPER_DESCRIPTION = "Keeper the cluster coordinates through. Only a `SWARM` cluster may run with it disabled."
+const CLICKHOUSE_CLUSTER_KEEPER_ENABLED_DESCRIPTION = "Whether the cluster coordinates through a Keeper at all. Only a `SWARM` cluster may set it to `false`."
+const CLICKHOUSE_CLUSTER_KEEPER_NAME_DESCRIPTION = "Name of a `clickhouse_keepers` entry in this environment. Ignored when `enabled` is `false`."
+const CLICKHOUSE_CLUSTER_SETTINGS_DESCRIPTION = "Server-level settings applied to every node."
+const CLICKHOUSE_CLUSTER_PROFILES_DESCRIPTION = "Settings profiles users can be assigned to."
+const CLICKHOUSE_CLUSTER_PROFILE_NAME_DESCRIPTION = "Profile name, unique within the cluster. Referenced by a user's `profile`."
+const CLICKHOUSE_CLUSTER_USERS_DESCRIPTION = "ClickHouse users. Passwords are never returned by the API."
+
+const CLICKHOUSE_KEEPERS_DESCRIPTION = "ClickHouse Keepers running in this environment."
+const CLICKHOUSE_KEEPER_NAME_DESCRIPTION = "Keeper identifier, unique within the environment. 2-15 chars, lowercase alphanumerics and hyphens, must start and end with an alphanumeric. Changing it is not a rename: the old Keeper is deleted along with its data and a new, empty one is created."
+const CLICKHOUSE_KEEPER_INSTANCE_TYPE_DESCRIPTION = "Machine type for the Keeper nodes. Must match a node group with a `ZOOKEEPER` reservation."
+const CLICKHOUSE_KEEPER_ZONES_DESCRIPTION = "Zones the Keeper is spread across. All environment zones by default. Immutable."
+const CLICKHOUSE_KEEPER_HA_DESCRIPTION = "`true` for a 3-node highly-available ensemble, `false` for a single node. An ensemble already running as HA cannot be shrunk back to a single node."
+const CLICKHOUSE_KEEPER_STOPPED_DESCRIPTION = "Whether the Keeper is kept stopped."
+
+const CLICKHOUSE_DISK_DESCRIPTION = "Main data volume. The underlying volume is deleted along with the resource that owns it."
+const CLICKHOUSE_DISK_NAME_DESCRIPTION = "Volume identifier. Must start with `disk` and cannot exceed 16 characters. Changing it is not a rename: the old volume is deleted along with its data and a new, empty one is created."
+const CLICKHOUSE_DISK_SIZE_DESCRIPTION = "Size in GiB. Can only be increased, never decreased. 10240 maximum on Hetzner Cloud."
+const CLICKHOUSE_DISK_STORAGE_CLASS_DESCRIPTION = "Storage class backing the volume. Environment default when omitted. Immutable."
+const CLICKHOUSE_DISK_IOPS_DESCRIPTION = "Provisioned IOPS. Honored only by storage classes that support it, such as AWS `gp3` and `io2`."
+const CLICKHOUSE_DISK_THROUGHPUT_DESCRIPTION = "Provisioned throughput in MiB/s. Honored only by storage classes that support it, such as AWS `gp3`."
+
+const CLICKHOUSE_SETTING_KEY_DESCRIPTION = "Setting name, for example `max_concurrent_queries`."
+const CLICKHOUSE_SETTING_VALUE_DESCRIPTION = "Literal value. Mutually exclusive with `value_from_secret`."
+const CLICKHOUSE_SETTING_VALUE_FROM_SECRET_DESCRIPTION = "Value read from a Kubernetes secret instead of being stored in the spec. Mutually exclusive with `value`."
+
+const CLICKHOUSE_SECRET_REF_NAME_DESCRIPTION = "Name of a Kubernetes secret in the environment's namespace. The secret must already exist; the platform never creates it."
+const CLICKHOUSE_SECRET_REF_KEY_DESCRIPTION = "Key within the secret."
+
+const CLICKHOUSE_USER_NAME_DESCRIPTION = "User name, unique within the cluster. `grafana` and `datadog` are reserved for platform-injected users."
+const CLICKHOUSE_USER_PROFILE_DESCRIPTION = "Settings profile assigned to this user. Must be one of the cluster's `profiles` or a profile ClickHouse ships with."
+const CLICKHOUSE_USER_QUOTA_DESCRIPTION = "Quota assigned to this user."
+const CLICKHOUSE_USER_ALLOWED_CIDRS_DESCRIPTION = "CIDRs the user may connect from. Unrestricted when omitted."
+const CLICKHOUSE_USER_DATABASES_DESCRIPTION = "Databases the user is granted access to. All databases when omitted."
+const CLICKHOUSE_USER_ACCESS_MANAGEMENT_DESCRIPTION = "Whether the user can manage access control: roles, users, grants."
+const CLICKHOUSE_USER_NAMED_COLLECTION_CONTROL_DESCRIPTION = "Whether the user can create and drop named collections."
+const CLICKHOUSE_USER_SHOW_NAMED_COLLECTIONS_DESCRIPTION = "Whether the user can list named collections."
+const CLICKHOUSE_USER_SHOW_NAMED_COLLECTIONS_SECRETS_DESCRIPTION = "Whether the user can read secrets stored in named collections."
+const CLICKHOUSE_USER_PASSWORD_TYPE_DESCRIPTION = `Form the password is supplied in. Required whenever a password value is set.
+
+		Possible values:
+		- "SHA256_HEX"
+		- "DOUBLE_SHA1_HEX"
+`
+const CLICKHOUSE_USER_PASSWORD_VALUE_DESCRIPTION = "Password digest, in the form declared by `password_type`. The API never returns it, so the value is kept from the configuration and never refreshed."
+const CLICKHOUSE_USER_PASSWORD_VALUE_FROM_SECRET_DESCRIPTION = "Password digest read from a Kubernetes secret, as an alternative to `password_value`."

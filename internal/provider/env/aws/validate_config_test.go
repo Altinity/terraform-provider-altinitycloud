@@ -119,3 +119,94 @@ func TestAWSValidateConfigUnknownNestedAttrs(t *testing.T) {
 		}
 	})
 }
+
+func nullObject(t *testing.T, at tftypes.Type, override map[string]tftypes.Value) tftypes.Value {
+	t.Helper()
+	ot, ok := at.(tftypes.Object)
+	if !ok {
+		t.Fatalf("expected a tftypes.Object, got %T", at)
+	}
+
+	fields := map[string]tftypes.Value{}
+	for name, ft := range ot.AttributeTypes {
+		if v, ok := override[name]; ok {
+			fields[name] = v
+		} else {
+			fields[name] = tftypes.NewValue(ft, nil)
+		}
+	}
+
+	return tftypes.NewValue(ot, fields)
+}
+
+// Sanity: ClickHouse validation still fires through the scoped read.
+func TestAWSValidateConfigClickHouse(t *testing.T) {
+	cfg := awsSchema(t)
+
+	clusters := func(keeperName string) func(tftypes.Type) tftypes.Value {
+		return func(at tftypes.Type) tftypes.Value {
+			lt, ok := at.(tftypes.List)
+			if !ok {
+				t.Fatalf("clickhouse_clusters is not a tftypes.List, got %T", at)
+			}
+			ot, ok := lt.ElementType.(tftypes.Object)
+			if !ok {
+				t.Fatalf("cluster element is not a tftypes.Object, got %T", lt.ElementType)
+			}
+
+			cluster := nullObject(t, ot, map[string]tftypes.Value{
+				"name": tftypes.NewValue(ot.AttributeTypes["name"], "ch"),
+				"keeper": nullObject(t, ot.AttributeTypes["keeper"], map[string]tftypes.Value{
+					"enabled": tftypes.NewValue(tftypes.Bool, true),
+					"name":    tftypes.NewValue(tftypes.String, keeperName),
+				}),
+			})
+
+			return tftypes.NewValue(lt, []tftypes.Value{cluster})
+		}
+	}
+
+	t.Run("a cluster referencing an undeclared keeper errors", func(t *testing.T) {
+		raw := buildConfig(t, cfg, map[string]func(tftypes.Type) tftypes.Value{
+			"clickhouse_clusters": clusters("missing"),
+		})
+		if resp := runValidate(t, raw, cfg); !resp.Diagnostics.HasError() {
+			t.Fatal("expected an error for a keeper that is not declared")
+		}
+	})
+
+	t.Run("unknown clusters are skipped rather than rejected", func(t *testing.T) {
+		raw := buildConfig(t, cfg, map[string]func(tftypes.Type) tftypes.Value{
+			"clickhouse_clusters": unknown,
+		})
+		if resp := runValidate(t, raw, cfg); resp.Diagnostics.HasError() {
+			t.Fatalf("errored: %v", resp.Diagnostics.Errors())
+		}
+	})
+
+	// Reflecting an unknown into *ClickHouseDiskModel is a hard provider error, and
+	// a nested attribute can be unknown while the element around it is not.
+	t.Run("an unknown nested attribute defers validation", func(t *testing.T) {
+		raw := buildConfig(t, cfg, map[string]func(tftypes.Type) tftypes.Value{
+			"clickhouse_clusters": func(at tftypes.Type) tftypes.Value {
+				lt, ok := at.(tftypes.List)
+				if !ok {
+					t.Fatalf("clickhouse_clusters is not a tftypes.List, got %T", at)
+				}
+				ot, ok := lt.ElementType.(tftypes.Object)
+				if !ok {
+					t.Fatalf("cluster element is not a tftypes.Object, got %T", lt.ElementType)
+				}
+
+				cluster := nullObject(t, ot, map[string]tftypes.Value{
+					"name": tftypes.NewValue(ot.AttributeTypes["name"], "ch"),
+					"disk": tftypes.NewValue(ot.AttributeTypes["disk"], tftypes.UnknownValue),
+				})
+				return tftypes.NewValue(lt, []tftypes.Value{cluster})
+			},
+		})
+		if resp := runValidate(t, raw, cfg); resp.Diagnostics.HasError() {
+			t.Fatalf("errored: %v", resp.Diagnostics.Errors())
+		}
+	})
+}

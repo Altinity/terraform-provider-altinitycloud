@@ -131,4 +131,80 @@ fragment AWSEnvHostedSpecFragment on AWSEnvHostedSpec {
     logsEnabled
     metricsEnabled
   }
+  clickHouseClusters {
+    name
+    mode
+    image
+    instanceType
+    zones
+    shards
+    replicas
+    stopped
+    disk {
+      name
+      size
+      storageClass
+      iops
+      throughput
+    }
+    additionalDisks {
+      name
+      size
+      storageClass
+      iops
+      throughput
+    }
+    keeper {
+      name
+    }
+    settings {
+      key
+      value
+      valueFromSecret {
+        name
+        key
+      }
+    }
+    profiles {
+      name
+      settings {
+        key
+        value
+        valueFromSecret {
+          name
+          key
+        }
+      }
+    }
+    users {
+      name
+      profile
+      quota
+      allowedCIDRs
+      databases
+      accessManagement
+      namedCollectionControl
+      showNamedCollections
+      showNamedCollectionsSecrets
+      passwordType
+      passwordValueFromSecret {
+        name
+        key
+      }
+    }
+  }
+  clickHouseKeepers {
+    name
+    instanceType
+    zones
+    ha
+    stopped
+    disk {
+      name
+      size
+      storageClass
+      iops
+      throughput
+    }
+  }
 }

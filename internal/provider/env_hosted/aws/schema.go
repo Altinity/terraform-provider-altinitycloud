@@ -45,6 +45,8 @@ func (r *AWSEnvHostedResource) Schema(ctx context.Context, req resource.SchemaRe
 			"iceberg":             getIcebergAttribute(false, true, false),
 			"metrics_endpoint":    common.GetMetricsEndpointAttribute(false, true, true),
 			"datadog":             common.GetDatadogAttribute(false, true, false),
+			"clickhouse_clusters": common.GetClickHouseClustersAttribute(false, true, false),
+			"clickhouse_keepers":  common.GetClickHouseKeepersAttribute(false, true, false),
 
 			"spec_revision":                   common.SpecRevisionAttribute,
 			"force_destroy":                   common.GetForceDestroyAttribute(false, true, true),
@@ -81,6 +83,8 @@ func (d *AWSEnvHostedDataSource) Schema(ctx context.Context, req datasource.Sche
 			"iceberg":             getIcebergAttribute(false, false, true),
 			"metrics_endpoint":    common.GetMetricsEndpointAttribute(false, false, true),
 			"datadog":             common.GetDatadogAttribute(false, false, true),
+			"clickhouse_clusters": common.GetClickHouseClustersAttribute(false, false, true),
+			"clickhouse_keepers":  common.GetClickHouseKeepersAttribute(false, false, true),
 			"spec_revision":       common.SpecRevisionAttribute,
 
 			// these options are not used in data sources,

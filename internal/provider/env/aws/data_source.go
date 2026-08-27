@@ -77,6 +77,10 @@ func (d *AWSEnvDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	}
 	data.CustomDomain, data.CustomDomains, diags = common.DataSourceCustomDomainsToModel(apiResp.AWSEnv.Spec.CustomDomain, apiResp.AWSEnv.Spec.CustomDomains)
 	resp.Diagnostics.Append(diags...)
+	data.ClickHouseClusters, diags = common.DataSourceClickHouseClustersToModel(clickHouseClustersToSpec(apiResp.AWSEnv.Spec.ClickHouseClusters))
+	resp.Diagnostics.Append(diags...)
+	data.ClickHouseKeepers, diags = common.DataSourceClickHouseKeepersToModel(clickHouseKeepersToSpec(apiResp.AWSEnv.Spec.ClickHouseKeepers))
+	resp.Diagnostics.Append(diags...)
 	data.Id = data.Name
 
 	diags = resp.State.Set(ctx, &data)
