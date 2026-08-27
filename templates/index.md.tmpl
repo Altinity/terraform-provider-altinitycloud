@@ -23,7 +23,13 @@ To use this provider you'll need to obtain Altinity.Cloud API Token:
 
 {{tffile "examples/provider/provider.tf"}}
 
-{{ .SchemaMarkdown | trimspace }}
+<!-- Maintained by hand: `api_url` and `ca_crt` are internal knobs and stay out of the published schema. -->
+## Schema
+
+### Optional
+
+- `api_token` (String, Sensitive) Altinity.Cloud API Token.
+The value can be omitted if `ALTINITYCLOUD_API_TOKEN` environment variable is set.
 
 ## Environment Management
 
