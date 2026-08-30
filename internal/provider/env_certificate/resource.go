@@ -5,9 +5,7 @@ import (
 	"fmt"
 
 	clientsupport "github.com/altinity/terraform-provider-altinitycloud/internal/provider/common"
-	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/auth"
-	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/client"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -20,8 +18,7 @@ func NewCertificateResource() resource.Resource {
 }
 
 type CertificateResource struct {
-	client *client.Client
-	auth   *auth.Auth
+	auth *auth.Auth
 }
 
 func (r *CertificateResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -29,22 +26,11 @@ func (r *CertificateResource) Metadata(ctx context.Context, req resource.Metadat
 }
 
 func (r *CertificateResource) Configure(ctx context.Context, req resource.ConfigureRequest, resp *resource.ConfigureResponse) {
-	if req.ProviderData == nil {
-		return
-	}
-
-	sdk, ok := req.ProviderData.(*sdk.AltinityCloudSDK)
-
+	sdk, ok := clientsupport.SDKFromProviderData(req.ProviderData, &resp.Diagnostics)
 	if !ok {
-		resp.Diagnostics.AddError(
-			"Unexpected Resource Configure Type",
-			fmt.Sprintf("Expected *sdk.AltinityCloudSDK, got: %T. Please report this issue to the provider developers.", req.ProviderData),
-		)
-
 		return
 	}
 
-	r.client = sdk.Client
 	r.auth = sdk.Auth
 }
 
