@@ -20,6 +20,7 @@ type AzureEnvModel struct {
 	CIDR                  types.String                    `tfsdk:"cidr"`
 	TenantID              types.String                    `tfsdk:"tenant_id"`
 	SubscriptionID        types.String                    `tfsdk:"subscription_id"`
+	ResourceGroup         types.String                    `tfsdk:"resource_group"`
 	Zones                 types.List                      `tfsdk:"zones"`
 	LoadBalancers         *LoadBalancersModel             `tfsdk:"load_balancers"`
 	LoadBalancingStrategy types.String                    `tfsdk:"load_balancing_strategy"`
@@ -107,6 +108,7 @@ func (e AzureEnvModel) toSDK(ctx context.Context) (client.CreateAzureEnvInput, c
 			NodeGroups:            nodeGroups,
 			TenantID:              e.TenantID.ValueString(),
 			SubscriptionID:        e.SubscriptionID.ValueString(),
+			ResourceGroup:         e.ResourceGroup.ValueStringPointer(),
 			Region:                e.Region.ValueString(),
 			Cidr:                  e.CIDR.ValueString(),
 			Zones:                 zones,
@@ -158,6 +160,7 @@ func (model *AzureEnvModel) toModel(env client.GetAzureEnv_AzureEnv) diag.Diagno
 	model.CIDR = types.StringValue(env.Spec.Cidr)
 	model.SubscriptionID = types.StringValue(env.Spec.SubscriptionID)
 	model.TenantID = types.StringValue(env.Spec.TenantID)
+	model.ResourceGroup = types.StringPointerValue(env.Spec.ResourceGroup)
 	model.LoadBalancingStrategy = types.StringValue(string(env.Spec.LoadBalancingStrategy))
 	model.LoadBalancers = loadBalancersToModel(env.Spec.LoadBalancers)
 
