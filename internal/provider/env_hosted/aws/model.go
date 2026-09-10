@@ -152,8 +152,6 @@ func (e AWSEnvHostedResourceModel) toSDK(ctx context.Context) (sdk.CreateAWSEnvH
 	allDiags.Append(diags...)
 	clickHouseKeepers, diags := common.ClickHouseKeepersToSDK(ctx, e.ClickHouseKeepers)
 	allDiags.Append(diags...)
-	clickHouseClustersUpdate, diags := common.ClickHouseClustersToUpdateSDK(ctx, e.ClickHouseClusters)
-	allDiags.Append(diags...)
 
 	create := sdk.CreateAWSEnvHostedInput{
 		Name: e.Name.ValueString(),
@@ -193,8 +191,8 @@ func (e AWSEnvHostedResourceModel) toSDK(ctx context.Context) (sdk.CreateAWSEnvH
 			Iceberg:            icebergUpdate,
 			MetricsEndpoint:    metricsEndpoint,
 			Datadog:            datadog,
-			ClickHouseClusters: clickHouseClustersUpdate,
-			ClickHouseKeepers:  common.ClickHouseKeepersToUpdateSDK(e.ClickHouseKeepers),
+			ClickHouseClusters: clickHouseClusters,
+			ClickHouseKeepers:  clickHouseKeepers,
 		},
 	}
 

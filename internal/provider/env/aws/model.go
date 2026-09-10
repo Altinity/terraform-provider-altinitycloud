@@ -189,8 +189,6 @@ func (e AWSEnvModel) toSDK(ctx context.Context) (sdk.CreateAWSEnvInput, sdk.Upda
 	allDiags.Append(diags...)
 	clickHouseKeepers, diags := common.ClickHouseKeepersToSDK(ctx, e.ClickHouseKeepers)
 	allDiags.Append(diags...)
-	clickHouseClustersUpdate, diags := common.ClickHouseClustersToUpdateSDK(ctx, e.ClickHouseClusters)
-	allDiags.Append(diags...)
 
 	create := sdk.CreateAWSEnvInput{
 		Name: e.Name.ValueString(),
@@ -247,8 +245,8 @@ func (e AWSEnvModel) toSDK(ctx context.Context) (sdk.CreateAWSEnvInput, sdk.Upda
 			MetricsEndpoint:       metricsEndpoint,
 			Datadog:               datadog,
 			EksLogging:            e.EksLogging.ValueBoolPointer(),
-			ClickHouseClusters:    clickHouseClustersUpdate,
-			ClickHouseKeepers:     common.ClickHouseKeepersToUpdateSDK(e.ClickHouseKeepers),
+			ClickHouseClusters:    clickHouseClusters,
+			ClickHouseKeepers:     clickHouseKeepers,
 		},
 	}
 

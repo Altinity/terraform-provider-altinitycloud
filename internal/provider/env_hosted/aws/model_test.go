@@ -109,6 +109,58 @@ func TestToSDK_MinimalConfigLeavesOptionalInputsUnset(t *testing.T) {
 	}
 }
 
+func TestToSDK_ClickHouseUpdateReplacesTheWholeCollection(t *testing.T) {
+	model := minimalModel()
+	model.ClickHouseClusters = []common.ClickHouseClusterModel{{
+		Name:         types.StringValue("analytics"),
+		Mode:         types.StringValue("SWARM"),
+		Image:        types.StringValue("altinity/clickhouse-server:24.8"),
+		InstanceType: types.StringValue("m6i.large"),
+		Zones:        stringList("use1-az1"),
+		Shards:       types.Int64Value(1),
+		Replicas:     types.Int64Value(2),
+		Disk:         &common.ClickHouseDiskModel{Size: types.Int64Value(500), StorageClass: types.StringValue("gp3")},
+		Keeper:       &common.ClickHouseKeeperRefModel{Enabled: types.BoolValue(true), Name: types.StringValue("keeper")},
+	}}
+	model.ClickHouseKeepers = []common.ClickHouseKeeperModel{{
+		Name:         types.StringValue("keeper"),
+		InstanceType: types.StringValue("t4g.large"),
+		Zones:        stringList("use1-az1"),
+		HA:           types.BoolValue(true),
+		Disk:         &common.ClickHouseDiskModel{Size: types.Int64Value(30)},
+	}}
+
+	create, update, diags := model.toSDK(context.Background())
+	if diags.HasError() {
+		t.Fatalf("unexpected diagnostics: %v", diags)
+	}
+
+	if len(update.Spec.ClickHouseClusters) != 1 || len(update.Spec.ClickHouseKeepers) != 1 {
+		t.Fatalf("update clusters/keepers = %d/%d, want 1/1", len(update.Spec.ClickHouseClusters), len(update.Spec.ClickHouseKeepers))
+	}
+	// The update replaces the collection, so it repeats what create sends.
+	c := update.Spec.ClickHouseClusters[0]
+	if c != create.Spec.ClickHouseClusters[0] {
+		t.Errorf("update cluster = %#v, want the create payload %#v", c, create.Spec.ClickHouseClusters[0])
+	}
+	if update.Spec.ClickHouseKeepers[0] != create.Spec.ClickHouseKeepers[0] {
+		t.Errorf("update keeper = %#v, want the create payload %#v", update.Spec.ClickHouseKeepers[0], create.Spec.ClickHouseKeepers[0])
+	}
+	// Immutable attributes the old sparse update input had no room for.
+	if c.Mode == nil || *c.Mode != sdk.ClickHouseClusterModeSpecSwarm {
+		t.Errorf("update cluster mode = %v, want SWARM", c.Mode)
+	}
+	if len(c.Zones) != 1 {
+		t.Errorf("update cluster zones = %v, want 1 entry", c.Zones)
+	}
+	if c.Disk.StorageClass == nil || *c.Disk.StorageClass != "gp3" {
+		t.Errorf("update cluster storage_class = %v, want gp3", c.Disk.StorageClass)
+	}
+	if len(update.Spec.ClickHouseKeepers[0].Zones) != 1 {
+		t.Errorf("update keeper zones = %v, want 1 entry", update.Spec.ClickHouseKeepers[0].Zones)
+	}
+}
+
 func TestApplySpec_MinimalConfigKeepsOmittedAttributesNull(t *testing.T) {
 	model := minimalModel()
 

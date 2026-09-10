@@ -1092,6 +1092,62 @@ func TestAWSEnvModel_toSDK(t *testing.T) {
 			},
 		},
 		{
+			name: "ClickHouse update replaces the whole collection",
+			model: AWSEnvModel{
+				Name:         types.StringValue("ch-env"),
+				Region:       types.StringValue("us-east-1"),
+				CIDR:         types.StringValue("10.0.0.0/16"),
+				AWSAccountID: types.StringValue("111122223333"),
+				Zones:        types.ListValueMust(types.StringType, []attr.Value{types.StringValue("us-east-1a")}),
+				NodeGroups:   []common.NodeGroupsModel{},
+				CloudConnect: types.BoolValue(false),
+				ClickHouseClusters: []common.ClickHouseClusterModel{{
+					Name:         types.StringValue("analytics"),
+					Mode:         types.StringValue("SWARM"),
+					Image:        types.StringValue("altinity/clickhouse-server:24.8"),
+					InstanceType: types.StringValue("m6i.large"),
+					Zones:        types.ListValueMust(types.StringType, []attr.Value{types.StringValue("us-east-1a")}),
+					Shards:       types.Int64Value(1),
+					Replicas:     types.Int64Value(2),
+					Disk:         &common.ClickHouseDiskModel{Size: types.Int64Value(500), StorageClass: types.StringValue("gp3")},
+					Keeper:       &common.ClickHouseKeeperRefModel{Enabled: types.BoolValue(true), Name: types.StringValue("keeper")},
+				}},
+				ClickHouseKeepers: []common.ClickHouseKeeperModel{{
+					Name:         types.StringValue("keeper"),
+					InstanceType: types.StringValue("t4g.large"),
+					Zones:        types.ListValueMust(types.StringType, []attr.Value{types.StringValue("us-east-1a")}),
+					HA:           types.BoolValue(true),
+					Disk:         &common.ClickHouseDiskModel{Size: types.Int64Value(30)},
+				}},
+			},
+			validate: func(t *testing.T, create sdk.CreateAWSEnvInput, update sdk.UpdateAWSEnvInput) {
+				if len(update.Spec.ClickHouseClusters) != 1 || len(update.Spec.ClickHouseKeepers) != 1 {
+					t.Fatalf("update clusters/keepers: expected 1/1, got %d/%d", len(update.Spec.ClickHouseClusters), len(update.Spec.ClickHouseKeepers))
+				}
+				// The update replaces the collection, so it repeats what create sends.
+				c := update.Spec.ClickHouseClusters[0]
+				if c != create.Spec.ClickHouseClusters[0] {
+					t.Errorf("update cluster: expected the create payload %#v, got %#v", create.Spec.ClickHouseClusters[0], c)
+				}
+				if update.Spec.ClickHouseKeepers[0] != create.Spec.ClickHouseKeepers[0] {
+					t.Errorf("update keeper: expected the create payload %#v, got %#v", create.Spec.ClickHouseKeepers[0], update.Spec.ClickHouseKeepers[0])
+				}
+				// Immutable attributes the old sparse update input had no room for.
+				if c.Mode == nil || *c.Mode != sdk.ClickHouseClusterModeSpecSwarm {
+					t.Errorf("update cluster mode: expected SWARM, got %v", c.Mode)
+				}
+				if len(c.Zones) != 1 {
+					t.Errorf("update cluster zones: expected 1 entry, got %v", c.Zones)
+				}
+				if c.Disk.StorageClass == nil || *c.Disk.StorageClass != "gp3" {
+					t.Errorf("update cluster storage_class: expected 'gp3', got %v", c.Disk.StorageClass)
+				}
+				if len(update.Spec.ClickHouseKeepers[0].Zones) != 1 {
+					t.Errorf("update keeper zones: expected 1 entry, got %v", update.Spec.ClickHouseKeepers[0].Zones)
+				}
+			},
+		},
+		{
 			name: "Model with empty optional slices",
 			model: AWSEnvModel{
 				Name:               types.StringValue("empty-slices"),

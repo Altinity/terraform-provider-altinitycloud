@@ -331,26 +331,15 @@ func TestValidateClickHousePlan(t *testing.T) {
 	})
 }
 
-// The update input carries no mode, zones or storage class, so an entry added to
-// an existing environment would silently come up with the defaults.
+// The update sends the create input now, so a new entry carries mode/zones/storage_class.
 func TestValidateClickHousePlanEntriesAddedToExistingEnv(t *testing.T) {
 	existing := minimalClusterModel("existing")
 
-	t.Run("a plain new cluster is allowed", func(t *testing.T) {
+	t.Run("a new cluster may pick mode, zones and storage_class", func(t *testing.T) {
 		added := minimalClusterModel("added")
-		added.Mode = types.StringUnknown()
-		added.Zones = types.ListUnknown(types.StringType)
-		added.Disk = &ClickHouseDiskModel{Size: types.Int64Value(100), StorageClass: types.StringUnknown()}
-
-		diags := ValidateClickHousePlan([]ClickHouseClusterModel{existing}, []ClickHouseClusterModel{existing, added}, nil, nil)
-		if diags.HasError() {
-			t.Fatalf("unexpected errors: %v", diags.Errors())
-		}
-	})
-
-	t.Run("an explicit STANDARD mode is allowed, since that is what would be created", func(t *testing.T) {
-		added := minimalClusterModel("added")
-		added.Mode = types.StringValue("STANDARD")
+		added.Mode = types.StringValue("SWARM")
+		added.Zones = testList(t, "us-east-1a")
+		added.Disk = &ClickHouseDiskModel{Size: types.Int64Value(100), StorageClass: types.StringValue("gp3")}
 
 		diags := ValidateClickHousePlan([]ClickHouseClusterModel{existing}, []ClickHouseClusterModel{existing, added}, nil, nil)
 		if diags.HasError() {
@@ -358,19 +347,19 @@ func TestValidateClickHousePlanEntriesAddedToExistingEnv(t *testing.T) {
 		}
 	})
 
-	t.Run("mode, zones and storage_class are rejected", func(t *testing.T) {
+	t.Run("unknown values on a new cluster are not compared", func(t *testing.T) {
 		added := minimalClusterModel("added")
-		added.Mode = types.StringValue("SWARM")
-		added.Zones = testList(t, "us-east-1a")
-		added.Disk = &ClickHouseDiskModel{Size: types.Int64Value(100), StorageClass: types.StringValue("gp3")}
+		added.Mode = types.StringUnknown()
+		added.Zones = types.ListUnknown(types.StringType)
+		added.Disk = &ClickHouseDiskModel{Size: types.Int64Value(100), StorageClass: types.StringUnknown()}
 
 		diags := ValidateClickHousePlan([]ClickHouseClusterModel{existing}, []ClickHouseClusterModel{existing, added}, nil, nil)
-		if len(diags.Errors()) != 3 {
-			t.Errorf("expected 3 errors, got %d: %v", len(diags.Errors()), diags.Errors())
+		if diags.HasError() {
+			t.Errorf("unexpected errors: %v", diags.Errors())
 		}
 	})
 
-	t.Run("a volume added to an existing cluster cannot pick a storage class", func(t *testing.T) {
+	t.Run("a volume added to an existing cluster may pick a storage class", func(t *testing.T) {
 		plan := existing
 		plan.AdditionalDisks = []ClickHouseAdditionalDiskModel{{
 			Name:         types.StringValue("disk1"),
@@ -379,20 +368,20 @@ func TestValidateClickHousePlanEntriesAddedToExistingEnv(t *testing.T) {
 		}}
 
 		diags := ValidateClickHousePlan([]ClickHouseClusterModel{existing}, []ClickHouseClusterModel{plan}, nil, nil)
-		if !diags.HasError() {
-			t.Error("expected an error for a new volume with an explicit storage class")
+		if diags.HasError() {
+			t.Errorf("unexpected errors: %v", diags.Errors())
 		}
 	})
 
-	t.Run("a new keeper cannot pick zones or a storage class", func(t *testing.T) {
+	t.Run("a new keeper may pick zones and a storage class", func(t *testing.T) {
 		added := keeperModel()
 		added.Name = types.StringValue("added")
 		added.Zones = testList(t, "us-east-1a")
 		added.Disk = &ClickHouseDiskModel{Size: types.Int64Value(30), StorageClass: types.StringValue("gp3")}
 
 		diags := ValidateClickHousePlan(nil, nil, []ClickHouseKeeperModel{keeperModel()}, []ClickHouseKeeperModel{keeperModel(), added})
-		if len(diags.Errors()) != 2 {
-			t.Errorf("expected 2 errors, got %d: %v", len(diags.Errors()), diags.Errors())
+		if diags.HasError() {
+			t.Errorf("unexpected errors: %v", diags.Errors())
 		}
 	})
 }

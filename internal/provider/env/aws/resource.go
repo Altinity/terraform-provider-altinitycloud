@@ -214,13 +214,6 @@ func (r *AWSEnvResource) Update(ctx context.Context, req resource.UpdateRequest,
 		return
 	}
 
-	var state *AWSEnvResourceModel
-	diags = req.State.Get(ctx, &state)
-	resp.Diagnostics.Append(diags...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
 	envName := data.Name.ValueString()
 	tflog.Trace(ctx, "updating resource", map[string]interface{}{"name": envName})
 
@@ -229,12 +222,6 @@ func (r *AWSEnvResource) Update(ctx context.Context, req resource.UpdateRequest,
 	if resp.Diagnostics.HasError() {
 		return
 	}
-
-	// ClickHouse entries are patched by name, so anything dropped from the config
-	// has to be named explicitly or the API keeps it.
-	sdkEnv.Spec.ClickHouseClustersToDelete = common.ClickHouseClusterNamesToDelete(state.ClickHouseClusters, data.ClickHouseClusters)
-	sdkEnv.Spec.ClickHouseKeepersToDelete = common.ClickHouseKeeperNamesToDelete(state.ClickHouseKeepers, data.ClickHouseKeepers)
-	common.ApplyClickHouseClusterNestedDeletes(sdkEnv.Spec.ClickHouseClusters, state.ClickHouseClusters)
 
 	apiResp, err := r.Client.UpdateAWSEnv(ctx, sdkEnv)
 

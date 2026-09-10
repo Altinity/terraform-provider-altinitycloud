@@ -185,7 +185,6 @@ func ValidateClickHousePlan(stateClusters, planClusters []ClickHouseClusterModel
 
 		prior, ok := priorClusters[c.Name.ValueString()]
 		if !ok {
-			diags.Append(validateClusterAddedToExistingEnv(clusterPath, c)...)
 			continue
 		}
 
@@ -204,7 +203,6 @@ func ValidateClickHousePlan(stateClusters, planClusters []ClickHouseClusterModel
 
 			priorDisk, ok := priorDisks[d.Name.ValueString()]
 			if !ok {
-				diags.Append(setOnlyAtEnvCreation(diskPath.AtName("storage_class"), "storage_class", d.StorageClass, "volume")...)
 				continue
 			}
 			diags.Append(immutableString(diskPath.AtName("storage_class"), "storage_class", priorDisk.StorageClass, d.StorageClass)...)
@@ -227,10 +225,6 @@ func ValidateClickHousePlan(stateClusters, planClusters []ClickHouseClusterModel
 
 		prior, ok := priorKeepers[k.Name.ValueString()]
 		if !ok {
-			diags.Append(setOnlyAtEnvCreation(keeperPath.AtName("zones"), "zones", listPresence(k.Zones), "Keeper")...)
-			if k.Disk != nil {
-				diags.Append(setOnlyAtEnvCreation(keeperPath.AtName("disk").AtName("storage_class"), "storage_class", k.Disk.StorageClass, "Keeper")...)
-			}
 			continue
 		}
 
@@ -249,45 +243,6 @@ func ValidateClickHousePlan(stateClusters, planClusters []ClickHouseClusterModel
 		func(k ClickHouseKeeperModel) types.String { return k.Name })...)
 
 	return diags
-}
-
-// The update input carries no mode, zones or storage class, so they fall back to defaults.
-func validateClusterAddedToExistingEnv(clusterPath path.Path, cluster ClickHouseClusterModel) diag.Diagnostics {
-	var diags diag.Diagnostics
-
-	// STANDARD is what the update API would create anyway, so asking for it is fine.
-	if mode, ok := knownString(cluster.Mode); ok && mode != string(sdk.ClickHouseClusterModeSpecStandard) {
-		diags.Append(setOnlyAtEnvCreation(clusterPath.AtName("mode"), "mode", cluster.Mode, "cluster")...)
-	}
-	diags.Append(setOnlyAtEnvCreation(clusterPath.AtName("zones"), "zones", listPresence(cluster.Zones), "cluster")...)
-
-	if cluster.Disk != nil {
-		diags.Append(setOnlyAtEnvCreation(clusterPath.AtName("disk").AtName("storage_class"), "storage_class", cluster.Disk.StorageClass, "cluster")...)
-	}
-	for j, d := range cluster.AdditionalDisks {
-		diags.Append(setOnlyAtEnvCreation(clusterPath.AtName("additional_disks").AtListIndex(j).AtName("storage_class"), "storage_class", d.StorageClass, "volume")...)
-	}
-
-	return diags
-}
-
-func setOnlyAtEnvCreation(attrPath path.Path, name string, value types.String, kind string) diag.Diagnostics {
-	var diags diag.Diagnostics
-	if _, ok := knownString(value); !ok {
-		return diags
-	}
-
-	diags.AddAttributeError(attrPath, "Attribute Not Settable On Update",
-		fmt.Sprintf("%s can only be set when the environment is created. A %s added to an existing environment goes through the update API, whose input carries no %s, so it would come up with the default.", name, kind, name))
-	return diags
-}
-
-// Only whether the user set the list matters.
-func listPresence(list types.List) types.String {
-	if list.IsNull() || list.IsUnknown() {
-		return types.StringNull()
-	}
-	return types.StringValue("set")
 }
 
 func warnClickHouseDeletions[T any](attrPath path.Path, kind string, prior []T, planned map[string]bool, key func(T) types.String) diag.Diagnostics {

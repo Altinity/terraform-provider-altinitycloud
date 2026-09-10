@@ -110,23 +110,6 @@ func TestClickHouseClustersToSDK(t *testing.T) {
 		}
 	})
 
-	t.Run("unknown attributes are omitted from the update input too", func(t *testing.T) {
-		model := minimalClusterModel("ch")
-		model.Disk = &ClickHouseDiskModel{
-			Size:       types.Int64Value(100),
-			Iops:       types.Int64Unknown(),
-			Throughput: types.Int64Unknown(),
-		}
-
-		got, diags := ClickHouseClustersToUpdateSDK(ctx, []ClickHouseClusterModel{model})
-		if diags.HasError() {
-			t.Fatalf("unexpected diags: %v", diags)
-		}
-		if got[0].Disk.Iops != nil || got[0].Disk.Throughput != nil {
-			t.Errorf("unknown disk attributes must be omitted, got %#v", got[0].Disk)
-		}
-	})
-
 	t.Run("full cluster round trips every field", func(t *testing.T) {
 		model := minimalClusterModel("ch")
 		model.Mode = types.StringValue("SWARM")
@@ -199,131 +182,104 @@ func TestClickHouseClustersToSDK(t *testing.T) {
 	})
 }
 
-func TestClickHouseClustersToUpdateSDK(t *testing.T) {
+func TestClickHouseKeepersToSDK(t *testing.T) {
 	ctx := context.Background()
-	model := minimalClusterModel("ch")
-	model.Mode = types.StringValue("SWARM")
-	model.Zones = testList(t, "us-east-1a")
-	model.Disk = &ClickHouseDiskModel{Size: types.Int64Value(200), StorageClass: types.StringValue("gp3")}
 
-	got, diags := ClickHouseClustersToUpdateSDK(ctx, []ClickHouseClusterModel{model})
-	if diags.HasError() {
-		t.Fatalf("unexpected diags: %v", diags)
-	}
+	t.Run("no keepers returns nil", func(t *testing.T) {
+		got, diags := ClickHouseKeepersToSDK(ctx, nil)
+		if diags.HasError() {
+			t.Fatalf("unexpected diags: %v", diags)
+		}
+		if got != nil {
+			t.Errorf("expected nil, got %#v", got)
+		}
+	})
 
-	c := got[0]
-	if c.Disk == nil || c.Disk.Size == nil || *c.Disk.Size != 200 {
-		t.Errorf("unexpected disk: %#v", c.Disk)
-	}
-	if c.Disk.Name != ClickHouseDefaultDiskName {
-		t.Errorf("expected disk named %q, got %q", ClickHouseDefaultDiskName, c.Disk.Name)
-	}
-	// The update input has no mode/zones/storageClass fields at all: they are immutable.
-	if c.Image == nil || *c.Image != "altinity/clickhouse-server:24.8" {
-		t.Errorf("unexpected image: %v", c.Image)
-	}
-}
+	t.Run("the volume is named default and omitted optionals stay nil", func(t *testing.T) {
+		got, diags := ClickHouseKeepersToSDK(ctx, []ClickHouseKeeperModel{{
+			Name:         types.StringValue("keeper"),
+			InstanceType: types.StringValue("t4g.large"),
+			Zones:        types.ListNull(types.StringType),
+			HA:           types.BoolNull(),
+			Stopped:      types.BoolNull(),
+			Disk:         &ClickHouseDiskModel{Size: types.Int64Value(30)},
+		}})
+		if diags.HasError() {
+			t.Fatalf("unexpected diags: %v", diags)
+		}
 
-func TestClickHouseKeepersToUpdateSDK(t *testing.T) {
-	got := ClickHouseKeepersToUpdateSDK([]ClickHouseKeeperModel{{
-		Name:         types.StringValue("keeper"),
-		InstanceType: types.StringValue("m6i.large"),
-		Zones:        testList(t, "us-east-1a"),
-		HA:           types.BoolValue(true),
-		Stopped:      types.BoolValue(false),
-		Disk:         &ClickHouseDiskModel{Size: types.Int64Value(30)},
-	}})
+		k := got[0]
+		if k.Disk.Name != ClickHouseDefaultDiskName {
+			t.Errorf("disk name = %q, want %q", k.Disk.Name, ClickHouseDefaultDiskName)
+		}
+		if k.Zones != nil {
+			t.Errorf("zones = %v, want nil so the API defaults to the env zones", k.Zones)
+		}
+		if k.Ha != nil || k.Stopped != nil {
+			t.Errorf("omitted optionals must stay nil, got ha=%v stopped=%v", k.Ha, k.Stopped)
+		}
+		if k.Disk.StorageClass != nil || k.Disk.Iops != nil || k.Disk.Throughput != nil {
+			t.Errorf("omitted disk attributes must stay nil, got %#v", k.Disk)
+		}
+	})
 
-	if len(got) != 1 {
-		t.Fatalf("expected 1 keeper, got %d", len(got))
-	}
-	if got[0].Ha == nil || !*got[0].Ha {
-		t.Errorf("unexpected ha: %v", got[0].Ha)
-	}
-	if got[0].Disk == nil || got[0].Disk.Name != ClickHouseDefaultDiskName {
-		t.Errorf("unexpected disk: %#v", got[0].Disk)
-	}
-}
+	t.Run("unknown attributes are omitted, never sent as empty values", func(t *testing.T) {
+		got, diags := ClickHouseKeepersToSDK(ctx, []ClickHouseKeeperModel{{
+			Name:         types.StringValue("keeper"),
+			InstanceType: types.StringValue("t4g.large"),
+			Zones:        types.ListUnknown(types.StringType),
+			HA:           types.BoolUnknown(),
+			Stopped:      types.BoolUnknown(),
+			Disk:         &ClickHouseDiskModel{Size: types.Int64Value(30), StorageClass: types.StringUnknown(), Iops: types.Int64Unknown()},
+		}})
+		if diags.HasError() {
+			t.Fatalf("unexpected diags: %v", diags)
+		}
 
-func TestClickHouseNamesToDelete(t *testing.T) {
-	prior := []ClickHouseClusterModel{minimalClusterModel("keep"), minimalClusterModel("drop")}
-	planned := []ClickHouseClusterModel{minimalClusterModel("keep"), minimalClusterModel("new")}
+		k := got[0]
+		if k.Zones != nil || k.Ha != nil || k.Stopped != nil {
+			t.Errorf("unknown attributes must be omitted, got %#v", k)
+		}
+		if k.Disk.StorageClass != nil || k.Disk.Iops != nil {
+			t.Errorf("unknown disk attributes must be omitted, got %#v", k.Disk)
+		}
+	})
 
-	got := ClickHouseClusterNamesToDelete(prior, planned)
-	if len(got) != 1 || got[0] != "drop" {
-		t.Errorf("expected [drop], got %v", got)
-	}
+	t.Run("every field round trips", func(t *testing.T) {
+		got, diags := ClickHouseKeepersToSDK(ctx, []ClickHouseKeeperModel{{
+			Name:         types.StringValue("keeper"),
+			InstanceType: types.StringValue("t4g.large"),
+			Zones:        testList(t, "us-east-1a", "us-east-1b"),
+			HA:           types.BoolValue(true),
+			Stopped:      types.BoolValue(true),
+			Disk: &ClickHouseDiskModel{
+				Size:         types.Int64Value(30),
+				StorageClass: types.StringValue("gp3"),
+				Iops:         types.Int64Value(3000),
+				Throughput:   types.Int64Value(125),
+			},
+		}})
+		if diags.HasError() {
+			t.Fatalf("unexpected diags: %v", diags)
+		}
 
-	if got := ClickHouseClusterNamesToDelete(nil, planned); got != nil {
-		t.Errorf("expected nil with no prior state, got %v", got)
-	}
-	if got := ClickHouseClusterNamesToDelete(prior, prior); got != nil {
-		t.Errorf("expected nil when nothing was dropped, got %v", got)
-	}
-
-	keepersPrior := []ClickHouseKeeperModel{{Name: types.StringValue("a")}, {Name: types.StringValue("b")}}
-	keepersPlanned := []ClickHouseKeeperModel{{Name: types.StringValue("b")}}
-	if got := ClickHouseKeeperNamesToDelete(keepersPrior, keepersPlanned); len(got) != 1 || got[0] != "a" {
-		t.Errorf("expected [a], got %v", got)
-	}
-}
-
-func TestApplyClickHouseClusterNestedDeletes(t *testing.T) {
-	prior := []ClickHouseClusterModel{{
-		Name:            types.StringValue("ch"),
-		AdditionalDisks: []ClickHouseAdditionalDiskModel{{Name: types.StringValue("disk1")}, {Name: types.StringValue("disk2")}},
-		Settings: []ClickHouseSettingModel{
-			{Key: types.StringValue("kept")},
-			{Key: types.StringValue("gone")},
-		},
-		Profiles: []ClickHouseProfileModel{
-			{Name: types.StringValue("readonly"), Settings: []ClickHouseSettingModel{
-				{Key: types.StringValue("readonly")},
-				{Key: types.StringValue("stale")},
-			}},
-			{Name: types.StringValue("dropped")},
-		},
-		Users: []ClickHouseUserModel{{Name: types.StringValue("app")}, {Name: types.StringValue("old")}},
-	}}
-
-	updates := []*sdk.ClickHouseClusterUpdateSpecInput{{
-		Name:            "ch",
-		AdditionalDisks: []*sdk.ClickHouseDiskUpdateSpecInput{{Name: "disk1"}},
-		Settings:        []*sdk.ClickHouseSettingSpecInput{{Key: "kept"}},
-		Profiles: []*sdk.ClickHouseProfileUpdateSpecInput{{
-			Name:     "readonly",
-			Settings: []*sdk.ClickHouseSettingSpecInput{{Key: "readonly"}},
-		}},
-		Users: []*sdk.ClickHouseUserSpecInput{{Name: "app"}},
-	}}
-
-	ApplyClickHouseClusterNestedDeletes(updates, prior)
-
-	u := updates[0]
-	if len(u.AdditionalDisksToDelete) != 1 || u.AdditionalDisksToDelete[0] != "disk2" {
-		t.Errorf("expected [disk2], got %v", u.AdditionalDisksToDelete)
-	}
-	if len(u.SettingsToDelete) != 1 || u.SettingsToDelete[0] != "gone" {
-		t.Errorf("expected [gone], got %v", u.SettingsToDelete)
-	}
-	if len(u.ProfilesToDelete) != 1 || u.ProfilesToDelete[0] != "dropped" {
-		t.Errorf("expected [dropped], got %v", u.ProfilesToDelete)
-	}
-	if len(u.UsersToDelete) != 1 || u.UsersToDelete[0] != "old" {
-		t.Errorf("expected [old], got %v", u.UsersToDelete)
-	}
-	if len(u.Profiles[0].SettingsToDelete) != 1 || u.Profiles[0].SettingsToDelete[0] != "stale" {
-		t.Errorf("expected [stale], got %v", u.Profiles[0].SettingsToDelete)
-	}
-}
-
-func TestApplyClickHouseClusterNestedDeletesIgnoresNewClusters(t *testing.T) {
-	updates := []*sdk.ClickHouseClusterUpdateSpecInput{{Name: "brand-new"}}
-	ApplyClickHouseClusterNestedDeletes(updates, []ClickHouseClusterModel{{Name: types.StringValue("other")}})
-
-	if updates[0].UsersToDelete != nil || updates[0].SettingsToDelete != nil {
-		t.Errorf("expected no deletes for a cluster absent from prior state: %#v", updates[0])
-	}
+		k := got[0]
+		if k.Name != "keeper" || k.InstanceType != "t4g.large" {
+			t.Errorf("unexpected identity: %#v", k)
+		}
+		if len(k.Zones) != 2 {
+			t.Errorf("zones = %v, want 2 entries", k.Zones)
+		}
+		if k.Ha == nil || !*k.Ha || k.Stopped == nil || !*k.Stopped {
+			t.Errorf("unexpected ha/stopped: %v/%v", k.Ha, k.Stopped)
+		}
+		if k.Disk.StorageClass == nil || *k.Disk.StorageClass != "gp3" {
+			t.Errorf("storage_class = %v, want gp3", k.Disk.StorageClass)
+		}
+		if k.Disk.Iops == nil || *k.Disk.Iops != 3000 || k.Disk.Throughput == nil || *k.Disk.Throughput != 125 {
+			t.Errorf("unexpected iops/throughput: %v/%v", k.Disk.Iops, k.Disk.Throughput)
+		}
+	})
 }
 
 func minimalClusterSpec(name string) ClickHouseClusterSpec {
