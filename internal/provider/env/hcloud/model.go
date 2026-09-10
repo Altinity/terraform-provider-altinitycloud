@@ -257,7 +257,7 @@ func nodeGroupsToSDK(ctx context.Context, nodeGroups []NodeGroupsModel) ([]*clie
 		}
 
 		sdkNodeGroups = append(sdkNodeGroups, &client.HCloudEnvNodeGroupSpecInput{
-			Name:                np.Name.ValueStringPointer(),
+			Name:                common.OptionalStringToSDK(np.Name),
 			NodeType:            np.NodeType.ValueString(),
 			Locations:           locations,
 			Reservations:        reservations,

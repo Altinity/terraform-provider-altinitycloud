@@ -388,7 +388,7 @@ const CLICKHOUSE_USER_ACCESS_MANAGEMENT_DESCRIPTION = "Whether the user can mana
 const CLICKHOUSE_USER_NAMED_COLLECTION_CONTROL_DESCRIPTION = "Whether the user can create and drop named collections."
 const CLICKHOUSE_USER_SHOW_NAMED_COLLECTIONS_DESCRIPTION = "Whether the user can list named collections."
 const CLICKHOUSE_USER_SHOW_NAMED_COLLECTIONS_SECRETS_DESCRIPTION = "Whether the user can read secrets stored in named collections."
-const CLICKHOUSE_USER_PASSWORD_TYPE_DESCRIPTION = `Form the password is supplied in. Required whenever a password value is set.
+const CLICKHOUSE_USER_PASSWORD_TYPE_DESCRIPTION = `Form the password is supplied in. Every user needs a password, so exactly one of ` + "`password_value`" + ` or ` + "`password_value_from_secret`" + ` must accompany it.
 
 		Possible values:
 		- "SHA256_HEX"

@@ -6,7 +6,6 @@ import (
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/client"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
-	"github.com/hashicorp/terraform-plugin-framework-validators/objectvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	rschema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
@@ -366,7 +365,7 @@ func getClickHouseUsersAttribute() rschema.ListNestedAttribute {
 					MarkdownDescription: CLICKHOUSE_USER_SHOW_NAMED_COLLECTIONS_SECRETS_DESCRIPTION,
 				},
 				"password_type": rschema.StringAttribute{
-					Optional:            true,
+					Required:            true,
 					MarkdownDescription: CLICKHOUSE_USER_PASSWORD_TYPE_DESCRIPTION,
 					Validators: []validator.String{
 						stringvalidator.OneOf(
@@ -381,22 +380,19 @@ func getClickHouseUsersAttribute() rschema.ListNestedAttribute {
 					MarkdownDescription: CLICKHOUSE_USER_PASSWORD_VALUE_DESCRIPTION,
 					Validators: []validator.String{
 						stringvalidator.LengthAtLeast(1),
-						stringvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("password_type")),
-						stringvalidator.ConflictsWith(path.MatchRelative().AtParent().AtName("password_value_from_secret")),
+						stringvalidator.ExactlyOneOf(path.MatchRelative().AtParent().AtName("password_value_from_secret")),
 					},
 				},
-				"password_value_from_secret": getClickHouseSecretRefAttribute(CLICKHOUSE_USER_PASSWORD_VALUE_FROM_SECRET_DESCRIPTION,
-					objectvalidator.AlsoRequires(path.MatchRelative().AtParent().AtName("password_type"))),
+				"password_value_from_secret": getClickHouseSecretRefAttribute(CLICKHOUSE_USER_PASSWORD_VALUE_FROM_SECRET_DESCRIPTION),
 			},
 		},
 	}
 }
 
-func getClickHouseSecretRefAttribute(description string, validators ...validator.Object) rschema.SingleNestedAttribute {
+func getClickHouseSecretRefAttribute(description string) rschema.SingleNestedAttribute {
 	return rschema.SingleNestedAttribute{
 		Optional:            true,
 		MarkdownDescription: description,
-		Validators:          validators,
 		Attributes: map[string]rschema.Attribute{
 			"name": rschema.StringAttribute{
 				Required:            true,

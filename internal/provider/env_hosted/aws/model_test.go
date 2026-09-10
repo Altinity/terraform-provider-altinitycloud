@@ -402,6 +402,14 @@ func TestNodeGroupsToSDK(t *testing.T) {
 			ZoneIDs:         types.ListNull(types.StringType),
 			Reservations:    stringSet("ZOOKEEPER"),
 		},
+		{
+			// What a create actually carries: the computed name is not known yet.
+			Name:            types.StringUnknown(),
+			NodeType:        types.StringValue("m6i.xlarge"),
+			CapacityPerZone: types.Int64Value(1),
+			ZoneIDs:         types.ListUnknown(types.StringType),
+			Reservations:    stringSet("CLICKHOUSE"),
+		},
 	})
 	if diags.HasError() {
 		t.Fatalf("unexpected diagnostics: %v", diags)
@@ -421,6 +429,11 @@ func TestNodeGroupsToSDK(t *testing.T) {
 	}
 	if got[1].ZoneIDs != nil {
 		t.Errorf("node_groups[1].zone_ids = %v, want nil so the API defaults to the env zones", got[1].ZoneIDs)
+	}
+	// An empty name reaches the API as a name, and the ClickHouse placement
+	// lookup then finds no pool for the reservation.
+	if got[2].Name != nil {
+		t.Errorf("node_groups[2].name = %q, want nil so the API defaults it", *got[2].Name)
 	}
 }
 

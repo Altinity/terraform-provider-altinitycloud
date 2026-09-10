@@ -248,6 +248,11 @@ Required:
 Required:
 
 - `name` (String) User name, unique within the cluster. `grafana` and `datadog` are reserved for platform-injected users.
+- `password_type` (String) Form the password is supplied in. Every user needs a password, so exactly one of `password_value` or `password_value_from_secret` must accompany it.
+
+		Possible values:
+		- "SHA256_HEX"
+		- "DOUBLE_SHA1_HEX"
 
 Optional:
 
@@ -255,11 +260,6 @@ Optional:
 - `allowed_cidrs` (List of String) CIDRs the user may connect from. Unrestricted when omitted.
 - `databases` (List of String) Databases the user is granted access to. All databases when omitted.
 - `named_collection_control` (Boolean) Whether the user can create and drop named collections.
-- `password_type` (String) Form the password is supplied in. Required whenever a password value is set.
-
-		Possible values:
-		- "SHA256_HEX"
-		- "DOUBLE_SHA1_HEX"
 - `password_value` (String, Sensitive) Password digest, in the form declared by `password_type`. The API never returns it, so the value is kept from the configuration and never refreshed.
 - `password_value_from_secret` (Attributes) Password digest read from a Kubernetes secret, as an alternative to `password_value`. (see [below for nested schema](#nestedatt--clickhouse_clusters--users--password_value_from_secret))
 - `profile` (String) Settings profile assigned to this user. Must be one of the cluster's `profiles` or a profile ClickHouse ships with.

@@ -133,3 +133,12 @@ func MaintenanceWindowsToSDK(maintenanceWindows []MaintenanceWindowModel) []*cli
 
 	return sdkMaintenanceWindows
 }
+
+// ValueStringPointer yields a pointer to "" for an unknown value, which the API
+// reads as a name rather than as an omitted one.
+func OptionalStringToSDK(value types.String) *string {
+	if value.IsNull() || value.IsUnknown() {
+		return nil
+	}
+	return value.ValueStringPointer()
+}

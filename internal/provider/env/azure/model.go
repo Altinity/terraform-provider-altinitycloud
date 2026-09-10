@@ -275,7 +275,7 @@ func nodeGroupsToSDK(ctx context.Context, nodeGroups []common.NodeGroupsModel) (
 		}
 
 		sdkNodeGroups = append(sdkNodeGroups, &client.AzureEnvNodeGroupSpecInput{
-			Name:            np.Name.ValueStringPointer(),
+			Name:            common.OptionalStringToSDK(np.Name),
 			NodeType:        np.NodeType.ValueString(),
 			Zones:           zones,
 			Reservations:    reservations,

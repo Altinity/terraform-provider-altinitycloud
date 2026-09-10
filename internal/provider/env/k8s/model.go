@@ -309,7 +309,7 @@ func nodeGroupsToSDK(ctx context.Context, nodeGroups []NodeGroupsModel) ([]*clie
 		}
 
 		sdkNodeGroups = append(sdkNodeGroups, &client.K8SEnvNodeGroupSpecInput{
-			Name:            np.Name.ValueStringPointer(),
+			Name:            common.OptionalStringToSDK(np.Name),
 			NodeType:        np.NodeType.ValueString(),
 			CapacityPerZone: np.CapacityPerZone.ValueInt64(),
 			Zones:           zones,

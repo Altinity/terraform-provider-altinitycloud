@@ -325,7 +325,7 @@ func nodeGroupsToSDK(ctx context.Context, nodeGroups []hosted.NodeGroupsModel) (
 		}
 
 		sdkNodeGroups = append(sdkNodeGroups, &sdk.AWSEnvHostedNodeGroupSpecInput{
-			Name:            ng.Name.ValueStringPointer(),
+			Name:            common.OptionalStringToSDK(ng.Name),
 			NodeType:        ng.NodeType.ValueString(),
 			ZoneIDs:         zoneIDs,
 			Reservations:    reservations,

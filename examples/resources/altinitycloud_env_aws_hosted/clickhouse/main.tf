@@ -13,13 +13,7 @@ resource "altinitycloud_env_aws_hosted" "this" {
       node_type         = "t4g.large"
       capacity_per_zone = 10
       zone_ids          = local.zone_ids
-      reservations      = ["SYSTEM"]
-    },
-    {
-      node_type         = "t4g.small"
-      capacity_per_zone = 3
-      zone_ids          = local.zone_ids
-      reservations      = ["ZOOKEEPER"]
+      reservations      = ["SYSTEM", "ZOOKEEPER"]
     },
     {
       node_type         = "m6i.large"
@@ -33,7 +27,7 @@ resource "altinitycloud_env_aws_hosted" "this" {
   clickhouse_keepers = [
     {
       name          = "keeper"
-      instance_type = "t4g.small"
+      instance_type = "t4g.large"
       ha            = true
       disk = {
         size = 30
@@ -41,7 +35,7 @@ resource "altinitycloud_env_aws_hosted" "this" {
     }
   ]
 
-  // Altinity-hosted environments accept altinity/clickhouse-server images only.
+  // Hosted environments accept altinity/clickhouse-server images only and fix the storage class.
   clickhouse_clusters = [
     {
       name          = "analytics"
@@ -55,8 +49,7 @@ resource "altinitycloud_env_aws_hosted" "this" {
       }
 
       disk = {
-        size          = 500
-        storage_class = "gp3"
+        size = 500
       }
 
       settings = [
