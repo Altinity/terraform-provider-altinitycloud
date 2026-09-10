@@ -222,6 +222,7 @@ data "altinitycloud_env_hcloud_status" "this" {
 		- ["hil"]
 - `maintenance_windows` (Attributes List) List of maintenance windows during which automatic maintenance is permitted. By default updates are applied as soon as they are available. (see [below for nested schema](#nestedatt--maintenance_windows))
 - `metrics_endpoint` (Attributes) Metrics endpoint configuration. (see [below for nested schema](#nestedatt--metrics_endpoint))
+- `mfa` (Boolean) `true` requires MFA confirmation for destructive operations on the environment (default `true`). Can be enabled on an existing environment, but cannot be disabled once enabled.
 - `skip_deprovision_on_destroy` (Boolean) Set to `true` will delete without waiting for environment deprovisioning. Use this with precaution, it may end up with dangling resources in your cloud provider (default `false`).
 - `timeouts` (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
 - `wireguard_peers` (Attributes List) HCloud Wireguard peer configuration. (see [below for nested schema](#nestedatt--wireguard_peers))

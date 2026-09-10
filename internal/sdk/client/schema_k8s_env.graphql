@@ -120,4 +120,5 @@ fragment K8SEnvSpecFragment on K8SEnvSpec {
   #   enabled
   #   sourceIPRanges
   # }
+  mfa
 }

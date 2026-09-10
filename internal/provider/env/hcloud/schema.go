@@ -41,6 +41,7 @@ func (r *HCloudEnvResource) Schema(ctx context.Context, req resource.SchemaReque
 			"wireguard_peers":                 getWireguardPeersAttribute(false, true, false),
 			"metrics_endpoint":                common.GetMetricsEndpointAttribute(false, true, true),
 			"datadog":                         common.GetDatadogAttribute(false, true, false),
+			"mfa":                             common.GetMFAAttribute(false, true, true),
 			"spec_revision":                   common.SpecRevisionAttribute,
 			"force_destroy":                   common.GetForceDestroyAttribute(false, true, true),
 			"force_destroy_clusters":          common.GetForceDestroyClustersAttribute(false, true, true),
@@ -73,6 +74,7 @@ func (d *HCloudEnvDataSource) Schema(ctx context.Context, req datasource.SchemaR
 			"network_zone":            common.GetRegionAttribute(false, false, true, common.HCLOUD_NETWORK_ZONE_DESCRIPTION),
 			"metrics_endpoint":        common.GetMetricsEndpointAttribute(false, false, true),
 			"datadog":                 common.GetDatadogAttribute(false, false, true),
+			"mfa":                     common.GetMFAAttribute(false, false, true),
 			"spec_revision":           common.SpecRevisionAttribute,
 			"wireguard_peers":         getWireguardPeersAttribute(false, false, true),
 

@@ -29,6 +29,7 @@ type AWSEnvHostedResourceModel struct {
 	Iceberg            *IcebergModel                   `tfsdk:"iceberg"`
 	MetricsEndpoint    *common.MetricsEndpointModel    `tfsdk:"metrics_endpoint"`
 	Datadog            *common.DatadogModel            `tfsdk:"datadog"`
+	MFA                types.Bool                      `tfsdk:"mfa"`
 
 	SpecRevision                 types.Int64    `tfsdk:"spec_revision"`
 	ForceDestroy                 types.Bool     `tfsdk:"force_destroy"`
@@ -163,6 +164,7 @@ func (e AWSEnvHostedResourceModel) toSDK(ctx context.Context) (sdk.CreateAWSEnvH
 			Iceberg:            iceberg,
 			MetricsEndpoint:    metricsEndpoint,
 			Datadog:            datadog,
+			Mfa:                e.MFA.ValueBoolPointer(),
 		},
 	}
 
@@ -182,6 +184,7 @@ func (e AWSEnvHostedResourceModel) toSDK(ctx context.Context) (sdk.CreateAWSEnvH
 			Iceberg:            icebergUpdate,
 			MetricsEndpoint:    metricsEndpoint,
 			Datadog:            datadog,
+			Mfa:                e.MFA.ValueBoolPointer(),
 		},
 	}
 
@@ -224,6 +227,7 @@ func (model *AWSEnvHostedResourceModel) applySpec(ctx context.Context, name stri
 
 	model.Name = types.StringValue(name)
 	model.SpecRevision = types.Int64Value(specRevision)
+	model.MFA = types.BoolValue(spec.Mfa)
 	model.Region = types.StringValue(spec.Region)
 	model.CIDR = types.StringValue(spec.Cidr)
 	model.ResourcePrefix = types.StringValue(spec.ResourcePrefix)

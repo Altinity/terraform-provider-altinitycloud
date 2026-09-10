@@ -106,4 +106,5 @@ fragment AzureEnvSpecFragment on AzureEnvSpec {
     logsEnabled
     metricsEnabled
   }
+  mfa
 }

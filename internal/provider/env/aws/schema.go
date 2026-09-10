@@ -54,6 +54,7 @@ func (r *AWSEnvResource) Schema(ctx context.Context, req resource.SchemaRequest,
 			"metrics_endpoint":                common.GetMetricsEndpointAttribute(false, true, true),
 			"datadog":                         common.GetDatadogAttribute(false, true, false),
 			"eks_logging":                     getEksLoggingAttribute(false, true, true),
+			"mfa":                             common.GetMFAAttribute(false, true, true),
 
 			"spec_revision":                   common.SpecRevisionAttribute,
 			"force_destroy":                   common.GetForceDestroyAttribute(false, true, true),
@@ -99,6 +100,7 @@ func (d *AWSEnvDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 			"metrics_endpoint":                common.GetMetricsEndpointAttribute(false, false, true),
 			"datadog":                         common.GetDatadogAttribute(false, false, true),
 			"eks_logging":                     getEksLoggingAttribute(false, false, true),
+			"mfa":                             common.GetMFAAttribute(false, false, true),
 			"spec_revision":                   common.SpecRevisionAttribute,
 
 			// these options are not used in data sources,
