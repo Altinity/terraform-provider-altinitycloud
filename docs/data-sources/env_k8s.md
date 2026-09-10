@@ -72,6 +72,7 @@ Bring Your Own Kubernetes (BYOK) environment data source.
 - `logs` (Attributes) Kubernetes environment logs configuration (see [below for nested schema](#nestedatt--logs))
 - `maintenance_windows` (Attributes List) List of maintenance windows during which automatic maintenance is permitted. By default updates are applied as soon as they are available. (see [below for nested schema](#nestedatt--maintenance_windows))
 - `metrics` (Attributes) Metrics configuration (see [below for nested schema](#nestedatt--metrics))
+- `mfa` (Boolean) `true` requires MFA confirmation for destructive operations on the environment (default `true`). Can be enabled on an existing environment, but cannot be disabled once enabled.
 - `node_groups` (Attributes List) List of node groups. At least one required. (see [below for nested schema](#nestedatt--node_groups))
 - `skip_deprovision_on_destroy` (Boolean) Set to `true` will delete without waiting for environment deprovisioning. Use this with precaution, it may end up with dangling resources in your cloud provider (default `false`).
 - `spec_revision` (Number) Spec revision

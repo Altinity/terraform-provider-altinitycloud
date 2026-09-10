@@ -74,6 +74,7 @@ Bring Your Own Cloud (BYOC) HCloud environment data source.
 		- ["hil"]
 - `maintenance_windows` (Attributes List) List of maintenance windows during which automatic maintenance is permitted. By default updates are applied as soon as they are available. (see [below for nested schema](#nestedatt--maintenance_windows))
 - `metrics_endpoint` (Attributes) Metrics endpoint configuration. (see [below for nested schema](#nestedatt--metrics_endpoint))
+- `mfa` (Boolean) `true` requires MFA confirmation for destructive operations on the environment (default `true`). Can be enabled on an existing environment, but cannot be disabled once enabled.
 - `network_zone` (String) HCloud network ([docs](https://docs.hetzner.com/cloud/general/locations)). **[IMMUTABLE]**
 
 		Examples:

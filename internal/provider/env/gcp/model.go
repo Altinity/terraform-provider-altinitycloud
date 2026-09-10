@@ -30,6 +30,7 @@ type GCPEnvModel struct {
 	Labels                  []common.KeyValueModel          `tfsdk:"labels"`
 	MetricsEndpoint         *common.MetricsEndpointModel    `tfsdk:"metrics_endpoint"`
 	Datadog                 *common.DatadogModel            `tfsdk:"datadog"`
+	MFA                     types.Bool                      `tfsdk:"mfa"`
 
 	SpecRevision                 types.Int64 `tfsdk:"spec_revision"`
 	ForceDestroy                 types.Bool  `tfsdk:"force_destroy"`
@@ -128,6 +129,7 @@ func (e GCPEnvModel) toSDK(ctx context.Context) (sdk.CreateGCPEnvInput, sdk.Upda
 			Labels:                  labels,
 			MetricsEndpoint:         metricsEndpoint,
 			Datadog:                 datadog,
+			Mfa:                     e.MFA.ValueBoolPointer(),
 		},
 	}
 
@@ -148,6 +150,7 @@ func (e GCPEnvModel) toSDK(ctx context.Context) (sdk.CreateGCPEnvInput, sdk.Upda
 			Labels:                  labels,
 			MetricsEndpoint:         metricsEndpoint,
 			Datadog:                 datadog,
+			Mfa:                     e.MFA.ValueBoolPointer(),
 		},
 	}
 
@@ -215,6 +218,7 @@ func (model *GCPEnvModel) toModel(env sdk.GetGCPEnv_GCPEnv) diag.Diagnostics {
 	}
 	model.PeeringConnections = peeringConnections
 	model.SpecRevision = types.Int64Value(env.SpecRevision)
+	model.MFA = types.BoolValue(env.Spec.Mfa)
 	return allDiags
 }
 

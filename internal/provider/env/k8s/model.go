@@ -23,6 +23,7 @@ type K8SEnvModel struct {
 	Logs                  *LogsModel                      `tfsdk:"logs"`
 	Metrics               *MetricsModel                   `tfsdk:"metrics"`
 	MaintenanceWindows    []common.MaintenanceWindowModel `tfsdk:"maintenance_windows"`
+	MFA                   types.Bool                      `tfsdk:"mfa"`
 
 	SpecRevision                 types.Int64 `tfsdk:"spec_revision"`
 	ForceDestroy                 types.Bool  `tfsdk:"force_destroy"`
@@ -132,6 +133,7 @@ func (e K8SEnvModel) toSDK(ctx context.Context) (client.CreateK8SEnvInput, clien
 			Metrics:               metrics,
 			MaintenanceWindows:    maintenanceWindows,
 			MetricsEndpoint:       nil,
+			Mfa:                   e.MFA.ValueBoolPointer(),
 		},
 	}
 
@@ -150,6 +152,7 @@ func (e K8SEnvModel) toSDK(ctx context.Context) (client.CreateK8SEnvInput, clien
 			Metrics:               metrics,
 			MaintenanceWindows:    maintenanceWindows,
 			MetricsEndpoint:       nil,
+			Mfa:                   e.MFA.ValueBoolPointer(),
 		},
 	}
 
@@ -184,6 +187,7 @@ func (model *K8SEnvModel) toModel(name string, specRevision int64, spec client.K
 	model.Metrics = metricsToModel(spec.Metrics)
 	model.Distribution = types.StringValue(string(spec.Distribution))
 	model.SpecRevision = types.Int64Value(specRevision)
+	model.MFA = types.BoolValue(spec.Mfa)
 
 	return allDiags
 }

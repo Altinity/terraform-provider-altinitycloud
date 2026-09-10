@@ -41,6 +41,7 @@ type AWSEnvSpecFragment struct {
 	EksLogging                   bool                                     "json:\"eksLogging\" graphql:\"eksLogging\""
 	MetricsEndpoint              AWSEnvSpecFragment_MetricsEndpoint       "json:\"metricsEndpoint\" graphql:\"metricsEndpoint\""
 	Datadog                      AWSEnvSpecFragment_Datadog               "json:\"datadog\" graphql:\"datadog\""
+	Mfa                          bool                                     "json:\"mfa\" graphql:\"mfa\""
 }
 
 func (t *AWSEnvSpecFragment) GetLoadBalancers() *AWSEnvSpecFragment_LoadBalancers {
@@ -187,6 +188,12 @@ func (t *AWSEnvSpecFragment) GetDatadog() *AWSEnvSpecFragment_Datadog {
 	}
 	return &t.Datadog
 }
+func (t *AWSEnvSpecFragment) GetMfa() bool {
+	if t == nil {
+		t = &AWSEnvSpecFragment{}
+	}
+	return t.Mfa
+}
 
 type AWSEnvHostedSpecFragment struct {
 	Region             string                                         "json:\"region\" graphql:\"region\""
@@ -204,6 +211,7 @@ type AWSEnvHostedSpecFragment struct {
 	Iceberg            *AWSEnvHostedSpecFragment_Iceberg              "json:\"iceberg,omitempty\" graphql:\"iceberg\""
 	MetricsEndpoint    AWSEnvHostedSpecFragment_MetricsEndpoint       "json:\"metricsEndpoint\" graphql:\"metricsEndpoint\""
 	Datadog            AWSEnvHostedSpecFragment_Datadog               "json:\"datadog\" graphql:\"datadog\""
+	Mfa                bool                                           "json:\"mfa\" graphql:\"mfa\""
 }
 
 func (t *AWSEnvHostedSpecFragment) GetRegion() string {
@@ -296,6 +304,12 @@ func (t *AWSEnvHostedSpecFragment) GetDatadog() *AWSEnvHostedSpecFragment_Datado
 	}
 	return &t.Datadog
 }
+func (t *AWSEnvHostedSpecFragment) GetMfa() bool {
+	if t == nil {
+		t = &AWSEnvHostedSpecFragment{}
+	}
+	return t.Mfa
+}
 
 type AzureEnvSpecFragment struct {
 	LoadBalancers         AzureEnvSpecFragment_LoadBalancers         "json:\"loadBalancers\" graphql:\"loadBalancers\""
@@ -314,6 +328,7 @@ type AzureEnvSpecFragment struct {
 	CloudConnect          bool                                       "json:\"cloudConnect\" graphql:\"cloudConnect\""
 	MetricsEndpoint       AzureEnvSpecFragment_MetricsEndpoint       "json:\"metricsEndpoint\" graphql:\"metricsEndpoint\""
 	Datadog               AzureEnvSpecFragment_Datadog               "json:\"datadog\" graphql:\"datadog\""
+	Mfa                   bool                                       "json:\"mfa\" graphql:\"mfa\""
 }
 
 func (t *AzureEnvSpecFragment) GetLoadBalancers() *AzureEnvSpecFragment_LoadBalancers {
@@ -412,6 +427,12 @@ func (t *AzureEnvSpecFragment) GetDatadog() *AzureEnvSpecFragment_Datadog {
 	}
 	return &t.Datadog
 }
+func (t *AzureEnvSpecFragment) GetMfa() bool {
+	if t == nil {
+		t = &AzureEnvSpecFragment{}
+	}
+	return t.Mfa
+}
 
 type GCPEnvSpecFragment struct {
 	LoadBalancers           GCPEnvSpecFragment_LoadBalancers         "json:\"loadBalancers\" graphql:\"loadBalancers\""
@@ -430,6 +451,7 @@ type GCPEnvSpecFragment struct {
 	Labels                  []*GCPEnvSpecFragment_Labels             "json:\"labels\" graphql:\"labels\""
 	MetricsEndpoint         GCPEnvSpecFragment_MetricsEndpoint       "json:\"metricsEndpoint\" graphql:\"metricsEndpoint\""
 	Datadog                 GCPEnvSpecFragment_Datadog               "json:\"datadog\" graphql:\"datadog\""
+	Mfa                     bool                                     "json:\"mfa\" graphql:\"mfa\""
 }
 
 func (t *GCPEnvSpecFragment) GetLoadBalancers() *GCPEnvSpecFragment_LoadBalancers {
@@ -528,6 +550,12 @@ func (t *GCPEnvSpecFragment) GetDatadog() *GCPEnvSpecFragment_Datadog {
 	}
 	return &t.Datadog
 }
+func (t *GCPEnvSpecFragment) GetMfa() bool {
+	if t == nil {
+		t = &GCPEnvSpecFragment{}
+	}
+	return t.Mfa
+}
 
 type HCloudEnvSpecFragment struct {
 	LoadBalancers         HCloudEnvSpecFragment_LoadBalancers         "json:\"loadBalancers\" graphql:\"loadBalancers\""
@@ -543,6 +571,7 @@ type HCloudEnvSpecFragment struct {
 	WireguardPeers        []*HCloudEnvSpecFragment_WireguardPeers     "json:\"wireguardPeers\" graphql:\"wireguardPeers\""
 	MetricsEndpoint       HCloudEnvSpecFragment_MetricsEndpoint       "json:\"metricsEndpoint\" graphql:\"metricsEndpoint\""
 	Datadog               HCloudEnvSpecFragment_Datadog               "json:\"datadog\" graphql:\"datadog\""
+	Mfa                   bool                                        "json:\"mfa\" graphql:\"mfa\""
 }
 
 func (t *HCloudEnvSpecFragment) GetLoadBalancers() *HCloudEnvSpecFragment_LoadBalancers {
@@ -623,6 +652,12 @@ func (t *HCloudEnvSpecFragment) GetDatadog() *HCloudEnvSpecFragment_Datadog {
 	}
 	return &t.Datadog
 }
+func (t *HCloudEnvSpecFragment) GetMfa() bool {
+	if t == nil {
+		t = &HCloudEnvSpecFragment{}
+	}
+	return t.Mfa
+}
 
 type K8SEnvSpecFragment struct {
 	LoadBalancers         K8SEnvSpecFragment_LoadBalancers         "json:\"loadBalancers\" graphql:\"loadBalancers\""
@@ -635,6 +670,7 @@ type K8SEnvSpecFragment struct {
 	MaintenanceWindows    []*K8SEnvSpecFragment_MaintenanceWindows "json:\"maintenanceWindows\" graphql:\"maintenanceWindows\""
 	Metrics               K8SEnvSpecFragment_Metrics               "json:\"metrics\" graphql:\"metrics\""
 	Logs                  K8SEnvSpecFragment_Logs                  "json:\"logs\" graphql:\"logs\""
+	Mfa                   bool                                     "json:\"mfa\" graphql:\"mfa\""
 }
 
 func (t *K8SEnvSpecFragment) GetLoadBalancers() *K8SEnvSpecFragment_LoadBalancers {
@@ -696,6 +732,12 @@ func (t *K8SEnvSpecFragment) GetLogs() *K8SEnvSpecFragment_Logs {
 		t = &K8SEnvSpecFragment{}
 	}
 	return &t.Logs
+}
+func (t *K8SEnvSpecFragment) GetMfa() bool {
+	if t == nil {
+		t = &K8SEnvSpecFragment{}
+	}
+	return t.Mfa
 }
 
 type AWSEnvSpecFragment_LoadBalancers_Public struct {
@@ -9315,6 +9357,7 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 		logsEnabled
 		metricsEnabled
 	}
+	mfa
 }
 `
 
@@ -9483,6 +9526,7 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 		logsEnabled
 		metricsEnabled
 	}
+	mfa
 }
 `
 
@@ -9604,6 +9648,7 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 		logsEnabled
 		metricsEnabled
 	}
+	mfa
 }
 `
 
@@ -9734,6 +9779,7 @@ fragment AWSEnvHostedSpecFragment on AWSEnvHostedSpec {
 		logsEnabled
 		metricsEnabled
 	}
+	mfa
 }
 `
 
@@ -9877,6 +9923,7 @@ fragment AWSEnvHostedSpecFragment on AWSEnvHostedSpec {
 		logsEnabled
 		metricsEnabled
 	}
+	mfa
 }
 `
 
@@ -9982,6 +10029,7 @@ fragment AWSEnvHostedSpecFragment on AWSEnvHostedSpec {
 		logsEnabled
 		metricsEnabled
 	}
+	mfa
 }
 `
 
@@ -10087,6 +10135,7 @@ fragment AzureEnvSpecFragment on AzureEnvSpec {
 		logsEnabled
 		metricsEnabled
 	}
+	mfa
 }
 `
 
@@ -10205,6 +10254,7 @@ fragment AzureEnvSpecFragment on AzureEnvSpec {
 		logsEnabled
 		metricsEnabled
 	}
+	mfa
 }
 `
 
@@ -10285,6 +10335,7 @@ fragment AzureEnvSpecFragment on AzureEnvSpec {
 		logsEnabled
 		metricsEnabled
 	}
+	mfa
 }
 `
 
@@ -10391,6 +10442,7 @@ fragment GCPEnvSpecFragment on GCPEnvSpec {
 		logsEnabled
 		metricsEnabled
 	}
+	mfa
 }
 `
 
@@ -10505,6 +10557,7 @@ fragment GCPEnvSpecFragment on GCPEnvSpec {
 		logsEnabled
 		metricsEnabled
 	}
+	mfa
 }
 `
 
@@ -10586,6 +10639,7 @@ fragment GCPEnvSpecFragment on GCPEnvSpec {
 		logsEnabled
 		metricsEnabled
 	}
+	mfa
 }
 `
 
@@ -10687,6 +10741,7 @@ fragment HCloudEnvSpecFragment on HCloudEnvSpec {
 		logsEnabled
 		metricsEnabled
 	}
+	mfa
 }
 `
 
@@ -10796,6 +10851,7 @@ fragment HCloudEnvSpecFragment on HCloudEnvSpec {
 		logsEnabled
 		metricsEnabled
 	}
+	mfa
 }
 `
 
@@ -10872,6 +10928,7 @@ fragment HCloudEnvSpecFragment on HCloudEnvSpec {
 		logsEnabled
 		metricsEnabled
 	}
+	mfa
 }
 `
 
@@ -10992,6 +11049,7 @@ fragment K8SEnvSpecFragment on K8SEnvSpec {
 			}
 		}
 	}
+	mfa
 }
 `
 
@@ -11120,6 +11178,7 @@ fragment K8SEnvSpecFragment on K8SEnvSpec {
 			}
 		}
 	}
+	mfa
 }
 `
 
@@ -11215,6 +11274,7 @@ fragment K8SEnvSpecFragment on K8SEnvSpec {
 			}
 		}
 	}
+	mfa
 }
 `
 

@@ -97,4 +97,5 @@ fragment HCloudEnvSpecFragment on HCloudEnvSpec {
     logsEnabled
     metricsEnabled
   }
+  mfa
 }

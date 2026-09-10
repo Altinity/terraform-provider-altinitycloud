@@ -86,7 +86,8 @@ docs:
 	GOOS=$(OS) GOARCH=$(ARCH) go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs
 
 # The fetched schema is overwritten wholesale, so it must stay byte-identical to
-# GRAPHQL_SCHEMA_URL.
+# GRAPHQL_SCHEMA_URL. It tracks dev while mfa is unreleased; a plain `make sdk` pulls
+# prod and fails codegen until mfa ships there.
 .PHONY: sdk
 sdk:
 	@echo "Fetching GraphQL schema to ${GRAPHQL_SCHEMA_FILE}"
