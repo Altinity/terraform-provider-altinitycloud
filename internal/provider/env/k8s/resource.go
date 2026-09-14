@@ -15,6 +15,7 @@ import (
 
 var _ resource.Resource = &K8SEnvResource{}
 var _ resource.ResourceWithImportState = &K8SEnvResource{}
+var _ resource.ResourceWithValidateConfig = &K8SEnvResource{}
 
 func NewK8SEnvResource() resource.Resource {
 	return &K8SEnvResource{}
@@ -26,6 +27,10 @@ type K8SEnvResource struct {
 
 func (r *K8SEnvResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_env_k8s"
+}
+
+func (r *K8SEnvResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	resp.Diagnostics.Append(common.ValidateNodeGroupNames(ctx, req.Config)...)
 }
 
 func (r *K8SEnvResource) Create(ctx context.Context, req resource.CreateRequest, resp *resource.CreateResponse) {
