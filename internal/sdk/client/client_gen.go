@@ -39,6 +39,7 @@ type AWSEnvSpecFragment struct {
 	Backups                      *AWSEnvSpecFragment_Backups              "json:\"backups,omitempty\" graphql:\"backups\""
 	Iceberg                      *AWSEnvSpecFragment_Iceberg              "json:\"iceberg,omitempty\" graphql:\"iceberg\""
 	EksLogging                   bool                                     "json:\"eksLogging\" graphql:\"eksLogging\""
+	EksAccessEntries             []*AWSEnvSpecFragment_EksAccessEntries   "json:\"eksAccessEntries\" graphql:\"eksAccessEntries\""
 	MetricsEndpoint              AWSEnvSpecFragment_MetricsEndpoint       "json:\"metricsEndpoint\" graphql:\"metricsEndpoint\""
 	Datadog                      AWSEnvSpecFragment_Datadog               "json:\"datadog\" graphql:\"datadog\""
 	Mfa                          bool                                     "json:\"mfa\" graphql:\"mfa\""
@@ -175,6 +176,12 @@ func (t *AWSEnvSpecFragment) GetEksLogging() bool {
 		t = &AWSEnvSpecFragment{}
 	}
 	return t.EksLogging
+}
+func (t *AWSEnvSpecFragment) GetEksAccessEntries() []*AWSEnvSpecFragment_EksAccessEntries {
+	if t == nil {
+		t = &AWSEnvSpecFragment{}
+	}
+	return t.EksAccessEntries
 }
 func (t *AWSEnvSpecFragment) GetMetricsEndpoint() *AWSEnvSpecFragment_MetricsEndpoint {
 	if t == nil {
@@ -1106,6 +1113,24 @@ func (t *AWSEnvSpecFragment_Iceberg) GetCatalogs() []*AWSEnvSpecFragment_Iceberg
 		t = &AWSEnvSpecFragment_Iceberg{}
 	}
 	return t.Catalogs
+}
+
+type AWSEnvSpecFragment_EksAccessEntries struct {
+	AccessLevel  AWSEnvEKSAccessLevel "json:\"accessLevel\" graphql:\"accessLevel\""
+	PrincipalArn string               "json:\"principalARN\" graphql:\"principalARN\""
+}
+
+func (t *AWSEnvSpecFragment_EksAccessEntries) GetAccessLevel() *AWSEnvEKSAccessLevel {
+	if t == nil {
+		t = &AWSEnvSpecFragment_EksAccessEntries{}
+	}
+	return &t.AccessLevel
+}
+func (t *AWSEnvSpecFragment_EksAccessEntries) GetPrincipalArn() string {
+	if t == nil {
+		t = &AWSEnvSpecFragment_EksAccessEntries{}
+	}
+	return t.PrincipalArn
 }
 
 type AWSEnvSpecFragment_MetricsEndpoint struct {
@@ -2877,6 +2902,24 @@ func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Iceberg) GetCatalogs() []*GetA
 	return t.Catalogs
 }
 
+type GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_EksAccessEntries struct {
+	AccessLevel  AWSEnvEKSAccessLevel "json:\"accessLevel\" graphql:\"accessLevel\""
+	PrincipalArn string               "json:\"principalARN\" graphql:\"principalARN\""
+}
+
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_EksAccessEntries) GetAccessLevel() *AWSEnvEKSAccessLevel {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_EksAccessEntries{}
+	}
+	return &t.AccessLevel
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_EksAccessEntries) GetPrincipalArn() string {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_EksAccessEntries{}
+	}
+	return t.PrincipalArn
+}
+
 type GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_MetricsEndpoint struct {
 	Enabled        bool     "json:\"enabled\" graphql:\"enabled\""
 	SourceIPRanges []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
@@ -3474,6 +3517,24 @@ func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg) GetCatalogs(
 	return t.Catalogs
 }
 
+type CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_EksAccessEntries struct {
+	AccessLevel  AWSEnvEKSAccessLevel "json:\"accessLevel\" graphql:\"accessLevel\""
+	PrincipalArn string               "json:\"principalARN\" graphql:\"principalARN\""
+}
+
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_EksAccessEntries) GetAccessLevel() *AWSEnvEKSAccessLevel {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_EksAccessEntries{}
+	}
+	return &t.AccessLevel
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_EksAccessEntries) GetPrincipalArn() string {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_EksAccessEntries{}
+	}
+	return t.PrincipalArn
+}
+
 type CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_MetricsEndpoint struct {
 	Enabled        bool     "json:\"enabled\" graphql:\"enabled\""
 	SourceIPRanges []string "json:\"sourceIPRanges\" graphql:\"sourceIPRanges\""
@@ -3915,6 +3976,24 @@ func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg) GetCatalogs(
 		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Iceberg{}
 	}
 	return t.Catalogs
+}
+
+type UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_EksAccessEntries struct {
+	AccessLevel  AWSEnvEKSAccessLevel "json:\"accessLevel\" graphql:\"accessLevel\""
+	PrincipalArn string               "json:\"principalARN\" graphql:\"principalARN\""
+}
+
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_EksAccessEntries) GetAccessLevel() *AWSEnvEKSAccessLevel {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_EksAccessEntries{}
+	}
+	return &t.AccessLevel
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_EksAccessEntries) GetPrincipalArn() string {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_EksAccessEntries{}
+	}
+	return t.PrincipalArn
 }
 
 type UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_MetricsEndpoint struct {
@@ -9347,6 +9426,10 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 		}
 	}
 	eksLogging
+	eksAccessEntries {
+		principalARN
+		accessLevel
+	}
 	metricsEndpoint {
 		enabled
 		sourceIPRanges
@@ -9516,6 +9599,10 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 		}
 	}
 	eksLogging
+	eksAccessEntries {
+		principalARN
+		accessLevel
+	}
 	metricsEndpoint {
 		enabled
 		sourceIPRanges
@@ -9638,6 +9725,10 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 		}
 	}
 	eksLogging
+	eksAccessEntries {
+		principalARN
+		accessLevel
+	}
 	metricsEndpoint {
 		enabled
 		sourceIPRanges

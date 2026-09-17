@@ -2312,3 +2312,150 @@ func TestReorderIcebergNilSafe(t *testing.T) {
 	reorderIceberg(nil, &sdk.AWSEnvSpecFragment_Iceberg{})
 	reorderIceberg(&AWSEnvIcebergModel{}, nil)
 }
+
+func TestEksAccessEntriesToSDK(t *testing.T) {
+	tests := []struct {
+		name     string
+		entries  []AWSEnvEKSAccessEntryModel
+		expected []*sdk.AWSEnvEKSAccessEntrySpecInput
+	}{
+		{
+			name: "entries are sent on create and update",
+			entries: []AWSEnvEKSAccessEntryModel{
+				{
+					PrincipalArn: types.StringValue("arn:aws:iam::123456789012:role/admin"),
+					AccessLevel:  types.StringValue("ADMIN"),
+				},
+				{
+					PrincipalArn: types.StringValue("arn:aws:iam::123456789012:user/reader"),
+					AccessLevel:  types.StringValue("READ_ONLY"),
+				},
+			},
+			expected: []*sdk.AWSEnvEKSAccessEntrySpecInput{
+				{PrincipalArn: "arn:aws:iam::123456789012:role/admin", AccessLevel: sdk.AWSEnvEKSAccessLevelAdmin},
+				{PrincipalArn: "arn:aws:iam::123456789012:user/reader", AccessLevel: sdk.AWSEnvEKSAccessLevelReadOnly},
+			},
+		},
+		{
+			name:     "omitted entries stay nil so the API keeps them unset",
+			entries:  nil,
+			expected: nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			model := AWSEnvModel{
+				Name:             types.StringValue("test-env"),
+				Region:           types.StringValue("us-east-1"),
+				CIDR:             types.StringValue("10.0.0.0/16"),
+				AWSAccountID:     types.StringValue("123456789012"),
+				Zones:            types.ListValueMust(types.StringType, []attr.Value{types.StringValue("us-east-1a")}),
+				NodeGroups:       []common.NodeGroupsModel{},
+				EksAccessEntries: tt.entries,
+			}
+
+			create, update, diags := model.toSDK(context.Background())
+			if diags.HasError() {
+				t.Fatalf("unexpected diagnostics: %v", diags)
+			}
+
+			for _, got := range []struct {
+				input   string
+				entries []*sdk.AWSEnvEKSAccessEntrySpecInput
+			}{
+				{"create", create.Spec.EksAccessEntries},
+				{"update", update.Spec.EksAccessEntries},
+			} {
+				if len(got.entries) != len(tt.expected) {
+					t.Fatalf("%s entries: expected %d, got %d", got.input, len(tt.expected), len(got.entries))
+				}
+				if tt.expected == nil && got.entries != nil {
+					t.Errorf("%s entries: expected nil, got %v", got.input, got.entries)
+				}
+				for i, want := range tt.expected {
+					if got.entries[i].PrincipalArn != want.PrincipalArn {
+						t.Errorf("%s entry %d principal: expected %q, got %q", got.input, i, want.PrincipalArn, got.entries[i].PrincipalArn)
+					}
+					if got.entries[i].AccessLevel != want.AccessLevel {
+						t.Errorf("%s entry %d access level: expected %q, got %q", got.input, i, want.AccessLevel, got.entries[i].AccessLevel)
+					}
+				}
+			}
+		})
+	}
+}
+
+func TestEksAccessEntriesToModel(t *testing.T) {
+	tests := []struct {
+		name     string
+		entries  []*sdk.AWSEnvSpecFragment_EksAccessEntries
+		expected []AWSEnvEKSAccessEntryModel
+	}{
+		{
+			name: "entries are read back",
+			entries: []*sdk.AWSEnvSpecFragment_EksAccessEntries{
+				{PrincipalArn: "arn:aws:iam::123456789012:role/admin", AccessLevel: sdk.AWSEnvEKSAccessLevelAdmin},
+				{PrincipalArn: "arn:aws:iam::123456789012:role/dev", AccessLevel: sdk.AWSEnvEKSAccessLevelReadWrite},
+			},
+			expected: []AWSEnvEKSAccessEntryModel{
+				{
+					PrincipalArn: types.StringValue("arn:aws:iam::123456789012:role/admin"),
+					AccessLevel:  types.StringValue("ADMIN"),
+				},
+				{
+					PrincipalArn: types.StringValue("arn:aws:iam::123456789012:role/dev"),
+					AccessLevel:  types.StringValue("READ_WRITE"),
+				},
+			},
+		},
+		{
+			// An empty API list must stay nil (null), an empty set would fail the post-apply check.
+			name:     "empty API list stays nil",
+			entries:  []*sdk.AWSEnvSpecFragment_EksAccessEntries{},
+			expected: nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			model := &AWSEnvModel{}
+			diags := model.toModel(sdk.GetAWSEnv_AWSEnv{
+				Name: "test-env",
+				Spec: &sdk.AWSEnvSpecFragment{
+					Cidr:                  "10.0.0.0/16",
+					Region:                "us-east-1",
+					AWSAccountID:          "123456789012",
+					LoadBalancingStrategy: sdk.LoadBalancingStrategyRoundRobin,
+					ResourcePrefix:        "altinity-",
+					Zones:                 []string{"us-east-1a"},
+					NodeGroups:            []*sdk.AWSEnvSpecFragment_NodeGroups{},
+					EksAccessEntries:      tt.entries,
+				},
+				SpecRevision: 1,
+			})
+			if diags.HasError() {
+				t.Fatalf("unexpected diagnostics: %v", diags)
+			}
+
+			if tt.expected == nil {
+				if model.EksAccessEntries != nil {
+					t.Fatalf("expected nil entries, got %v", model.EksAccessEntries)
+				}
+				return
+			}
+
+			if len(model.EksAccessEntries) != len(tt.expected) {
+				t.Fatalf("entries: expected %d, got %d", len(tt.expected), len(model.EksAccessEntries))
+			}
+			for i, want := range tt.expected {
+				if !model.EksAccessEntries[i].PrincipalArn.Equal(want.PrincipalArn) {
+					t.Errorf("entry %d principal: expected %v, got %v", i, want.PrincipalArn, model.EksAccessEntries[i].PrincipalArn)
+				}
+				if !model.EksAccessEntries[i].AccessLevel.Equal(want.AccessLevel) {
+					t.Errorf("entry %d access level: expected %v, got %v", i, want.AccessLevel, model.EksAccessEntries[i].AccessLevel)
+				}
+			}
+		})
+	}
+}
