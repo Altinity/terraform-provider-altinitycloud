@@ -61,6 +61,11 @@ Bring Your Own Cloud (BYOC) AWS environment data source.
 		- `CNAME *.example.com. _.$env_name.altinity.cloud.`
 		- `CNAME *.foo.bar.com. _.$env_name.altinity.cloud.`
 - `datadog` (Attributes) Datadog agent configuration. (see [below for nested schema](#nestedatt--datadog))
+- `eks_access_entries` (Attributes Set) IAM principals granted access to the environment's EKS API (Kubernetes API server). Up to 8 entries.
+
+		The list is authoritative: updating it replaces the entries currently configured, and removing the attribute revokes every entry the provider manages.
+
+		AWS rejects service-linked roles (`arn:aws:iam::123456789012:role/aws-service-role/...`) as EKS access entry principals. (see [below for nested schema](#nestedatt--eks_access_entries))
 - `eks_logging` (Boolean) Enable/Disable EKS control plane logging to CloudWatch (default `false`).
 - `endpoints` (Attributes List) AWS environment VPC endpoint configuration (see [below for nested schema](#nestedatt--endpoints))
 - `external_buckets` (Attributes Set) List of external S3 buckets to allow access to.
@@ -129,6 +134,15 @@ Optional:
 - `enc_api_key` (String, Sensitive) Datadog encrypted API key. Write-only — set to configure or rotate the key.
 - `logs_enabled` (Boolean) Set to `true` to enable ClickHouse log collection, `false` otherwise (default `false`).
 - `metrics_enabled` (Boolean) Set to `true` to enable ClickHouse metrics collection, `false` otherwise (default `false`).
+
+
+<a id="nestedatt--eks_access_entries"></a>
+### Nested Schema for `eks_access_entries`
+
+Required:
+
+- `access_level` (String) Access granted to the principal: `ADMIN` (full cluster administration), `READ_WRITE` (read and write access to namespaced resources) or `READ_ONLY`.
+- `principal_arn` (String) ARN of the IAM role or user to grant access to.
 
 
 <a id="nestedatt--endpoints"></a>

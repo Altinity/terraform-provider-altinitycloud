@@ -37,6 +37,7 @@ type AWSEnvModel struct {
 	MetricsEndpoint              *common.MetricsEndpointModel    `tfsdk:"metrics_endpoint"`
 	Datadog                      *common.DatadogModel            `tfsdk:"datadog"`
 	EksLogging                   types.Bool                      `tfsdk:"eks_logging"`
+	EksAccessEntries             []AWSEnvEKSAccessEntryModel     `tfsdk:"eks_access_entries"`
 
 	SpecRevision                 types.Int64 `tfsdk:"spec_revision"`
 	ForceDestroy                 types.Bool  `tfsdk:"force_destroy"`
@@ -89,6 +90,11 @@ type AWSEnvPeeringConnectionModel struct {
 type AWSEnvExternalBucketModel struct {
 	Name      types.String `tfsdk:"name"`
 	KmsKeyArn types.String `tfsdk:"kms_key_arn"`
+}
+
+type AWSEnvEKSAccessEntryModel struct {
+	PrincipalArn types.String `tfsdk:"principal_arn"`
+	AccessLevel  types.String `tfsdk:"access_level"`
 }
 
 type AWSEnvBackupsModel struct {
@@ -164,6 +170,14 @@ func (e AWSEnvModel) toSDK(ctx context.Context) (sdk.CreateAWSEnvInput, sdk.Upda
 		})
 	}
 
+	var eksAccessEntries []*sdk.AWSEnvEKSAccessEntrySpecInput
+	for _, a := range e.EksAccessEntries {
+		eksAccessEntries = append(eksAccessEntries, &sdk.AWSEnvEKSAccessEntrySpecInput{
+			PrincipalArn: a.PrincipalArn.ValueString(),
+			AccessLevel:  sdk.AWSEnvEKSAccessLevel(a.AccessLevel.ValueString()),
+		})
+	}
+
 	backups := backupsToSDK(e.Backups)
 	maintenanceWindows := common.MaintenanceWindowsToSDK(e.MaintenanceWindows)
 	LoadBalancers := loadBalancersToSDK(e.LoadBalancers)
@@ -205,6 +219,7 @@ func (e AWSEnvModel) toSDK(ctx context.Context) (sdk.CreateAWSEnvInput, sdk.Upda
 			MetricsEndpoint:              metricsEndpoint,
 			Datadog:                      datadog,
 			EksLogging:                   e.EksLogging.ValueBoolPointer(),
+			EksAccessEntries:             eksAccessEntries,
 		},
 	}
 
@@ -231,6 +246,7 @@ func (e AWSEnvModel) toSDK(ctx context.Context) (sdk.CreateAWSEnvInput, sdk.Upda
 			MetricsEndpoint:       metricsEndpoint,
 			Datadog:               datadog,
 			EksLogging:            e.EksLogging.ValueBoolPointer(),
+			EksAccessEntries:      eksAccessEntries,
 		},
 	}
 
@@ -316,6 +332,14 @@ func (model *AWSEnvModel) toModel(env sdk.GetAWSEnv_AWSEnv) diag.Diagnostics {
 		})
 	}
 
+	var eksAccessEntries []AWSEnvEKSAccessEntryModel
+	for _, a := range env.Spec.EksAccessEntries {
+		eksAccessEntries = append(eksAccessEntries, AWSEnvEKSAccessEntryModel{
+			PrincipalArn: types.StringValue(a.PrincipalArn),
+			AccessLevel:  types.StringValue(string(a.AccessLevel)),
+		})
+	}
+
 	reorderIceberg(model.Iceberg, env.Spec.Iceberg)
 
 	backups := backupsToModel(env.Spec.Backups)
@@ -330,6 +354,7 @@ func (model *AWSEnvModel) toModel(env sdk.GetAWSEnv_AWSEnv) diag.Diagnostics {
 	model.SpecRevision = types.Int64Value(env.SpecRevision)
 	model.CloudConnect = types.BoolValue(env.Spec.CloudConnect)
 	model.EksLogging = types.BoolValue(env.Spec.EksLogging)
+	model.EksAccessEntries = eksAccessEntries
 	model.MetricsEndpoint = common.MetricsEndpointToModel(model.MetricsEndpoint, env.Spec.MetricsEndpoint.Enabled, env.Spec.MetricsEndpoint.SourceIPRanges)
 	model.Datadog = common.DatadogToModel(model.Datadog, env.Spec.Datadog.Enabled, env.Spec.Datadog.Domain, env.Spec.Datadog.LogsEnabled, env.Spec.Datadog.MetricsEnabled)
 
