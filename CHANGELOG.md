@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.3](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.8.2...v0.8.3)
+### Added
+- New `mfa` attribute on every environment resource (`altinitycloud_env_aws`, `_gcp`, `_azure`, `_k8s`, `_hcloud`, `_aws_hosted`) and their data sources: `true` requires MFA confirmation for destructive operations on the environment (default `true`). It can be enabled on an existing environment, but cannot be disabled once enabled [#290](https://github.com/Altinity/terraform-provider-altinitycloud/pull/290).
+
+### Changed
+- Bump github.com/vektah/gqlparser/v2 to `2.5.37` [#289](https://github.com/Altinity/terraform-provider-altinitycloud/pull/289).
+
 ## [0.8.2](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.8.1...v0.8.2)
 ### Fixed
 - Provider attributes that are not known until apply (e.g. `api_token` wired from a resource created in the same apply) are now rejected with an `Unknown Provider Configuration` error instead of being read as an empty string and silently falling back to the `ALTINITYCLOUD_API_TOKEN` / `ALTINITYCLOUD_API_URL` environment variables, authenticating against an unintended account [#271](https://github.com/Altinity/terraform-provider-altinitycloud/pull/271).
