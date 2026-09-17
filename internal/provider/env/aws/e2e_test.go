@@ -117,6 +117,17 @@ resource "%s" "dummy" {
     name = "my-external-bucket"
   }]
 
+  eks_access_entries = [
+    {
+      principal_arn = "arn:aws:iam::123456789012:role/platform-admin"
+      access_level  = "ADMIN"
+    },
+    {
+      principal_arn = "arn:aws:iam::123456789012:role/platform-reader"
+      access_level  = "READ_ONLY"
+    },
+  ]
+
   backups = {
     custom_bucket = {
       name     = "my-backup-bucket"

@@ -319,6 +319,16 @@ const DATADOG_METRICS_ENABLED_DESCRIPTION = "Set to `true` to enable ClickHouse 
 // EKS Logging descriptions.
 const EKS_LOGGING_DESCRIPTION = "Enable/Disable EKS control plane logging to CloudWatch (default `false`)."
 
+// EKS access entry descriptions.
+const EKS_ACCESS_ENTRIES_DESCRIPTION = `IAM principals granted access to the environment's EKS API (Kubernetes API server). Up to 8 entries.
+
+		The list is authoritative: updating it replaces the entries currently configured, and removing the attribute revokes every entry the provider manages.
+
+		AWS rejects service-linked roles (` + "`arn:aws:iam::123456789012:role/aws-service-role/...`" + `) as EKS access entry principals.
+`
+const EKS_ACCESS_ENTRY_PRINCIPAL_ARN_DESCRIPTION = "ARN of the IAM role or user to grant access to."
+const EKS_ACCESS_ENTRY_ACCESS_LEVEL_DESCRIPTION = "Access granted to the principal: `ADMIN` (full cluster administration), `READ_WRITE` (read and write access to namespaced resources) or `READ_ONLY`."
+
 // Status verbose descriptions.
 const VERBOSE_DESCRIPTION = "When enabled, prints real-time provisioning progress to the terminal (default `true`). Disable in CI/CD or non-interactive environments."
 
