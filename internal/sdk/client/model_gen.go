@@ -532,10 +532,6 @@ type AWSEnvHostedSpec struct {
 	// ARN of the customer's KMS key for encrypting Altinity-provisioned data buckets
 	// and EBS volumes.
 	KmsKeyArn *string `json:"kmsKeyARN,omitempty"`
-	// ClickHouse clusters.
-	ClickHouseClusters []*ClickHouseClusterSpec `json:"clickHouseClusters"`
-	// ClickHouse Keepers.
-	ClickHouseKeepers []*ClickHouseKeeperSpec `json:"clickHouseKeepers"`
 	// MFA destructive operations.
 	// True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
 	Mfa bool `json:"mfa"`
@@ -610,14 +606,6 @@ type AWSEnvHostedUpdateSpecInput struct {
 	MetricsEndpoint *MetricsEndpointSpecInput `json:"metricsEndpoint,omitempty"`
 	// Datadog monitoring agent configuration.
 	Datadog *DatadogSpecInput `json:"datadog,omitempty"`
-	// Replaces all ClickHouse clusters exposed by this API.
-	ClickHouseClusters []*ClickHouseClusterCreateSpecInput `json:"clickHouseClusters,omitempty"`
-	// Changes ClickHouse clusters exposed by this API. Cannot be combined with clickHouseClusters.
-	ClickHouseClustersPatch *ClickHouseClustersPatchInput `json:"clickHouseClustersPatch,omitempty"`
-	// Replaces all ClickHouse Keepers exposed by this API.
-	ClickHouseKeepers []*ClickHouseKeeperCreateSpecInput `json:"clickHouseKeepers,omitempty"`
-	// Changes ClickHouse Keepers exposed by this API. Cannot be combined with clickHouseKeepers.
-	ClickHouseKeepersPatch *ClickHouseKeepersPatchInput `json:"clickHouseKeepersPatch,omitempty"`
 	// MFA destructive operations.
 	// True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
 	Mfa *bool `json:"mfa,omitempty"`
@@ -919,10 +907,6 @@ type AWSEnvSpec struct {
 	// ARN of the customer's KMS key for encrypting Altinity-provisioned data buckets
 	// and EBS volumes.
 	KmsKeyArn *string `json:"kmsKeyARN,omitempty"`
-	// ClickHouse clusters.
-	ClickHouseClusters []*ClickHouseClusterSpec `json:"clickHouseClusters"`
-	// ClickHouse Keepers.
-	ClickHouseKeepers []*ClickHouseKeeperSpec `json:"clickHouseKeepers"`
 	// MFA destructive operations.
 	// True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
 	Mfa bool `json:"mfa"`
@@ -1013,14 +997,6 @@ type AWSEnvUpdateSpecInput struct {
 	MetricsEndpoint *MetricsEndpointSpecInput `json:"metricsEndpoint,omitempty"`
 	// Datadog monitoring agent configuration.
 	Datadog *DatadogSpecInput `json:"datadog,omitempty"`
-	// Replaces all ClickHouse clusters exposed by this API.
-	ClickHouseClusters []*ClickHouseClusterCreateSpecInput `json:"clickHouseClusters,omitempty"`
-	// Changes ClickHouse clusters exposed by this API. Cannot be combined with clickHouseClusters.
-	ClickHouseClustersPatch *ClickHouseClustersPatchInput `json:"clickHouseClustersPatch,omitempty"`
-	// Replaces all ClickHouse Keepers exposed by this API.
-	ClickHouseKeepers []*ClickHouseKeeperCreateSpecInput `json:"clickHouseKeepers,omitempty"`
-	// Changes ClickHouse Keepers exposed by this API. Cannot be combined with clickHouseKeepers.
-	ClickHouseKeepersPatch *ClickHouseKeepersPatchInput `json:"clickHouseKeepersPatch,omitempty"`
 	// MFA destructive operations.
 	// True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
 	Mfa *bool `json:"mfa,omitempty"`
@@ -1260,10 +1236,6 @@ type AzureEnvSpec struct {
 	MetricsEndpoint *MetricsEndpointSpec `json:"metricsEndpoint"`
 	// Datadog agent configuration.
 	Datadog *DatadogSpec `json:"datadog"`
-	// ClickHouse clusters.
-	ClickHouseClusters []*ClickHouseClusterSpec `json:"clickHouseClusters"`
-	// ClickHouse Keepers.
-	ClickHouseKeepers []*ClickHouseKeeperSpec `json:"clickHouseKeepers"`
 	// MFA destructive operations.
 	// True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
 	Mfa bool `json:"mfa"`
@@ -1279,428 +1251,6 @@ type AzureEnvStatus struct {
 	PendingDelete bool `json:"pendingDelete"`
 	// Status errors.
 	Errors []*EnvStatusError `json:"errors"`
-}
-
-// ClickHouse cluster to create with the environment.
-type ClickHouseClusterCreateSpecInput struct {
-	// Cluster identifier, unique within the environment. 2-15 chars, lowercase alphanumerics and hyphens, must start and end with an alphanumeric. Immutable.
-	Name string `json:"name"`
-	// Topology mode. STANDARD by default. Immutable.
-	Mode *ClickHouseClusterModeSpec `json:"mode,omitempty"`
-	// Server image, tag included. Environments hosted by Altinity accept altinity/clickhouse-server images only.
-	Image string `json:"image"`
-	// Machine type for the cluster nodes. Must match a node group with a CLICKHOUSE reservation.
-	InstanceType string `json:"instanceType"`
-	// Zones the cluster is spread across. All environment zones by default. Immutable.
-	Zones []string `json:"zones,omitempty"`
-	// Number of shards.
-	Shards int64 `json:"shards"`
-	// Number of replicas per shard.
-	Replicas int64 `json:"replicas"`
-	// True to leave the cluster stopped.
-	Stopped *bool `json:"stopped,omitempty"`
-	// Main data volume, named `default`. It cannot be removed later.
-	Disk *ClickHouseDiskCreateSpecInput `json:"disk"`
-	// Extra data volumes beside the main one, each under its own name. 8 maximum.
-	AdditionalDisks []*ClickHouseDiskCreateSpecInput `json:"additionalDisks,omitempty"`
-	// Keeper the cluster coordinates through.
-	Keeper *ClickHouseKeeperSpecInput `json:"keeper"`
-	// Server-level settings applied to every node.
-	Settings []*ClickHouseSettingSpecInput `json:"settings,omitempty"`
-	// Settings profiles users can be assigned to.
-	Profiles []*ClickHouseProfileCreateSpecInput `json:"profiles,omitempty"`
-	// ClickHouse users.
-	Users []*ClickHouseUserSpecInput `json:"users,omitempty"`
-}
-
-// ClickHouse cluster configuration.
-type ClickHouseClusterSpec struct {
-	// Cluster identifier, unique within the environment.
-	Name string `json:"name"`
-	// Topology mode.
-	Mode ClickHouseClusterModeSpec `json:"mode"`
-	// Server image, tag included.
-	Image string `json:"image"`
-	// Machine type the cluster nodes run on.
-	InstanceType string `json:"instanceType"`
-	// Zones the cluster is spread across.
-	Zones []string `json:"zones"`
-	// Number of shards.
-	Shards int64 `json:"shards"`
-	// Number of replicas per shard.
-	Replicas int64 `json:"replicas"`
-	// True when the cluster is kept stopped.
-	Stopped bool `json:"stopped"`
-	// Main data volume.
-	Disk *ClickHouseDiskSpec `json:"disk"`
-	// Extra data volumes beside the main one.
-	AdditionalDisks []*ClickHouseDiskSpec `json:"additionalDisks"`
-	// Keeper this cluster coordinates through. Null when it has none.
-	Keeper *ClickHouseKeeperRefSpec `json:"keeper,omitempty"`
-	// Server-level settings applied to every node.
-	Settings []*ClickHouseSettingSpec `json:"settings"`
-	// Settings profiles users can be assigned to.
-	Profiles []*ClickHouseProfileSpec `json:"profiles"`
-	// ClickHouse users. Passwords are never returned.
-	Users []*ClickHouseUserSpec `json:"users"`
-}
-
-// Partial update for an existing ClickHouse cluster.
-type ClickHouseClusterUpdateSpecInput struct {
-	// Cluster identifier, unique within the environment. Uses the name to find the cluster to update. Immutable.
-	Name string `json:"name"`
-	// Server image, tag included. Environments hosted by Altinity accept altinity/clickhouse-server images only.
-	Image *string `json:"image,omitempty"`
-	// Machine type for the cluster nodes. Must match a node group with a CLICKHOUSE reservation.
-	InstanceType *string `json:"instanceType,omitempty"`
-	// Number of shards.
-	Shards *int64 `json:"shards,omitempty"`
-	// Number of replicas per shard.
-	Replicas *int64 `json:"replicas,omitempty"`
-	// True to keep the cluster stopped.
-	Stopped *bool `json:"stopped,omitempty"`
-	// Main data volume, named `default`. Omit it to leave the volume as it is. It can never be removed.
-	Disk *ClickHouseDiskUpdateSpecInput `json:"disk,omitempty"`
-	// Complete replacement for the extra data volumes collection. Entries are matched by name; new volumes require size, and storageClass can only be set when a volume is created. 8 maximum.
-	AdditionalDisks []*ClickHouseDiskCreateSpecInput `json:"additionalDisks,omitempty"`
-	// Keeper the cluster coordinates through. Omit it to leave the current one attached.
-	Keeper *ClickHouseKeeperSpecInput `json:"keeper,omitempty"`
-	// Complete replacement for the server-level settings collection.
-	Settings []*ClickHouseSettingSpecInput `json:"settings,omitempty"`
-	// Explicit server-level settings changes. Cannot be combined with settings.
-	SettingsPatch *ClickHouseSettingsPatchInput `json:"settingsPatch,omitempty"`
-	// Complete replacement for the settings profiles collection.
-	Profiles []*ClickHouseProfileCreateSpecInput `json:"profiles,omitempty"`
-	// Explicit settings profile changes. Cannot be combined with profiles.
-	ProfilesPatch *ClickHouseProfilesPatchInput `json:"profilesPatch,omitempty"`
-	// Complete replacement for the ClickHouse users collection.
-	Users []*ClickHouseUserSpecInput `json:"users,omitempty"`
-	// Explicit ClickHouse user changes. Cannot be combined with users.
-	UsersPatch *ClickHouseUsersPatchInput `json:"usersPatch,omitempty"`
-}
-
-// Explicit changes to an environment's ClickHouse cluster collection.
-type ClickHouseClustersPatchInput struct {
-	// Clusters to create. Each name must not already exist.
-	Create []*ClickHouseClusterCreateSpecInput `json:"create,omitempty"`
-	// Clusters to update. Each name must already exist.
-	Update []*ClickHouseClusterUpdateSpecInput `json:"update,omitempty"`
-	// Cluster names to delete. Missing names are ignored.
-	Delete []string `json:"delete,omitempty"`
-}
-
-// Data volume to create. The underlying volume is always deleted along with the
-// resource that owns it.
-type ClickHouseDiskCreateSpecInput struct {
-	// Volume identifier. `default` for a cluster's main volume and for a Keeper volume. An extra volume must start with `disk` and cannot exceed 16 characters. Immutable.
-	Name string `json:"name"`
-	// Size in GiB. Required: a volume is sized once and can only ever grow. 10240 maximum on Hetzner Cloud.
-	Size *int64 `json:"size,omitempty"`
-	// Storage class backing the volume. Environment default when omitted. Immutable.
-	StorageClass *string `json:"storageClass,omitempty"`
-	// Provisioned IOPS. Honored only by storage classes that support it, such as AWS gp3 and io2.
-	Iops *int64 `json:"iops,omitempty"`
-	// Provisioned throughput in MiB/s. Honored only by storage classes that support it, such as AWS gp3.
-	Throughput *int64 `json:"throughput,omitempty"`
-}
-
-// ClickHouse data volume.
-type ClickHouseDiskSpec struct {
-	// Volume identifier. `default` for a cluster's main volume and for a Keeper volume.
-	Name string `json:"name"`
-	// Size in GiB.
-	Size int64 `json:"size"`
-	// Storage class backing the volume. Empty when the environment default is used.
-	StorageClass string `json:"storageClass"`
-	// Provisioned IOPS. 0 when not set.
-	Iops int64 `json:"iops"`
-	// Provisioned throughput in MiB/s. 0 when not set.
-	Throughput int64 `json:"throughput"`
-}
-
-// Partial update for an existing data volume.
-//
-// The storage class is immutable and so cannot be changed here.
-type ClickHouseDiskUpdateSpecInput struct {
-	// Volume identifier. `default` for a cluster's main volume and for a Keeper volume. An extra volume must start with `disk` and cannot exceed 16 characters. Immutable.
-	Name string `json:"name"`
-	// Size in GiB. Can only be increased, never decreased.
-	Size *int64 `json:"size,omitempty"`
-	// Provisioned IOPS. Honored only by storage classes that support it, such as AWS gp3 and io2.
-	Iops *int64 `json:"iops,omitempty"`
-	// Provisioned throughput in MiB/s. Honored only by storage classes that support it, such as AWS gp3.
-	Throughput *int64 `json:"throughput,omitempty"`
-}
-
-// ClickHouse Keeper to create with the environment.
-type ClickHouseKeeperCreateSpecInput struct {
-	// Keeper identifier, unique within the environment. 2-15 chars, lowercase alphanumerics and hyphens, must start and end with an alphanumeric. Immutable.
-	Name string `json:"name"`
-	// Machine type for the Keeper nodes. Must match a node group with a ZOOKEEPER reservation.
-	InstanceType string `json:"instanceType"`
-	// Zones the Keeper is spread across. All environment zones by default. Immutable.
-	Zones []string `json:"zones,omitempty"`
-	// True for a 3-node highly-available ensemble, false for a single node. True by default.
-	Ha *bool `json:"ha,omitempty"`
-	// True to leave the Keeper stopped.
-	Stopped *bool `json:"stopped,omitempty"`
-	// Data volume, named `default`.
-	Disk *ClickHouseDiskCreateSpecInput `json:"disk"`
-}
-
-// Reference to the Keeper a cluster coordinates through.
-type ClickHouseKeeperRefSpec struct {
-	// Name of the Keeper in this environment.
-	Name string `json:"name"`
-}
-
-// ClickHouse Keeper configuration.
-type ClickHouseKeeperSpec struct {
-	// Keeper identifier, unique within the environment.
-	Name string `json:"name"`
-	// Machine type the Keeper nodes run on.
-	InstanceType string `json:"instanceType"`
-	// Zones the Keeper is spread across.
-	Zones []string `json:"zones"`
-	// True when the Keeper is a 3-node highly-available ensemble.
-	Ha bool `json:"ha"`
-	// True when the Keeper is kept stopped.
-	Stopped bool `json:"stopped"`
-	// Data volume.
-	Disk *ClickHouseDiskSpec `json:"disk"`
-}
-
-// Whether a cluster coordinates through a Keeper.
-type ClickHouseKeeperSpecInput struct {
-	// Whether the cluster coordinates through a Keeper.
-	Enabled bool `json:"enabled"`
-	// Name of a Keeper in this environment, created by this request or already present. Ignored when enabled is false, which clears any name already stored.
-	Name string `json:"name"`
-}
-
-// Partial update for an existing ClickHouse Keeper.
-type ClickHouseKeeperUpdateSpecInput struct {
-	// Keeper identifier, unique within the environment. The Keeper must already exist.
-	Name string `json:"name"`
-	// Machine type for the Keeper nodes. Must match a node group with a ZOOKEEPER reservation.
-	InstanceType *string `json:"instanceType,omitempty"`
-	// True for a 3-node highly-available ensemble, false for a single node. It can only be turned on: an ensemble already running as HA cannot be shrunk back to a single node.
-	Ha *bool `json:"ha,omitempty"`
-	// True to keep the Keeper stopped.
-	Stopped *bool `json:"stopped,omitempty"`
-	// Data volume, named `default`.
-	Disk *ClickHouseDiskUpdateSpecInput `json:"disk,omitempty"`
-}
-
-// Explicit changes to an environment's ClickHouse Keeper collection.
-type ClickHouseKeepersPatchInput struct {
-	// Keepers to create. Each name must not already exist.
-	Create []*ClickHouseKeeperCreateSpecInput `json:"create,omitempty"`
-	// Keepers to update. Each name must already exist.
-	Update []*ClickHouseKeeperUpdateSpecInput `json:"update,omitempty"`
-	// Keeper names to delete. Missing names are ignored.
-	Delete []string `json:"delete,omitempty"`
-}
-
-// Settings profile to create with the cluster.
-type ClickHouseProfileCreateSpecInput struct {
-	// Profile name, unique within the cluster. Referenced by a user's profile field.
-	Name string `json:"name"`
-	// Settings the profile carries.
-	Settings []*ClickHouseSettingSpecInput `json:"settings,omitempty"`
-}
-
-// ClickHouse settings profile.
-type ClickHouseProfileSpec struct {
-	// Profile name, unique within the cluster.
-	Name string `json:"name"`
-	// Settings the profile carries.
-	Settings []*ClickHouseSettingSpec `json:"settings"`
-}
-
-// Partial update for an existing ClickHouse settings profile.
-type ClickHouseProfileUpdateSpecInput struct {
-	// Profile name, unique within the cluster. Referenced by a user's profile field.
-	Name string `json:"name"`
-	// Complete replacement for the profile settings collection.
-	Settings []*ClickHouseSettingSpecInput `json:"settings,omitempty"`
-	// Explicit profile setting changes. Cannot be combined with settings.
-	SettingsPatch *ClickHouseSettingsPatchInput `json:"settingsPatch,omitempty"`
-}
-
-// Explicit changes to a ClickHouse settings profile collection.
-type ClickHouseProfilesPatchInput struct {
-	// Profiles to create. Each name must not already exist.
-	Create []*ClickHouseProfileCreateSpecInput `json:"create,omitempty"`
-	// Profiles to update. Each name must already exist.
-	Update []*ClickHouseProfileUpdateSpecInput `json:"update,omitempty"`
-	// Profile names to delete. Missing names are ignored.
-	Delete []string `json:"delete,omitempty"`
-}
-
-// Reference to a key of a Kubernetes secret in the environment's namespace.
-type ClickHouseSecretRefSpec struct {
-	// Secret name.
-	Name string `json:"name"`
-	// Key within the secret.
-	Key string `json:"key"`
-}
-
-// Reference to a key of a Kubernetes secret in the environment's namespace. The
-// secret must already exist; the platform never creates it.
-type ClickHouseSecretRefSpecInput struct {
-	// Secret name.
-	Name string `json:"name"`
-	// Key within the secret.
-	Key string `json:"key"`
-}
-
-// A single ClickHouse setting.
-type ClickHouseSettingSpec struct {
-	// Setting name.
-	Key string `json:"key"`
-	// Literal value. Empty when the value comes from a secret.
-	Value string `json:"value"`
-	// Secret the value is read from, when it is not stored in the spec.
-	ValueFromSecret *ClickHouseSecretRefSpec `json:"valueFromSecret,omitempty"`
-}
-
-// A single ClickHouse setting. value and valueFromSecret are mutually exclusive.
-type ClickHouseSettingSpecInput struct {
-	// Setting name, for example max_concurrent_queries.
-	Key string `json:"key"`
-	// Literal value.
-	Value *string `json:"value,omitempty"`
-	// Value read from a Kubernetes secret instead of being stored in the spec.
-	ValueFromSecret *ClickHouseSecretRefSpecInput `json:"valueFromSecret,omitempty"`
-}
-
-// Explicit changes to a ClickHouse settings collection.
-type ClickHouseSettingsPatchInput struct {
-	// Creates missing settings or updates existing settings. Omitted value sources are preserved on existing settings.
-	Upsert []*ClickHouseSettingSpecInput `json:"upsert,omitempty"`
-	// Setting keys to delete. Missing keys are ignored.
-	Delete []string `json:"delete,omitempty"`
-}
-
-// New ClickHouse user. Requires a password digest or secret reference.
-type ClickHouseUserCreateSpecInput struct {
-	// User name, unique within the cluster. grafana and datadog are reserved for platform-injected users and are rejected.
-	Name string `json:"name"`
-	// Settings profile assigned to this user. Must be a profile of this cluster or one ClickHouse ships with.
-	Profile *string `json:"profile,omitempty"`
-	// Quota assigned to this user.
-	Quota *string `json:"quota,omitempty"`
-	// CIDRs the user may connect from. Unrestricted when omitted.
-	AllowedCIDRs []string `json:"allowedCIDRs,omitempty"`
-	// Databases the user is granted access to. All databases when omitted.
-	Databases []string `json:"databases,omitempty"`
-	// True to let the user manage access control: roles, users, grants.
-	AccessManagement *bool `json:"accessManagement,omitempty"`
-	// True to let the user create and drop named collections.
-	NamedCollectionControl *bool `json:"namedCollectionControl,omitempty"`
-	// True to let the user list named collections.
-	ShowNamedCollections *bool `json:"showNamedCollections,omitempty"`
-	// True to let the user read secrets stored in named collections.
-	ShowNamedCollectionsSecrets *bool `json:"showNamedCollectionsSecrets,omitempty"`
-	// Form the password is supplied in. Required whenever a password value is set.
-	PasswordType ClickHouseUserPasswordTypeSpecInput `json:"passwordType"`
-	// Password digest, in the form declared by passwordType.
-	PasswordValue *string `json:"passwordValue,omitempty"`
-	// Password digest read from a Kubernetes secret, as an alternative to passwordValue.
-	PasswordValueFromSecret *ClickHouseSecretRefSpecInput `json:"passwordValueFromSecret,omitempty"`
-}
-
-// ClickHouse user. Passwords are never returned, only the form they are held in.
-type ClickHouseUserSpec struct {
-	// User name, unique within the cluster.
-	Name string `json:"name"`
-	// Settings profile assigned to this user.
-	Profile string `json:"profile"`
-	// Quota assigned to this user.
-	Quota string `json:"quota"`
-	// CIDRs the user may connect from. Empty when unrestricted.
-	AllowedCIDRs []string `json:"allowedCIDRs"`
-	// Databases the user is granted access to. Empty when all are granted.
-	Databases []string `json:"databases"`
-	// True when the user can manage access control: roles, users, grants.
-	AccessManagement bool `json:"accessManagement"`
-	// True when the user can create and drop named collections.
-	NamedCollectionControl bool `json:"namedCollectionControl"`
-	// True when the user can list named collections.
-	ShowNamedCollections bool `json:"showNamedCollections"`
-	// True when the user can read secrets stored in named collections.
-	ShowNamedCollectionsSecrets bool `json:"showNamedCollectionsSecrets"`
-	// Form the password is held in. Null when the user has no password.
-	PasswordType *ClickHouseUserPasswordTypeSpec `json:"passwordType,omitempty"`
-	// Secret the password is read from, when it is not stored in the spec.
-	PasswordValueFromSecret *ClickHouseSecretRefSpec `json:"passwordValueFromSecret,omitempty"`
-}
-
-// ClickHouse user specification used for creation or update.
-type ClickHouseUserSpecInput struct {
-	// User name, unique within the cluster. grafana and datadog are reserved for platform-injected users and are rejected.
-	Name string `json:"name"`
-	// Settings profile assigned to this user. Must be a profile of this cluster or one ClickHouse ships with.
-	Profile *string `json:"profile,omitempty"`
-	// Quota assigned to this user.
-	Quota *string `json:"quota,omitempty"`
-	// CIDRs the user may connect from. Unrestricted when omitted.
-	AllowedCIDRs []string `json:"allowedCIDRs,omitempty"`
-	// Databases the user is granted access to. All databases when omitted.
-	Databases []string `json:"databases,omitempty"`
-	// True to let the user manage access control: roles, users, grants.
-	AccessManagement *bool `json:"accessManagement,omitempty"`
-	// True to let the user create and drop named collections.
-	NamedCollectionControl *bool `json:"namedCollectionControl,omitempty"`
-	// True to let the user list named collections.
-	ShowNamedCollections *bool `json:"showNamedCollections,omitempty"`
-	// True to let the user read secrets stored in named collections.
-	ShowNamedCollectionsSecrets *bool `json:"showNamedCollectionsSecrets,omitempty"`
-	// Form the password is supplied in. Required whenever a password value is set.
-	PasswordType *ClickHouseUserPasswordTypeSpecInput `json:"passwordType,omitempty"`
-	// Password digest, in the form declared by passwordType.
-	PasswordValue *string `json:"passwordValue,omitempty"`
-	// Password digest read from a Kubernetes secret, as an alternative to passwordValue.
-	PasswordValueFromSecret *ClickHouseSecretRefSpecInput `json:"passwordValueFromSecret,omitempty"`
-}
-
-// Partial update for an existing ClickHouse user. Omitted fields retain their current values, including credentials.
-type ClickHouseUserUpdateSpecInput struct {
-	// User name, unique within the cluster. grafana and datadog are reserved for platform-injected users and are rejected.
-	Name string `json:"name"`
-	// Settings profile assigned to this user. Must be a profile of this cluster or one ClickHouse ships with.
-	Profile *string `json:"profile,omitempty"`
-	// Quota assigned to this user.
-	Quota *string `json:"quota,omitempty"`
-	// CIDRs the user may connect from. Unchanged when omitted.
-	AllowedCIDRs []string `json:"allowedCIDRs,omitempty"`
-	// Databases the user is granted access to. Unchanged when omitted.
-	Databases []string `json:"databases,omitempty"`
-	// True to let the user manage access control: roles, users, grants.
-	AccessManagement *bool `json:"accessManagement,omitempty"`
-	// True to let the user create and drop named collections.
-	NamedCollectionControl *bool `json:"namedCollectionControl,omitempty"`
-	// True to let the user list named collections.
-	ShowNamedCollections *bool `json:"showNamedCollections,omitempty"`
-	// True to let the user read secrets stored in named collections.
-	ShowNamedCollectionsSecrets *bool `json:"showNamedCollectionsSecrets,omitempty"`
-	// Form the password is supplied in. Required whenever a password value is set.
-	PasswordType *ClickHouseUserPasswordTypeSpecInput `json:"passwordType,omitempty"`
-	// Password digest, in the form declared by passwordType.
-	PasswordValue *string `json:"passwordValue,omitempty"`
-	// Password digest read from a Kubernetes secret, as an alternative to passwordValue.
-	PasswordValueFromSecret *ClickHouseSecretRefSpecInput `json:"passwordValueFromSecret,omitempty"`
-}
-
-// Explicit changes to a ClickHouse user collection.
-type ClickHouseUsersPatchInput struct {
-	// Users to create. Each name must not already exist.
-	Create []*ClickHouseUserCreateSpecInput `json:"create,omitempty"`
-	// Users to update. Each name must already exist.
-	Update []*ClickHouseUserUpdateSpecInput `json:"update,omitempty"`
-	// User names to delete. Missing names are ignored.
-	Delete []string `json:"delete,omitempty"`
 }
 
 // Environment code output.
@@ -1803,10 +1353,6 @@ type CreateAWSEnvHostedSpecInput struct {
 	// ARN of the customer's KMS key for encrypting Altinity-provisioned data buckets
 	// and EBS volumes.
 	KmsKeyArn *string `json:"kmsKeyARN,omitempty"`
-	// ClickHouse clusters to create.
-	ClickHouseClusters []*ClickHouseClusterCreateSpecInput `json:"clickHouseClusters,omitempty"`
-	// ClickHouse Keepers to create.
-	ClickHouseKeepers []*ClickHouseKeeperCreateSpecInput `json:"clickHouseKeepers,omitempty"`
 	// MFA destructive operations.
 	// True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
 	Mfa *bool `json:"mfa,omitempty"`
@@ -1947,10 +1493,6 @@ type CreateAWSEnvSpecInput struct {
 	// ARN of the customer's KMS key for encrypting Altinity-provisioned data buckets
 	// and EBS volumes.
 	KmsKeyArn *string `json:"kmsKeyARN,omitempty"`
-	// ClickHouse clusters to create.
-	ClickHouseClusters []*ClickHouseClusterCreateSpecInput `json:"clickHouseClusters,omitempty"`
-	// ClickHouse Keepers to create.
-	ClickHouseKeepers []*ClickHouseKeeperCreateSpecInput `json:"clickHouseKeepers,omitempty"`
 	// MFA destructive operations.
 	// True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
 	Mfa *bool `json:"mfa,omitempty"`
@@ -2070,10 +1612,6 @@ type CreateAzureEnvSpecInput struct {
 	MetricsEndpoint *MetricsEndpointSpecInput `json:"metricsEndpoint,omitempty"`
 	// Datadog monitoring agent configuration.
 	Datadog *DatadogSpecInput `json:"datadog,omitempty"`
-	// ClickHouse clusters to create.
-	ClickHouseClusters []*ClickHouseClusterCreateSpecInput `json:"clickHouseClusters,omitempty"`
-	// ClickHouse Keepers to create.
-	ClickHouseKeepers []*ClickHouseKeeperCreateSpecInput `json:"clickHouseKeepers,omitempty"`
 	// MFA destructive operations.
 	// True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
 	Mfa *bool `json:"mfa,omitempty"`
@@ -2191,10 +1729,6 @@ type CreateGCPEnvSpecInput struct {
 	MetricsEndpoint *MetricsEndpointSpecInput `json:"metricsEndpoint,omitempty"`
 	// Datadog monitoring agent configuration.
 	Datadog *DatadogSpecInput `json:"datadog,omitempty"`
-	// ClickHouse clusters to create.
-	ClickHouseClusters []*ClickHouseClusterCreateSpecInput `json:"clickHouseClusters,omitempty"`
-	// ClickHouse Keepers to create.
-	ClickHouseKeepers []*ClickHouseKeeperCreateSpecInput `json:"clickHouseKeepers,omitempty"`
 	// MFA destructive operations.
 	// True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
 	Mfa *bool `json:"mfa,omitempty"`
@@ -2296,10 +1830,6 @@ type CreateHCloudEnvSpecInput struct {
 	MetricsEndpoint *MetricsEndpointSpecInput `json:"metricsEndpoint,omitempty"`
 	// Datadog monitoring agent configuration.
 	Datadog *DatadogSpecInput `json:"datadog,omitempty"`
-	// ClickHouse clusters to create.
-	ClickHouseClusters []*ClickHouseClusterCreateSpecInput `json:"clickHouseClusters,omitempty"`
-	// ClickHouse Keepers to create.
-	ClickHouseKeepers []*ClickHouseKeeperCreateSpecInput `json:"clickHouseKeepers,omitempty"`
 	// MFA destructive operations.
 	// True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
 	Mfa *bool `json:"mfa,omitempty"`
@@ -2382,10 +1912,6 @@ type CreateK8SEnvSpecInput struct {
 	MetricsEndpoint *MetricsEndpointSpecInput `json:"metricsEndpoint,omitempty"`
 	// Datadog monitoring agent configuration.
 	Datadog *DatadogSpecInput `json:"datadog,omitempty"`
-	// ClickHouse clusters to create.
-	ClickHouseClusters []*ClickHouseClusterCreateSpecInput `json:"clickHouseClusters,omitempty"`
-	// ClickHouse Keepers to create.
-	ClickHouseKeepers []*ClickHouseKeeperCreateSpecInput `json:"clickHouseKeepers,omitempty"`
 	// MFA destructive operations.
 	// True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
 	Mfa *bool `json:"mfa,omitempty"`
@@ -2803,10 +2329,6 @@ type GCPEnvSpec struct {
 	MetricsEndpoint *MetricsEndpointSpec `json:"metricsEndpoint"`
 	// Datadog agent configuration.
 	Datadog *DatadogSpec `json:"datadog"`
-	// ClickHouse clusters.
-	ClickHouseClusters []*ClickHouseClusterSpec `json:"clickHouseClusters"`
-	// ClickHouse Keepers.
-	ClickHouseKeepers []*ClickHouseKeeperSpec `json:"clickHouseKeepers"`
 	// MFA destructive operations.
 	// True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
 	Mfa bool `json:"mfa"`
@@ -3016,10 +2538,6 @@ type HCloudEnvSpec struct {
 	MetricsEndpoint *MetricsEndpointSpec `json:"metricsEndpoint"`
 	// Datadog agent configuration.
 	Datadog *DatadogSpec `json:"datadog"`
-	// ClickHouse clusters.
-	ClickHouseClusters []*ClickHouseClusterSpec `json:"clickHouseClusters"`
-	// ClickHouse Keepers.
-	ClickHouseKeepers []*ClickHouseKeeperSpec `json:"clickHouseKeepers"`
 	// MFA destructive operations.
 	// True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
 	Mfa bool `json:"mfa"`
@@ -3427,10 +2945,6 @@ type K8SEnvSpec struct {
 	MetricsEndpoint *MetricsEndpointSpec `json:"metricsEndpoint"`
 	// Datadog agent configuration.
 	Datadog *DatadogSpec `json:"datadog"`
-	// ClickHouse clusters.
-	ClickHouseClusters []*ClickHouseClusterSpec `json:"clickHouseClusters"`
-	// ClickHouse Keepers.
-	ClickHouseKeepers []*ClickHouseKeeperSpec `json:"clickHouseKeepers"`
 	// MFA destructive operations.
 	// True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
 	Mfa bool `json:"mfa"`
@@ -3702,14 +3216,6 @@ type UpdateAzureEnvSpecInput struct {
 	MetricsEndpoint *MetricsEndpointSpecInput `json:"metricsEndpoint,omitempty"`
 	// Datadog monitoring agent configuration.
 	Datadog *DatadogSpecInput `json:"datadog,omitempty"`
-	// Replaces all ClickHouse clusters exposed by this API.
-	ClickHouseClusters []*ClickHouseClusterCreateSpecInput `json:"clickHouseClusters,omitempty"`
-	// Changes ClickHouse clusters exposed by this API. Cannot be combined with clickHouseClusters.
-	ClickHouseClustersPatch *ClickHouseClustersPatchInput `json:"clickHouseClustersPatch,omitempty"`
-	// Replaces all ClickHouse Keepers exposed by this API.
-	ClickHouseKeepers []*ClickHouseKeeperCreateSpecInput `json:"clickHouseKeepers,omitempty"`
-	// Changes ClickHouse Keepers exposed by this API. Cannot be combined with clickHouseKeepers.
-	ClickHouseKeepersPatch *ClickHouseKeepersPatchInput `json:"clickHouseKeepersPatch,omitempty"`
 	// MFA destructive operations.
 	// True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
 	Mfa *bool `json:"mfa,omitempty"`
@@ -3799,14 +3305,6 @@ type UpdateGCPEnvSpecInput struct {
 	Labels []*KeyValueInput `json:"labels,omitempty"`
 	// Datadog monitoring agent configuration.
 	Datadog *DatadogSpecInput `json:"datadog,omitempty"`
-	// Replaces all ClickHouse clusters exposed by this API.
-	ClickHouseClusters []*ClickHouseClusterCreateSpecInput `json:"clickHouseClusters,omitempty"`
-	// Changes ClickHouse clusters exposed by this API. Cannot be combined with clickHouseClusters.
-	ClickHouseClustersPatch *ClickHouseClustersPatchInput `json:"clickHouseClustersPatch,omitempty"`
-	// Replaces all ClickHouse Keepers exposed by this API.
-	ClickHouseKeepers []*ClickHouseKeeperCreateSpecInput `json:"clickHouseKeepers,omitempty"`
-	// Changes ClickHouse Keepers exposed by this API. Cannot be combined with clickHouseKeepers.
-	ClickHouseKeepersPatch *ClickHouseKeepersPatchInput `json:"clickHouseKeepersPatch,omitempty"`
 	// MFA destructive operations.
 	// True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
 	Mfa *bool `json:"mfa,omitempty"`
@@ -3886,14 +3384,6 @@ type UpdateHCloudEnvSpecInput struct {
 	MetricsEndpoint *MetricsEndpointSpecInput `json:"metricsEndpoint,omitempty"`
 	// Datadog monitoring agent configuration.
 	Datadog *DatadogSpecInput `json:"datadog,omitempty"`
-	// Replaces all ClickHouse clusters exposed by this API.
-	ClickHouseClusters []*ClickHouseClusterCreateSpecInput `json:"clickHouseClusters,omitempty"`
-	// Changes ClickHouse clusters exposed by this API. Cannot be combined with clickHouseClusters.
-	ClickHouseClustersPatch *ClickHouseClustersPatchInput `json:"clickHouseClustersPatch,omitempty"`
-	// Replaces all ClickHouse Keepers exposed by this API.
-	ClickHouseKeepers []*ClickHouseKeeperCreateSpecInput `json:"clickHouseKeepers,omitempty"`
-	// Changes ClickHouse Keepers exposed by this API. Cannot be combined with clickHouseKeepers.
-	ClickHouseKeepersPatch *ClickHouseKeepersPatchInput `json:"clickHouseKeepersPatch,omitempty"`
 	// MFA destructive operations.
 	// True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
 	Mfa *bool `json:"mfa,omitempty"`
@@ -3971,14 +3461,6 @@ type UpdateK8SEnvSpecInput struct {
 	MetricsEndpoint *MetricsEndpointSpecInput `json:"metricsEndpoint,omitempty"`
 	// Datadog monitoring agent configuration.
 	Datadog *DatadogSpecInput `json:"datadog,omitempty"`
-	// Replaces all ClickHouse clusters exposed by this API.
-	ClickHouseClusters []*ClickHouseClusterCreateSpecInput `json:"clickHouseClusters,omitempty"`
-	// Changes ClickHouse clusters exposed by this API. Cannot be combined with clickHouseClusters.
-	ClickHouseClustersPatch *ClickHouseClustersPatchInput `json:"clickHouseClustersPatch,omitempty"`
-	// Replaces all ClickHouse Keepers exposed by this API.
-	ClickHouseKeepers []*ClickHouseKeeperCreateSpecInput `json:"clickHouseKeepers,omitempty"`
-	// Changes ClickHouse Keepers exposed by this API. Cannot be combined with clickHouseKeepers.
-	ClickHouseKeepersPatch *ClickHouseKeepersPatchInput `json:"clickHouseKeepersPatch,omitempty"`
 	// MFA destructive operations.
 	// True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
 	Mfa *bool `json:"mfa,omitempty"`
@@ -4210,183 +3692,6 @@ func (e *AWSEnvHostedIcebergCatalogTypeSpec) UnmarshalJSON(b []byte) error {
 }
 
 func (e AWSEnvHostedIcebergCatalogTypeSpec) MarshalJSON() ([]byte, error) {
-	var buf bytes.Buffer
-	e.MarshalGQL(&buf)
-	return buf.Bytes(), nil
-}
-
-// ClickHouse cluster topology mode.
-type ClickHouseClusterModeSpec string
-
-const (
-	// Regular cluster whose nodes hold data.
-	ClickHouseClusterModeSpecStandard ClickHouseClusterModeSpec = "STANDARD"
-	// Nodes are labelled as swarm workers and shards reconcile fully in parallel.
-	ClickHouseClusterModeSpecSwarm ClickHouseClusterModeSpec = "SWARM"
-)
-
-var AllClickHouseClusterModeSpec = []ClickHouseClusterModeSpec{
-	ClickHouseClusterModeSpecStandard,
-	ClickHouseClusterModeSpecSwarm,
-}
-
-func (e ClickHouseClusterModeSpec) IsValid() bool {
-	switch e {
-	case ClickHouseClusterModeSpecStandard, ClickHouseClusterModeSpecSwarm:
-		return true
-	}
-	return false
-}
-
-func (e ClickHouseClusterModeSpec) String() string {
-	return string(e)
-}
-
-func (e *ClickHouseClusterModeSpec) UnmarshalGQL(v any) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = ClickHouseClusterModeSpec(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid ClickHouseClusterModeSpec", str)
-	}
-	return nil
-}
-
-func (e ClickHouseClusterModeSpec) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
-func (e *ClickHouseClusterModeSpec) UnmarshalJSON(b []byte) error {
-	s, err := strconv.Unquote(string(b))
-	if err != nil {
-		return err
-	}
-	return e.UnmarshalGQL(s)
-}
-
-func (e ClickHouseClusterModeSpec) MarshalJSON() ([]byte, error) {
-	var buf bytes.Buffer
-	e.MarshalGQL(&buf)
-	return buf.Bytes(), nil
-}
-
-// Form a user's password is held in.
-type ClickHouseUserPasswordTypeSpec string
-
-const (
-	// Clear-text password. Set outside this API; it cannot be supplied here.
-	ClickHouseUserPasswordTypeSpecPlainText ClickHouseUserPasswordTypeSpec = "PLAIN_TEXT"
-	// SHA-256 digest, hex encoded.
-	ClickHouseUserPasswordTypeSpecSha256Hex ClickHouseUserPasswordTypeSpec = "SHA256_HEX"
-	// Double SHA-1 digest, hex encoded.
-	ClickHouseUserPasswordTypeSpecDoubleSha1Hex ClickHouseUserPasswordTypeSpec = "DOUBLE_SHA1_HEX"
-)
-
-var AllClickHouseUserPasswordTypeSpec = []ClickHouseUserPasswordTypeSpec{
-	ClickHouseUserPasswordTypeSpecPlainText,
-	ClickHouseUserPasswordTypeSpecSha256Hex,
-	ClickHouseUserPasswordTypeSpecDoubleSha1Hex,
-}
-
-func (e ClickHouseUserPasswordTypeSpec) IsValid() bool {
-	switch e {
-	case ClickHouseUserPasswordTypeSpecPlainText, ClickHouseUserPasswordTypeSpecSha256Hex, ClickHouseUserPasswordTypeSpecDoubleSha1Hex:
-		return true
-	}
-	return false
-}
-
-func (e ClickHouseUserPasswordTypeSpec) String() string {
-	return string(e)
-}
-
-func (e *ClickHouseUserPasswordTypeSpec) UnmarshalGQL(v any) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = ClickHouseUserPasswordTypeSpec(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid ClickHouseUserPasswordTypeSpec", str)
-	}
-	return nil
-}
-
-func (e ClickHouseUserPasswordTypeSpec) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
-func (e *ClickHouseUserPasswordTypeSpec) UnmarshalJSON(b []byte) error {
-	s, err := strconv.Unquote(string(b))
-	if err != nil {
-		return err
-	}
-	return e.UnmarshalGQL(s)
-}
-
-func (e ClickHouseUserPasswordTypeSpec) MarshalJSON() ([]byte, error) {
-	var buf bytes.Buffer
-	e.MarshalGQL(&buf)
-	return buf.Bytes(), nil
-}
-
-// Form in which a user's password is supplied.
-type ClickHouseUserPasswordTypeSpecInput string
-
-const (
-	// SHA-256 digest, hex encoded.
-	ClickHouseUserPasswordTypeSpecInputSha256Hex ClickHouseUserPasswordTypeSpecInput = "SHA256_HEX"
-	// Double SHA-1 digest, hex encoded.
-	ClickHouseUserPasswordTypeSpecInputDoubleSha1Hex ClickHouseUserPasswordTypeSpecInput = "DOUBLE_SHA1_HEX"
-)
-
-var AllClickHouseUserPasswordTypeSpecInput = []ClickHouseUserPasswordTypeSpecInput{
-	ClickHouseUserPasswordTypeSpecInputSha256Hex,
-	ClickHouseUserPasswordTypeSpecInputDoubleSha1Hex,
-}
-
-func (e ClickHouseUserPasswordTypeSpecInput) IsValid() bool {
-	switch e {
-	case ClickHouseUserPasswordTypeSpecInputSha256Hex, ClickHouseUserPasswordTypeSpecInputDoubleSha1Hex:
-		return true
-	}
-	return false
-}
-
-func (e ClickHouseUserPasswordTypeSpecInput) String() string {
-	return string(e)
-}
-
-func (e *ClickHouseUserPasswordTypeSpecInput) UnmarshalGQL(v any) error {
-	str, ok := v.(string)
-	if !ok {
-		return fmt.Errorf("enums must be strings")
-	}
-
-	*e = ClickHouseUserPasswordTypeSpecInput(str)
-	if !e.IsValid() {
-		return fmt.Errorf("%s is not a valid ClickHouseUserPasswordTypeSpecInput", str)
-	}
-	return nil
-}
-
-func (e ClickHouseUserPasswordTypeSpecInput) MarshalGQL(w io.Writer) {
-	fmt.Fprint(w, strconv.Quote(e.String()))
-}
-
-func (e *ClickHouseUserPasswordTypeSpecInput) UnmarshalJSON(b []byte) error {
-	s, err := strconv.Unquote(string(b))
-	if err != nil {
-		return err
-	}
-	return e.UnmarshalGQL(s)
-}
-
-func (e ClickHouseUserPasswordTypeSpecInput) MarshalJSON() ([]byte, error) {
 	var buf bytes.Buffer
 	e.MarshalGQL(&buf)
 	return buf.Bytes(), nil

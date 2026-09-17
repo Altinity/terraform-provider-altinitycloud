@@ -203,14 +203,6 @@ type AWSEnvSpec {
   """
   kmsKeyARN: String
   """
-  ClickHouse clusters.
-  """
-  clickHouseClusters: [ClickHouseClusterSpec!]!
-  """
-  ClickHouse Keepers.
-  """
-  clickHouseKeepers: [ClickHouseKeeperSpec!]!
-  """
   MFA destructive operations.
   True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
   """
@@ -727,14 +719,6 @@ input CreateAWSEnvSpecInput {
   """
   kmsKeyARN: String
   """
-  ClickHouse clusters to create.
-  """
-  clickHouseClusters: [ClickHouseClusterCreateSpecInput!]
-  """
-  ClickHouse Keepers to create.
-  """
-  clickHouseKeepers: [ClickHouseKeeperCreateSpecInput!]
-  """
   MFA destructive operations.
   True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
   """
@@ -1165,14 +1149,6 @@ type AWSEnvHostedSpec {
   """
   kmsKeyARN: String
   """
-  ClickHouse clusters.
-  """
-  clickHouseClusters: [ClickHouseClusterSpec!]!
-  """
-  ClickHouse Keepers.
-  """
-  clickHouseKeepers: [ClickHouseKeeperSpec!]!
-  """
   MFA destructive operations.
   True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
   """
@@ -1514,14 +1490,6 @@ input CreateAWSEnvHostedSpecInput {
   and EBS volumes.
   """
   kmsKeyARN: String
-  """
-  ClickHouse clusters to create.
-  """
-  clickHouseClusters: [ClickHouseClusterCreateSpecInput!]
-  """
-  ClickHouse Keepers to create.
-  """
-  clickHouseKeepers: [ClickHouseKeeperCreateSpecInput!]
   """
   MFA destructive operations.
   True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
@@ -2042,14 +2010,6 @@ input AWSEnvHostedUpdateSpecInput {
   Datadog monitoring agent configuration.
   """
   datadog: DatadogSpecInput
-  """Replaces all ClickHouse clusters exposed by this API."""
-  clickHouseClusters: [ClickHouseClusterCreateSpecInput!]
-  """Changes ClickHouse clusters exposed by this API. Cannot be combined with clickHouseClusters."""
-  clickHouseClustersPatch: ClickHouseClustersPatchInput
-  """Replaces all ClickHouse Keepers exposed by this API."""
-  clickHouseKeepers: [ClickHouseKeeperCreateSpecInput!]
-  """Changes ClickHouse Keepers exposed by this API. Cannot be combined with clickHouseKeepers."""
-  clickHouseKeepersPatch: ClickHouseKeepersPatchInput
   """
   MFA destructive operations.
   True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
@@ -2207,14 +2167,6 @@ input AWSEnvUpdateSpecInput {
   Datadog monitoring agent configuration.
   """
   datadog: DatadogSpecInput
-  """Replaces all ClickHouse clusters exposed by this API."""
-  clickHouseClusters: [ClickHouseClusterCreateSpecInput!]
-  """Changes ClickHouse clusters exposed by this API. Cannot be combined with clickHouseClusters."""
-  clickHouseClustersPatch: ClickHouseClustersPatchInput
-  """Replaces all ClickHouse Keepers exposed by this API."""
-  clickHouseKeepers: [ClickHouseKeeperCreateSpecInput!]
-  """Changes ClickHouse Keepers exposed by this API. Cannot be combined with clickHouseKeepers."""
-  clickHouseKeepersPatch: ClickHouseKeepersPatchInput
   """
   MFA destructive operations.
   True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
@@ -2405,14 +2357,6 @@ type AzureEnvSpec {
   Datadog agent configuration.
   """
   datadog: DatadogSpec!
-  """
-  ClickHouse clusters.
-  """
-  clickHouseClusters: [ClickHouseClusterSpec!]!
-  """
-  ClickHouse Keepers.
-  """
-  clickHouseKeepers: [ClickHouseKeeperSpec!]!
   """
   MFA destructive operations.
   True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
@@ -2728,14 +2672,6 @@ input CreateAzureEnvSpecInput {
   """
   datadog: DatadogSpecInput
   """
-  ClickHouse clusters to create.
-  """
-  clickHouseClusters: [ClickHouseClusterCreateSpecInput!]
-  """
-  ClickHouse Keepers to create.
-  """
-  clickHouseKeepers: [ClickHouseKeeperCreateSpecInput!]
-  """
   MFA destructive operations.
   True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
   """
@@ -3016,14 +2952,6 @@ input UpdateAzureEnvSpecInput {
   Datadog monitoring agent configuration.
   """
   datadog: DatadogSpecInput
-  """Replaces all ClickHouse clusters exposed by this API."""
-  clickHouseClusters: [ClickHouseClusterCreateSpecInput!]
-  """Changes ClickHouse clusters exposed by this API. Cannot be combined with clickHouseClusters."""
-  clickHouseClustersPatch: ClickHouseClustersPatchInput
-  """Replaces all ClickHouse Keepers exposed by this API."""
-  clickHouseKeepers: [ClickHouseKeeperCreateSpecInput!]
-  """Changes ClickHouse Keepers exposed by this API. Cannot be combined with clickHouseKeepers."""
-  clickHouseKeepersPatch: ClickHouseKeepersPatchInput
   """
   MFA destructive operations.
   True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
@@ -3047,469 +2975,6 @@ type UpdateAzureEnvResult {
   Spec revision (monotonically-increasing).
   """
   specRevision: Int!
-}
-"""ClickHouse cluster to create with the environment."""
-input ClickHouseClusterCreateSpecInput {
-  """Cluster identifier, unique within the environment. 2-15 chars, lowercase alphanumerics and hyphens, must start and end with an alphanumeric. Immutable."""
-  name: String!
-  """Topology mode. STANDARD by default. Immutable."""
-  mode: ClickHouseClusterModeSpec
-  """Server image, tag included. Environments hosted by Altinity accept altinity/clickhouse-server images only."""
-  image: String!
-  """Machine type for the cluster nodes. Must match a node group with a CLICKHOUSE reservation."""
-  instanceType: String!
-  """Zones the cluster is spread across. All environment zones by default. Immutable."""
-  zones: [String!]
-  """Number of shards."""
-  shards: Int!
-  """Number of replicas per shard."""
-  replicas: Int!
-  """True to leave the cluster stopped."""
-  stopped: Boolean
-  """Main data volume, named `default`. It cannot be removed later."""
-  disk: ClickHouseDiskCreateSpecInput!
-  """Extra data volumes beside the main one, each under its own name. 8 maximum."""
-  additionalDisks: [ClickHouseDiskCreateSpecInput!]
-  """Keeper the cluster coordinates through."""
-  keeper: ClickHouseKeeperSpecInput!
-  """Server-level settings applied to every node."""
-  settings: [ClickHouseSettingSpecInput!]
-  """Settings profiles users can be assigned to."""
-  profiles: [ClickHouseProfileCreateSpecInput!]
-  """ClickHouse users."""
-  users: [ClickHouseUserSpecInput!]
-}
-
-"""
-Partial update for an existing ClickHouse cluster.
-"""
-input ClickHouseClusterUpdateSpecInput {
-  """Cluster identifier, unique within the environment. Uses the name to find the cluster to update. Immutable."""
-  name: String!
-  """Server image, tag included. Environments hosted by Altinity accept altinity/clickhouse-server images only."""
-  image: String
-  """Machine type for the cluster nodes. Must match a node group with a CLICKHOUSE reservation."""
-  instanceType: String
-  """Number of shards."""
-  shards: Int
-  """Number of replicas per shard."""
-  replicas: Int
-  """True to keep the cluster stopped."""
-  stopped: Boolean
-  """Main data volume, named `default`. Omit it to leave the volume as it is. It can never be removed."""
-  disk: ClickHouseDiskUpdateSpecInput
-  """Complete replacement for the extra data volumes collection. Entries are matched by name; new volumes require size, and storageClass can only be set when a volume is created. 8 maximum."""
-  additionalDisks: [ClickHouseDiskCreateSpecInput!]
-  """Keeper the cluster coordinates through. Omit it to leave the current one attached."""
-  keeper: ClickHouseKeeperSpecInput
-  """Complete replacement for the server-level settings collection."""
-  settings: [ClickHouseSettingSpecInput!]
-  """Explicit server-level settings changes. Cannot be combined with settings."""
-  settingsPatch: ClickHouseSettingsPatchInput
-  """Complete replacement for the settings profiles collection."""
-  profiles: [ClickHouseProfileCreateSpecInput!]
-  """Explicit settings profile changes. Cannot be combined with profiles."""
-  profilesPatch: ClickHouseProfilesPatchInput
-  """Complete replacement for the ClickHouse users collection."""
-  users: [ClickHouseUserSpecInput!]
-  """Explicit ClickHouse user changes. Cannot be combined with users."""
-  usersPatch: ClickHouseUsersPatchInput
-}
-
-"""Explicit changes to a ClickHouse settings collection."""
-input ClickHouseSettingsPatchInput {
-  """Creates missing settings or updates existing settings. Omitted value sources are preserved on existing settings."""
-  upsert: [ClickHouseSettingSpecInput!]
-  """Setting keys to delete. Missing keys are ignored."""
-  delete: [String!]
-}
-
-"""Explicit changes to a ClickHouse settings profile collection."""
-input ClickHouseProfilesPatchInput {
-  """Profiles to create. Each name must not already exist."""
-  create: [ClickHouseProfileCreateSpecInput!]
-  """Profiles to update. Each name must already exist."""
-  update: [ClickHouseProfileUpdateSpecInput!]
-  """Profile names to delete. Missing names are ignored."""
-  delete: [String!]
-}
-
-"""Explicit changes to a ClickHouse user collection."""
-input ClickHouseUsersPatchInput {
-  """Users to create. Each name must not already exist."""
-  create: [ClickHouseUserCreateSpecInput!]
-  """Users to update. Each name must already exist."""
-  update: [ClickHouseUserUpdateSpecInput!]
-  """User names to delete. Missing names are ignored."""
-  delete: [String!]
-}
-
-"""Explicit changes to an environment's ClickHouse cluster collection."""
-input ClickHouseClustersPatchInput {
-  """Clusters to create. Each name must not already exist."""
-  create: [ClickHouseClusterCreateSpecInput!]
-  """Clusters to update. Each name must already exist."""
-  update: [ClickHouseClusterUpdateSpecInput!]
-  """Cluster names to delete. Missing names are ignored."""
-  delete: [String!]
-}
-
-"""Explicit changes to an environment's ClickHouse Keeper collection."""
-input ClickHouseKeepersPatchInput {
-  """Keepers to create. Each name must not already exist."""
-  create: [ClickHouseKeeperCreateSpecInput!]
-  """Keepers to update. Each name must already exist."""
-  update: [ClickHouseKeeperUpdateSpecInput!]
-  """Keeper names to delete. Missing names are ignored."""
-  delete: [String!]
-}
-
-"""ClickHouse cluster configuration."""
-type ClickHouseClusterSpec {
-  """Cluster identifier, unique within the environment."""
-  name: String!
-  """Topology mode."""
-  mode: ClickHouseClusterModeSpec!
-  """Server image, tag included."""
-  image: String!
-  """Machine type the cluster nodes run on."""
-  instanceType: String!
-  """Zones the cluster is spread across."""
-  zones: [String!]!
-  """Number of shards."""
-  shards: Int!
-  """Number of replicas per shard."""
-  replicas: Int!
-  """True when the cluster is kept stopped."""
-  stopped: Boolean!
-  """Main data volume."""
-  disk: ClickHouseDiskSpec!
-  """Extra data volumes beside the main one."""
-  additionalDisks: [ClickHouseDiskSpec!]!
-  """Keeper this cluster coordinates through. Null when it has none."""
-  keeper: ClickHouseKeeperRefSpec
-  """Server-level settings applied to every node."""
-  settings: [ClickHouseSettingSpec!]!
-  """Settings profiles users can be assigned to."""
-  profiles: [ClickHouseProfileSpec!]!
-  """ClickHouse users. Passwords are never returned."""
-  users: [ClickHouseUserSpec!]!
-}
-
-"""ClickHouse cluster topology mode."""
-enum ClickHouseClusterModeSpec {
-  """Regular cluster whose nodes hold data."""
-  STANDARD
-  """Nodes are labelled as swarm workers and shards reconcile fully in parallel."""
-  SWARM
-}
-
-"""Whether a cluster coordinates through a Keeper."""
-input ClickHouseKeeperSpecInput {
-  """Whether the cluster coordinates through a Keeper."""
-  enabled: Boolean!
-  """Name of a Keeper in this environment, created by this request or already present. Ignored when enabled is false, which clears any name already stored."""
-  name: String!
-}
-
-"""Reference to the Keeper a cluster coordinates through."""
-type ClickHouseKeeperRefSpec {
-  """Name of the Keeper in this environment."""
-  name: String!
-}
-
-"""
-ClickHouse Keeper to create with the environment.
-"""
-input ClickHouseKeeperCreateSpecInput {
-  """Keeper identifier, unique within the environment. 2-15 chars, lowercase alphanumerics and hyphens, must start and end with an alphanumeric. Immutable."""
-  name: String!
-  """Machine type for the Keeper nodes. Must match a node group with a ZOOKEEPER reservation."""
-  instanceType: String!
-  """Zones the Keeper is spread across. All environment zones by default. Immutable."""
-  zones: [String!]
-  """True for a 3-node highly-available ensemble, false for a single node. True by default."""
-  ha: Boolean
-  """True to leave the Keeper stopped."""
-  stopped: Boolean
-  """Data volume, named `default`."""
-  disk: ClickHouseDiskCreateSpecInput!
-}
-
-"""
-Partial update for an existing ClickHouse Keeper.
-"""
-input ClickHouseKeeperUpdateSpecInput {
-  """Keeper identifier, unique within the environment. The Keeper must already exist."""
-  name: String!
-  """Machine type for the Keeper nodes. Must match a node group with a ZOOKEEPER reservation."""
-  instanceType: String
-  """True for a 3-node highly-available ensemble, false for a single node. It can only be turned on: an ensemble already running as HA cannot be shrunk back to a single node."""
-  ha: Boolean
-  """True to keep the Keeper stopped."""
-  stopped: Boolean
-  """Data volume, named `default`. """
-  disk: ClickHouseDiskUpdateSpecInput
-}
-
-"""ClickHouse Keeper configuration."""
-type ClickHouseKeeperSpec {
-  """Keeper identifier, unique within the environment."""
-  name: String!
-  """Machine type the Keeper nodes run on."""
-  instanceType: String!
-  """Zones the Keeper is spread across."""
-  zones: [String!]!
-  """True when the Keeper is a 3-node highly-available ensemble."""
-  ha: Boolean!
-  """True when the Keeper is kept stopped."""
-  stopped: Boolean!
-  """Data volume."""
-  disk: ClickHouseDiskSpec!
-}
-
-"""
-Data volume to create. The underlying volume is always deleted along with the
-resource that owns it.
-"""
-input ClickHouseDiskCreateSpecInput {
-  """Volume identifier. `default` for a cluster's main volume and for a Keeper volume. An extra volume must start with `disk` and cannot exceed 16 characters. Immutable."""
-  name: String!
-  """Size in GiB. Required: a volume is sized once and can only ever grow. 10240 maximum on Hetzner Cloud."""
-  size: Int
-  """Storage class backing the volume. Environment default when omitted. Immutable."""
-  storageClass: String
-  """Provisioned IOPS. Honored only by storage classes that support it, such as AWS gp3 and io2."""
-  iops: Int
-  """Provisioned throughput in MiB/s. Honored only by storage classes that support it, such as AWS gp3."""
-  throughput: Int
-}
-
-"""
-Partial update for an existing data volume.
-
-The storage class is immutable and so cannot be changed here.
-"""
-input ClickHouseDiskUpdateSpecInput {
-  """Volume identifier. `default` for a cluster's main volume and for a Keeper volume. An extra volume must start with `disk` and cannot exceed 16 characters. Immutable."""
-  name: String!
-  """Size in GiB. Can only be increased, never decreased."""
-  size: Int
-  """Provisioned IOPS. Honored only by storage classes that support it, such as AWS gp3 and io2."""
-  iops: Int
-  """Provisioned throughput in MiB/s. Honored only by storage classes that support it, such as AWS gp3."""
-  throughput: Int
-}
-
-"""ClickHouse data volume."""
-type ClickHouseDiskSpec {
-  """Volume identifier. `default` for a cluster's main volume and for a Keeper volume."""
-  name: String!
-  """Size in GiB."""
-  size: Int!
-  """Storage class backing the volume. Empty when the environment default is used."""
-  storageClass: String!
-  """Provisioned IOPS. 0 when not set."""
-  iops: Int!
-  """Provisioned throughput in MiB/s. 0 when not set."""
-  throughput: Int!
-}
-
-"""
-Reference to a key of a Kubernetes secret in the environment's namespace. The
-secret must already exist; the platform never creates it.
-"""
-input ClickHouseSecretRefSpecInput {
-  """Secret name."""
-  name: String!
-  """Key within the secret."""
-  key: String!
-}
-
-"""Reference to a key of a Kubernetes secret in the environment's namespace."""
-type ClickHouseSecretRefSpec {
-  """Secret name."""
-  name: String!
-  """Key within the secret."""
-  key: String!
-}
-
-"""A single ClickHouse setting. value and valueFromSecret are mutually exclusive."""
-input ClickHouseSettingSpecInput {
-  """Setting name, for example max_concurrent_queries."""
-  key: String!
-  """Literal value."""
-  value: String
-  """Value read from a Kubernetes secret instead of being stored in the spec."""
-  valueFromSecret: ClickHouseSecretRefSpecInput
-}
-
-"""A single ClickHouse setting."""
-type ClickHouseSettingSpec {
-  """Setting name."""
-  key: String!
-  """Literal value. Empty when the value comes from a secret."""
-  value: String!
-  """Secret the value is read from, when it is not stored in the spec."""
-  valueFromSecret: ClickHouseSecretRefSpec
-}
-
-"""Settings profile to create with the cluster."""
-input ClickHouseProfileCreateSpecInput {
-  """Profile name, unique within the cluster. Referenced by a user's profile field."""
-  name: String!
-  """Settings the profile carries."""
-  settings: [ClickHouseSettingSpecInput!]
-}
-
-"""
-Partial update for an existing ClickHouse settings profile.
-"""
-input ClickHouseProfileUpdateSpecInput {
-  """Profile name, unique within the cluster. Referenced by a user's profile field."""
-  name: String!
-  """Complete replacement for the profile settings collection."""
-  settings: [ClickHouseSettingSpecInput!]
-  """Explicit profile setting changes. Cannot be combined with settings."""
-  settingsPatch: ClickHouseSettingsPatchInput
-}
-
-"""ClickHouse settings profile."""
-type ClickHouseProfileSpec {
-  """Profile name, unique within the cluster."""
-  name: String!
-  """Settings the profile carries."""
-  settings: [ClickHouseSettingSpec!]!
-}
-
-"""Form in which a user's password is supplied."""
-enum ClickHouseUserPasswordTypeSpecInput {
-  """SHA-256 digest, hex encoded."""
-  SHA256_HEX
-  """Double SHA-1 digest, hex encoded."""
-  DOUBLE_SHA1_HEX
-}
-
-"""Form a user's password is held in."""
-enum ClickHouseUserPasswordTypeSpec {
-  """Clear-text password. Set outside this API; it cannot be supplied here."""
-  PLAIN_TEXT
-  """SHA-256 digest, hex encoded."""
-  SHA256_HEX
-  """Double SHA-1 digest, hex encoded."""
-  DOUBLE_SHA1_HEX
-}
-
-"""
-ClickHouse user specification used for creation or update.
-"""
-input ClickHouseUserSpecInput {
-  """User name, unique within the cluster. grafana and datadog are reserved for platform-injected users and are rejected."""
-  name: String!
-  """Settings profile assigned to this user. Must be a profile of this cluster or one ClickHouse ships with."""
-  profile: String
-  """Quota assigned to this user."""
-  quota: String
-  """CIDRs the user may connect from. Unrestricted when omitted."""
-  allowedCIDRs: [String!]
-  """Databases the user is granted access to. All databases when omitted."""
-  databases: [String!]
-  """True to let the user manage access control: roles, users, grants."""
-  accessManagement: Boolean
-  """True to let the user create and drop named collections."""
-  namedCollectionControl: Boolean
-  """True to let the user list named collections."""
-  showNamedCollections: Boolean
-  """True to let the user read secrets stored in named collections."""
-  showNamedCollectionsSecrets: Boolean
-  """Form the password is supplied in. Required whenever a password value is set."""
-  passwordType: ClickHouseUserPasswordTypeSpecInput
-  """Password digest, in the form declared by passwordType."""
-  passwordValue: String
-  """Password digest read from a Kubernetes secret, as an alternative to passwordValue."""
-  passwordValueFromSecret: ClickHouseSecretRefSpecInput
-}
-
-"""New ClickHouse user. Requires a password digest or secret reference."""
-input ClickHouseUserCreateSpecInput {
-  """User name, unique within the cluster. grafana and datadog are reserved for platform-injected users and are rejected."""
-  name: String!
-  """Settings profile assigned to this user. Must be a profile of this cluster or one ClickHouse ships with."""
-  profile: String
-  """Quota assigned to this user."""
-  quota: String
-  """CIDRs the user may connect from. Unrestricted when omitted."""
-  allowedCIDRs: [String!]
-  """Databases the user is granted access to. All databases when omitted."""
-  databases: [String!]
-  """True to let the user manage access control: roles, users, grants."""
-  accessManagement: Boolean
-  """True to let the user create and drop named collections."""
-  namedCollectionControl: Boolean
-  """True to let the user list named collections."""
-  showNamedCollections: Boolean
-  """True to let the user read secrets stored in named collections."""
-  showNamedCollectionsSecrets: Boolean
-  """Form the password is supplied in. Required whenever a password value is set."""
-  passwordType: ClickHouseUserPasswordTypeSpecInput!
-  """Password digest, in the form declared by passwordType."""
-  passwordValue: String
-  """Password digest read from a Kubernetes secret, as an alternative to passwordValue."""
-  passwordValueFromSecret: ClickHouseSecretRefSpecInput
-}
-
-"""Partial update for an existing ClickHouse user. Omitted fields retain their current values, including credentials."""
-input ClickHouseUserUpdateSpecInput {
-  """User name, unique within the cluster. grafana and datadog are reserved for platform-injected users and are rejected."""
-  name: String!
-  """Settings profile assigned to this user. Must be a profile of this cluster or one ClickHouse ships with."""
-  profile: String
-  """Quota assigned to this user."""
-  quota: String
-  """CIDRs the user may connect from. Unchanged when omitted."""
-  allowedCIDRs: [String!]
-  """Databases the user is granted access to. Unchanged when omitted."""
-  databases: [String!]
-  """True to let the user manage access control: roles, users, grants."""
-  accessManagement: Boolean
-  """True to let the user create and drop named collections."""
-  namedCollectionControl: Boolean
-  """True to let the user list named collections."""
-  showNamedCollections: Boolean
-  """True to let the user read secrets stored in named collections."""
-  showNamedCollectionsSecrets: Boolean
-  """Form the password is supplied in. Required whenever a password value is set."""
-  passwordType: ClickHouseUserPasswordTypeSpecInput
-  """Password digest, in the form declared by passwordType."""
-  passwordValue: String
-  """Password digest read from a Kubernetes secret, as an alternative to passwordValue."""
-  passwordValueFromSecret: ClickHouseSecretRefSpecInput
-}
-
-"""ClickHouse user. Passwords are never returned, only the form they are held in."""
-type ClickHouseUserSpec {
-  """User name, unique within the cluster."""
-  name: String!
-  """Settings profile assigned to this user."""
-  profile: String!
-  """Quota assigned to this user."""
-  quota: String!
-  """CIDRs the user may connect from. Empty when unrestricted."""
-  allowedCIDRs: [String!]!
-  """Databases the user is granted access to. Empty when all are granted."""
-  databases: [String!]!
-  """True when the user can manage access control: roles, users, grants."""
-  accessManagement: Boolean!
-  """True when the user can create and drop named collections."""
-  namedCollectionControl: Boolean!
-  """True when the user can list named collections."""
-  showNamedCollections: Boolean!
-  """True when the user can read secrets stored in named collections."""
-  showNamedCollectionsSecrets: Boolean!
-  """Form the password is held in. Null when the user has no password."""
-  passwordType: ClickHouseUserPasswordTypeSpec
-  """Secret the password is read from, when it is not stored in the spec."""
-  passwordValueFromSecret: ClickHouseSecretRefSpec
 }
 scalar Sensitive
 
@@ -4171,14 +3636,6 @@ type GCPEnvSpec {
   """
   datadog: DatadogSpec!
   """
-  ClickHouse clusters.
-  """
-  clickHouseClusters: [ClickHouseClusterSpec!]!
-  """
-  ClickHouse Keepers.
-  """
-  clickHouseKeepers: [ClickHouseKeeperSpec!]!
-  """
   MFA destructive operations.
   True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
   """
@@ -4481,14 +3938,6 @@ input CreateGCPEnvSpecInput {
   """
   datadog: DatadogSpecInput
   """
-  ClickHouse clusters to create.
-  """
-  clickHouseClusters: [ClickHouseClusterCreateSpecInput!]
-  """
-  ClickHouse Keepers to create.
-  """
-  clickHouseKeepers: [ClickHouseKeeperCreateSpecInput!]
-  """
   MFA destructive operations.
   True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
   """
@@ -4789,14 +4238,6 @@ input UpdateGCPEnvSpecInput {
   Datadog monitoring agent configuration.
   """
   datadog: DatadogSpecInput
-  """Replaces all ClickHouse clusters exposed by this API."""
-  clickHouseClusters: [ClickHouseClusterCreateSpecInput!]
-  """Changes ClickHouse clusters exposed by this API. Cannot be combined with clickHouseClusters."""
-  clickHouseClustersPatch: ClickHouseClustersPatchInput
-  """Replaces all ClickHouse Keepers exposed by this API."""
-  clickHouseKeepers: [ClickHouseKeeperCreateSpecInput!]
-  """Changes ClickHouse Keepers exposed by this API. Cannot be combined with clickHouseKeepers."""
-  clickHouseKeepersPatch: ClickHouseKeepersPatchInput
   """
   MFA destructive operations.
   True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
@@ -4967,14 +4408,6 @@ type HCloudEnvSpec {
   Datadog agent configuration.
   """
   datadog: DatadogSpec!
-  """
-  ClickHouse clusters.
-  """
-  clickHouseClusters: [ClickHouseClusterSpec!]!
-  """
-  ClickHouse Keepers.
-  """
-  clickHouseKeepers: [ClickHouseKeeperSpec!]!
   """
   MFA destructive operations.
   True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
@@ -5241,14 +4674,6 @@ input CreateHCloudEnvSpecInput {
   """
   datadog: DatadogSpecInput
   """
-  ClickHouse clusters to create.
-  """
-  clickHouseClusters: [ClickHouseClusterCreateSpecInput!]
-  """
-  ClickHouse Keepers to create.
-  """
-  clickHouseKeepers: [ClickHouseKeeperCreateSpecInput!]
-  """
   MFA destructive operations.
   True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
   """
@@ -5513,14 +4938,6 @@ input UpdateHCloudEnvSpecInput {
   Datadog monitoring agent configuration.
   """
   datadog: DatadogSpecInput
-  """Replaces all ClickHouse clusters exposed by this API."""
-  clickHouseClusters: [ClickHouseClusterCreateSpecInput!]
-  """Changes ClickHouse clusters exposed by this API. Cannot be combined with clickHouseClusters."""
-  clickHouseClustersPatch: ClickHouseClustersPatchInput
-  """Replaces all ClickHouse Keepers exposed by this API."""
-  clickHouseKeepers: [ClickHouseKeeperCreateSpecInput!]
-  """Changes ClickHouse Keepers exposed by this API. Cannot be combined with clickHouseKeepers."""
-  clickHouseKeepersPatch: ClickHouseKeepersPatchInput
   """
   MFA destructive operations.
   True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
@@ -5667,14 +5084,6 @@ type K8SEnvSpec {
   Datadog agent configuration.
   """
   datadog: DatadogSpec!
-  """
-  ClickHouse clusters.
-  """
-  clickHouseClusters: [ClickHouseClusterSpec!]!
-  """
-  ClickHouse Keepers.
-  """
-  clickHouseKeepers: [ClickHouseKeeperSpec!]!
   """
   MFA destructive operations.
   True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
@@ -6015,14 +5424,6 @@ input CreateK8SEnvSpecInput {
   Datadog monitoring agent configuration.
   """
   datadog: DatadogSpecInput
-  """
-  ClickHouse clusters to create.
-  """
-  clickHouseClusters: [ClickHouseClusterCreateSpecInput!]
-  """
-  ClickHouse Keepers to create.
-  """
-  clickHouseKeepers: [ClickHouseKeeperCreateSpecInput!]
   """
   MFA destructive operations.
   True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
@@ -6374,14 +5775,6 @@ input UpdateK8SEnvSpecInput {
   Datadog monitoring agent configuration.
   """
   datadog: DatadogSpecInput
-  """Replaces all ClickHouse clusters exposed by this API."""
-  clickHouseClusters: [ClickHouseClusterCreateSpecInput!]
-  """Changes ClickHouse clusters exposed by this API. Cannot be combined with clickHouseClusters."""
-  clickHouseClustersPatch: ClickHouseClustersPatchInput
-  """Replaces all ClickHouse Keepers exposed by this API."""
-  clickHouseKeepers: [ClickHouseKeeperCreateSpecInput!]
-  """Changes ClickHouse Keepers exposed by this API. Cannot be combined with clickHouseKeepers."""
-  clickHouseKeepersPatch: ClickHouseKeepersPatchInput
   """
   MFA destructive operations.
   True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
