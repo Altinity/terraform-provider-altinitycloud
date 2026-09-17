@@ -28,6 +28,7 @@ type AzureEnvModel struct {
 	PrivateLinkService    *PrivateLinkServiceModel        `tfsdk:"private_link_service"`
 	MetricsEndpoint       *common.MetricsEndpointModel    `tfsdk:"metrics_endpoint"`
 	Datadog               *common.DatadogModel            `tfsdk:"datadog"`
+	MFA                   types.Bool                      `tfsdk:"mfa"`
 
 	SpecRevision                 types.Int64 `tfsdk:"spec_revision"`
 	ForceDestroy                 types.Bool  `tfsdk:"force_destroy"`
@@ -120,6 +121,7 @@ func (e AzureEnvModel) toSDK(ctx context.Context) (client.CreateAzureEnvInput, c
 			},
 			MetricsEndpoint: metricsEndpoint,
 			Datadog:         datadog,
+			Mfa:             e.MFA.ValueBoolPointer(),
 		},
 	}
 
@@ -141,6 +143,7 @@ func (e AzureEnvModel) toSDK(ctx context.Context) (client.CreateAzureEnvInput, c
 			},
 			MetricsEndpoint: metricsEndpoint,
 			Datadog:         datadog,
+			Mfa:             e.MFA.ValueBoolPointer(),
 		},
 	}
 
@@ -195,6 +198,7 @@ func (model *AzureEnvModel) toModel(env client.GetAzureEnv_AzureEnv) diag.Diagno
 		AllowedSubscriptions: common.ListStringToModel(env.Spec.PrivateLinkService.AllowedSubscriptions),
 	}
 	model.SpecRevision = types.Int64Value(env.SpecRevision)
+	model.MFA = types.BoolValue(env.Spec.Mfa)
 	model.Tags = tags
 	return allDiags
 }

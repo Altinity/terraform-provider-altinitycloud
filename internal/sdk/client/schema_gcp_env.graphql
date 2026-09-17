@@ -102,4 +102,5 @@ fragment GCPEnvSpecFragment on GCPEnvSpec {
     logsEnabled
     metricsEnabled
   }
+  mfa
 }

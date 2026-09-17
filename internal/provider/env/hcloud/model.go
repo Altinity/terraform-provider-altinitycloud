@@ -26,6 +26,7 @@ type HCloudEnvModel struct {
 	WireguardPeers        []WireguardPeers                `tfsdk:"wireguard_peers"`
 	MetricsEndpoint       *common.MetricsEndpointModel    `tfsdk:"metrics_endpoint"`
 	Datadog               *common.DatadogModel            `tfsdk:"datadog"`
+	MFA                   types.Bool                      `tfsdk:"mfa"`
 
 	SpecRevision                 types.Int64 `tfsdk:"spec_revision"`
 	ForceDestroy                 types.Bool  `tfsdk:"force_destroy"`
@@ -114,6 +115,7 @@ func (e HCloudEnvModel) toSDK(ctx context.Context) (client.CreateHCloudEnvInput,
 			WireguardPeers:        wireguardPeers,
 			MetricsEndpoint:       metricsEndpoint,
 			Datadog:               datadog,
+			Mfa:                   e.MFA.ValueBoolPointer(),
 		},
 	}
 
@@ -132,6 +134,7 @@ func (e HCloudEnvModel) toSDK(ctx context.Context) (client.CreateHCloudEnvInput,
 			WireguardPeers:        wireguardPeers,
 			MetricsEndpoint:       metricsEndpoint,
 			Datadog:               datadog,
+			Mfa:                   e.MFA.ValueBoolPointer(),
 		},
 	}
 
@@ -177,6 +180,7 @@ func (model *HCloudEnvModel) toModel(env client.GetHCloudEnv_HcloudEnv) diag.Dia
 	model.MetricsEndpoint = common.MetricsEndpointToModel(model.MetricsEndpoint, env.Spec.MetricsEndpoint.Enabled, env.Spec.MetricsEndpoint.SourceIPRanges)
 	model.Datadog = common.DatadogToModel(model.Datadog, env.Spec.Datadog.Enabled, env.Spec.Datadog.Domain, env.Spec.Datadog.LogsEnabled, env.Spec.Datadog.MetricsEnabled)
 	model.SpecRevision = types.Int64Value(env.SpecRevision)
+	model.MFA = types.BoolValue(env.Spec.Mfa)
 
 	return allDiags
 }

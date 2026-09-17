@@ -829,6 +829,7 @@ data "altinitycloud_env_aws_status" "this" {
 		- "ZONE_BEST_EFFORT": keep traffic within same zone
 - `maintenance_windows` (Attributes List) List of maintenance windows during which automatic maintenance is permitted. By default updates are applied as soon as they are available. (see [below for nested schema](#nestedatt--maintenance_windows))
 - `metrics_endpoint` (Attributes) Metrics endpoint configuration. (see [below for nested schema](#nestedatt--metrics_endpoint))
+- `mfa` (Boolean) `true` requires MFA confirmation for destructive operations on the environment (default `true`). Can be enabled on an existing environment, but cannot be disabled once enabled.
 - `nat` (Boolean) Enable AWS NAT Gateway. **[IMMUTABLE]**
 - `peering_connections` (Attributes List) AWS environment VPC peering configuration. (see [below for nested schema](#nestedatt--peering_connections))
 - `permissions_boundary_policy_arn` (String) Policy ARN that sets the maximum permissions for the IAM roles created by the environment. **[IMMUTABLE]**

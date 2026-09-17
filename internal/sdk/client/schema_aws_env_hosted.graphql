@@ -131,4 +131,5 @@ fragment AWSEnvHostedSpecFragment on AWSEnvHostedSpec {
     logsEnabled
     metricsEnabled
   }
+  mfa
 }

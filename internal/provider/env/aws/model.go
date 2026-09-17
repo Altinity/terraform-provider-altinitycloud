@@ -37,6 +37,7 @@ type AWSEnvModel struct {
 	MetricsEndpoint              *common.MetricsEndpointModel    `tfsdk:"metrics_endpoint"`
 	Datadog                      *common.DatadogModel            `tfsdk:"datadog"`
 	EksLogging                   types.Bool                      `tfsdk:"eks_logging"`
+	MFA                          types.Bool                      `tfsdk:"mfa"`
 
 	SpecRevision                 types.Int64 `tfsdk:"spec_revision"`
 	ForceDestroy                 types.Bool  `tfsdk:"force_destroy"`
@@ -205,6 +206,7 @@ func (e AWSEnvModel) toSDK(ctx context.Context) (sdk.CreateAWSEnvInput, sdk.Upda
 			MetricsEndpoint:              metricsEndpoint,
 			Datadog:                      datadog,
 			EksLogging:                   e.EksLogging.ValueBoolPointer(),
+			Mfa:                          e.MFA.ValueBoolPointer(),
 		},
 	}
 
@@ -231,6 +233,7 @@ func (e AWSEnvModel) toSDK(ctx context.Context) (sdk.CreateAWSEnvInput, sdk.Upda
 			MetricsEndpoint:       metricsEndpoint,
 			Datadog:               datadog,
 			EksLogging:            e.EksLogging.ValueBoolPointer(),
+			Mfa:                   e.MFA.ValueBoolPointer(),
 		},
 	}
 
@@ -328,6 +331,7 @@ func (model *AWSEnvModel) toModel(env sdk.GetAWSEnv_AWSEnv) diag.Diagnostics {
 	model.Iceberg = iceberg
 	model.PeeringConnections = peeringConnections
 	model.SpecRevision = types.Int64Value(env.SpecRevision)
+	model.MFA = types.BoolValue(env.Spec.Mfa)
 	model.CloudConnect = types.BoolValue(env.Spec.CloudConnect)
 	model.EksLogging = types.BoolValue(env.Spec.EksLogging)
 	model.MetricsEndpoint = common.MetricsEndpointToModel(model.MetricsEndpoint, env.Spec.MetricsEndpoint.Enabled, env.Spec.MetricsEndpoint.SourceIPRanges)

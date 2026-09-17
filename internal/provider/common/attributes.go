@@ -201,6 +201,16 @@ func GetRegionAttribute(required, optional, computed bool, description string) r
 	}
 }
 
+func GetMFAAttribute(required, optional, computed bool) rschema.BoolAttribute {
+	return rschema.BoolAttribute{
+		Required:            required,
+		Optional:            optional,
+		Computed:            computed,
+		MarkdownDescription: MFA_DESCRIPTION,
+		Default:             booldefault.StaticBool(true),
+	}
+}
+
 func GetForceDestroyAttribute(required, optional, computed bool) rschema.BoolAttribute {
 	return rschema.BoolAttribute{
 		Required:            required,

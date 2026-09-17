@@ -551,6 +551,7 @@ data "altinitycloud_env_aws_hosted_status" "this" {
 - `load_balancers` (Attributes) Load balancers configuration. (see [below for nested schema](#nestedatt--load_balancers))
 - `maintenance_windows` (Attributes List) List of maintenance windows during which automatic maintenance is permitted. By default updates are applied as soon as they are available. (see [below for nested schema](#nestedatt--maintenance_windows))
 - `metrics_endpoint` (Attributes) Metrics endpoint configuration. (see [below for nested schema](#nestedatt--metrics_endpoint))
+- `mfa` (Boolean) `true` requires MFA confirmation for destructive operations on the environment (default `true`). Can be enabled on an existing environment, but cannot be disabled once enabled.
 - `resource_prefix` (String) Prefix applied to the names of the cloud resources created for this environment. **[IMMUTABLE]**
 - `skip_deprovision_on_destroy` (Boolean) Set to `true` will delete without waiting for environment deprovisioning. Use this with precaution, it may end up with dangling resources in your cloud provider (default `false`).
 - `timeouts` (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
