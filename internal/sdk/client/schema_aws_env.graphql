@@ -146,6 +146,10 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
     }
   }
   eksLogging
+  eksAccessEntries {
+    principalARN
+    accessLevel
+  }
   metricsEndpoint {
     enabled
     sourceIPRanges

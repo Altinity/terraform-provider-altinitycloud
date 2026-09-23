@@ -8,6 +8,7 @@ import (
 	"github.com/altinity/terraform-provider-altinitycloud/internal/provider/common"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/provider/modifiers"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/provider/validators"
+	sdk "github.com/altinity/terraform-provider-altinitycloud/internal/sdk/client"
 	"github.com/hashicorp/terraform-plugin-framework-timeouts/resource/timeouts"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/setvalidator"
@@ -55,6 +56,7 @@ func (r *AWSEnvResource) Schema(ctx context.Context, req resource.SchemaRequest,
 			"datadog":                         common.GetDatadogAttribute(false, true, false),
 			"eks_logging":                     getEksLoggingAttribute(false, true, true),
 			"mfa":                             common.GetMFAAttribute(false, true, true),
+			"eks_access_entries":              getEksAccessEntriesAttribute(false, true, false),
 
 			"spec_revision":                   common.SpecRevisionAttribute,
 			"force_destroy":                   common.GetForceDestroyAttribute(false, true, true),
@@ -101,6 +103,7 @@ func (d *AWSEnvDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 			"datadog":                         common.GetDatadogAttribute(false, false, true),
 			"eks_logging":                     getEksLoggingAttribute(false, false, true),
 			"mfa":                             common.GetMFAAttribute(false, false, true),
+			"eks_access_entries":              getEksAccessEntriesAttribute(false, false, true),
 			"spec_revision":                   common.SpecRevisionAttribute,
 
 			// these options are not used in data sources,
@@ -502,6 +505,45 @@ func getIcebergAttribute(required, optional, computed bool) rschema.SingleNested
 			},
 		},
 	}
+}
+
+func getEksAccessEntriesAttribute(required, optional, computed bool) rschema.SetNestedAttribute {
+	return rschema.SetNestedAttribute{
+		NestedObject:        eksAccessEntryAttribute,
+		Optional:            optional,
+		Required:            required,
+		Computed:            computed,
+		MarkdownDescription: common.EKS_ACCESS_ENTRIES_DESCRIPTION,
+		Validators: []validator.Set{
+			setvalidator.SizeAtLeast(1),
+			setvalidator.SizeAtMost(8),
+			validators.UniqueEKSAccessEntryPrincipals(),
+		},
+	}
+}
+
+var eksAccessEntryAttribute = rschema.NestedAttributeObject{
+	Attributes: map[string]rschema.Attribute{
+		"principal_arn": rschema.StringAttribute{
+			Required:            true,
+			MarkdownDescription: common.EKS_ACCESS_ENTRY_PRINCIPAL_ARN_DESCRIPTION,
+			Validators: []validator.String{
+				stringvalidator.RegexMatches(regexp.MustCompile(`^arn:aws[a-zA-Z-]*:iam::\d{12}:(role|user)/.+$`),
+					"must be an IAM role or user ARN (arn:aws:iam::123456789012:role/name)"),
+			},
+		},
+		"access_level": rschema.StringAttribute{
+			Required:            true,
+			MarkdownDescription: common.EKS_ACCESS_ENTRY_ACCESS_LEVEL_DESCRIPTION,
+			Validators: []validator.String{
+				stringvalidator.OneOf(
+					string(sdk.AWSEnvEKSAccessLevelAdmin),
+					string(sdk.AWSEnvEKSAccessLevelReadWrite),
+					string(sdk.AWSEnvEKSAccessLevelReadOnly),
+				),
+			},
+		},
+	},
 }
 
 func getEksLoggingAttribute(required, optional, computed bool) rschema.BoolAttribute {

@@ -1,0 +1,75 @@
+resource "altinitycloud_env_certificate" "this" {
+  env_name = "acme-staging"
+}
+
+locals {
+  zones = ["us-east-1a", "us-east-1b"]
+}
+
+provider "aws" {
+  region = "us-east-1"
+}
+
+module "altinitycloud_connect_aws" {
+  source = "altinity/connect-aws/altinitycloud"
+  pem    = altinitycloud_env_certificate.this.pem
+}
+
+resource "altinitycloud_env_aws" "this" {
+  name           = altinitycloud_env_certificate.this.env_name
+  aws_account_id = "123456789012"
+  region         = "us-east-1"
+  zones          = local.zones
+  cidr           = "10.67.0.0/21"
+  load_balancers = {
+    public = {
+      enabled          = true
+      source_ip_ranges = ["0.0.0.0/0"]
+    }
+  }
+  node_groups = [
+    {
+      node_type         = "t4g.large"
+      capacity_per_zone = 10
+      zones             = local.zones
+      reservations      = ["SYSTEM", "ZOOKEEPER"]
+    },
+    {
+      node_type         = "m6i.large"
+      capacity_per_zone = 10
+      zones             = local.zones
+      reservations      = ["CLICKHOUSE"]
+    }
+  ]
+
+  // IAM principals from your own account that can reach the EKS Kubernetes API.
+  // The list is authoritative: entries removed here are revoked on the next apply.
+  eks_access_entries = [
+    {
+      principal_arn = "arn:aws:iam::123456789012:role/platform-admin"
+      access_level  = "ADMIN"
+    },
+    {
+      principal_arn = "arn:aws:iam::123456789012:role/platform-oncall"
+      access_level  = "READ_WRITE"
+    },
+    {
+      principal_arn = "arn:aws:iam::123456789012:user/auditor"
+      access_level  = "READ_ONLY"
+    }
+  ]
+
+  cloud_connect = true
+  depends_on = [
+    // "depends_on" is here to enforce "this resource, then altinitycloud_connect_aws" order on destroy.
+    module.altinitycloud_connect_aws
+  ]
+}
+
+// ⚠️ Environment provisioning is asynchronous.
+// Without this data source, Terraform cannot detect provisioning failures.
+// This data source waits until the environment is fully reconciled and reports errors.
+data "altinitycloud_env_aws_status" "this" {
+  name                           = altinitycloud_env_aws.this.name
+  wait_for_applied_spec_revision = altinitycloud_env_aws.this.spec_revision
+}
