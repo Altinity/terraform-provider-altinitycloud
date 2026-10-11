@@ -57,6 +57,8 @@ func (r *AWSEnvResource) Schema(ctx context.Context, req resource.SchemaRequest,
 			"eks_logging":                     getEksLoggingAttribute(false, true, true),
 			"mfa":                             common.GetMFAAttribute(false, true, true),
 			"eks_access_entries":              getEksAccessEntriesAttribute(false, true, false),
+			"clickhouse_clusters":             common.GetClickHouseClustersAttribute(false, true, false),
+			"clickhouse_keepers":              common.GetClickHouseKeepersAttribute(false, true, false),
 
 			"spec_revision":                   common.SpecRevisionAttribute,
 			"force_destroy":                   common.GetForceDestroyAttribute(false, true, true),
@@ -104,6 +106,8 @@ func (d *AWSEnvDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 			"eks_logging":                     getEksLoggingAttribute(false, false, true),
 			"mfa":                             common.GetMFAAttribute(false, false, true),
 			"eks_access_entries":              getEksAccessEntriesAttribute(false, false, true),
+			"clickhouse_clusters":             common.GetClickHouseClustersAttribute(false, false, true),
+			"clickhouse_keepers":              common.GetClickHouseKeepersAttribute(false, false, true),
 			"spec_revision":                   common.SpecRevisionAttribute,
 
 			// these options are not used in data sources,

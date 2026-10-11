@@ -39,6 +39,8 @@ type AWSEnvModel struct {
 	EksLogging                   types.Bool                      `tfsdk:"eks_logging"`
 	MFA                          types.Bool                      `tfsdk:"mfa"`
 	EksAccessEntries             []AWSEnvEKSAccessEntryModel     `tfsdk:"eks_access_entries"`
+	ClickHouseClusters           []common.ClickHouseClusterModel `tfsdk:"clickhouse_clusters"`
+	ClickHouseKeepers            []common.ClickHouseKeeperModel  `tfsdk:"clickhouse_keepers"`
 
 	SpecRevision                 types.Int64 `tfsdk:"spec_revision"`
 	ForceDestroy                 types.Bool  `tfsdk:"force_destroy"`
@@ -137,6 +139,11 @@ func (e AWSEnvModel) toSDK(ctx context.Context) (sdk.CreateAWSEnvInput, sdk.Upda
 		allDiags.Append(diags...)
 	}
 
+	clickHouseClusters, diags := clickHouseClustersToSDK(ctx, e.ClickHouseClusters)
+	allDiags.Append(diags...)
+	clickHouseKeepers, diags := clickHouseKeepersToSDK(ctx, e.ClickHouseKeepers)
+	allDiags.Append(diags...)
+
 	var peeringConnections []*sdk.AWSEnvPeeringConnectionSpecInput
 	for _, p := range e.PeeringConnections {
 		peeringConnections = append(peeringConnections, &sdk.AWSEnvPeeringConnectionSpecInput{
@@ -222,6 +229,8 @@ func (e AWSEnvModel) toSDK(ctx context.Context) (sdk.CreateAWSEnvInput, sdk.Upda
 			EksLogging:                   e.EksLogging.ValueBoolPointer(),
 			Mfa:                          e.MFA.ValueBoolPointer(),
 			EksAccessEntries:             eksAccessEntries,
+			ClickHouseClusters:           clickHouseClusters,
+			ClickHouseKeepers:            clickHouseKeepers,
 		},
 	}
 
@@ -250,6 +259,8 @@ func (e AWSEnvModel) toSDK(ctx context.Context) (sdk.CreateAWSEnvInput, sdk.Upda
 			EksLogging:            e.EksLogging.ValueBoolPointer(),
 			Mfa:                   e.MFA.ValueBoolPointer(),
 			EksAccessEntries:      eksAccessEntries,
+			ClickHouseClusters:    clickHouseClusters,
+			ClickHouseKeepers:     clickHouseKeepers,
 		},
 	}
 
@@ -356,6 +367,8 @@ func (model *AWSEnvModel) toModel(env sdk.GetAWSEnv_AWSEnv) diag.Diagnostics {
 	model.PeeringConnections = peeringConnections
 	model.SpecRevision = types.Int64Value(env.SpecRevision)
 	model.MFA = types.BoolValue(env.Spec.Mfa)
+	model.ClickHouseClusters = common.ClickHouseClustersToModel(model.ClickHouseClusters, clickHouseClustersToSpec(env.Spec.ClickHouseClusters))
+	model.ClickHouseKeepers = common.ClickHouseKeepersToModel(model.ClickHouseKeepers, clickHouseKeepersToSpec(env.Spec.ClickHouseKeepers))
 	model.CloudConnect = types.BoolValue(env.Spec.CloudConnect)
 	model.EksLogging = types.BoolValue(env.Spec.EksLogging)
 	model.EksAccessEntries = eksAccessEntries
