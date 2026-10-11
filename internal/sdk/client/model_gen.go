@@ -53,6 +53,529 @@ type AWSEnvBackupsSpecInput struct {
 	CustomBucket *AWSEnvBackupsCustomBucketSpecInput `json:"customBucket,omitempty"`
 }
 
+// ClickHouse cluster data volume.
+type AWSEnvClickHouseClusterDiskSpec struct {
+	// Size in GiB.
+	SizeInGiB int64 `json:"sizeInGiB"`
+	// Provisioned IOPS. 0 when not set.
+	Iops int64 `json:"iops"`
+	// Provisioned throughput in MiB/s. 0 when not set.
+	ThroughputInMiBps int64 `json:"throughputInMiBps"`
+}
+
+// ClickHouse cluster data volume.
+type AWSEnvClickHouseClusterDiskSpecInput struct {
+	// Size in GiB.
+	SizeInGiB int64 `json:"sizeInGiB"`
+	// Provisioned IOPS.
+	Iops *int64 `json:"iops,omitempty"`
+	// Provisioned throughput in MiB/s.
+	ThroughputInMiBps *int64 `json:"throughputInMiBps,omitempty"`
+}
+
+// ClickHouse cluster data volume update.
+type AWSEnvClickHouseClusterDiskUpdateSpecInput struct {
+	// Size in GiB.
+	// The size of the volume cannot be decreased.
+	SizeInGiB *int64 `json:"sizeInGiB,omitempty"`
+	// Provisioned IOPS.
+	Iops *int64 `json:"iops,omitempty"`
+	// Provisioned throughput in MiB/s.
+	ThroughputInMiBps *int64 `json:"throughputInMiBps,omitempty"`
+}
+
+// ClickHouse cluster configuration.
+type AWSEnvClickHouseClusterSpec struct {
+	// Cluster name.
+	Name string `json:"name"`
+	// Server image, tag included.
+	Image string `json:"image"`
+	// AWS EC2 instance type used by the nodes.
+	InstanceType string `json:"instanceType"`
+	// AWS availability zones used by the nodes.
+	Zones []string `json:"zones"`
+	// Number of shards.
+	Shards int64 `json:"shards"`
+	// Number of replicas per shard.
+	Replicas int64 `json:"replicas"`
+	// Whether the cluster is stopped.
+	Stopped bool `json:"stopped"`
+	// Main data volume.
+	Disk *AWSEnvClickHouseClusterDiskSpec `json:"disk"`
+	// Extra data volumes added to the default ClickHouse storage policy.
+	// Each replica receives one volume per entry.
+	//
+	// By default, ClickHouse balances new data across the main and extra volumes using `least_used` strategy.
+	//
+	// A volume named `diskN`, where `N` is a positive integer, is mounted at `/var/lib/clickhouseN`;
+	// other names are mounted at `/var/lib/clickhouse<name>`.
+	ExtraDisks []*AWSEnvClickHouseNamedDiskSpec `json:"extraDisks"`
+	// Name of the Keeper this cluster coordinates through. Empty when no Keeper configured.
+	Keeper string `json:"keeper"`
+	// ClickHouse users.
+	Users []*AWSEnvClickHouseUserSpec `json:"users"`
+	// Settings profiles users can be assigned to.
+	Profiles []*AWSEnvClickHouseProfileSpec `json:"profiles"`
+	// Resource usage quotas users can be assigned to.
+	Quotas []*ClickHouseQuotaSpec `json:"quotas"`
+	// Server configuration settings.
+	ServerSettings []*AWSEnvClickHouseServerSettingSpec `json:"serverSettings"`
+}
+
+// ClickHouse cluster.
+type AWSEnvClickHouseClusterSpecInput struct {
+	// Cluster name.
+	// Must be 2-15 characters long, containing only lowercase letters, numbers, and hyphens
+	// (cannot start or end with a hyphen).
+	// Immutable.
+	Name string `json:"name"`
+	// Server image.
+	// e.g. altinity/clickhouse-server:25.8.16.10002.altinitystable
+	Image *string `json:"image,omitempty"`
+	// AWS EC2 instance type.
+	// Must match a node group with a `CLICKHOUSE` reservation.
+	InstanceType string `json:"instanceType"`
+	// AWS availability zones.
+	// Defaults to environment's zones.
+	// Immutable.
+	Zones []string `json:"zones,omitempty"`
+	// Number of shards.
+	Shards *int64 `json:"shards,omitempty"`
+	// Number of replicas per shard.
+	Replicas *int64 `json:"replicas,omitempty"`
+	// Whether the cluster should be stopped.
+	Stopped *bool `json:"stopped,omitempty"`
+	// Name of the Keeper this cluster coordinates through.
+	Keeper *string `json:"keeper,omitempty"`
+	// Main data volume.
+	Disk *AWSEnvClickHouseClusterDiskSpecInput `json:"disk"`
+	// Extra data volumes added to the default ClickHouse storage policy.
+	// Each replica receives one volume per entry.
+	//
+	// By default, ClickHouse balances new data across the main and extra volumes using `least_used` strategy.
+	//
+	// A volume named `diskN`, where `N` is a positive integer, is mounted at `/var/lib/clickhouseN`;
+	// other names are mounted at `/var/lib/clickhouse<name>`.
+	ExtraDisks []*AWSEnvClickHouseNamedDiskSpecInput `json:"extraDisks,omitempty"`
+	// ClickHouse users.
+	Users []*AWSEnvClickHouseUserSpecInput `json:"users,omitempty"`
+	// Settings profiles users can be assigned to.
+	Profiles []*AWSEnvClickHouseProfileSpecInput `json:"profiles,omitempty"`
+	// Resource usage quotas users can be assigned to.
+	Quotas []*ClickHouseQuotaSpecInput `json:"quotas,omitempty"`
+	// Server configuration settings.
+	ServerSettings []*AWSEnvClickHouseServerSettingSpecInput `json:"serverSettings,omitempty"`
+}
+
+type AWSEnvClickHouseClusterStatus struct {
+	Name      string                      `json:"name"`
+	Endpoints []*AWSEnvClickHouseEndpoint `json:"endpoints"`
+}
+
+// ClickHouse cluster update.
+type AWSEnvClickHouseClusterUpdateSpecInput struct {
+	// Cluster identifier.
+	Name string `json:"name"`
+	// Server image.
+	// e.g. altinity/clickhouse-server:25.8.16.10002.altinitystable
+	Image *string `json:"image,omitempty"`
+	// AWS EC2 instance type.
+	// Must match a node group with a `CLICKHOUSE` reservation.
+	InstanceType *string `json:"instanceType,omitempty"`
+	// Number of shards.
+	Shards *int64 `json:"shards,omitempty"`
+	// Number of replicas per shard.
+	Replicas *int64 `json:"replicas,omitempty"`
+	// Whether the cluster should be stopped.
+	Stopped *bool `json:"stopped,omitempty"`
+	// Name of the Keeper this cluster coordinates through.
+	Keeper *string `json:"keeper,omitempty"`
+	// Main data volume.
+	Disk *AWSEnvClickHouseClusterDiskUpdateSpecInput `json:"disk,omitempty"`
+	// Extra data volumes added to the default ClickHouse storage policy.
+	// Each replica receives one volume per entry.
+	//
+	// By default, ClickHouse balances new data across the main and extra volumes using `least_used` strategy.
+	//
+	// A volume named `diskN`, where `N` is a positive integer, is mounted at `/var/lib/clickhouseN`;
+	// other names are mounted at `/var/lib/clickhouse<name>`.
+	ExtraDisks []*AWSEnvClickHouseNamedDiskSpecInput `json:"extraDisks,omitempty"`
+	// Partial extraDisks update.
+	ExtraDisksPatch *AWSEnvClickHouseNamedDisksPatchInput `json:"extraDisksPatch,omitempty"`
+	// ClickHouse users.
+	Users []*AWSEnvClickHouseUserSpecInput `json:"users,omitempty"`
+	// Partial users update.
+	UsersPatch *AWSEnvClickHouseUsersPatchInput `json:"usersPatch,omitempty"`
+	// Settings profiles users can be assigned to.
+	Profiles []*AWSEnvClickHouseProfileSpecInput `json:"profiles,omitempty"`
+	// Partial profiles update.
+	ProfilesPatch *AWSEnvClickHouseProfilesPatchInput `json:"profilesPatch,omitempty"`
+	// Resource usage quotas users can be assigned to.
+	Quotas []*ClickHouseQuotaSpecInput `json:"quotas,omitempty"`
+	// Partial quotas update.
+	QuotasPatch *ClickHouseQuotaSpecsPatchInput `json:"quotasPatch,omitempty"`
+	// Server configuration settings.
+	ServerSettings []*AWSEnvClickHouseServerSettingSpecInput `json:"serverSettings,omitempty"`
+	// Partial serverSettings update.
+	ServerSettingsPatch *AWSEnvClickHouseServerSettingsPatchInput `json:"serverSettingsPatch,omitempty"`
+}
+
+type AWSEnvClickHouseClustersPatchInput struct {
+	// Clusters to add or replace.
+	Replace []*AWSEnvClickHouseClusterSpecInput `json:"replace,omitempty"`
+	// Updates to existing clusters (unspecified fields are kept untouched).
+	Update []*AWSEnvClickHouseClusterUpdateSpecInput `json:"update,omitempty"`
+	// Clusters to delete. Missing clusters are ignored.
+	Delete []string `json:"delete,omitempty"`
+}
+
+type AWSEnvClickHouseEndpoint struct {
+	Protocol AWSEnvClickHouseProtocol `json:"protocol"`
+	// Host, including port.
+	Host string                        `json:"host"`
+	Type *AWSEnvClickHouseEndpointType `json:"type,omitempty"`
+}
+
+// ClickHouse Keeper data volume.
+type AWSEnvClickHouseKeeperDiskSpec struct {
+	// Size in GiB.
+	SizeInGiB int64 `json:"sizeInGiB"`
+	// Provisioned IOPS. 0 when not set.
+	Iops int64 `json:"iops"`
+	// Provisioned throughput in MiB/s. 0 when not set.
+	ThroughputInMiBps int64 `json:"throughputInMiBps"`
+}
+
+// ClickHouse Keeper data volume.
+type AWSEnvClickHouseKeeperDiskSpecInput struct {
+	// Size in GiB.
+	SizeInGiB int64 `json:"sizeInGiB"`
+	// Provisioned IOPS.
+	Iops *int64 `json:"iops,omitempty"`
+	// Provisioned throughput in MiB/s.
+	ThroughputInMiBps *int64 `json:"throughputInMiBps,omitempty"`
+}
+
+// ClickHouse Keeper data volume update.
+type AWSEnvClickHouseKeeperDiskUpdateSpecInput struct {
+	// Size in GiB.
+	// The size of the volume cannot be decreased.
+	SizeInGiB *int64 `json:"sizeInGiB,omitempty"`
+	// Provisioned IOPS.
+	Iops *int64 `json:"iops,omitempty"`
+	// Provisioned throughput in MiB/s.
+	ThroughputInMiBps *int64 `json:"throughputInMiBps,omitempty"`
+}
+
+// ClickHouse Keeper configuration.
+type AWSEnvClickHouseKeeperSpec struct {
+	// Keeper cluster name.
+	Name string `json:"name"`
+	// AWS EC2 instance type the Keeper nodes run on.
+	InstanceType string `json:"instanceType"`
+	// AWS availability zones the Keeper is spread across. Keeper replicas are distributed across these locations.
+	Zones []string `json:"zones"`
+	// Number of Keeper replicas.
+	Replicas int64 `json:"replicas"`
+	// Whether the Keeper is stopped.
+	Stopped bool `json:"stopped"`
+	// Data volume.
+	Disk *AWSEnvClickHouseKeeperDiskSpec `json:"disk"`
+}
+
+// ClickHouse Keeper configuration.
+type AWSEnvClickHouseKeeperSpecInput struct {
+	// Keeper cluster name.
+	// Must be 2-15 characters long, containing only lowercase letters, numbers, and hyphens
+	// (cannot start or end with a hyphen).
+	// Immutable.
+	Name string `json:"name"`
+	// AWS EC2 instance type.
+	// Must match a node group with a `ZOOKEEPER` reservation.
+	InstanceType string `json:"instanceType"`
+	// AWS availability zones. Defaults to all environment zones. Immutable.
+	Zones []string `json:"zones,omitempty"`
+	// Number of Keeper replicas. Defaults to 1. Set to 3 for high availability.
+	Replicas *int64 `json:"replicas,omitempty"`
+	// Whether the Keeper should be stopped.
+	Stopped *bool `json:"stopped,omitempty"`
+	// Data volume.
+	Disk *AWSEnvClickHouseKeeperDiskSpecInput `json:"disk"`
+}
+
+// ClickHouse Keeper configuration update. Omitted fields retain their values.
+type AWSEnvClickHouseKeeperUpdateSpecInput struct {
+	// Keeper cluster name.
+	Name string `json:"name"`
+	// AWS EC2 instance type.
+	// Must match a node group with a `ZOOKEEPER` reservation.
+	InstanceType *string `json:"instanceType,omitempty"`
+	// Number of Keeper replicas. Cannot be decreased.
+	Replicas *int64 `json:"replicas,omitempty"`
+	// Whether the Keeper should be stopped.
+	Stopped *bool `json:"stopped,omitempty"`
+	// Data volume.
+	Disk *AWSEnvClickHouseKeeperDiskUpdateSpecInput `json:"disk,omitempty"`
+}
+
+type AWSEnvClickHouseKeepersPatchInput struct {
+	// Keepers to add or replace.
+	Replace []*AWSEnvClickHouseKeeperSpecInput `json:"replace,omitempty"`
+	// Updates to existing keepers.
+	Update []*AWSEnvClickHouseKeeperUpdateSpecInput `json:"update,omitempty"`
+	// Keepers to delete. Missing keepers are ignored.
+	Delete []string `json:"delete,omitempty"`
+}
+
+// ClickHouse named data volume.
+type AWSEnvClickHouseNamedDiskSpec struct {
+	// Volume name.
+	Name string `json:"name"`
+	// Size in GiB.
+	SizeInGiB int64 `json:"sizeInGiB"`
+	// Provisioned IOPS. 0 when not set.
+	Iops int64 `json:"iops"`
+	// Provisioned throughput in MiB/s. 0 when not set.
+	ThroughputInMiBps int64 `json:"throughputInMiBps"`
+}
+
+// ClickHouse named data volume.
+type AWSEnvClickHouseNamedDiskSpecInput struct {
+	// Volume name.
+	// Must start with `disk`; 16 characters max.
+	// Immutable.
+	Name string `json:"name"`
+	// Size in GiB.
+	SizeInGiB int64 `json:"sizeInGiB"`
+	// Provisioned IOPS.
+	Iops *int64 `json:"iops,omitempty"`
+	// Provisioned throughput in MiB/s.
+	ThroughputInMiBps *int64 `json:"throughputInMiBps,omitempty"`
+}
+
+// ClickHouse named data volume update. Omitted fields retain their values.
+type AWSEnvClickHouseNamedDiskUpdateSpecInput struct {
+	// Volume name.
+	Name string `json:"name"`
+	// Size in GiB.
+	// The size of the volume cannot be decreased.
+	SizeInGiB *int64 `json:"sizeInGiB,omitempty"`
+	// Provisioned IOPS.
+	Iops *int64 `json:"iops,omitempty"`
+	// Provisioned throughput in MiB/s.
+	ThroughputInMiBps *int64 `json:"throughputInMiBps,omitempty"`
+}
+
+// ClickHouse named data volume patch.
+type AWSEnvClickHouseNamedDisksPatchInput struct {
+	// Volumes to add or replace.
+	Replace []*AWSEnvClickHouseNamedDiskSpecInput `json:"replace,omitempty"`
+	// Updates to existing volumes.
+	Update []*AWSEnvClickHouseNamedDiskUpdateSpecInput `json:"update,omitempty"`
+	// Volumes to delete.
+	Delete []string `json:"delete,omitempty"`
+}
+
+// A single ClickHouse setting.
+type AWSEnvClickHouseProfileSettingSpec struct {
+	// Setting name.
+	Key string `json:"key"`
+	// Setting value.
+	Value string `json:"value"`
+}
+
+// A single ClickHouse setting.
+type AWSEnvClickHouseProfileSettingSpecInput struct {
+	// Setting name.
+	// https://clickhouse.com/docs/reference/settings/session-settings
+	Key string `json:"key"`
+	// Setting value.
+	Value *string `json:"value,omitempty"`
+}
+
+type AWSEnvClickHouseProfileSettingsPatchInput struct {
+	// Settings to add or replace.
+	Replace []*AWSEnvClickHouseProfileSettingSpecInput `json:"replace,omitempty"`
+	// Settings to delete. Missing settings are ignored.
+	Delete []string `json:"delete,omitempty"`
+}
+
+// ClickHouse settings profile.
+type AWSEnvClickHouseProfileSpec struct {
+	// Profile name.
+	Name string `json:"name"`
+	// Settings the profile carries.
+	Settings []*AWSEnvClickHouseProfileSettingSpec `json:"settings"`
+}
+
+// ClickHouse settings profile.
+type AWSEnvClickHouseProfileSpecInput struct {
+	// Profile name.
+	Name string `json:"name"`
+	// Settings the profile should carry.
+	Settings []*AWSEnvClickHouseProfileSettingSpecInput `json:"settings,omitempty"`
+}
+
+// ClickHouse settings profile update. Omitted fields retain their values.
+type AWSEnvClickHouseProfileUpdateSpecInput struct {
+	// Profile name.
+	Name string `json:"name"`
+	// Settings the profile should carry.
+	Settings []*AWSEnvClickHouseProfileSettingSpecInput `json:"settings,omitempty"`
+	// Settings patch.
+	SettingsPatch *AWSEnvClickHouseProfileSettingsPatchInput `json:"settingsPatch,omitempty"`
+}
+
+type AWSEnvClickHouseProfilesPatchInput struct {
+	// Profiles to add or replace.
+	Replace []*AWSEnvClickHouseProfileSpecInput `json:"replace,omitempty"`
+	// Updates to existing profiles.
+	Update []*AWSEnvClickHouseProfileUpdateSpecInput `json:"update,omitempty"`
+	// Profiles to delete. Missing profiles are ignored.
+	Delete []string `json:"delete,omitempty"`
+}
+
+// ClickHouse server setting.
+type AWSEnvClickHouseServerSettingSpec struct {
+	// Setting name.
+	Key string `json:"key"`
+	// Setting value.
+	Value string `json:"value"`
+}
+
+// ClickHouse server setting.
+type AWSEnvClickHouseServerSettingSpecInput struct {
+	// Setting name.
+	// https://clickhouse.com/docs/reference/settings/server-settings/settings
+	Key string `json:"key"`
+	// Setting value.
+	Value *string `json:"value,omitempty"`
+}
+
+type AWSEnvClickHouseServerSettingsPatchInput struct {
+	// Settings to add or replace.
+	Replace []*AWSEnvClickHouseServerSettingSpecInput `json:"replace,omitempty"`
+	// Settings to delete. Missing settings are ignored.
+	Delete []string `json:"delete,omitempty"`
+}
+
+type AWSEnvClickHouseUserDatabaseSpec struct {
+	Name string `json:"name"`
+}
+
+type AWSEnvClickHouseUserDatabaseSpecInput struct {
+	Name string `json:"name"`
+}
+
+type AWSEnvClickHouseUserNetworksSpec struct {
+	// IP addresses or CIDRs the user may connect from. When omitted or empty, only `127.0.0.1` and `::1` are allowed.
+	Ips []string `json:"ips"`
+}
+
+type AWSEnvClickHouseUserNetworksSpecInput struct {
+	// IP addresses or CIDRs the user may connect from. When omitted or empty, only `127.0.0.1` and `::1` are allowed.
+	Ips []string `json:"ips,omitempty"`
+}
+
+type AWSEnvClickHouseUserPasswordSpec struct {
+	// Password encoding.
+	Type AWSEnvClickHouseUserPasswordType `json:"type"`
+}
+
+type AWSEnvClickHouseUserPasswordSpecInput struct {
+	// Password encoding.
+	Type AWSEnvClickHouseUserPasswordType `json:"type"`
+	// Password value encoded according to `type` and encrypted with the environment public key.
+	EncValue *string `json:"encValue,omitempty"`
+}
+
+// ClickHouse user.
+type AWSEnvClickHouseUserSpec struct {
+	// User name.
+	Name string `json:"name"`
+	// Settings profile assigned to the user.
+	Profile string `json:"profile"`
+	// Quota assigned to the user.
+	Quota string `json:"quota"`
+	// Networks the user may connect from.
+	Networks *AWSEnvClickHouseUserNetworksSpec `json:"networks"`
+	// Whether the user can manage roles, users, and grants.
+	AccessManagement bool `json:"accessManagement"`
+	// Whether the user can create and drop named collections.
+	NamedCollectionControl bool `json:"namedCollectionControl"`
+	// Whether the user can read secrets stored in named collections.
+	ShowNamedCollectionsSecrets bool `json:"showNamedCollectionsSecrets"`
+	// Databases the user is granted access to. All by default.
+	Databases []*AWSEnvClickHouseUserDatabaseSpec `json:"databases"`
+	// User grants, e.g. "GRANT SHOW ON *.*".
+	// This setting cannot be combined with
+	// accessManagement, namedCollectionControl, showNamedCollectionsSecrets and databases settings.
+	Grants []string `json:"grants"`
+	// User password.
+	Password *AWSEnvClickHouseUserPasswordSpec `json:"password"`
+}
+
+// ClickHouse user.
+type AWSEnvClickHouseUserSpecInput struct {
+	// User name.
+	Name string `json:"name"`
+	// Settings profile assigned to the user.
+	Profile *string `json:"profile,omitempty"`
+	// Quota assigned to the user.
+	Quota *string `json:"quota,omitempty"`
+	// Networks the user may connect from.
+	Networks *AWSEnvClickHouseUserNetworksSpecInput `json:"networks,omitempty"`
+	// Whether the user can manage roles, users, and grants.
+	AccessManagement *bool `json:"accessManagement,omitempty"`
+	// Whether the user can create and drop named collections.
+	NamedCollectionControl *bool `json:"namedCollectionControl,omitempty"`
+	// Whether the user can read secrets stored in named collections.
+	ShowNamedCollectionsSecrets *bool `json:"showNamedCollectionsSecrets,omitempty"`
+	// Databases the user is granted access to. All by default.
+	Databases []*AWSEnvClickHouseUserDatabaseSpecInput `json:"databases,omitempty"`
+	// User grants, e.g. "GRANT SHOW ON *.*".
+	// This setting cannot be combined with
+	// accessManagement, namedCollectionControl, showNamedCollectionsSecrets and databases settings.
+	Grants []string `json:"grants,omitempty"`
+	// Password.
+	Password *AWSEnvClickHouseUserPasswordSpecInput `json:"password"`
+}
+
+// ClickHouse user update. Omitted fields retain their values.
+type AWSEnvClickHouseUserUpdateSpecInput struct {
+	// User name, unique within the cluster.
+	Name string `json:"name"`
+	// Settings profile assigned to the user.
+	Profile *string `json:"profile,omitempty"`
+	// Quota assigned to the user.
+	Quota *string `json:"quota,omitempty"`
+	// Networks the user may connect from.
+	Networks *AWSEnvClickHouseUserNetworksSpecInput `json:"networks,omitempty"`
+	// Whether the user can manage roles, users, and grants.
+	AccessManagement *bool `json:"accessManagement,omitempty"`
+	// Whether the user can create and drop named collections.
+	NamedCollectionControl *bool `json:"namedCollectionControl,omitempty"`
+	// Whether the user can read secrets stored in named collections.
+	ShowNamedCollectionsSecrets *bool `json:"showNamedCollectionsSecrets,omitempty"`
+	// Databases the user is granted access to. All by default.
+	Databases []*AWSEnvClickHouseUserDatabaseSpecInput `json:"databases,omitempty"`
+	// User grants, e.g. "GRANT SHOW ON *.*".
+	// This setting cannot be combined with
+	// accessManagement, namedCollectionControl, showNamedCollectionsSecrets and databases settings.
+	Grants []string `json:"grants,omitempty"`
+	// Password.
+	Password *AWSEnvClickHouseUserPasswordSpecInput `json:"password,omitempty"`
+}
+
+type AWSEnvClickHouseUsersPatchInput struct {
+	// Users to add or replace.
+	Replace []*AWSEnvClickHouseUserSpecInput `json:"replace,omitempty"`
+	// Updates to existing users.
+	Update []*AWSEnvClickHouseUserUpdateSpecInput `json:"update,omitempty"`
+	// Users to delete. Missing users are ignored.
+	Delete []string `json:"delete,omitempty"`
+}
+
 // IAM principal granted access to the environment's EKS API.
 type AWSEnvEKSAccessEntrySpec struct {
 	// ARN of the IAM role or user.
@@ -172,6 +695,530 @@ type AWSEnvHostedBackupsSpec struct {
 type AWSEnvHostedBackupsSpecInput struct {
 	// Custom S3 bucket.
 	CustomBucket *AWSEnvHostedBackupsCustomBucketSpecInput `json:"customBucket,omitempty"`
+}
+
+// ClickHouse cluster data volume.
+type AWSEnvHostedClickHouseClusterDiskSpec struct {
+	// Size in GiB.
+	SizeInGiB int64 `json:"sizeInGiB"`
+	// Provisioned IOPS. 0 when not set.
+	Iops int64 `json:"iops"`
+	// Provisioned throughput in MiB/s. 0 when not set.
+	ThroughputInMiBps int64 `json:"throughputInMiBps"`
+}
+
+// ClickHouse cluster data volume.
+type AWSEnvHostedClickHouseClusterDiskSpecInput struct {
+	// Size in GiB.
+	SizeInGiB int64 `json:"sizeInGiB"`
+	// Provisioned IOPS.
+	Iops *int64 `json:"iops,omitempty"`
+	// Provisioned throughput in MiB/s.
+	ThroughputInMiBps *int64 `json:"throughputInMiBps,omitempty"`
+}
+
+// ClickHouse cluster data volume update.
+type AWSEnvHostedClickHouseClusterDiskUpdateSpecInput struct {
+	// Size in GiB.
+	// The size of the volume cannot be decreased.
+	SizeInGiB *int64 `json:"sizeInGiB,omitempty"`
+	// Provisioned IOPS.
+	Iops *int64 `json:"iops,omitempty"`
+	// Provisioned throughput in MiB/s.
+	ThroughputInMiBps *int64 `json:"throughputInMiBps,omitempty"`
+}
+
+// ClickHouse cluster configuration.
+type AWSEnvHostedClickHouseClusterSpec struct {
+	// Cluster name.
+	Name string `json:"name"`
+	// Server image.
+	// e.g. altinity/clickhouse-server:25.8.16.10002.altinitystable
+	Image string `json:"image"`
+	// AWS EC2 instance type used by the nodes.
+	InstanceType string `json:"instanceType"`
+	// AWS availability zone IDs used by the nodes.
+	ZoneIDs []string `json:"zoneIDs"`
+	// Number of shards.
+	Shards int64 `json:"shards"`
+	// Number of replicas per shard.
+	Replicas int64 `json:"replicas"`
+	// Whether the cluster is stopped.
+	Stopped bool `json:"stopped"`
+	// Main data volume.
+	Disk *AWSEnvHostedClickHouseClusterDiskSpec `json:"disk"`
+	// Extra data volumes added to the default ClickHouse storage policy.
+	// Each replica receives one volume per entry.
+	//
+	// By default, ClickHouse balances new data across the main and extra volumes using `least_used` strategy.
+	//
+	// A volume named `diskN`, where `N` is a positive integer, is mounted at `/var/lib/clickhouseN`;
+	// other names are mounted at `/var/lib/clickhouse<name>`.
+	ExtraDisks []*AWSEnvHostedClickHouseNamedDiskSpec `json:"extraDisks"`
+	// Name of the Keeper this cluster coordinates through. Empty when no Keeper configured.
+	Keeper string `json:"keeper"`
+	// ClickHouse users.
+	Users []*AWSEnvHostedClickHouseUserSpec `json:"users"`
+	// Settings profiles users can be assigned to.
+	Profiles []*AWSEnvHostedClickHouseProfileSpec `json:"profiles"`
+	// Resource usage quotas users can be assigned to.
+	Quotas []*ClickHouseQuotaSpec `json:"quotas"`
+	// Server configuration settings.
+	ServerSettings []*AWSEnvHostedClickHouseServerSettingSpec `json:"serverSettings"`
+}
+
+// ClickHouse cluster.
+type AWSEnvHostedClickHouseClusterSpecInput struct {
+	// Cluster name.
+	// Must be 2-15 characters long, containing only lowercase letters, numbers, and hyphens
+	// (cannot start or end with a hyphen).
+	// Immutable.
+	Name string `json:"name"`
+	// Server image.
+	// e.g. altinity/clickhouse-server:25.8.16.10002.altinitystable
+	Image *string `json:"image,omitempty"`
+	// AWS EC2 instance type.
+	// Must match a node group with a `CLICKHOUSE` reservation.
+	InstanceType string `json:"instanceType"`
+	// AWS availability zone IDs.
+	// Defaults to environment's zone IDs.
+	// Immutable.
+	ZoneIDs []string `json:"zoneIDs,omitempty"`
+	// Number of shards.
+	Shards *int64 `json:"shards,omitempty"`
+	// Number of replicas per shard.
+	Replicas *int64 `json:"replicas,omitempty"`
+	// Whether the cluster should be stopped.
+	Stopped *bool `json:"stopped,omitempty"`
+	// Name of the Keeper this cluster coordinates through.
+	Keeper *string `json:"keeper,omitempty"`
+	// Main data volume.
+	Disk *AWSEnvHostedClickHouseClusterDiskSpecInput `json:"disk"`
+	// Extra data volumes added to the default ClickHouse storage policy.
+	// Each replica receives one volume per entry.
+	//
+	// By default, ClickHouse balances new data across the main and extra volumes using `least_used` strategy.
+	//
+	// A volume named `diskN`, where `N` is a positive integer, is mounted at `/var/lib/clickhouseN`;
+	// other names are mounted at `/var/lib/clickhouse<name>`.
+	ExtraDisks []*AWSEnvHostedClickHouseNamedDiskSpecInput `json:"extraDisks,omitempty"`
+	// ClickHouse users.
+	Users []*AWSEnvHostedClickHouseUserSpecInput `json:"users,omitempty"`
+	// Settings profiles users can be assigned to.
+	Profiles []*AWSEnvHostedClickHouseProfileSpecInput `json:"profiles,omitempty"`
+	// Resource usage quotas users can be assigned to.
+	Quotas []*ClickHouseQuotaSpecInput `json:"quotas,omitempty"`
+	// Server configuration settings.
+	ServerSettings []*AWSEnvHostedClickHouseServerSettingSpecInput `json:"serverSettings,omitempty"`
+}
+
+type AWSEnvHostedClickHouseClusterStatus struct {
+	Name      string                            `json:"name"`
+	Endpoints []*AWSEnvHostedClickHouseEndpoint `json:"endpoints"`
+}
+
+// ClickHouse cluster update.
+type AWSEnvHostedClickHouseClusterUpdateSpecInput struct {
+	// Cluster identifier.
+	Name string `json:"name"`
+	// Server image, tag included.
+	// Altinity-hosted environments only accept `altinity/clickhouse-server` and `clickhouse/clickhouse-server` images.
+	Image *string `json:"image,omitempty"`
+	// AWS EC2 instance type.
+	// Must match a node group with a `CLICKHOUSE` reservation.
+	InstanceType *string `json:"instanceType,omitempty"`
+	// Number of shards.
+	Shards *int64 `json:"shards,omitempty"`
+	// Number of replicas per shard.
+	Replicas *int64 `json:"replicas,omitempty"`
+	// Whether the cluster should be stopped.
+	Stopped *bool `json:"stopped,omitempty"`
+	// Name of the Keeper this cluster coordinates through.
+	Keeper *string `json:"keeper,omitempty"`
+	// Main data volume.
+	Disk *AWSEnvHostedClickHouseClusterDiskUpdateSpecInput `json:"disk,omitempty"`
+	// Extra data volumes added to the default ClickHouse storage policy.
+	// Each replica receives one volume per entry.
+	//
+	// By default, ClickHouse balances new data across the main and extra volumes using `least_used` strategy.
+	//
+	// A volume named `diskN`, where `N` is a positive integer, is mounted at `/var/lib/clickhouseN`;
+	// other names are mounted at `/var/lib/clickhouse<name>`.
+	ExtraDisks []*AWSEnvHostedClickHouseNamedDiskSpecInput `json:"extraDisks,omitempty"`
+	// Partial extraDisks update.
+	ExtraDisksPatch *AWSEnvHostedClickHouseNamedDisksPatchInput `json:"extraDisksPatch,omitempty"`
+	// ClickHouse users.
+	Users []*AWSEnvHostedClickHouseUserSpecInput `json:"users,omitempty"`
+	// Partial users update.
+	UsersPatch *AWSEnvHostedClickHouseUsersPatchInput `json:"usersPatch,omitempty"`
+	// Settings profiles users can be assigned to.
+	Profiles []*AWSEnvHostedClickHouseProfileSpecInput `json:"profiles,omitempty"`
+	// Partial profiles update.
+	ProfilesPatch *AWSEnvHostedClickHouseProfilesPatchInput `json:"profilesPatch,omitempty"`
+	// Resource usage quotas users can be assigned to.
+	Quotas []*ClickHouseQuotaSpecInput `json:"quotas,omitempty"`
+	// Partial quotas update.
+	QuotasPatch *ClickHouseQuotaSpecsPatchInput `json:"quotasPatch,omitempty"`
+	// Server configuration settings.
+	ServerSettings []*AWSEnvHostedClickHouseServerSettingSpecInput `json:"serverSettings,omitempty"`
+	// Partial serverSettings update.
+	ServerSettingsPatch *AWSEnvHostedClickHouseServerSettingsPatchInput `json:"serverSettingsPatch,omitempty"`
+}
+
+type AWSEnvHostedClickHouseClustersPatchInput struct {
+	// Clusters to add or replace.
+	Replace []*AWSEnvHostedClickHouseClusterSpecInput `json:"replace,omitempty"`
+	// Updates to existing clusters (unspecified fields are kept untouched).
+	Update []*AWSEnvHostedClickHouseClusterUpdateSpecInput `json:"update,omitempty"`
+	// Clusters to delete. Missing clusters are ignored.
+	Delete []string `json:"delete,omitempty"`
+}
+
+type AWSEnvHostedClickHouseEndpoint struct {
+	Protocol AWSEnvHostedClickHouseProtocol `json:"protocol"`
+	// Host, including port.
+	Host string                              `json:"host"`
+	Type *AWSEnvHostedClickHouseEndpointType `json:"type,omitempty"`
+}
+
+// ClickHouse Keeper data volume.
+type AWSEnvHostedClickHouseKeeperDiskSpec struct {
+	// Size in GiB.
+	SizeInGiB int64 `json:"sizeInGiB"`
+	// Provisioned IOPS. 0 when not set.
+	Iops int64 `json:"iops"`
+	// Provisioned throughput in MiB/s. 0 when not set.
+	ThroughputInMiBps int64 `json:"throughputInMiBps"`
+}
+
+// ClickHouse Keeper data volume.
+type AWSEnvHostedClickHouseKeeperDiskSpecInput struct {
+	// Size in GiB.
+	SizeInGiB int64 `json:"sizeInGiB"`
+	// Provisioned IOPS.
+	Iops *int64 `json:"iops,omitempty"`
+	// Provisioned throughput in MiB/s.
+	ThroughputInMiBps *int64 `json:"throughputInMiBps,omitempty"`
+}
+
+// ClickHouse Keeper data volume update.
+type AWSEnvHostedClickHouseKeeperDiskUpdateSpecInput struct {
+	// Size in GiB.
+	// The size of the volume cannot be decreased.
+	SizeInGiB *int64 `json:"sizeInGiB,omitempty"`
+	// Provisioned IOPS.
+	Iops *int64 `json:"iops,omitempty"`
+	// Provisioned throughput in MiB/s.
+	ThroughputInMiBps *int64 `json:"throughputInMiBps,omitempty"`
+}
+
+// ClickHouse Keeper configuration.
+type AWSEnvHostedClickHouseKeeperSpec struct {
+	// Keeper cluster name.
+	Name string `json:"name"`
+	// AWS EC2 instance type the Keeper nodes run on.
+	InstanceType string `json:"instanceType"`
+	// AWS availability zone IDs the Keeper is spread across. Keeper replicas are distributed across these locations.
+	ZoneIDs []string `json:"zoneIDs"`
+	// Number of Keeper replicas.
+	Replicas int64 `json:"replicas"`
+	// Whether the Keeper is stopped.
+	Stopped bool `json:"stopped"`
+	// Data volume.
+	Disk *AWSEnvHostedClickHouseKeeperDiskSpec `json:"disk"`
+}
+
+// ClickHouse Keeper configuration.
+type AWSEnvHostedClickHouseKeeperSpecInput struct {
+	// Keeper cluster name.
+	// Must be 2-15 characters long, containing only lowercase letters, numbers, and hyphens
+	// (cannot start or end with a hyphen).
+	// Immutable.
+	Name string `json:"name"`
+	// AWS EC2 instance type.
+	// Must match a node group with a `ZOOKEEPER` reservation.
+	InstanceType string `json:"instanceType"`
+	// AWS availability zone IDs. Defaults to all environment zone IDs. Immutable.
+	ZoneIDs []string `json:"zoneIDs,omitempty"`
+	// Number of Keeper replicas. Defaults to 1. Set to 3 for high availability.
+	Replicas *int64 `json:"replicas,omitempty"`
+	// Whether the Keeper should be stopped.
+	Stopped *bool `json:"stopped,omitempty"`
+	// Data volume.
+	Disk *AWSEnvHostedClickHouseKeeperDiskSpecInput `json:"disk"`
+}
+
+// ClickHouse Keeper configuration update. Omitted fields retain their values.
+type AWSEnvHostedClickHouseKeeperUpdateSpecInput struct {
+	// Keeper cluster name.
+	Name string `json:"name"`
+	// AWS EC2 instance type.
+	// Must match a node group with a `ZOOKEEPER` reservation.
+	InstanceType *string `json:"instanceType,omitempty"`
+	// Number of Keeper replicas. Cannot be decreased.
+	Replicas *int64 `json:"replicas,omitempty"`
+	// Whether the Keeper should be stopped.
+	Stopped *bool `json:"stopped,omitempty"`
+	// Data volume.
+	Disk *AWSEnvHostedClickHouseKeeperDiskUpdateSpecInput `json:"disk,omitempty"`
+}
+
+type AWSEnvHostedClickHouseKeepersPatchInput struct {
+	// Keepers to add or replace.
+	Replace []*AWSEnvHostedClickHouseKeeperSpecInput `json:"replace,omitempty"`
+	// Updates to existing keepers.
+	Update []*AWSEnvHostedClickHouseKeeperUpdateSpecInput `json:"update,omitempty"`
+	// Keepers to delete. Missing keepers are ignored.
+	Delete []string `json:"delete,omitempty"`
+}
+
+// ClickHouse named data volume.
+type AWSEnvHostedClickHouseNamedDiskSpec struct {
+	// Volume name.
+	Name string `json:"name"`
+	// Size in GiB.
+	SizeInGiB int64 `json:"sizeInGiB"`
+	// Provisioned IOPS. 0 when not set.
+	Iops int64 `json:"iops"`
+	// Provisioned throughput in MiB/s. 0 when not set.
+	ThroughputInMiBps int64 `json:"throughputInMiBps"`
+}
+
+// ClickHouse named data volume.
+type AWSEnvHostedClickHouseNamedDiskSpecInput struct {
+	// Volume name.
+	// Must start with `disk`; 16 characters max.
+	// Immutable.
+	Name string `json:"name"`
+	// Size in GiB.
+	SizeInGiB int64 `json:"sizeInGiB"`
+	// Provisioned IOPS.
+	Iops *int64 `json:"iops,omitempty"`
+	// Provisioned throughput in MiB/s.
+	ThroughputInMiBps *int64 `json:"throughputInMiBps,omitempty"`
+}
+
+// ClickHouse named data volume update. Omitted fields retain their values.
+type AWSEnvHostedClickHouseNamedDiskUpdateSpecInput struct {
+	// Volume name.
+	Name string `json:"name"`
+	// Size in GiB.
+	// The size of the volume cannot be decreased.
+	SizeInGiB *int64 `json:"sizeInGiB,omitempty"`
+	// Provisioned IOPS.
+	Iops *int64 `json:"iops,omitempty"`
+	// Provisioned throughput in MiB/s.
+	ThroughputInMiBps *int64 `json:"throughputInMiBps,omitempty"`
+}
+
+// ClickHouse named data volume patch.
+type AWSEnvHostedClickHouseNamedDisksPatchInput struct {
+	// Volumes to add or replace.
+	Replace []*AWSEnvHostedClickHouseNamedDiskSpecInput `json:"replace,omitempty"`
+	// Updates to existing volumes.
+	Update []*AWSEnvHostedClickHouseNamedDiskUpdateSpecInput `json:"update,omitempty"`
+	// Volumes to delete.
+	Delete []string `json:"delete,omitempty"`
+}
+
+// A single ClickHouse setting.
+type AWSEnvHostedClickHouseProfileSettingSpec struct {
+	// Setting name.
+	Key string `json:"key"`
+	// Setting value.
+	Value string `json:"value"`
+}
+
+// A single ClickHouse setting.
+type AWSEnvHostedClickHouseProfileSettingSpecInput struct {
+	// Setting name.
+	// https://clickhouse.com/docs/reference/settings/session-settings
+	Key string `json:"key"`
+	// Setting value.
+	Value *string `json:"value,omitempty"`
+}
+
+type AWSEnvHostedClickHouseProfileSettingsPatchInput struct {
+	// Settings to add or replace.
+	Replace []*AWSEnvHostedClickHouseProfileSettingSpecInput `json:"replace,omitempty"`
+	// Settings to delete. Missing settings are ignored.
+	Delete []string `json:"delete,omitempty"`
+}
+
+// ClickHouse settings profile.
+type AWSEnvHostedClickHouseProfileSpec struct {
+	// Profile name.
+	Name string `json:"name"`
+	// Settings the profile carries.
+	Settings []*AWSEnvHostedClickHouseProfileSettingSpec `json:"settings"`
+}
+
+// ClickHouse settings profile.
+type AWSEnvHostedClickHouseProfileSpecInput struct {
+	// Profile name.
+	Name string `json:"name"`
+	// Settings the profile should carry.
+	Settings []*AWSEnvHostedClickHouseProfileSettingSpecInput `json:"settings,omitempty"`
+}
+
+// ClickHouse settings profile update. Omitted fields retain their values.
+type AWSEnvHostedClickHouseProfileUpdateSpecInput struct {
+	// Profile name.
+	Name string `json:"name"`
+	// Settings the profile should carry.
+	Settings []*AWSEnvHostedClickHouseProfileSettingSpecInput `json:"settings,omitempty"`
+	// Settings patch.
+	SettingsPatch *AWSEnvHostedClickHouseProfileSettingsPatchInput `json:"settingsPatch,omitempty"`
+}
+
+type AWSEnvHostedClickHouseProfilesPatchInput struct {
+	// Profiles to add or replace.
+	Replace []*AWSEnvHostedClickHouseProfileSpecInput `json:"replace,omitempty"`
+	// Updates to existing profiles.
+	Update []*AWSEnvHostedClickHouseProfileUpdateSpecInput `json:"update,omitempty"`
+	// Profiles to delete. Missing profiles are ignored.
+	Delete []string `json:"delete,omitempty"`
+}
+
+// ClickHouse server setting.
+type AWSEnvHostedClickHouseServerSettingSpec struct {
+	// Setting name.
+	Key string `json:"key"`
+	// Setting value.
+	Value string `json:"value"`
+}
+
+// ClickHouse server setting.
+type AWSEnvHostedClickHouseServerSettingSpecInput struct {
+	// Setting name.
+	// https://clickhouse.com/docs/reference/settings/server-settings/settings
+	Key string `json:"key"`
+	// Setting value.
+	Value *string `json:"value,omitempty"`
+}
+
+type AWSEnvHostedClickHouseServerSettingsPatchInput struct {
+	// Settings to add or replace.
+	Replace []*AWSEnvHostedClickHouseServerSettingSpecInput `json:"replace,omitempty"`
+	// Settings to delete. Missing settings are ignored.
+	Delete []string `json:"delete,omitempty"`
+}
+
+type AWSEnvHostedClickHouseUserDatabaseSpec struct {
+	Name string `json:"name"`
+}
+
+type AWSEnvHostedClickHouseUserDatabaseSpecInput struct {
+	Name string `json:"name"`
+}
+
+type AWSEnvHostedClickHouseUserNetworksSpec struct {
+	// IP addresses or CIDRs the user may connect from. When omitted or empty, only `127.0.0.1` and `::1` are allowed.
+	Ips []string `json:"ips"`
+}
+
+type AWSEnvHostedClickHouseUserNetworksSpecInput struct {
+	// IP addresses or CIDRs the user may connect from. When omitted or empty, only `127.0.0.1` and `::1` are allowed.
+	Ips []string `json:"ips,omitempty"`
+}
+
+type AWSEnvHostedClickHouseUserPasswordSpec struct {
+	// Password encoding.
+	Type AWSEnvHostedClickHouseUserPasswordType `json:"type"`
+}
+
+type AWSEnvHostedClickHouseUserPasswordSpecInput struct {
+	// Password encoding.
+	Type AWSEnvHostedClickHouseUserPasswordType `json:"type"`
+	// Password value encoded according to `type` and encrypted with the environment public key.
+	EncValue *string `json:"encValue,omitempty"`
+}
+
+// ClickHouse user.
+type AWSEnvHostedClickHouseUserSpec struct {
+	// User name.
+	Name string `json:"name"`
+	// Settings profile assigned to the user.
+	Profile string `json:"profile"`
+	// Quota assigned to the user.
+	Quota string `json:"quota"`
+	// Networks the user may connect from.
+	Networks *AWSEnvHostedClickHouseUserNetworksSpec `json:"networks"`
+	// Whether the user can manage roles, users, and grants.
+	AccessManagement bool `json:"accessManagement"`
+	// Whether the user can create and drop named collections.
+	NamedCollectionControl bool `json:"namedCollectionControl"`
+	// Whether the user can read secrets stored in named collections.
+	ShowNamedCollectionsSecrets bool `json:"showNamedCollectionsSecrets"`
+	// Databases the user is granted access to. All by default.
+	Databases []*AWSEnvHostedClickHouseUserDatabaseSpec `json:"databases"`
+	// User grants, e.g. "GRANT SHOW ON *.*".
+	// This setting cannot be combined with
+	// accessManagement, namedCollectionControl, showNamedCollectionsSecrets and databases settings.
+	Grants []string `json:"grants"`
+	// User password.
+	Password *AWSEnvHostedClickHouseUserPasswordSpec `json:"password"`
+}
+
+// ClickHouse user.
+type AWSEnvHostedClickHouseUserSpecInput struct {
+	// User name.
+	Name string `json:"name"`
+	// Settings profile assigned to the user.
+	Profile *string `json:"profile,omitempty"`
+	// Quota assigned to the user.
+	Quota *string `json:"quota,omitempty"`
+	// Networks the user may connect from.
+	Networks *AWSEnvHostedClickHouseUserNetworksSpecInput `json:"networks,omitempty"`
+	// Whether the user can manage roles, users, and grants.
+	AccessManagement *bool `json:"accessManagement,omitempty"`
+	// Whether the user can create and drop named collections.
+	NamedCollectionControl *bool `json:"namedCollectionControl,omitempty"`
+	// Whether the user can read secrets stored in named collections.
+	ShowNamedCollectionsSecrets *bool `json:"showNamedCollectionsSecrets,omitempty"`
+	// Databases the user is granted access to. All by default.
+	Databases []*AWSEnvHostedClickHouseUserDatabaseSpecInput `json:"databases,omitempty"`
+	// User grants, e.g. "GRANT SHOW ON *.*".
+	// This setting cannot be combined with
+	// accessManagement, namedCollectionControl, showNamedCollectionsSecrets and databases settings.
+	Grants []string `json:"grants,omitempty"`
+	// Password.
+	Password *AWSEnvHostedClickHouseUserPasswordSpecInput `json:"password"`
+}
+
+// ClickHouse user update. Omitted fields retain their values.
+type AWSEnvHostedClickHouseUserUpdateSpecInput struct {
+	// User name, unique within the cluster.
+	Name string `json:"name"`
+	// Settings profile assigned to the user.
+	Profile *string `json:"profile,omitempty"`
+	// Quota assigned to the user.
+	Quota *string `json:"quota,omitempty"`
+	// Networks the user may connect from.
+	Networks *AWSEnvHostedClickHouseUserNetworksSpecInput `json:"networks,omitempty"`
+	// Whether the user can manage roles, users, and grants.
+	AccessManagement *bool `json:"accessManagement,omitempty"`
+	// Whether the user can create and drop named collections.
+	NamedCollectionControl *bool `json:"namedCollectionControl,omitempty"`
+	// Whether the user can read secrets stored in named collections.
+	ShowNamedCollectionsSecrets *bool `json:"showNamedCollectionsSecrets,omitempty"`
+	// Databases the user is granted access to. All by default.
+	Databases []*AWSEnvHostedClickHouseUserDatabaseSpecInput `json:"databases,omitempty"`
+	// User grants, e.g. "GRANT SHOW ON *.*".
+	// This setting cannot be combined with
+	// accessManagement, namedCollectionControl, showNamedCollectionsSecrets and databases settings.
+	Grants []string `json:"grants,omitempty"`
+	// Password.
+	Password *AWSEnvHostedClickHouseUserPasswordSpecInput `json:"password,omitempty"`
+}
+
+type AWSEnvHostedClickHouseUsersPatchInput struct {
+	// Users to add or replace.
+	Replace []*AWSEnvHostedClickHouseUserSpecInput `json:"replace,omitempty"`
+	// Updates to existing users.
+	Update []*AWSEnvHostedClickHouseUserUpdateSpecInput `json:"update,omitempty"`
+	// Users to delete. Missing users are ignored.
+	Delete []string `json:"delete,omitempty"`
 }
 
 // AWS environment VPC endpoint configuration.
@@ -532,6 +1579,10 @@ type AWSEnvHostedSpec struct {
 	// ARN of the customer's KMS key for encrypting Altinity-provisioned data buckets
 	// and EBS volumes.
 	KmsKeyArn *string `json:"kmsKeyARN,omitempty"`
+	// ClickHouse clusters.
+	ClickHouseClusters []*AWSEnvHostedClickHouseClusterSpec `json:"clickHouseClusters"`
+	// ClickHouse Keepers.
+	ClickHouseKeepers []*AWSEnvHostedClickHouseKeeperSpec `json:"clickHouseKeepers"`
 	// MFA destructive operations.
 	// True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
 	Mfa bool `json:"mfa"`
@@ -543,6 +1594,8 @@ type AWSEnvHostedStatus struct {
 	AppliedSpecRevision int64 `json:"appliedSpecRevision"`
 	// Status of load balancers.
 	LoadBalancers *AWSEnvHostedLoadBalancersStatus `json:"loadBalancers"`
+	// Status of ClickHouse clusters.
+	ClickHouseClusters []*AWSEnvHostedClickHouseClusterStatus `json:"clickHouseClusters"`
 	// True indicates that environment is pending deletion.
 	PendingDelete bool `json:"pendingDelete"`
 	// Status errors.
@@ -606,6 +1659,14 @@ type AWSEnvHostedUpdateSpecInput struct {
 	MetricsEndpoint *MetricsEndpointSpecInput `json:"metricsEndpoint,omitempty"`
 	// Datadog monitoring agent configuration.
 	Datadog *DatadogSpecInput `json:"datadog,omitempty"`
+	// Replaces all ClickHouse clusters exposed by this API.
+	ClickHouseClusters []*AWSEnvHostedClickHouseClusterSpecInput `json:"clickHouseClusters,omitempty"`
+	// Changes ClickHouse clusters exposed by this API. Cannot be combined with clickHouseClusters.
+	ClickHouseClustersPatch *AWSEnvHostedClickHouseClustersPatchInput `json:"clickHouseClustersPatch,omitempty"`
+	// Replaces all ClickHouse Keepers exposed by this API.
+	ClickHouseKeepers []*AWSEnvHostedClickHouseKeeperSpecInput `json:"clickHouseKeepers,omitempty"`
+	// Changes ClickHouse Keepers exposed by this API. Cannot be combined with clickHouseKeepers.
+	ClickHouseKeepersPatch *AWSEnvHostedClickHouseKeepersPatchInput `json:"clickHouseKeepersPatch,omitempty"`
 	// MFA destructive operations.
 	// True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
 	Mfa *bool `json:"mfa,omitempty"`
@@ -907,6 +1968,10 @@ type AWSEnvSpec struct {
 	// ARN of the customer's KMS key for encrypting Altinity-provisioned data buckets
 	// and EBS volumes.
 	KmsKeyArn *string `json:"kmsKeyARN,omitempty"`
+	// ClickHouse clusters.
+	ClickHouseClusters []*AWSEnvClickHouseClusterSpec `json:"clickHouseClusters"`
+	// ClickHouse Keepers.
+	ClickHouseKeepers []*AWSEnvClickHouseKeeperSpec `json:"clickHouseKeepers"`
 	// MFA destructive operations.
 	// True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
 	Mfa bool `json:"mfa"`
@@ -920,6 +1985,8 @@ type AWSEnvStatus struct {
 	LoadBalancers *AWSEnvLoadBalancersStatus `json:"loadBalancers"`
 	// Status of peering connections.
 	PeeringConnections []*AWSEnvPeeringConnectionStatus `json:"peeringConnections"`
+	// Status of ClickHouse clusters.
+	ClickHouseClusters []*AWSEnvClickHouseClusterStatus `json:"clickHouseClusters"`
 	// True indicates that environment is pending deletion.
 	PendingDelete bool `json:"pendingDelete"`
 	// AWS resources information.
@@ -997,6 +2064,14 @@ type AWSEnvUpdateSpecInput struct {
 	MetricsEndpoint *MetricsEndpointSpecInput `json:"metricsEndpoint,omitempty"`
 	// Datadog monitoring agent configuration.
 	Datadog *DatadogSpecInput `json:"datadog,omitempty"`
+	// Replaces all ClickHouse clusters exposed by this API.
+	ClickHouseClusters []*AWSEnvClickHouseClusterSpecInput `json:"clickHouseClusters,omitempty"`
+	// Changes ClickHouse clusters exposed by this API. Cannot be combined with clickHouseClusters.
+	ClickHouseClustersPatch *AWSEnvClickHouseClustersPatchInput `json:"clickHouseClustersPatch,omitempty"`
+	// Replaces all ClickHouse Keepers exposed by this API.
+	ClickHouseKeepers []*AWSEnvClickHouseKeeperSpecInput `json:"clickHouseKeepers,omitempty"`
+	// Changes ClickHouse Keepers exposed by this API. Cannot be combined with clickHouseKeepers.
+	ClickHouseKeepersPatch *AWSEnvClickHouseKeepersPatchInput `json:"clickHouseKeepersPatch,omitempty"`
 	// MFA destructive operations.
 	// True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
 	Mfa *bool `json:"mfa,omitempty"`
@@ -1022,6 +2097,493 @@ type AzureEnv struct {
 	SpecRevision int64 `json:"specRevision"`
 	// Environment status.
 	Status *AzureEnvStatus `json:"status"`
+}
+
+// ClickHouse cluster data volume.
+type AzureEnvClickHouseClusterDiskSpec struct {
+	// Size in GiB.
+	SizeInGiB int64 `json:"sizeInGiB"`
+}
+
+// ClickHouse cluster data volume.
+type AzureEnvClickHouseClusterDiskSpecInput struct {
+	// Size in GiB.
+	SizeInGiB int64 `json:"sizeInGiB"`
+}
+
+// ClickHouse cluster data volume update.
+type AzureEnvClickHouseClusterDiskUpdateSpecInput struct {
+	// Size in GiB.
+	// The size of the volume cannot be decreased.
+	SizeInGiB *int64 `json:"sizeInGiB,omitempty"`
+}
+
+// ClickHouse cluster configuration.
+type AzureEnvClickHouseClusterSpec struct {
+	// Cluster name.
+	Name string `json:"name"`
+	// Server image, tag included.
+	Image string `json:"image"`
+	// Azure VM size used by the nodes.
+	VMSize string `json:"vmSize"`
+	// Azure availability zones used by the nodes.
+	Zones []string `json:"zones"`
+	// Number of shards.
+	Shards int64 `json:"shards"`
+	// Number of replicas per shard.
+	Replicas int64 `json:"replicas"`
+	// Whether the cluster is stopped.
+	Stopped bool `json:"stopped"`
+	// Main data volume.
+	Disk *AzureEnvClickHouseClusterDiskSpec `json:"disk"`
+	// Extra data volumes added to the default ClickHouse storage policy.
+	// Each replica receives one volume per entry.
+	//
+	// By default, ClickHouse balances new data across the main and extra volumes using `least_used` strategy.
+	//
+	// A volume named `diskN`, where `N` is a positive integer, is mounted at `/var/lib/clickhouseN`;
+	// other names are mounted at `/var/lib/clickhouse<name>`.
+	ExtraDisks []*AzureEnvClickHouseNamedDiskSpec `json:"extraDisks"`
+	// Name of the Keeper this cluster coordinates through. Empty when no Keeper configured.
+	Keeper string `json:"keeper"`
+	// ClickHouse users.
+	Users []*AzureEnvClickHouseUserSpec `json:"users"`
+	// Settings profiles users can be assigned to.
+	Profiles []*AzureEnvClickHouseProfileSpec `json:"profiles"`
+	// Resource usage quotas users can be assigned to.
+	Quotas []*ClickHouseQuotaSpec `json:"quotas"`
+	// Server configuration settings.
+	ServerSettings []*AzureEnvClickHouseServerSettingSpec `json:"serverSettings"`
+}
+
+// ClickHouse cluster.
+type AzureEnvClickHouseClusterSpecInput struct {
+	// Cluster name.
+	// Must be 2-15 characters long, containing only lowercase letters, numbers, and hyphens
+	// (cannot start or end with a hyphen).
+	// Immutable.
+	Name string `json:"name"`
+	// Server image.
+	// e.g. altinity/clickhouse-server:25.8.16.10002.altinitystable
+	Image *string `json:"image,omitempty"`
+	// Azure VM size.
+	// Must match a node group with a `CLICKHOUSE` reservation.
+	VMSize string `json:"vmSize"`
+	// Azure availability zones.
+	// Defaults to environment's zones.
+	// Immutable.
+	Zones []string `json:"zones,omitempty"`
+	// Number of shards.
+	Shards *int64 `json:"shards,omitempty"`
+	// Number of replicas per shard.
+	Replicas *int64 `json:"replicas,omitempty"`
+	// Whether the cluster should be stopped.
+	Stopped *bool `json:"stopped,omitempty"`
+	// Name of the Keeper this cluster coordinates through.
+	Keeper *string `json:"keeper,omitempty"`
+	// Main data volume.
+	Disk *AzureEnvClickHouseClusterDiskSpecInput `json:"disk"`
+	// Extra data volumes added to the default ClickHouse storage policy.
+	// Each replica receives one volume per entry.
+	//
+	// By default, ClickHouse balances new data across the main and extra volumes using `least_used` strategy.
+	//
+	// A volume named `diskN`, where `N` is a positive integer, is mounted at `/var/lib/clickhouseN`;
+	// other names are mounted at `/var/lib/clickhouse<name>`.
+	ExtraDisks []*AzureEnvClickHouseNamedDiskSpecInput `json:"extraDisks,omitempty"`
+	// ClickHouse users.
+	Users []*AzureEnvClickHouseUserSpecInput `json:"users,omitempty"`
+	// Settings profiles users can be assigned to.
+	Profiles []*AzureEnvClickHouseProfileSpecInput `json:"profiles,omitempty"`
+	// Resource usage quotas users can be assigned to.
+	Quotas []*ClickHouseQuotaSpecInput `json:"quotas,omitempty"`
+	// Server configuration settings.
+	ServerSettings []*AzureEnvClickHouseServerSettingSpecInput `json:"serverSettings,omitempty"`
+}
+
+type AzureEnvClickHouseClusterStatus struct {
+	Name      string                        `json:"name"`
+	Endpoints []*AzureEnvClickHouseEndpoint `json:"endpoints"`
+}
+
+// ClickHouse cluster update.
+type AzureEnvClickHouseClusterUpdateSpecInput struct {
+	// Cluster identifier.
+	Name string `json:"name"`
+	// Server image.
+	// e.g. altinity/clickhouse-server:25.8.16.10002.altinitystable
+	Image *string `json:"image,omitempty"`
+	// Azure VM size.
+	// Must match a node group with a `CLICKHOUSE` reservation.
+	VMSize *string `json:"vmSize,omitempty"`
+	// Number of shards.
+	Shards *int64 `json:"shards,omitempty"`
+	// Number of replicas per shard.
+	Replicas *int64 `json:"replicas,omitempty"`
+	// Whether the cluster should be stopped.
+	Stopped *bool `json:"stopped,omitempty"`
+	// Name of the Keeper this cluster coordinates through.
+	Keeper *string `json:"keeper,omitempty"`
+	// Main data volume.
+	Disk *AzureEnvClickHouseClusterDiskUpdateSpecInput `json:"disk,omitempty"`
+	// Extra data volumes added to the default ClickHouse storage policy.
+	// Each replica receives one volume per entry.
+	//
+	// By default, ClickHouse balances new data across the main and extra volumes using `least_used` strategy.
+	//
+	// A volume named `diskN`, where `N` is a positive integer, is mounted at `/var/lib/clickhouseN`;
+	// other names are mounted at `/var/lib/clickhouse<name>`.
+	ExtraDisks []*AzureEnvClickHouseNamedDiskSpecInput `json:"extraDisks,omitempty"`
+	// Partial extraDisks update.
+	ExtraDisksPatch *AzureEnvClickHouseNamedDisksPatchInput `json:"extraDisksPatch,omitempty"`
+	// ClickHouse users.
+	Users []*AzureEnvClickHouseUserSpecInput `json:"users,omitempty"`
+	// Partial users update.
+	UsersPatch *AzureEnvClickHouseUsersPatchInput `json:"usersPatch,omitempty"`
+	// Settings profiles users can be assigned to.
+	Profiles []*AzureEnvClickHouseProfileSpecInput `json:"profiles,omitempty"`
+	// Partial profiles update.
+	ProfilesPatch *AzureEnvClickHouseProfilesPatchInput `json:"profilesPatch,omitempty"`
+	// Resource usage quotas users can be assigned to.
+	Quotas []*ClickHouseQuotaSpecInput `json:"quotas,omitempty"`
+	// Partial quotas update.
+	QuotasPatch *ClickHouseQuotaSpecsPatchInput `json:"quotasPatch,omitempty"`
+	// Server configuration settings.
+	ServerSettings []*AzureEnvClickHouseServerSettingSpecInput `json:"serverSettings,omitempty"`
+	// Partial serverSettings update.
+	ServerSettingsPatch *AzureEnvClickHouseServerSettingsPatchInput `json:"serverSettingsPatch,omitempty"`
+}
+
+type AzureEnvClickHouseClustersPatchInput struct {
+	// Clusters to add or replace.
+	Replace []*AzureEnvClickHouseClusterSpecInput `json:"replace,omitempty"`
+	// Updates to existing clusters (unspecified fields are kept untouched).
+	Update []*AzureEnvClickHouseClusterUpdateSpecInput `json:"update,omitempty"`
+	// Clusters to delete. Missing clusters are ignored.
+	Delete []string `json:"delete,omitempty"`
+}
+
+type AzureEnvClickHouseEndpoint struct {
+	Protocol AzureEnvClickHouseProtocol `json:"protocol"`
+	// Host, including port.
+	Host string                          `json:"host"`
+	Type *AzureEnvClickHouseEndpointType `json:"type,omitempty"`
+}
+
+// ClickHouse Keeper data volume.
+type AzureEnvClickHouseKeeperDiskSpec struct {
+	// Size in GiB.
+	SizeInGiB int64 `json:"sizeInGiB"`
+}
+
+// ClickHouse Keeper data volume.
+type AzureEnvClickHouseKeeperDiskSpecInput struct {
+	// Size in GiB.
+	SizeInGiB int64 `json:"sizeInGiB"`
+}
+
+// ClickHouse Keeper data volume update.
+type AzureEnvClickHouseKeeperDiskUpdateSpecInput struct {
+	// Size in GiB.
+	// The size of the volume cannot be decreased.
+	SizeInGiB *int64 `json:"sizeInGiB,omitempty"`
+}
+
+// ClickHouse Keeper configuration.
+type AzureEnvClickHouseKeeperSpec struct {
+	// Keeper cluster name.
+	Name string `json:"name"`
+	// Azure VM size the Keeper nodes run on.
+	VMSize string `json:"vmSize"`
+	// Azure availability zones the Keeper is spread across. Keeper replicas are distributed across these locations.
+	Zones []string `json:"zones"`
+	// Number of Keeper replicas.
+	Replicas int64 `json:"replicas"`
+	// Whether the Keeper is stopped.
+	Stopped bool `json:"stopped"`
+	// Data volume.
+	Disk *AzureEnvClickHouseKeeperDiskSpec `json:"disk"`
+}
+
+// ClickHouse Keeper configuration.
+type AzureEnvClickHouseKeeperSpecInput struct {
+	// Keeper cluster name.
+	// Must be 2-15 characters long, containing only lowercase letters, numbers, and hyphens
+	// (cannot start or end with a hyphen).
+	// Immutable.
+	Name string `json:"name"`
+	// Azure VM size.
+	// Must match a node group with a `ZOOKEEPER` reservation.
+	VMSize string `json:"vmSize"`
+	// Azure availability zones. Defaults to all environment zones. Immutable.
+	Zones []string `json:"zones,omitempty"`
+	// Number of Keeper replicas. Defaults to 1. Set to 3 for high availability.
+	Replicas *int64 `json:"replicas,omitempty"`
+	// Whether the Keeper should be stopped.
+	Stopped *bool `json:"stopped,omitempty"`
+	// Data volume.
+	Disk *AzureEnvClickHouseKeeperDiskSpecInput `json:"disk"`
+}
+
+// ClickHouse Keeper configuration update. Omitted fields retain their values.
+type AzureEnvClickHouseKeeperUpdateSpecInput struct {
+	// Keeper cluster name.
+	Name string `json:"name"`
+	// Azure VM size.
+	// Must match a node group with a `ZOOKEEPER` reservation.
+	VMSize *string `json:"vmSize,omitempty"`
+	// Number of Keeper replicas. Cannot be decreased.
+	Replicas *int64 `json:"replicas,omitempty"`
+	// Whether the Keeper should be stopped.
+	Stopped *bool `json:"stopped,omitempty"`
+	// Data volume.
+	Disk *AzureEnvClickHouseKeeperDiskUpdateSpecInput `json:"disk,omitempty"`
+}
+
+type AzureEnvClickHouseKeepersPatchInput struct {
+	// Keepers to add or replace.
+	Replace []*AzureEnvClickHouseKeeperSpecInput `json:"replace,omitempty"`
+	// Updates to existing keepers.
+	Update []*AzureEnvClickHouseKeeperUpdateSpecInput `json:"update,omitempty"`
+	// Keepers to delete. Missing keepers are ignored.
+	Delete []string `json:"delete,omitempty"`
+}
+
+// ClickHouse named data volume.
+type AzureEnvClickHouseNamedDiskSpec struct {
+	// Volume name.
+	Name string `json:"name"`
+	// Size in GiB.
+	SizeInGiB int64 `json:"sizeInGiB"`
+}
+
+// ClickHouse named data volume.
+type AzureEnvClickHouseNamedDiskSpecInput struct {
+	// Volume name.
+	// Must start with `disk`; 16 characters max.
+	// Immutable.
+	Name string `json:"name"`
+	// Size in GiB.
+	SizeInGiB int64 `json:"sizeInGiB"`
+}
+
+// ClickHouse named data volume update. Omitted fields retain their values.
+type AzureEnvClickHouseNamedDiskUpdateSpecInput struct {
+	// Volume name.
+	Name string `json:"name"`
+	// Size in GiB.
+	// The size of the volume cannot be decreased.
+	SizeInGiB *int64 `json:"sizeInGiB,omitempty"`
+}
+
+// ClickHouse named data volume patch.
+type AzureEnvClickHouseNamedDisksPatchInput struct {
+	// Volumes to add or replace.
+	Replace []*AzureEnvClickHouseNamedDiskSpecInput `json:"replace,omitempty"`
+	// Updates to existing volumes.
+	Update []*AzureEnvClickHouseNamedDiskUpdateSpecInput `json:"update,omitempty"`
+	// Volumes to delete.
+	Delete []string `json:"delete,omitempty"`
+}
+
+// A single ClickHouse setting.
+type AzureEnvClickHouseProfileSettingSpec struct {
+	// Setting name.
+	Key string `json:"key"`
+	// Setting value.
+	Value string `json:"value"`
+}
+
+// A single ClickHouse setting.
+type AzureEnvClickHouseProfileSettingSpecInput struct {
+	// Setting name.
+	// https://clickhouse.com/docs/reference/settings/session-settings
+	Key string `json:"key"`
+	// Setting value.
+	Value *string `json:"value,omitempty"`
+}
+
+type AzureEnvClickHouseProfileSettingsPatchInput struct {
+	// Settings to add or replace.
+	Replace []*AzureEnvClickHouseProfileSettingSpecInput `json:"replace,omitempty"`
+	// Settings to delete. Missing settings are ignored.
+	Delete []string `json:"delete,omitempty"`
+}
+
+// ClickHouse settings profile.
+type AzureEnvClickHouseProfileSpec struct {
+	// Profile name.
+	Name string `json:"name"`
+	// Settings the profile carries.
+	Settings []*AzureEnvClickHouseProfileSettingSpec `json:"settings"`
+}
+
+// ClickHouse settings profile.
+type AzureEnvClickHouseProfileSpecInput struct {
+	// Profile name.
+	Name string `json:"name"`
+	// Settings the profile should carry.
+	Settings []*AzureEnvClickHouseProfileSettingSpecInput `json:"settings,omitempty"`
+}
+
+// ClickHouse settings profile update. Omitted fields retain their values.
+type AzureEnvClickHouseProfileUpdateSpecInput struct {
+	// Profile name.
+	Name string `json:"name"`
+	// Settings the profile should carry.
+	Settings []*AzureEnvClickHouseProfileSettingSpecInput `json:"settings,omitempty"`
+	// Settings patch.
+	SettingsPatch *AzureEnvClickHouseProfileSettingsPatchInput `json:"settingsPatch,omitempty"`
+}
+
+type AzureEnvClickHouseProfilesPatchInput struct {
+	// Profiles to add or replace.
+	Replace []*AzureEnvClickHouseProfileSpecInput `json:"replace,omitempty"`
+	// Updates to existing profiles.
+	Update []*AzureEnvClickHouseProfileUpdateSpecInput `json:"update,omitempty"`
+	// Profiles to delete. Missing profiles are ignored.
+	Delete []string `json:"delete,omitempty"`
+}
+
+// ClickHouse server setting.
+type AzureEnvClickHouseServerSettingSpec struct {
+	// Setting name.
+	Key string `json:"key"`
+	// Setting value.
+	Value string `json:"value"`
+}
+
+// ClickHouse server setting.
+type AzureEnvClickHouseServerSettingSpecInput struct {
+	// Setting name.
+	// https://clickhouse.com/docs/reference/settings/server-settings/settings
+	Key string `json:"key"`
+	// Setting value.
+	Value *string `json:"value,omitempty"`
+}
+
+type AzureEnvClickHouseServerSettingsPatchInput struct {
+	// Settings to add or replace.
+	Replace []*AzureEnvClickHouseServerSettingSpecInput `json:"replace,omitempty"`
+	// Settings to delete. Missing settings are ignored.
+	Delete []string `json:"delete,omitempty"`
+}
+
+type AzureEnvClickHouseUserDatabaseSpec struct {
+	Name string `json:"name"`
+}
+
+type AzureEnvClickHouseUserDatabaseSpecInput struct {
+	Name string `json:"name"`
+}
+
+type AzureEnvClickHouseUserNetworksSpec struct {
+	// IP addresses or CIDRs the user may connect from. When omitted or empty, only `127.0.0.1` and `::1` are allowed.
+	Ips []string `json:"ips"`
+}
+
+type AzureEnvClickHouseUserNetworksSpecInput struct {
+	// IP addresses or CIDRs the user may connect from. When omitted or empty, only `127.0.0.1` and `::1` are allowed.
+	Ips []string `json:"ips,omitempty"`
+}
+
+type AzureEnvClickHouseUserPasswordSpec struct {
+	// Password encoding.
+	Type AzureEnvClickHouseUserPasswordType `json:"type"`
+}
+
+type AzureEnvClickHouseUserPasswordSpecInput struct {
+	// Password encoding.
+	Type AzureEnvClickHouseUserPasswordType `json:"type"`
+	// Password value encoded according to `type` and encrypted with the environment public key.
+	EncValue *string `json:"encValue,omitempty"`
+}
+
+// ClickHouse user.
+type AzureEnvClickHouseUserSpec struct {
+	// User name.
+	Name string `json:"name"`
+	// Settings profile assigned to the user.
+	Profile string `json:"profile"`
+	// Quota assigned to the user.
+	Quota string `json:"quota"`
+	// Networks the user may connect from.
+	Networks *AzureEnvClickHouseUserNetworksSpec `json:"networks"`
+	// Whether the user can manage roles, users, and grants.
+	AccessManagement bool `json:"accessManagement"`
+	// Whether the user can create and drop named collections.
+	NamedCollectionControl bool `json:"namedCollectionControl"`
+	// Whether the user can read secrets stored in named collections.
+	ShowNamedCollectionsSecrets bool `json:"showNamedCollectionsSecrets"`
+	// Databases the user is granted access to. All by default.
+	Databases []*AzureEnvClickHouseUserDatabaseSpec `json:"databases"`
+	// User grants, e.g. "GRANT SHOW ON *.*".
+	// This setting cannot be combined with
+	// accessManagement, namedCollectionControl, showNamedCollectionsSecrets and databases settings.
+	Grants []string `json:"grants"`
+	// User password.
+	Password *AzureEnvClickHouseUserPasswordSpec `json:"password"`
+}
+
+// ClickHouse user.
+type AzureEnvClickHouseUserSpecInput struct {
+	// User name.
+	Name string `json:"name"`
+	// Settings profile assigned to the user.
+	Profile *string `json:"profile,omitempty"`
+	// Quota assigned to the user.
+	Quota *string `json:"quota,omitempty"`
+	// Networks the user may connect from.
+	Networks *AzureEnvClickHouseUserNetworksSpecInput `json:"networks,omitempty"`
+	// Whether the user can manage roles, users, and grants.
+	AccessManagement *bool `json:"accessManagement,omitempty"`
+	// Whether the user can create and drop named collections.
+	NamedCollectionControl *bool `json:"namedCollectionControl,omitempty"`
+	// Whether the user can read secrets stored in named collections.
+	ShowNamedCollectionsSecrets *bool `json:"showNamedCollectionsSecrets,omitempty"`
+	// Databases the user is granted access to. All by default.
+	Databases []*AzureEnvClickHouseUserDatabaseSpecInput `json:"databases,omitempty"`
+	// User grants, e.g. "GRANT SHOW ON *.*".
+	// This setting cannot be combined with
+	// accessManagement, namedCollectionControl, showNamedCollectionsSecrets and databases settings.
+	Grants []string `json:"grants,omitempty"`
+	// Password.
+	Password *AzureEnvClickHouseUserPasswordSpecInput `json:"password"`
+}
+
+// ClickHouse user update. Omitted fields retain their values.
+type AzureEnvClickHouseUserUpdateSpecInput struct {
+	// User name, unique within the cluster.
+	Name string `json:"name"`
+	// Settings profile assigned to the user.
+	Profile *string `json:"profile,omitempty"`
+	// Quota assigned to the user.
+	Quota *string `json:"quota,omitempty"`
+	// Networks the user may connect from.
+	Networks *AzureEnvClickHouseUserNetworksSpecInput `json:"networks,omitempty"`
+	// Whether the user can manage roles, users, and grants.
+	AccessManagement *bool `json:"accessManagement,omitempty"`
+	// Whether the user can create and drop named collections.
+	NamedCollectionControl *bool `json:"namedCollectionControl,omitempty"`
+	// Whether the user can read secrets stored in named collections.
+	ShowNamedCollectionsSecrets *bool `json:"showNamedCollectionsSecrets,omitempty"`
+	// Databases the user is granted access to. All by default.
+	Databases []*AzureEnvClickHouseUserDatabaseSpecInput `json:"databases,omitempty"`
+	// User grants, e.g. "GRANT SHOW ON *.*".
+	// This setting cannot be combined with
+	// accessManagement, namedCollectionControl, showNamedCollectionsSecrets and databases settings.
+	Grants []string `json:"grants,omitempty"`
+	// Password.
+	Password *AzureEnvClickHouseUserPasswordSpecInput `json:"password,omitempty"`
+}
+
+type AzureEnvClickHouseUsersPatchInput struct {
+	// Users to add or replace.
+	Replace []*AzureEnvClickHouseUserSpecInput `json:"replace,omitempty"`
+	// Updates to existing users.
+	Update []*AzureEnvClickHouseUserUpdateSpecInput `json:"update,omitempty"`
+	// Users to delete. Missing users are ignored.
+	Delete []string `json:"delete,omitempty"`
 }
 
 // Azure environments query filter.
@@ -1236,6 +2798,10 @@ type AzureEnvSpec struct {
 	MetricsEndpoint *MetricsEndpointSpec `json:"metricsEndpoint"`
 	// Datadog agent configuration.
 	Datadog *DatadogSpec `json:"datadog"`
+	// ClickHouse clusters.
+	ClickHouseClusters []*AzureEnvClickHouseClusterSpec `json:"clickHouseClusters"`
+	// ClickHouse Keepers.
+	ClickHouseKeepers []*AzureEnvClickHouseKeeperSpec `json:"clickHouseKeepers"`
 	// MFA destructive operations.
 	// True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
 	Mfa bool `json:"mfa"`
@@ -1245,12 +2811,106 @@ type AzureEnvSpec struct {
 type AzureEnvStatus struct {
 	// Applied spec revision (monotonically-increasing).
 	AppliedSpecRevision int64 `json:"appliedSpecRevision"`
+	// ClickHouse cluster runtime status.
+	ClickHouseClusters []*AzureEnvClickHouseClusterStatus `json:"clickHouseClusters"`
 	// Status of load balancers.
 	LoadBalancers *AzureEnvLoadBalancersStatus `json:"loadBalancers"`
 	// True indicates that environment is pending deletion.
 	PendingDelete bool `json:"pendingDelete"`
 	// Status errors.
 	Errors []*EnvStatusError `json:"errors"`
+}
+
+// Resource limits accumulated during a quota interval.
+// https://clickhouse.com/docs/concepts/features/configuration/server-config/quotas
+type ClickHouseQuotaIntervalSpec struct {
+	// Interval duration in seconds.
+	Duration     uint64  `json:"duration"`
+	Queries      *uint64 `json:"queries,omitempty"`
+	QuerySelects *uint64 `json:"querySelects,omitempty"`
+	QueryInserts *uint64 `json:"queryInserts,omitempty"`
+	Errors       *uint64 `json:"errors,omitempty"`
+	ResultRows   *uint64 `json:"resultRows,omitempty"`
+	ResultBytes  *uint64 `json:"resultBytes,omitempty"`
+	ReadRows     *uint64 `json:"readRows,omitempty"`
+	ReadBytes    *uint64 `json:"readBytes,omitempty"`
+	WrittenBytes *uint64 `json:"writtenBytes,omitempty"`
+	// Total query execution time in seconds. Fractional values are supported.
+	ExecutionTime                   *float64 `json:"executionTime,omitempty"`
+	FailedSequentialAuthentications *uint64  `json:"failedSequentialAuthentications,omitempty"`
+	QueriesPerNormalizedHash        *uint64  `json:"queriesPerNormalizedHash,omitempty"`
+}
+
+// Resource limits accumulated during a quota interval.
+// https://clickhouse.com/docs/concepts/features/configuration/server-config/quotas
+type ClickHouseQuotaIntervalSpecInput struct {
+	// Interval duration in seconds. Must be greater than zero.
+	Duration     uint64  `json:"duration"`
+	Queries      *uint64 `json:"queries,omitempty"`
+	QuerySelects *uint64 `json:"querySelects,omitempty"`
+	QueryInserts *uint64 `json:"queryInserts,omitempty"`
+	Errors       *uint64 `json:"errors,omitempty"`
+	ResultRows   *uint64 `json:"resultRows,omitempty"`
+	ResultBytes  *uint64 `json:"resultBytes,omitempty"`
+	ReadRows     *uint64 `json:"readRows,omitempty"`
+	ReadBytes    *uint64 `json:"readBytes,omitempty"`
+	WrittenBytes *uint64 `json:"writtenBytes,omitempty"`
+	// Total query execution time in seconds. Must be finite and non-negative.
+	ExecutionTime                   *float64 `json:"executionTime,omitempty"`
+	FailedSequentialAuthentications *uint64  `json:"failedSequentialAuthentications,omitempty"`
+	QueriesPerNormalizedHash        *uint64  `json:"queriesPerNormalizedHash,omitempty"`
+}
+
+// ClickHouse resource usage quota.
+// https://clickhouse.com/docs/concepts/features/configuration/server-config/quotas
+type ClickHouseQuotaSpec struct {
+	// Quota name, unique within the cluster.
+	Name string `json:"name"`
+	// Value used to separate resource consumption into quota buckets.
+	KeyedBy ClickHouseQuotaKeyedBy `json:"keyedBy"`
+	// IPv4 subnet prefix used with IP-based keys.
+	Ipv4PrefixBits *int64 `json:"ipv4PrefixBits,omitempty"`
+	// IPv6 subnet prefix used with IP-based keys.
+	Ipv6PrefixBits *int64 `json:"ipv6PrefixBits,omitempty"`
+	// Time intervals over which resource consumption is accumulated. Exactly one interval is currently supported.
+	Intervals []*ClickHouseQuotaIntervalSpec `json:"intervals"`
+}
+
+// ClickHouse resource usage quota.
+type ClickHouseQuotaSpecInput struct {
+	// Quota name.
+	Name string `json:"name"`
+	// Value used to separate resource consumption into quota buckets. Defaults to `NONE`.
+	KeyedBy *ClickHouseQuotaKeyedBy `json:"keyedBy,omitempty"`
+	// IPv4 subnet prefix used with `IP_ADDRESS` or `FORWARDED_IP_ADDRESS`. Valid range is 0-32.
+	Ipv4PrefixBits *int64 `json:"ipv4PrefixBits,omitempty"`
+	// IPv6 subnet prefix used with `IP_ADDRESS` or `FORWARDED_IP_ADDRESS`. Valid range is 0-128.
+	Ipv6PrefixBits *int64 `json:"ipv6PrefixBits,omitempty"`
+	// Time intervals over which resource consumption is accumulated. Exactly one interval is currently supported.
+	Intervals []*ClickHouseQuotaIntervalSpecInput `json:"intervals"`
+}
+
+type ClickHouseQuotaSpecsPatchInput struct {
+	// Quotas to add or replace.
+	Replace []*ClickHouseQuotaSpecInput `json:"replace,omitempty"`
+	// Updates to existing quotas (unspecified fields are kept untouched).
+	Update []*ClickHouseQuotaUpdateSpecInput `json:"update,omitempty"`
+	// Quotas to delete. Missing quotas are ignored.
+	Delete []string `json:"delete,omitempty"`
+}
+
+// ClickHouse resource usage quota update.
+type ClickHouseQuotaUpdateSpecInput struct {
+	// Quota name, unique within the cluster.
+	Name string `json:"name"`
+	// Value used to separate resource consumption into quota buckets.
+	KeyedBy *ClickHouseQuotaKeyedBy `json:"keyedBy,omitempty"`
+	// IPv4 subnet prefix used with `IP_ADDRESS` or `FORWARDED_IP_ADDRESS`. Valid range is 0-32.
+	Ipv4PrefixBits *int64 `json:"ipv4PrefixBits,omitempty"`
+	// IPv6 subnet prefix used with `IP_ADDRESS` or `FORWARDED_IP_ADDRESS`. Valid range is 0-128.
+	Ipv6PrefixBits *int64 `json:"ipv6PrefixBits,omitempty"`
+	// Replacement time intervals.
+	Intervals []*ClickHouseQuotaIntervalSpecInput `json:"intervals,omitempty"`
 }
 
 // Environment code output.
@@ -1353,6 +3013,10 @@ type CreateAWSEnvHostedSpecInput struct {
 	// ARN of the customer's KMS key for encrypting Altinity-provisioned data buckets
 	// and EBS volumes.
 	KmsKeyArn *string `json:"kmsKeyARN,omitempty"`
+	// ClickHouse clusters to create.
+	ClickHouseClusters []*AWSEnvHostedClickHouseClusterSpecInput `json:"clickHouseClusters,omitempty"`
+	// ClickHouse Keepers to create.
+	ClickHouseKeepers []*AWSEnvHostedClickHouseKeeperSpecInput `json:"clickHouseKeepers,omitempty"`
 	// MFA destructive operations.
 	// True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
 	Mfa *bool `json:"mfa,omitempty"`
@@ -1493,6 +3157,10 @@ type CreateAWSEnvSpecInput struct {
 	// ARN of the customer's KMS key for encrypting Altinity-provisioned data buckets
 	// and EBS volumes.
 	KmsKeyArn *string `json:"kmsKeyARN,omitempty"`
+	// ClickHouse clusters to create.
+	ClickHouseClusters []*AWSEnvClickHouseClusterSpecInput `json:"clickHouseClusters,omitempty"`
+	// ClickHouse Keepers to create.
+	ClickHouseKeepers []*AWSEnvClickHouseKeeperSpecInput `json:"clickHouseKeepers,omitempty"`
 	// MFA destructive operations.
 	// True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
 	Mfa *bool `json:"mfa,omitempty"`
@@ -1612,6 +3280,10 @@ type CreateAzureEnvSpecInput struct {
 	MetricsEndpoint *MetricsEndpointSpecInput `json:"metricsEndpoint,omitempty"`
 	// Datadog monitoring agent configuration.
 	Datadog *DatadogSpecInput `json:"datadog,omitempty"`
+	// ClickHouse clusters to create.
+	ClickHouseClusters []*AzureEnvClickHouseClusterSpecInput `json:"clickHouseClusters,omitempty"`
+	// ClickHouse Keepers to create.
+	ClickHouseKeepers []*AzureEnvClickHouseKeeperSpecInput `json:"clickHouseKeepers,omitempty"`
 	// MFA destructive operations.
 	// True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
 	Mfa *bool `json:"mfa,omitempty"`
@@ -1729,6 +3401,10 @@ type CreateGCPEnvSpecInput struct {
 	MetricsEndpoint *MetricsEndpointSpecInput `json:"metricsEndpoint,omitempty"`
 	// Datadog monitoring agent configuration.
 	Datadog *DatadogSpecInput `json:"datadog,omitempty"`
+	// ClickHouse clusters to create.
+	ClickHouseClusters []*GCPEnvClickHouseClusterSpecInput `json:"clickHouseClusters,omitempty"`
+	// ClickHouse Keepers to create.
+	ClickHouseKeepers []*GCPEnvClickHouseKeeperSpecInput `json:"clickHouseKeepers,omitempty"`
 	// MFA destructive operations.
 	// True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
 	Mfa *bool `json:"mfa,omitempty"`
@@ -1830,6 +3506,10 @@ type CreateHCloudEnvSpecInput struct {
 	MetricsEndpoint *MetricsEndpointSpecInput `json:"metricsEndpoint,omitempty"`
 	// Datadog monitoring agent configuration.
 	Datadog *DatadogSpecInput `json:"datadog,omitempty"`
+	// ClickHouse clusters to create.
+	ClickHouseClusters []*HCloudEnvClickHouseClusterSpecInput `json:"clickHouseClusters,omitempty"`
+	// ClickHouse Keepers to create.
+	ClickHouseKeepers []*HCloudEnvClickHouseKeeperSpecInput `json:"clickHouseKeepers,omitempty"`
 	// MFA destructive operations.
 	// True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
 	Mfa *bool `json:"mfa,omitempty"`
@@ -1912,6 +3592,10 @@ type CreateK8SEnvSpecInput struct {
 	MetricsEndpoint *MetricsEndpointSpecInput `json:"metricsEndpoint,omitempty"`
 	// Datadog monitoring agent configuration.
 	Datadog *DatadogSpecInput `json:"datadog,omitempty"`
+	// ClickHouse clusters to create.
+	ClickHouseClusters []*K8SEnvClickHouseClusterSpecInput `json:"clickHouseClusters,omitempty"`
+	// ClickHouse Keepers to create.
+	ClickHouseKeepers []*K8SEnvClickHouseKeeperSpecInput `json:"clickHouseKeepers,omitempty"`
 	// MFA destructive operations.
 	// True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
 	Mfa *bool `json:"mfa,omitempty"`
@@ -2089,6 +3773,493 @@ type GCPEnv struct {
 	SpecRevision int64 `json:"specRevision"`
 	// Environment status.
 	Status *GCPEnvStatus `json:"status"`
+}
+
+// ClickHouse cluster data volume.
+type GCPEnvClickHouseClusterDiskSpec struct {
+	// Size in GiB.
+	SizeInGiB int64 `json:"sizeInGiB"`
+}
+
+// ClickHouse cluster data volume.
+type GCPEnvClickHouseClusterDiskSpecInput struct {
+	// Size in GiB.
+	SizeInGiB int64 `json:"sizeInGiB"`
+}
+
+// ClickHouse cluster data volume update.
+type GCPEnvClickHouseClusterDiskUpdateSpecInput struct {
+	// Size in GiB.
+	// The size of the volume cannot be decreased.
+	SizeInGiB *int64 `json:"sizeInGiB,omitempty"`
+}
+
+// ClickHouse cluster configuration.
+type GCPEnvClickHouseClusterSpec struct {
+	// Cluster name.
+	Name string `json:"name"`
+	// Server image, tag included.
+	Image string `json:"image"`
+	// GCP machine type used by the nodes.
+	MachineType string `json:"machineType"`
+	// GCP zones used by the nodes.
+	Zones []string `json:"zones"`
+	// Number of shards.
+	Shards int64 `json:"shards"`
+	// Number of replicas per shard.
+	Replicas int64 `json:"replicas"`
+	// Whether the cluster is stopped.
+	Stopped bool `json:"stopped"`
+	// Main data volume.
+	Disk *GCPEnvClickHouseClusterDiskSpec `json:"disk"`
+	// Extra data volumes added to the default ClickHouse storage policy.
+	// Each replica receives one volume per entry.
+	//
+	// By default, ClickHouse balances new data across the main and extra volumes using `least_used` strategy.
+	//
+	// A volume named `diskN`, where `N` is a positive integer, is mounted at `/var/lib/clickhouseN`;
+	// other names are mounted at `/var/lib/clickhouse<name>`.
+	ExtraDisks []*GCPEnvClickHouseNamedDiskSpec `json:"extraDisks"`
+	// Name of the Keeper this cluster coordinates through. Empty when no Keeper configured.
+	Keeper string `json:"keeper"`
+	// ClickHouse users.
+	Users []*GCPEnvClickHouseUserSpec `json:"users"`
+	// Settings profiles users can be assigned to.
+	Profiles []*GCPEnvClickHouseProfileSpec `json:"profiles"`
+	// Resource usage quotas users can be assigned to.
+	Quotas []*ClickHouseQuotaSpec `json:"quotas"`
+	// Server configuration settings.
+	ServerSettings []*GCPEnvClickHouseServerSettingSpec `json:"serverSettings"`
+}
+
+// ClickHouse cluster.
+type GCPEnvClickHouseClusterSpecInput struct {
+	// Cluster name.
+	// Must be 2-15 characters long, containing only lowercase letters, numbers, and hyphens
+	// (cannot start or end with a hyphen).
+	// Immutable.
+	Name string `json:"name"`
+	// Server image.
+	// e.g. altinity/clickhouse-server:25.8.16.10002.altinitystable
+	Image *string `json:"image,omitempty"`
+	// GCP machine type.
+	// Must match a node group with a `CLICKHOUSE` reservation.
+	MachineType string `json:"machineType"`
+	// GCP zones.
+	// Defaults to environment's zones.
+	// Immutable.
+	Zones []string `json:"zones,omitempty"`
+	// Number of shards.
+	Shards *int64 `json:"shards,omitempty"`
+	// Number of replicas per shard.
+	Replicas *int64 `json:"replicas,omitempty"`
+	// Whether the cluster should be stopped.
+	Stopped *bool `json:"stopped,omitempty"`
+	// Name of the Keeper this cluster coordinates through. Required when replicas is greater than 1.
+	Keeper *string `json:"keeper,omitempty"`
+	// Main data volume.
+	Disk *GCPEnvClickHouseClusterDiskSpecInput `json:"disk"`
+	// Extra data volumes added to the default ClickHouse storage policy.
+	// Each replica receives one volume per entry.
+	//
+	// By default, ClickHouse balances new data across the main and extra volumes using `least_used` strategy.
+	//
+	// A volume named `diskN`, where `N` is a positive integer, is mounted at `/var/lib/clickhouseN`;
+	// other names are mounted at `/var/lib/clickhouse<name>`.
+	ExtraDisks []*GCPEnvClickHouseNamedDiskSpecInput `json:"extraDisks,omitempty"`
+	// ClickHouse users.
+	Users []*GCPEnvClickHouseUserSpecInput `json:"users,omitempty"`
+	// Settings profiles users can be assigned to.
+	Profiles []*GCPEnvClickHouseProfileSpecInput `json:"profiles,omitempty"`
+	// Resource usage quotas users can be assigned to.
+	Quotas []*ClickHouseQuotaSpecInput `json:"quotas,omitempty"`
+	// Server configuration settings.
+	ServerSettings []*GCPEnvClickHouseServerSettingSpecInput `json:"serverSettings,omitempty"`
+}
+
+type GCPEnvClickHouseClusterStatus struct {
+	Name      string                      `json:"name"`
+	Endpoints []*GCPEnvClickHouseEndpoint `json:"endpoints"`
+}
+
+// ClickHouse cluster update.
+type GCPEnvClickHouseClusterUpdateSpecInput struct {
+	// Cluster identifier.
+	Name string `json:"name"`
+	// Server image.
+	// e.g. altinity/clickhouse-server:25.8.16.10002.altinitystable
+	Image *string `json:"image,omitempty"`
+	// GCP machine type.
+	// Must match a node group with a `CLICKHOUSE` reservation.
+	MachineType *string `json:"machineType,omitempty"`
+	// Number of shards.
+	Shards *int64 `json:"shards,omitempty"`
+	// Number of replicas per shard.
+	Replicas *int64 `json:"replicas,omitempty"`
+	// Whether the cluster should be stopped.
+	Stopped *bool `json:"stopped,omitempty"`
+	// Name of the Keeper this cluster coordinates through. A Keeper must be configured when replicas is greater than 1.
+	Keeper *string `json:"keeper,omitempty"`
+	// Main data volume.
+	Disk *GCPEnvClickHouseClusterDiskUpdateSpecInput `json:"disk,omitempty"`
+	// Extra data volumes added to the default ClickHouse storage policy.
+	// Each replica receives one volume per entry.
+	//
+	// By default, ClickHouse balances new data across the main and extra volumes using `least_used` strategy.
+	//
+	// A volume named `diskN`, where `N` is a positive integer, is mounted at `/var/lib/clickhouseN`;
+	// other names are mounted at `/var/lib/clickhouse<name>`.
+	ExtraDisks []*GCPEnvClickHouseNamedDiskSpecInput `json:"extraDisks,omitempty"`
+	// Partial extraDisks update.
+	ExtraDisksPatch *GCPEnvClickHouseNamedDisksPatchInput `json:"extraDisksPatch,omitempty"`
+	// ClickHouse users.
+	Users []*GCPEnvClickHouseUserSpecInput `json:"users,omitempty"`
+	// Partial users update.
+	UsersPatch *GCPEnvClickHouseUsersPatchInput `json:"usersPatch,omitempty"`
+	// Settings profiles users can be assigned to.
+	Profiles []*GCPEnvClickHouseProfileSpecInput `json:"profiles,omitempty"`
+	// Partial profiles update.
+	ProfilesPatch *GCPEnvClickHouseProfilesPatchInput `json:"profilesPatch,omitempty"`
+	// Resource usage quotas users can be assigned to.
+	Quotas []*ClickHouseQuotaSpecInput `json:"quotas,omitempty"`
+	// Partial quotas update.
+	QuotasPatch *ClickHouseQuotaSpecsPatchInput `json:"quotasPatch,omitempty"`
+	// Server configuration settings.
+	ServerSettings []*GCPEnvClickHouseServerSettingSpecInput `json:"serverSettings,omitempty"`
+	// Partial serverSettings update.
+	ServerSettingsPatch *GCPEnvClickHouseServerSettingsPatchInput `json:"serverSettingsPatch,omitempty"`
+}
+
+type GCPEnvClickHouseClustersPatchInput struct {
+	// Clusters to add or replace.
+	Replace []*GCPEnvClickHouseClusterSpecInput `json:"replace,omitempty"`
+	// Updates to existing clusters (unspecified fields are kept untouched).
+	Update []*GCPEnvClickHouseClusterUpdateSpecInput `json:"update,omitempty"`
+	// Clusters to delete. Missing clusters are ignored.
+	Delete []string `json:"delete,omitempty"`
+}
+
+type GCPEnvClickHouseEndpoint struct {
+	Protocol GCPEnvClickHouseProtocol `json:"protocol"`
+	// Host, including port.
+	Host string                        `json:"host"`
+	Type *GCPEnvClickHouseEndpointType `json:"type,omitempty"`
+}
+
+// ClickHouse Keeper data volume.
+type GCPEnvClickHouseKeeperDiskSpec struct {
+	// Size in GiB.
+	SizeInGiB int64 `json:"sizeInGiB"`
+}
+
+// ClickHouse Keeper data volume.
+type GCPEnvClickHouseKeeperDiskSpecInput struct {
+	// Size in GiB.
+	SizeInGiB int64 `json:"sizeInGiB"`
+}
+
+// ClickHouse Keeper data volume update.
+type GCPEnvClickHouseKeeperDiskUpdateSpecInput struct {
+	// Size in GiB.
+	// The size of the volume cannot be decreased.
+	SizeInGiB *int64 `json:"sizeInGiB,omitempty"`
+}
+
+// ClickHouse Keeper configuration.
+type GCPEnvClickHouseKeeperSpec struct {
+	// Keeper cluster name.
+	Name string `json:"name"`
+	// GCP machine type the Keeper nodes run on.
+	MachineType string `json:"machineType"`
+	// GCP zones the Keeper is spread across. Keeper replicas are distributed across these locations.
+	Zones []string `json:"zones"`
+	// Number of Keeper replicas.
+	Replicas int64 `json:"replicas"`
+	// Whether the Keeper is stopped.
+	Stopped bool `json:"stopped"`
+	// Data volume.
+	Disk *GCPEnvClickHouseKeeperDiskSpec `json:"disk"`
+}
+
+// ClickHouse Keeper configuration.
+type GCPEnvClickHouseKeeperSpecInput struct {
+	// Keeper cluster name.
+	// Must be 2-15 characters long, containing only lowercase letters, numbers, and hyphens
+	// (cannot start or end with a hyphen).
+	// Immutable.
+	Name string `json:"name"`
+	// GCP machine type.
+	// Must match a node group with a `ZOOKEEPER` reservation.
+	MachineType string `json:"machineType"`
+	// GCP zones. Defaults to all environment zones. Immutable.
+	Zones []string `json:"zones,omitempty"`
+	// Number of Keeper replicas. Defaults to 1. Set to 3 for high availability.
+	Replicas *int64 `json:"replicas,omitempty"`
+	// Whether the Keeper should be stopped.
+	Stopped *bool `json:"stopped,omitempty"`
+	// Data volume.
+	Disk *GCPEnvClickHouseKeeperDiskSpecInput `json:"disk"`
+}
+
+// ClickHouse Keeper configuration update. Omitted fields retain their values.
+type GCPEnvClickHouseKeeperUpdateSpecInput struct {
+	// Keeper cluster name.
+	Name string `json:"name"`
+	// GCP machine type.
+	// Must match a node group with a `ZOOKEEPER` reservation.
+	MachineType *string `json:"machineType,omitempty"`
+	// Number of Keeper replicas. Cannot be decreased.
+	Replicas *int64 `json:"replicas,omitempty"`
+	// Whether the Keeper should be stopped.
+	Stopped *bool `json:"stopped,omitempty"`
+	// Data volume.
+	Disk *GCPEnvClickHouseKeeperDiskUpdateSpecInput `json:"disk,omitempty"`
+}
+
+type GCPEnvClickHouseKeepersPatchInput struct {
+	// Keepers to add or replace.
+	Replace []*GCPEnvClickHouseKeeperSpecInput `json:"replace,omitempty"`
+	// Updates to existing keepers.
+	Update []*GCPEnvClickHouseKeeperUpdateSpecInput `json:"update,omitempty"`
+	// Keepers to delete. Missing keepers are ignored.
+	Delete []string `json:"delete,omitempty"`
+}
+
+// ClickHouse named data volume.
+type GCPEnvClickHouseNamedDiskSpec struct {
+	// Volume name.
+	Name string `json:"name"`
+	// Size in GiB.
+	SizeInGiB int64 `json:"sizeInGiB"`
+}
+
+// ClickHouse named data volume.
+type GCPEnvClickHouseNamedDiskSpecInput struct {
+	// Volume name.
+	// Must start with `disk`; 16 characters max.
+	// Immutable.
+	Name string `json:"name"`
+	// Size in GiB.
+	SizeInGiB int64 `json:"sizeInGiB"`
+}
+
+// ClickHouse named data volume update. Omitted fields retain their values.
+type GCPEnvClickHouseNamedDiskUpdateSpecInput struct {
+	// Volume name.
+	Name string `json:"name"`
+	// Size in GiB.
+	// The size of the volume cannot be decreased.
+	SizeInGiB *int64 `json:"sizeInGiB,omitempty"`
+}
+
+// ClickHouse named data volume patch.
+type GCPEnvClickHouseNamedDisksPatchInput struct {
+	// Volumes to add or replace.
+	Replace []*GCPEnvClickHouseNamedDiskSpecInput `json:"replace,omitempty"`
+	// Updates to existing volumes.
+	Update []*GCPEnvClickHouseNamedDiskUpdateSpecInput `json:"update,omitempty"`
+	// Volumes to delete.
+	Delete []string `json:"delete,omitempty"`
+}
+
+// A single ClickHouse setting.
+type GCPEnvClickHouseProfileSettingSpec struct {
+	// Setting name.
+	Key string `json:"key"`
+	// Setting value.
+	Value string `json:"value"`
+}
+
+// A single ClickHouse setting.
+type GCPEnvClickHouseProfileSettingSpecInput struct {
+	// Setting name.
+	// https://clickhouse.com/docs/reference/settings/session-settings
+	Key string `json:"key"`
+	// Setting value.
+	Value *string `json:"value,omitempty"`
+}
+
+type GCPEnvClickHouseProfileSettingsPatchInput struct {
+	// Settings to add or replace.
+	Replace []*GCPEnvClickHouseProfileSettingSpecInput `json:"replace,omitempty"`
+	// Settings to delete. Missing settings are ignored.
+	Delete []string `json:"delete,omitempty"`
+}
+
+// ClickHouse settings profile.
+type GCPEnvClickHouseProfileSpec struct {
+	// Profile name.
+	Name string `json:"name"`
+	// Settings the profile carries.
+	Settings []*GCPEnvClickHouseProfileSettingSpec `json:"settings"`
+}
+
+// ClickHouse settings profile.
+type GCPEnvClickHouseProfileSpecInput struct {
+	// Profile name.
+	Name string `json:"name"`
+	// Settings the profile should carry.
+	Settings []*GCPEnvClickHouseProfileSettingSpecInput `json:"settings,omitempty"`
+}
+
+// ClickHouse settings profile update. Omitted fields retain their values.
+type GCPEnvClickHouseProfileUpdateSpecInput struct {
+	// Profile name.
+	Name string `json:"name"`
+	// Settings the profile should carry.
+	Settings []*GCPEnvClickHouseProfileSettingSpecInput `json:"settings,omitempty"`
+	// Settings patch.
+	SettingsPatch *GCPEnvClickHouseProfileSettingsPatchInput `json:"settingsPatch,omitempty"`
+}
+
+type GCPEnvClickHouseProfilesPatchInput struct {
+	// Profiles to add or replace.
+	Replace []*GCPEnvClickHouseProfileSpecInput `json:"replace,omitempty"`
+	// Updates to existing profiles.
+	Update []*GCPEnvClickHouseProfileUpdateSpecInput `json:"update,omitempty"`
+	// Profiles to delete. Missing profiles are ignored.
+	Delete []string `json:"delete,omitempty"`
+}
+
+// ClickHouse server setting.
+type GCPEnvClickHouseServerSettingSpec struct {
+	// Setting name.
+	Key string `json:"key"`
+	// Setting value.
+	Value string `json:"value"`
+}
+
+// ClickHouse server setting.
+type GCPEnvClickHouseServerSettingSpecInput struct {
+	// Setting name.
+	// https://clickhouse.com/docs/reference/settings/server-settings/settings
+	Key string `json:"key"`
+	// Setting value.
+	Value *string `json:"value,omitempty"`
+}
+
+type GCPEnvClickHouseServerSettingsPatchInput struct {
+	// Settings to add or replace.
+	Replace []*GCPEnvClickHouseServerSettingSpecInput `json:"replace,omitempty"`
+	// Settings to delete. Missing settings are ignored.
+	Delete []string `json:"delete,omitempty"`
+}
+
+type GCPEnvClickHouseUserDatabaseSpec struct {
+	Name string `json:"name"`
+}
+
+type GCPEnvClickHouseUserDatabaseSpecInput struct {
+	Name string `json:"name"`
+}
+
+type GCPEnvClickHouseUserNetworksSpec struct {
+	// IP addresses or CIDRs the user may connect from. When omitted or empty, only `127.0.0.1` and `::1` are allowed.
+	Ips []string `json:"ips"`
+}
+
+type GCPEnvClickHouseUserNetworksSpecInput struct {
+	// IP addresses or CIDRs the user may connect from. When omitted or empty, only `127.0.0.1` and `::1` are allowed.
+	Ips []string `json:"ips,omitempty"`
+}
+
+type GCPEnvClickHouseUserPasswordSpec struct {
+	// Password encoding.
+	Type GCPEnvClickHouseUserPasswordType `json:"type"`
+}
+
+type GCPEnvClickHouseUserPasswordSpecInput struct {
+	// Password encoding.
+	Type GCPEnvClickHouseUserPasswordType `json:"type"`
+	// Password value encoded according to `type` and encrypted with the environment public key.
+	EncValue *string `json:"encValue,omitempty"`
+}
+
+// ClickHouse user.
+type GCPEnvClickHouseUserSpec struct {
+	// User name.
+	Name string `json:"name"`
+	// Settings profile assigned to the user.
+	Profile string `json:"profile"`
+	// Quota assigned to the user.
+	Quota string `json:"quota"`
+	// Networks the user may connect from.
+	Networks *GCPEnvClickHouseUserNetworksSpec `json:"networks"`
+	// Whether the user can manage roles, users, and grants.
+	AccessManagement bool `json:"accessManagement"`
+	// Whether the user can create and drop named collections.
+	NamedCollectionControl bool `json:"namedCollectionControl"`
+	// Whether the user can read secrets stored in named collections.
+	ShowNamedCollectionsSecrets bool `json:"showNamedCollectionsSecrets"`
+	// Databases the user is granted access to. All by default.
+	Databases []*GCPEnvClickHouseUserDatabaseSpec `json:"databases"`
+	// User grants, e.g. "GRANT SHOW ON *.*".
+	// This setting cannot be combined with
+	// accessManagement, namedCollectionControl, showNamedCollectionsSecrets and databases settings.
+	Grants []string `json:"grants"`
+	// User password.
+	Password *GCPEnvClickHouseUserPasswordSpec `json:"password"`
+}
+
+// ClickHouse user.
+type GCPEnvClickHouseUserSpecInput struct {
+	// User name.
+	Name string `json:"name"`
+	// Settings profile assigned to the user.
+	Profile *string `json:"profile,omitempty"`
+	// Quota assigned to the user.
+	Quota *string `json:"quota,omitempty"`
+	// Networks the user may connect from.
+	Networks *GCPEnvClickHouseUserNetworksSpecInput `json:"networks,omitempty"`
+	// Whether the user can manage roles, users, and grants.
+	AccessManagement *bool `json:"accessManagement,omitempty"`
+	// Whether the user can create and drop named collections.
+	NamedCollectionControl *bool `json:"namedCollectionControl,omitempty"`
+	// Whether the user can read secrets stored in named collections.
+	ShowNamedCollectionsSecrets *bool `json:"showNamedCollectionsSecrets,omitempty"`
+	// Databases the user is granted access to. All by default.
+	Databases []*GCPEnvClickHouseUserDatabaseSpecInput `json:"databases,omitempty"`
+	// User grants, e.g. "GRANT SHOW ON *.*".
+	// This setting cannot be combined with
+	// accessManagement, namedCollectionControl, showNamedCollectionsSecrets and databases settings.
+	Grants []string `json:"grants,omitempty"`
+	// Password.
+	Password *GCPEnvClickHouseUserPasswordSpecInput `json:"password"`
+}
+
+// ClickHouse user update. Omitted fields retain their values.
+type GCPEnvClickHouseUserUpdateSpecInput struct {
+	// User name, unique within the cluster.
+	Name string `json:"name"`
+	// Settings profile assigned to the user.
+	Profile *string `json:"profile,omitempty"`
+	// Quota assigned to the user.
+	Quota *string `json:"quota,omitempty"`
+	// Networks the user may connect from.
+	Networks *GCPEnvClickHouseUserNetworksSpecInput `json:"networks,omitempty"`
+	// Whether the user can manage roles, users, and grants.
+	AccessManagement *bool `json:"accessManagement,omitempty"`
+	// Whether the user can create and drop named collections.
+	NamedCollectionControl *bool `json:"namedCollectionControl,omitempty"`
+	// Whether the user can read secrets stored in named collections.
+	ShowNamedCollectionsSecrets *bool `json:"showNamedCollectionsSecrets,omitempty"`
+	// Databases the user is granted access to. All by default.
+	Databases []*GCPEnvClickHouseUserDatabaseSpecInput `json:"databases,omitempty"`
+	// User grants, e.g. "GRANT SHOW ON *.*".
+	// This setting cannot be combined with
+	// accessManagement, namedCollectionControl, showNamedCollectionsSecrets and databases settings.
+	Grants []string `json:"grants,omitempty"`
+	// Password.
+	Password *GCPEnvClickHouseUserPasswordSpecInput `json:"password,omitempty"`
+}
+
+type GCPEnvClickHouseUsersPatchInput struct {
+	// Users to add or replace.
+	Replace []*GCPEnvClickHouseUserSpecInput `json:"replace,omitempty"`
+	// Updates to existing users.
+	Update []*GCPEnvClickHouseUserUpdateSpecInput `json:"update,omitempty"`
+	// Users to delete. Missing users are ignored.
+	Delete []string `json:"delete,omitempty"`
 }
 
 // GCP environments query filter.
@@ -2329,6 +4500,10 @@ type GCPEnvSpec struct {
 	MetricsEndpoint *MetricsEndpointSpec `json:"metricsEndpoint"`
 	// Datadog agent configuration.
 	Datadog *DatadogSpec `json:"datadog"`
+	// ClickHouse clusters.
+	ClickHouseClusters []*GCPEnvClickHouseClusterSpec `json:"clickHouseClusters"`
+	// ClickHouse Keepers.
+	ClickHouseKeepers []*GCPEnvClickHouseKeeperSpec `json:"clickHouseKeepers"`
 	// MFA destructive operations.
 	// True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
 	Mfa bool `json:"mfa"`
@@ -2338,6 +4513,8 @@ type GCPEnvSpec struct {
 type GCPEnvStatus struct {
 	// Applied spec revision (monotonically-increasing).
 	AppliedSpecRevision int64 `json:"appliedSpecRevision"`
+	// Status of ClickHouse clusters.
+	ClickHouseClusters []*GCPEnvClickHouseClusterStatus `json:"clickHouseClusters"`
 	// True indicates that environment is pending deletion.
 	PendingDelete bool `json:"pendingDelete"`
 	// Status errors.
@@ -2354,6 +4531,493 @@ type HCloudEnv struct {
 	SpecRevision int64 `json:"specRevision"`
 	// Environment status.
 	Status *HCloudEnvStatus `json:"status"`
+}
+
+// ClickHouse cluster data volume.
+type HCloudEnvClickHouseClusterDiskSpec struct {
+	// Size in GiB.
+	SizeInGiB int64 `json:"sizeInGiB"`
+}
+
+// ClickHouse cluster data volume.
+type HCloudEnvClickHouseClusterDiskSpecInput struct {
+	// Size in GiB.
+	SizeInGiB int64 `json:"sizeInGiB"`
+}
+
+// ClickHouse cluster data volume update.
+type HCloudEnvClickHouseClusterDiskUpdateSpecInput struct {
+	// Size in GiB.
+	// The size of the volume cannot be decreased.
+	SizeInGiB *int64 `json:"sizeInGiB,omitempty"`
+}
+
+// ClickHouse cluster configuration.
+type HCloudEnvClickHouseClusterSpec struct {
+	// Cluster name.
+	Name string `json:"name"`
+	// Server image, tag included.
+	Image string `json:"image"`
+	// Hetzner Cloud server type used by the nodes.
+	ServerType string `json:"serverType"`
+	// Hetzner Cloud locations used by the nodes.
+	Locations []string `json:"locations"`
+	// Number of shards.
+	Shards int64 `json:"shards"`
+	// Number of replicas per shard.
+	Replicas int64 `json:"replicas"`
+	// Whether the cluster is stopped.
+	Stopped bool `json:"stopped"`
+	// Main data volume.
+	Disk *HCloudEnvClickHouseClusterDiskSpec `json:"disk"`
+	// Extra data volumes added to the default ClickHouse storage policy.
+	// Each replica receives one volume per entry.
+	//
+	// By default, ClickHouse balances new data across the main and extra volumes using `least_used` strategy.
+	//
+	// A volume named `diskN`, where `N` is a positive integer, is mounted at `/var/lib/clickhouseN`;
+	// other names are mounted at `/var/lib/clickhouse<name>`.
+	ExtraDisks []*HCloudEnvClickHouseNamedDiskSpec `json:"extraDisks"`
+	// Name of the Keeper this cluster coordinates through. Empty when no Keeper configured.
+	Keeper string `json:"keeper"`
+	// ClickHouse users.
+	Users []*HCloudEnvClickHouseUserSpec `json:"users"`
+	// Settings profiles users can be assigned to.
+	Profiles []*HCloudEnvClickHouseProfileSpec `json:"profiles"`
+	// Resource usage quotas users can be assigned to.
+	Quotas []*ClickHouseQuotaSpec `json:"quotas"`
+	// Server configuration settings.
+	ServerSettings []*HCloudEnvClickHouseServerSettingSpec `json:"serverSettings"`
+}
+
+// ClickHouse cluster.
+type HCloudEnvClickHouseClusterSpecInput struct {
+	// Cluster name.
+	// Must be 2-15 characters long, containing only lowercase letters, numbers, and hyphens
+	// (cannot start or end with a hyphen).
+	// Immutable.
+	Name string `json:"name"`
+	// Server image.
+	// e.g. altinity/clickhouse-server:25.8.16.10002.altinitystable
+	Image *string `json:"image,omitempty"`
+	// Hetzner Cloud server type.
+	// Must match a node group with a `CLICKHOUSE` reservation.
+	ServerType string `json:"serverType"`
+	// Hetzner Cloud locations.
+	// Defaults to environment's locations.
+	// Immutable.
+	Locations []string `json:"locations,omitempty"`
+	// Number of shards.
+	Shards *int64 `json:"shards,omitempty"`
+	// Number of replicas per shard.
+	Replicas *int64 `json:"replicas,omitempty"`
+	// Whether the cluster should be stopped.
+	Stopped *bool `json:"stopped,omitempty"`
+	// Name of the Keeper this cluster coordinates through.
+	Keeper *string `json:"keeper,omitempty"`
+	// Main data volume.
+	Disk *HCloudEnvClickHouseClusterDiskSpecInput `json:"disk"`
+	// Extra data volumes added to the default ClickHouse storage policy.
+	// Each replica receives one volume per entry.
+	//
+	// By default, ClickHouse balances new data across the main and extra volumes using `least_used` strategy.
+	//
+	// A volume named `diskN`, where `N` is a positive integer, is mounted at `/var/lib/clickhouseN`;
+	// other names are mounted at `/var/lib/clickhouse<name>`.
+	ExtraDisks []*HCloudEnvClickHouseNamedDiskSpecInput `json:"extraDisks,omitempty"`
+	// ClickHouse users.
+	Users []*HCloudEnvClickHouseUserSpecInput `json:"users,omitempty"`
+	// Settings profiles users can be assigned to.
+	Profiles []*HCloudEnvClickHouseProfileSpecInput `json:"profiles,omitempty"`
+	// Resource usage quotas users can be assigned to.
+	Quotas []*ClickHouseQuotaSpecInput `json:"quotas,omitempty"`
+	// Server configuration settings.
+	ServerSettings []*HCloudEnvClickHouseServerSettingSpecInput `json:"serverSettings,omitempty"`
+}
+
+type HCloudEnvClickHouseClusterStatus struct {
+	Name      string                         `json:"name"`
+	Endpoints []*HCloudEnvClickHouseEndpoint `json:"endpoints"`
+}
+
+// ClickHouse cluster update.
+type HCloudEnvClickHouseClusterUpdateSpecInput struct {
+	// Cluster identifier.
+	Name string `json:"name"`
+	// Server image.
+	// e.g. altinity/clickhouse-server:25.8.16.10002.altinitystable
+	Image *string `json:"image,omitempty"`
+	// Hetzner Cloud server type.
+	// Must match a node group with a `CLICKHOUSE` reservation.
+	ServerType *string `json:"serverType,omitempty"`
+	// Number of shards.
+	Shards *int64 `json:"shards,omitempty"`
+	// Number of replicas per shard.
+	Replicas *int64 `json:"replicas,omitempty"`
+	// Whether the cluster should be stopped.
+	Stopped *bool `json:"stopped,omitempty"`
+	// Name of the Keeper this cluster coordinates through.
+	Keeper *string `json:"keeper,omitempty"`
+	// Main data volume.
+	Disk *HCloudEnvClickHouseClusterDiskUpdateSpecInput `json:"disk,omitempty"`
+	// Extra data volumes added to the default ClickHouse storage policy.
+	// Each replica receives one volume per entry.
+	//
+	// By default, ClickHouse balances new data across the main and extra volumes using `least_used` strategy.
+	//
+	// A volume named `diskN`, where `N` is a positive integer, is mounted at `/var/lib/clickhouseN`;
+	// other names are mounted at `/var/lib/clickhouse<name>`.
+	ExtraDisks []*HCloudEnvClickHouseNamedDiskSpecInput `json:"extraDisks,omitempty"`
+	// Partial extraDisks update.
+	ExtraDisksPatch *HCloudEnvClickHouseNamedDisksPatchInput `json:"extraDisksPatch,omitempty"`
+	// ClickHouse users.
+	Users []*HCloudEnvClickHouseUserSpecInput `json:"users,omitempty"`
+	// Partial users update.
+	UsersPatch *HCloudEnvClickHouseUsersPatchInput `json:"usersPatch,omitempty"`
+	// Settings profiles users can be assigned to.
+	Profiles []*HCloudEnvClickHouseProfileSpecInput `json:"profiles,omitempty"`
+	// Partial profiles update.
+	ProfilesPatch *HCloudEnvClickHouseProfilesPatchInput `json:"profilesPatch,omitempty"`
+	// Resource usage quotas users can be assigned to.
+	Quotas []*ClickHouseQuotaSpecInput `json:"quotas,omitempty"`
+	// Partial quotas update.
+	QuotasPatch *ClickHouseQuotaSpecsPatchInput `json:"quotasPatch,omitempty"`
+	// Server configuration settings.
+	ServerSettings []*HCloudEnvClickHouseServerSettingSpecInput `json:"serverSettings,omitempty"`
+	// Partial serverSettings update.
+	ServerSettingsPatch *HCloudEnvClickHouseServerSettingsPatchInput `json:"serverSettingsPatch,omitempty"`
+}
+
+type HCloudEnvClickHouseClustersPatchInput struct {
+	// Clusters to add or replace.
+	Replace []*HCloudEnvClickHouseClusterSpecInput `json:"replace,omitempty"`
+	// Updates to existing clusters (unspecified fields are kept untouched).
+	Update []*HCloudEnvClickHouseClusterUpdateSpecInput `json:"update,omitempty"`
+	// Clusters to delete. Missing clusters are ignored.
+	Delete []string `json:"delete,omitempty"`
+}
+
+type HCloudEnvClickHouseEndpoint struct {
+	Protocol HCloudEnvClickHouseProtocol `json:"protocol"`
+	// Host, including port.
+	Host string                           `json:"host"`
+	Type *HCloudEnvClickHouseEndpointType `json:"type,omitempty"`
+}
+
+// ClickHouse Keeper data volume.
+type HCloudEnvClickHouseKeeperDiskSpec struct {
+	// Size in GiB.
+	SizeInGiB int64 `json:"sizeInGiB"`
+}
+
+// ClickHouse Keeper data volume.
+type HCloudEnvClickHouseKeeperDiskSpecInput struct {
+	// Size in GiB.
+	SizeInGiB int64 `json:"sizeInGiB"`
+}
+
+// ClickHouse Keeper data volume update.
+type HCloudEnvClickHouseKeeperDiskUpdateSpecInput struct {
+	// Size in GiB.
+	// The size of the volume cannot be decreased.
+	SizeInGiB *int64 `json:"sizeInGiB,omitempty"`
+}
+
+// ClickHouse Keeper configuration.
+type HCloudEnvClickHouseKeeperSpec struct {
+	// Keeper cluster name.
+	Name string `json:"name"`
+	// Hetzner Cloud server type the Keeper nodes run on.
+	ServerType string `json:"serverType"`
+	// Hetzner Cloud locations the Keeper is spread across. Keeper replicas are distributed across these locations.
+	Locations []string `json:"locations"`
+	// Number of Keeper replicas.
+	Replicas int64 `json:"replicas"`
+	// Whether the Keeper is stopped.
+	Stopped bool `json:"stopped"`
+	// Data volume.
+	Disk *HCloudEnvClickHouseKeeperDiskSpec `json:"disk"`
+}
+
+// ClickHouse Keeper configuration.
+type HCloudEnvClickHouseKeeperSpecInput struct {
+	// Keeper cluster name.
+	// Must be 2-15 characters long, containing only lowercase letters, numbers, and hyphens
+	// (cannot start or end with a hyphen).
+	// Immutable.
+	Name string `json:"name"`
+	// Hetzner Cloud server type.
+	// Must match a node group with a `ZOOKEEPER` reservation.
+	ServerType string `json:"serverType"`
+	// Hetzner Cloud locations. Defaults to all environment locations. Immutable.
+	Locations []string `json:"locations,omitempty"`
+	// Number of Keeper replicas. Defaults to 1. Set to 3 for high availability.
+	Replicas *int64 `json:"replicas,omitempty"`
+	// Whether the Keeper should be stopped.
+	Stopped *bool `json:"stopped,omitempty"`
+	// Data volume.
+	Disk *HCloudEnvClickHouseKeeperDiskSpecInput `json:"disk"`
+}
+
+// ClickHouse Keeper configuration update. Omitted fields retain their values.
+type HCloudEnvClickHouseKeeperUpdateSpecInput struct {
+	// Keeper cluster name.
+	Name string `json:"name"`
+	// Hetzner Cloud server type.
+	// Must match a node group with a `ZOOKEEPER` reservation.
+	ServerType *string `json:"serverType,omitempty"`
+	// Number of Keeper replicas. Cannot be decreased.
+	Replicas *int64 `json:"replicas,omitempty"`
+	// Whether the Keeper should be stopped.
+	Stopped *bool `json:"stopped,omitempty"`
+	// Data volume.
+	Disk *HCloudEnvClickHouseKeeperDiskUpdateSpecInput `json:"disk,omitempty"`
+}
+
+type HCloudEnvClickHouseKeepersPatchInput struct {
+	// Keepers to add or replace.
+	Replace []*HCloudEnvClickHouseKeeperSpecInput `json:"replace,omitempty"`
+	// Updates to existing keepers.
+	Update []*HCloudEnvClickHouseKeeperUpdateSpecInput `json:"update,omitempty"`
+	// Keepers to delete. Missing keepers are ignored.
+	Delete []string `json:"delete,omitempty"`
+}
+
+// ClickHouse named data volume.
+type HCloudEnvClickHouseNamedDiskSpec struct {
+	// Volume name.
+	Name string `json:"name"`
+	// Size in GiB.
+	SizeInGiB int64 `json:"sizeInGiB"`
+}
+
+// ClickHouse named data volume.
+type HCloudEnvClickHouseNamedDiskSpecInput struct {
+	// Volume name.
+	// Must start with `disk`; 16 characters max.
+	// Immutable.
+	Name string `json:"name"`
+	// Size in GiB.
+	SizeInGiB int64 `json:"sizeInGiB"`
+}
+
+// ClickHouse named data volume update. Omitted fields retain their values.
+type HCloudEnvClickHouseNamedDiskUpdateSpecInput struct {
+	// Volume name.
+	Name string `json:"name"`
+	// Size in GiB.
+	// The size of the volume cannot be decreased.
+	SizeInGiB *int64 `json:"sizeInGiB,omitempty"`
+}
+
+// ClickHouse named data volume patch.
+type HCloudEnvClickHouseNamedDisksPatchInput struct {
+	// Volumes to add or replace.
+	Replace []*HCloudEnvClickHouseNamedDiskSpecInput `json:"replace,omitempty"`
+	// Updates to existing volumes.
+	Update []*HCloudEnvClickHouseNamedDiskUpdateSpecInput `json:"update,omitempty"`
+	// Volumes to delete.
+	Delete []string `json:"delete,omitempty"`
+}
+
+// A single ClickHouse setting.
+type HCloudEnvClickHouseProfileSettingSpec struct {
+	// Setting name.
+	Key string `json:"key"`
+	// Setting value.
+	Value string `json:"value"`
+}
+
+// A single ClickHouse setting.
+type HCloudEnvClickHouseProfileSettingSpecInput struct {
+	// Setting name.
+	// https://clickhouse.com/docs/reference/settings/session-settings
+	Key string `json:"key"`
+	// Setting value.
+	Value *string `json:"value,omitempty"`
+}
+
+type HCloudEnvClickHouseProfileSettingsPatchInput struct {
+	// Settings to add or replace.
+	Replace []*HCloudEnvClickHouseProfileSettingSpecInput `json:"replace,omitempty"`
+	// Settings to delete. Missing settings are ignored.
+	Delete []string `json:"delete,omitempty"`
+}
+
+// ClickHouse settings profile.
+type HCloudEnvClickHouseProfileSpec struct {
+	// Profile name.
+	Name string `json:"name"`
+	// Settings the profile carries.
+	Settings []*HCloudEnvClickHouseProfileSettingSpec `json:"settings"`
+}
+
+// ClickHouse settings profile.
+type HCloudEnvClickHouseProfileSpecInput struct {
+	// Profile name.
+	Name string `json:"name"`
+	// Settings the profile should carry.
+	Settings []*HCloudEnvClickHouseProfileSettingSpecInput `json:"settings,omitempty"`
+}
+
+// ClickHouse settings profile update. Omitted fields retain their values.
+type HCloudEnvClickHouseProfileUpdateSpecInput struct {
+	// Profile name.
+	Name string `json:"name"`
+	// Settings the profile should carry.
+	Settings []*HCloudEnvClickHouseProfileSettingSpecInput `json:"settings,omitempty"`
+	// Settings patch.
+	SettingsPatch *HCloudEnvClickHouseProfileSettingsPatchInput `json:"settingsPatch,omitempty"`
+}
+
+type HCloudEnvClickHouseProfilesPatchInput struct {
+	// Profiles to add or replace.
+	Replace []*HCloudEnvClickHouseProfileSpecInput `json:"replace,omitempty"`
+	// Updates to existing profiles.
+	Update []*HCloudEnvClickHouseProfileUpdateSpecInput `json:"update,omitempty"`
+	// Profiles to delete. Missing profiles are ignored.
+	Delete []string `json:"delete,omitempty"`
+}
+
+// ClickHouse server setting.
+type HCloudEnvClickHouseServerSettingSpec struct {
+	// Setting name.
+	Key string `json:"key"`
+	// Setting value.
+	Value string `json:"value"`
+}
+
+// ClickHouse server setting.
+type HCloudEnvClickHouseServerSettingSpecInput struct {
+	// Setting name.
+	// https://clickhouse.com/docs/reference/settings/server-settings/settings
+	Key string `json:"key"`
+	// Setting value.
+	Value *string `json:"value,omitempty"`
+}
+
+type HCloudEnvClickHouseServerSettingsPatchInput struct {
+	// Settings to add or replace.
+	Replace []*HCloudEnvClickHouseServerSettingSpecInput `json:"replace,omitempty"`
+	// Settings to delete. Missing settings are ignored.
+	Delete []string `json:"delete,omitempty"`
+}
+
+type HCloudEnvClickHouseUserDatabaseSpec struct {
+	Name string `json:"name"`
+}
+
+type HCloudEnvClickHouseUserDatabaseSpecInput struct {
+	Name string `json:"name"`
+}
+
+type HCloudEnvClickHouseUserNetworksSpec struct {
+	// IP addresses or CIDRs the user may connect from. When omitted or empty, only `127.0.0.1` and `::1` are allowed.
+	Ips []string `json:"ips"`
+}
+
+type HCloudEnvClickHouseUserNetworksSpecInput struct {
+	// IP addresses or CIDRs the user may connect from. When omitted or empty, only `127.0.0.1` and `::1` are allowed.
+	Ips []string `json:"ips,omitempty"`
+}
+
+type HCloudEnvClickHouseUserPasswordSpec struct {
+	// Password encoding.
+	Type HCloudEnvClickHouseUserPasswordType `json:"type"`
+}
+
+type HCloudEnvClickHouseUserPasswordSpecInput struct {
+	// Password encoding.
+	Type HCloudEnvClickHouseUserPasswordType `json:"type"`
+	// Password value encoded according to `type` and encrypted with the environment public key.
+	EncValue *string `json:"encValue,omitempty"`
+}
+
+// ClickHouse user.
+type HCloudEnvClickHouseUserSpec struct {
+	// User name.
+	Name string `json:"name"`
+	// Settings profile assigned to the user.
+	Profile string `json:"profile"`
+	// Quota assigned to the user.
+	Quota string `json:"quota"`
+	// Networks the user may connect from.
+	Networks *HCloudEnvClickHouseUserNetworksSpec `json:"networks"`
+	// Whether the user can manage roles, users, and grants.
+	AccessManagement bool `json:"accessManagement"`
+	// Whether the user can create and drop named collections.
+	NamedCollectionControl bool `json:"namedCollectionControl"`
+	// Whether the user can read secrets stored in named collections.
+	ShowNamedCollectionsSecrets bool `json:"showNamedCollectionsSecrets"`
+	// Databases the user is granted access to. All by default.
+	Databases []*HCloudEnvClickHouseUserDatabaseSpec `json:"databases"`
+	// User grants, e.g. "GRANT SHOW ON *.*".
+	// This setting cannot be combined with
+	// accessManagement, namedCollectionControl, showNamedCollectionsSecrets and databases settings.
+	Grants []string `json:"grants"`
+	// User password.
+	Password *HCloudEnvClickHouseUserPasswordSpec `json:"password"`
+}
+
+// ClickHouse user.
+type HCloudEnvClickHouseUserSpecInput struct {
+	// User name.
+	Name string `json:"name"`
+	// Settings profile assigned to the user.
+	Profile *string `json:"profile,omitempty"`
+	// Quota assigned to the user.
+	Quota *string `json:"quota,omitempty"`
+	// Networks the user may connect from.
+	Networks *HCloudEnvClickHouseUserNetworksSpecInput `json:"networks,omitempty"`
+	// Whether the user can manage roles, users, and grants.
+	AccessManagement *bool `json:"accessManagement,omitempty"`
+	// Whether the user can create and drop named collections.
+	NamedCollectionControl *bool `json:"namedCollectionControl,omitempty"`
+	// Whether the user can read secrets stored in named collections.
+	ShowNamedCollectionsSecrets *bool `json:"showNamedCollectionsSecrets,omitempty"`
+	// Databases the user is granted access to. All by default.
+	Databases []*HCloudEnvClickHouseUserDatabaseSpecInput `json:"databases,omitempty"`
+	// User grants, e.g. "GRANT SHOW ON *.*".
+	// This setting cannot be combined with
+	// accessManagement, namedCollectionControl, showNamedCollectionsSecrets and databases settings.
+	Grants []string `json:"grants,omitempty"`
+	// Password.
+	Password *HCloudEnvClickHouseUserPasswordSpecInput `json:"password"`
+}
+
+// ClickHouse user update. Omitted fields retain their values.
+type HCloudEnvClickHouseUserUpdateSpecInput struct {
+	// User name, unique within the cluster.
+	Name string `json:"name"`
+	// Settings profile assigned to the user.
+	Profile *string `json:"profile,omitempty"`
+	// Quota assigned to the user.
+	Quota *string `json:"quota,omitempty"`
+	// Networks the user may connect from.
+	Networks *HCloudEnvClickHouseUserNetworksSpecInput `json:"networks,omitempty"`
+	// Whether the user can manage roles, users, and grants.
+	AccessManagement *bool `json:"accessManagement,omitempty"`
+	// Whether the user can create and drop named collections.
+	NamedCollectionControl *bool `json:"namedCollectionControl,omitempty"`
+	// Whether the user can read secrets stored in named collections.
+	ShowNamedCollectionsSecrets *bool `json:"showNamedCollectionsSecrets,omitempty"`
+	// Databases the user is granted access to. All by default.
+	Databases []*HCloudEnvClickHouseUserDatabaseSpecInput `json:"databases,omitempty"`
+	// User grants, e.g. "GRANT SHOW ON *.*".
+	// This setting cannot be combined with
+	// accessManagement, namedCollectionControl, showNamedCollectionsSecrets and databases settings.
+	Grants []string `json:"grants,omitempty"`
+	// Password.
+	Password *HCloudEnvClickHouseUserPasswordSpecInput `json:"password,omitempty"`
+}
+
+type HCloudEnvClickHouseUsersPatchInput struct {
+	// Users to add or replace.
+	Replace []*HCloudEnvClickHouseUserSpecInput `json:"replace,omitempty"`
+	// Updates to existing users.
+	Update []*HCloudEnvClickHouseUserUpdateSpecInput `json:"update,omitempty"`
+	// Users to delete. Missing users are ignored.
+	Delete []string `json:"delete,omitempty"`
 }
 
 // HCloud environments query filter.
@@ -2538,6 +5202,10 @@ type HCloudEnvSpec struct {
 	MetricsEndpoint *MetricsEndpointSpec `json:"metricsEndpoint"`
 	// Datadog agent configuration.
 	Datadog *DatadogSpec `json:"datadog"`
+	// ClickHouse clusters.
+	ClickHouseClusters []*HCloudEnvClickHouseClusterSpec `json:"clickHouseClusters"`
+	// ClickHouse Keepers.
+	ClickHouseKeepers []*HCloudEnvClickHouseKeeperSpec `json:"clickHouseKeepers"`
 	// MFA destructive operations.
 	// True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
 	Mfa bool `json:"mfa"`
@@ -2547,6 +5215,8 @@ type HCloudEnvSpec struct {
 type HCloudEnvStatus struct {
 	// Applied spec revision (monotonically-increasing).
 	AppliedSpecRevision int64 `json:"appliedSpecRevision"`
+	// Status of ClickHouse clusters.
+	ClickHouseClusters []*HCloudEnvClickHouseClusterStatus `json:"clickHouseClusters"`
 	// True indicates that environment is pending deletion.
 	PendingDelete bool `json:"pendingDelete"`
 	// Status errors.
@@ -2689,6 +5359,561 @@ type K8SEnv struct {
 	SpecRevision int64 `json:"specRevision"`
 	// Environment status.
 	Status *K8SEnvStatus `json:"status"`
+}
+
+// ClickHouse cluster data volume.
+type K8SEnvClickHouseClusterDiskSpec struct {
+	// Storage class backing the volume.
+	StorageClass string `json:"storageClass"`
+	// Size in GiB.
+	SizeInGiB int64 `json:"sizeInGiB"`
+	// Provisioned IOPS. 0 when not set.
+	Iops int64 `json:"iops"`
+	// Provisioned throughput in MiB/s. 0 when not set.
+	ThroughputInMiBps int64 `json:"throughputInMiBps"`
+}
+
+// ClickHouse cluster data volume.
+type K8SEnvClickHouseClusterDiskSpecInput struct {
+	// Storage class backing the volume. Defaults to the environment storage class. Immutable.
+	StorageClass *string `json:"storageClass,omitempty"`
+	// Size in GiB.
+	SizeInGiB int64 `json:"sizeInGiB"`
+	// Provisioned IOPS. Honored only by storage classes that support it, such as AWS gp3 and io2.
+	Iops *int64 `json:"iops,omitempty"`
+	// Provisioned throughput in MiB/s. Honored only by storage classes that support it, such as AWS gp3.
+	ThroughputInMiBps *int64 `json:"throughputInMiBps,omitempty"`
+}
+
+// ClickHouse cluster data volume update.
+type K8SEnvClickHouseClusterDiskUpdateSpecInput struct {
+	// Size in GiB.
+	// The size of the volume cannot be decreased.
+	SizeInGiB *int64 `json:"sizeInGiB,omitempty"`
+	// Provisioned IOPS. Honored only by storage classes that support it, such as AWS gp3 and io2.
+	Iops *int64 `json:"iops,omitempty"`
+	// Provisioned throughput in MiB/s. Honored only by storage classes that support it, such as AWS gp3.
+	ThroughputInMiBps *int64 `json:"throughputInMiBps,omitempty"`
+}
+
+// ClickHouse cluster configuration.
+type K8SEnvClickHouseClusterSpec struct {
+	// Cluster name.
+	Name string `json:"name"`
+	// Server image, tag included.
+	Image string `json:"image"`
+	// Instance type used by the nodes.
+	InstanceType string `json:"instanceType"`
+	// Zones used by the nodes.
+	Zones []string `json:"zones"`
+	// Number of shards.
+	Shards int64 `json:"shards"`
+	// Number of replicas per shard.
+	Replicas int64 `json:"replicas"`
+	// Whether the cluster is stopped.
+	Stopped bool `json:"stopped"`
+	// Main data volume.
+	Disk *K8SEnvClickHouseClusterDiskSpec `json:"disk"`
+	// Extra data volumes added to the default ClickHouse storage policy.
+	// Each replica receives one volume per entry.
+	//
+	// By default, ClickHouse balances new data across the main and extra volumes using `least_used` strategy.
+	//
+	// A volume named `diskN`, where `N` is a positive integer, is mounted at `/var/lib/clickhouseN`;
+	// other names are mounted at `/var/lib/clickhouse<name>`.
+	ExtraDisks []*K8SEnvClickHouseNamedDiskSpec `json:"extraDisks"`
+	// Name of the Keeper this cluster coordinates through. Empty when no Keeper configured.
+	Keeper string `json:"keeper"`
+	// ClickHouse users.
+	Users []*K8SEnvClickHouseUserSpec `json:"users"`
+	// Settings profiles users can be assigned to.
+	Profiles []*K8SEnvClickHouseProfileSpec `json:"profiles"`
+	// Resource usage quotas users can be assigned to.
+	Quotas []*ClickHouseQuotaSpec `json:"quotas"`
+	// Server configuration settings.
+	ServerSettings []*K8SEnvClickHouseServerSettingSpec `json:"serverSettings"`
+}
+
+// ClickHouse cluster.
+type K8SEnvClickHouseClusterSpecInput struct {
+	// Cluster name.
+	// Must be 2-15 characters long, containing only lowercase letters, numbers, and hyphens
+	// (cannot start or end with a hyphen).
+	// Immutable.
+	Name string `json:"name"`
+	// Server image.
+	// e.g. altinity/clickhouse-server:25.8.16.10002.altinitystable
+	Image *string `json:"image,omitempty"`
+	// Instance type.
+	// Must match a node group with a `CLICKHOUSE` reservation.
+	InstanceType string `json:"instanceType"`
+	// Zones.
+	// Defaults to environment's zones.
+	// Immutable.
+	Zones []string `json:"zones,omitempty"`
+	// Number of shards.
+	Shards *int64 `json:"shards,omitempty"`
+	// Number of replicas per shard.
+	Replicas *int64 `json:"replicas,omitempty"`
+	// Whether the cluster should be stopped.
+	Stopped *bool `json:"stopped,omitempty"`
+	// Name of the Keeper this cluster coordinates through.
+	Keeper *string `json:"keeper,omitempty"`
+	// Main data volume.
+	Disk *K8SEnvClickHouseClusterDiskSpecInput `json:"disk"`
+	// Extra data volumes added to the default ClickHouse storage policy.
+	// Each replica receives one volume per entry.
+	//
+	// By default, ClickHouse balances new data across the main and extra volumes using `least_used` strategy.
+	//
+	// A volume named `diskN`, where `N` is a positive integer, is mounted at `/var/lib/clickhouseN`;
+	// other names are mounted at `/var/lib/clickhouse<name>`.
+	ExtraDisks []*K8SEnvClickHouseNamedDiskSpecInput `json:"extraDisks,omitempty"`
+	// ClickHouse users.
+	Users []*K8SEnvClickHouseUserSpecInput `json:"users,omitempty"`
+	// Settings profiles users can be assigned to.
+	Profiles []*K8SEnvClickHouseProfileSpecInput `json:"profiles,omitempty"`
+	// Resource usage quotas users can be assigned to.
+	Quotas []*ClickHouseQuotaSpecInput `json:"quotas,omitempty"`
+	// Server configuration settings.
+	ServerSettings []*K8SEnvClickHouseServerSettingSpecInput `json:"serverSettings,omitempty"`
+}
+
+type K8SEnvClickHouseClusterStatus struct {
+	Name      string                      `json:"name"`
+	Endpoints []*K8SEnvClickHouseEndpoint `json:"endpoints"`
+}
+
+// ClickHouse cluster update.
+type K8SEnvClickHouseClusterUpdateSpecInput struct {
+	// Cluster identifier.
+	Name string `json:"name"`
+	// Server image.
+	// e.g. altinity/clickhouse-server:25.8.16.10002.altinitystable
+	Image *string `json:"image,omitempty"`
+	// Instance type.
+	// Must match a node group with a `CLICKHOUSE` reservation.
+	InstanceType *string `json:"instanceType,omitempty"`
+	// Number of shards.
+	Shards *int64 `json:"shards,omitempty"`
+	// Number of replicas per shard.
+	Replicas *int64 `json:"replicas,omitempty"`
+	// Whether the cluster should be stopped.
+	Stopped *bool `json:"stopped,omitempty"`
+	// Name of the Keeper this cluster coordinates through.
+	Keeper *string `json:"keeper,omitempty"`
+	// Main data volume.
+	Disk *K8SEnvClickHouseClusterDiskUpdateSpecInput `json:"disk,omitempty"`
+	// Extra data volumes added to the default ClickHouse storage policy.
+	// Each replica receives one volume per entry.
+	//
+	// By default, ClickHouse balances new data across the main and extra volumes using `least_used` strategy.
+	//
+	// A volume named `diskN`, where `N` is a positive integer, is mounted at `/var/lib/clickhouseN`;
+	// other names are mounted at `/var/lib/clickhouse<name>`.
+	ExtraDisks []*K8SEnvClickHouseNamedDiskSpecInput `json:"extraDisks,omitempty"`
+	// Partial extraDisks update.
+	ExtraDisksPatch *K8SEnvClickHouseNamedDisksPatchInput `json:"extraDisksPatch,omitempty"`
+	// ClickHouse users.
+	Users []*K8SEnvClickHouseUserSpecInput `json:"users,omitempty"`
+	// Partial users update.
+	UsersPatch *K8SEnvClickHouseUsersPatchInput `json:"usersPatch,omitempty"`
+	// Settings profiles users can be assigned to.
+	Profiles []*K8SEnvClickHouseProfileSpecInput `json:"profiles,omitempty"`
+	// Partial profiles update.
+	ProfilesPatch *K8SEnvClickHouseProfilesPatchInput `json:"profilesPatch,omitempty"`
+	// Resource usage quotas users can be assigned to.
+	Quotas []*ClickHouseQuotaSpecInput `json:"quotas,omitempty"`
+	// Partial quotas update.
+	QuotasPatch *ClickHouseQuotaSpecsPatchInput `json:"quotasPatch,omitempty"`
+	// Server configuration settings.
+	ServerSettings []*K8SEnvClickHouseServerSettingSpecInput `json:"serverSettings,omitempty"`
+	// Partial serverSettings update.
+	ServerSettingsPatch *K8SEnvClickHouseServerSettingsPatchInput `json:"serverSettingsPatch,omitempty"`
+}
+
+type K8SEnvClickHouseClustersPatchInput struct {
+	// Clusters to add or replace.
+	Replace []*K8SEnvClickHouseClusterSpecInput `json:"replace,omitempty"`
+	// Updates to existing clusters (unspecified fields are kept untouched).
+	Update []*K8SEnvClickHouseClusterUpdateSpecInput `json:"update,omitempty"`
+	// Clusters to delete. Missing clusters are ignored.
+	Delete []string `json:"delete,omitempty"`
+}
+
+type K8SEnvClickHouseEndpoint struct {
+	Protocol K8SEnvClickHouseProtocol `json:"protocol"`
+	// Host, including port.
+	Host string                        `json:"host"`
+	Type *K8SEnvClickHouseEndpointType `json:"type,omitempty"`
+}
+
+// ClickHouse Keeper data volume.
+type K8SEnvClickHouseKeeperDiskSpec struct {
+	// Storage class backing the volume.
+	StorageClass string `json:"storageClass"`
+	// Size in GiB.
+	SizeInGiB int64 `json:"sizeInGiB"`
+	// Provisioned IOPS. 0 when not set.
+	Iops int64 `json:"iops"`
+	// Provisioned throughput in MiB/s. 0 when not set.
+	ThroughputInMiBps int64 `json:"throughputInMiBps"`
+}
+
+// ClickHouse Keeper data volume.
+type K8SEnvClickHouseKeeperDiskSpecInput struct {
+	// Storage class backing the volume. Defaults to the environment storage class. Immutable.
+	StorageClass *string `json:"storageClass,omitempty"`
+	// Size in GiB.
+	SizeInGiB int64 `json:"sizeInGiB"`
+	// Provisioned IOPS. Honored only by storage classes that support it, such as AWS gp3 and io2.
+	Iops *int64 `json:"iops,omitempty"`
+	// Provisioned throughput in MiB/s. Honored only by storage classes that support it, such as AWS gp3.
+	ThroughputInMiBps *int64 `json:"throughputInMiBps,omitempty"`
+}
+
+// ClickHouse Keeper data volume update.
+type K8SEnvClickHouseKeeperDiskUpdateSpecInput struct {
+	// Size in GiB.
+	// The size of the volume cannot be decreased.
+	SizeInGiB *int64 `json:"sizeInGiB,omitempty"`
+	// Provisioned IOPS. Honored only by storage classes that support it, such as AWS gp3 and io2.
+	Iops *int64 `json:"iops,omitempty"`
+	// Provisioned throughput in MiB/s. Honored only by storage classes that support it, such as AWS gp3.
+	ThroughputInMiBps *int64 `json:"throughputInMiBps,omitempty"`
+}
+
+// ClickHouse Keeper configuration.
+type K8SEnvClickHouseKeeperSpec struct {
+	// Keeper cluster name.
+	Name string `json:"name"`
+	// Instance type the Keeper nodes run on.
+	InstanceType string `json:"instanceType"`
+	// Zones the Keeper is spread across. Keeper replicas are distributed across these locations.
+	Zones []string `json:"zones"`
+	// Number of Keeper replicas.
+	Replicas int64 `json:"replicas"`
+	// Whether the Keeper is stopped.
+	Stopped bool `json:"stopped"`
+	// Data volume.
+	Disk *K8SEnvClickHouseKeeperDiskSpec `json:"disk"`
+}
+
+// ClickHouse Keeper configuration.
+type K8SEnvClickHouseKeeperSpecInput struct {
+	// Keeper cluster name.
+	// Must be 2-15 characters long, containing only lowercase letters, numbers, and hyphens
+	// (cannot start or end with a hyphen).
+	// Immutable.
+	Name string `json:"name"`
+	// Instance type.
+	// Must match a node group with a `ZOOKEEPER` reservation.
+	InstanceType string `json:"instanceType"`
+	// Zones. Defaults to all environment zones. Immutable.
+	Zones []string `json:"zones,omitempty"`
+	// Number of Keeper replicas. Defaults to 1. Set to 3 for high availability.
+	Replicas *int64 `json:"replicas,omitempty"`
+	// Whether the Keeper should be stopped.
+	Stopped *bool `json:"stopped,omitempty"`
+	// Data volume.
+	Disk *K8SEnvClickHouseKeeperDiskSpecInput `json:"disk"`
+}
+
+// ClickHouse Keeper configuration update. Omitted fields retain their values.
+type K8SEnvClickHouseKeeperUpdateSpecInput struct {
+	// Keeper cluster name.
+	Name string `json:"name"`
+	// Instance type.
+	// Must match a node group with a `ZOOKEEPER` reservation.
+	InstanceType *string `json:"instanceType,omitempty"`
+	// Number of Keeper replicas. Cannot be decreased.
+	Replicas *int64 `json:"replicas,omitempty"`
+	// Whether the Keeper should be stopped.
+	Stopped *bool `json:"stopped,omitempty"`
+	// Data volume.
+	Disk *K8SEnvClickHouseKeeperDiskUpdateSpecInput `json:"disk,omitempty"`
+}
+
+type K8SEnvClickHouseKeepersPatchInput struct {
+	// Keepers to add or replace.
+	Replace []*K8SEnvClickHouseKeeperSpecInput `json:"replace,omitempty"`
+	// Updates to existing keepers.
+	Update []*K8SEnvClickHouseKeeperUpdateSpecInput `json:"update,omitempty"`
+	// Keepers to delete. Missing keepers are ignored.
+	Delete []string `json:"delete,omitempty"`
+}
+
+// ClickHouse named data volume.
+type K8SEnvClickHouseNamedDiskSpec struct {
+	// Volume name.
+	Name string `json:"name"`
+	// Storage class backing the volume. Empty when the environment default is used.
+	StorageClass string `json:"storageClass"`
+	// Size in GiB.
+	SizeInGiB int64 `json:"sizeInGiB"`
+	// Provisioned IOPS. 0 when not set.
+	Iops int64 `json:"iops"`
+	// Provisioned throughput in MiB/s. 0 when not set.
+	ThroughputInMiBps int64 `json:"throughputInMiBps"`
+}
+
+// ClickHouse named data volume.
+type K8SEnvClickHouseNamedDiskSpecInput struct {
+	// Volume name.
+	// Must start with `disk`; 16 characters max.
+	// Immutable.
+	Name string `json:"name"`
+	// Storage class backing the volume. Defaults to storageClass on environment level. Immutable.
+	StorageClass *string `json:"storageClass,omitempty"`
+	// Size in GiB.
+	SizeInGiB int64 `json:"sizeInGiB"`
+	// Provisioned IOPS. Honored only by storage classes that support it, such as AWS gp3 and io2.
+	Iops *int64 `json:"iops,omitempty"`
+	// Provisioned throughput in MiB/s. Honored only by storage classes that support it, such as AWS gp3.
+	ThroughputInMiBps *int64 `json:"throughputInMiBps,omitempty"`
+}
+
+// ClickHouse named data volume update. Omitted fields retain their values.
+type K8SEnvClickHouseNamedDiskUpdateSpecInput struct {
+	// Volume name.
+	Name string `json:"name"`
+	// Size in GiB.
+	// The size of the volume cannot be decreased.
+	SizeInGiB *int64 `json:"sizeInGiB,omitempty"`
+	// Provisioned IOPS. Honored only by storage classes that support it, such as AWS gp3 and io2.
+	Iops *int64 `json:"iops,omitempty"`
+	// Provisioned throughput in MiB/s. Honored only by storage classes that support it, such as AWS gp3.
+	ThroughputInMiBps *int64 `json:"throughputInMiBps,omitempty"`
+}
+
+// ClickHouse named data volume patch.
+type K8SEnvClickHouseNamedDisksPatchInput struct {
+	// Volumes to add or replace.
+	Replace []*K8SEnvClickHouseNamedDiskSpecInput `json:"replace,omitempty"`
+	// Updates to existing volumes.
+	Update []*K8SEnvClickHouseNamedDiskUpdateSpecInput `json:"update,omitempty"`
+	// Volumes to delete.
+	Delete []string `json:"delete,omitempty"`
+}
+
+// A single ClickHouse setting.
+type K8SEnvClickHouseProfileSettingSpec struct {
+	// Setting name.
+	Key string `json:"key"`
+	// Setting value.
+	Value string `json:"value"`
+}
+
+// A single ClickHouse setting.
+type K8SEnvClickHouseProfileSettingSpecInput struct {
+	// Setting name.
+	// https://clickhouse.com/docs/reference/settings/session-settings
+	Key string `json:"key"`
+	// Setting value.
+	Value *string `json:"value,omitempty"`
+}
+
+type K8SEnvClickHouseProfileSettingsPatchInput struct {
+	// Settings to add or replace.
+	Replace []*K8SEnvClickHouseProfileSettingSpecInput `json:"replace,omitempty"`
+	// Settings to delete. Missing settings are ignored.
+	Delete []string `json:"delete,omitempty"`
+}
+
+// ClickHouse settings profile.
+type K8SEnvClickHouseProfileSpec struct {
+	// Profile name.
+	Name string `json:"name"`
+	// Settings the profile carries.
+	Settings []*K8SEnvClickHouseProfileSettingSpec `json:"settings"`
+}
+
+// ClickHouse settings profile.
+type K8SEnvClickHouseProfileSpecInput struct {
+	// Profile name.
+	Name string `json:"name"`
+	// Settings the profile should carry.
+	Settings []*K8SEnvClickHouseProfileSettingSpecInput `json:"settings,omitempty"`
+}
+
+// ClickHouse settings profile update. Omitted fields retain their values.
+type K8SEnvClickHouseProfileUpdateSpecInput struct {
+	// Profile name.
+	Name string `json:"name"`
+	// Settings the profile should carry.
+	Settings []*K8SEnvClickHouseProfileSettingSpecInput `json:"settings,omitempty"`
+	// Settings patch.
+	SettingsPatch *K8SEnvClickHouseProfileSettingsPatchInput `json:"settingsPatch,omitempty"`
+}
+
+type K8SEnvClickHouseProfilesPatchInput struct {
+	// Profiles to add or replace.
+	Replace []*K8SEnvClickHouseProfileSpecInput `json:"replace,omitempty"`
+	// Updates to existing profiles.
+	Update []*K8SEnvClickHouseProfileUpdateSpecInput `json:"update,omitempty"`
+	// Profiles to delete. Missing profiles are ignored.
+	Delete []string `json:"delete,omitempty"`
+}
+
+// Reference to a key in a Kubernetes secret.
+type K8SEnvClickHouseSecretRefSpec struct {
+	// Secret name.
+	Name string `json:"name"`
+	// Key within the secret.
+	Key string `json:"key"`
+}
+
+// Reference to a key in a Kubernetes secret.
+type K8SEnvClickHouseSecretRefSpecInput struct {
+	// Secret name.
+	Name string `json:"name"`
+	// Key within the secret.
+	Key string `json:"key"`
+}
+
+// ClickHouse server setting.
+type K8SEnvClickHouseServerSettingSpec struct {
+	// Setting name.
+	Key string `json:"key"`
+	// Setting value.
+	Value string `json:"value"`
+}
+
+// ClickHouse server setting.
+type K8SEnvClickHouseServerSettingSpecInput struct {
+	// Setting name.
+	// https://clickhouse.com/docs/reference/settings/server-settings/settings
+	Key string `json:"key"`
+	// Setting value.
+	Value *string `json:"value,omitempty"`
+}
+
+type K8SEnvClickHouseServerSettingsPatchInput struct {
+	// Settings to add or replace.
+	Replace []*K8SEnvClickHouseServerSettingSpecInput `json:"replace,omitempty"`
+	// Settings to delete. Missing settings are ignored.
+	Delete []string `json:"delete,omitempty"`
+}
+
+type K8SEnvClickHouseUserDatabaseSpec struct {
+	Name string `json:"name"`
+}
+
+type K8SEnvClickHouseUserDatabaseSpecInput struct {
+	Name string `json:"name"`
+}
+
+type K8SEnvClickHouseUserNetworksSpec struct {
+	// IP addresses or CIDRs the user may connect from. When omitted or empty, only `127.0.0.1` and `::1` are allowed.
+	Ips []string `json:"ips"`
+}
+
+type K8SEnvClickHouseUserNetworksSpecInput struct {
+	// IP addresses or CIDRs the user may connect from. When omitted or empty, only `127.0.0.1` and `::1` are allowed.
+	Ips []string `json:"ips,omitempty"`
+}
+
+type K8SEnvClickHouseUserPasswordSpec struct {
+	// Password encoding.
+	Type K8SEnvClickHouseUserPasswordType `json:"type"`
+	// Kubernetes secret containing the password.
+	ValueFromSecret *K8SEnvClickHouseSecretRefSpec `json:"valueFromSecret,omitempty"`
+}
+
+type K8SEnvClickHouseUserPasswordSpecInput struct {
+	// Password encoding.
+	Type K8SEnvClickHouseUserPasswordType `json:"type"`
+	// Password value encoded according to `type` and encrypted with the environment public key.
+	EncValue *string `json:"encValue,omitempty"`
+	// Kubernetes secret containing the password. Mutually exclusive with `encValue`.
+	ValueFromSecret *K8SEnvClickHouseSecretRefSpecInput `json:"valueFromSecret,omitempty"`
+}
+
+// ClickHouse user.
+type K8SEnvClickHouseUserSpec struct {
+	// User name.
+	Name string `json:"name"`
+	// Settings profile assigned to the user.
+	Profile string `json:"profile"`
+	// Quota assigned to the user.
+	Quota string `json:"quota"`
+	// Networks the user may connect from.
+	Networks *K8SEnvClickHouseUserNetworksSpec `json:"networks"`
+	// Whether the user can manage roles, users, and grants.
+	AccessManagement bool `json:"accessManagement"`
+	// Whether the user can create and drop named collections.
+	NamedCollectionControl bool `json:"namedCollectionControl"`
+	// Whether the user can read secrets stored in named collections.
+	ShowNamedCollectionsSecrets bool `json:"showNamedCollectionsSecrets"`
+	// Databases the user is granted access to. All by default.
+	Databases []*K8SEnvClickHouseUserDatabaseSpec `json:"databases"`
+	// User grants, e.g. "GRANT SHOW ON *.*".
+	// This setting cannot be combined with
+	// accessManagement, namedCollectionControl, showNamedCollectionsSecrets and databases settings.
+	Grants []string `json:"grants"`
+	// User password.
+	Password *K8SEnvClickHouseUserPasswordSpec `json:"password"`
+}
+
+// ClickHouse user.
+type K8SEnvClickHouseUserSpecInput struct {
+	// User name.
+	Name string `json:"name"`
+	// Settings profile assigned to the user.
+	Profile *string `json:"profile,omitempty"`
+	// Quota assigned to the user.
+	Quota *string `json:"quota,omitempty"`
+	// Networks the user may connect from.
+	Networks *K8SEnvClickHouseUserNetworksSpecInput `json:"networks,omitempty"`
+	// Whether the user can manage roles, users, and grants.
+	AccessManagement *bool `json:"accessManagement,omitempty"`
+	// Whether the user can create and drop named collections.
+	NamedCollectionControl *bool `json:"namedCollectionControl,omitempty"`
+	// Whether the user can read secrets stored in named collections.
+	ShowNamedCollectionsSecrets *bool `json:"showNamedCollectionsSecrets,omitempty"`
+	// Databases the user is granted access to. All by default.
+	Databases []*K8SEnvClickHouseUserDatabaseSpecInput `json:"databases,omitempty"`
+	// User grants, e.g. "GRANT SHOW ON *.*".
+	// This setting cannot be combined with
+	// accessManagement, namedCollectionControl, showNamedCollectionsSecrets and databases settings.
+	Grants []string `json:"grants,omitempty"`
+	// Password.
+	Password *K8SEnvClickHouseUserPasswordSpecInput `json:"password"`
+}
+
+// ClickHouse user update. Omitted fields retain their values.
+type K8SEnvClickHouseUserUpdateSpecInput struct {
+	// User name, unique within the cluster.
+	Name string `json:"name"`
+	// Settings profile assigned to the user.
+	Profile *string `json:"profile,omitempty"`
+	// Quota assigned to the user.
+	Quota *string `json:"quota,omitempty"`
+	// Networks the user may connect from.
+	Networks *K8SEnvClickHouseUserNetworksSpecInput `json:"networks,omitempty"`
+	// Whether the user can manage roles, users, and grants.
+	AccessManagement *bool `json:"accessManagement,omitempty"`
+	// Whether the user can create and drop named collections.
+	NamedCollectionControl *bool `json:"namedCollectionControl,omitempty"`
+	// Whether the user can read secrets stored in named collections.
+	ShowNamedCollectionsSecrets *bool `json:"showNamedCollectionsSecrets,omitempty"`
+	// Databases the user is granted access to. All by default.
+	Databases []*K8SEnvClickHouseUserDatabaseSpecInput `json:"databases,omitempty"`
+	// User grants, e.g. "GRANT SHOW ON *.*".
+	// This setting cannot be combined with
+	// accessManagement, namedCollectionControl, showNamedCollectionsSecrets and databases settings.
+	Grants []string `json:"grants,omitempty"`
+	// Password.
+	Password *K8SEnvClickHouseUserPasswordSpecInput `json:"password,omitempty"`
+}
+
+type K8SEnvClickHouseUsersPatchInput struct {
+	// Users to add or replace.
+	Replace []*K8SEnvClickHouseUserSpecInput `json:"replace,omitempty"`
+	// Updates to existing users.
+	Update []*K8SEnvClickHouseUserUpdateSpecInput `json:"update,omitempty"`
+	// Users to delete. Missing users are ignored.
+	Delete []string `json:"delete,omitempty"`
 }
 
 // Kubernetes custom node type configuration.
@@ -2945,6 +6170,10 @@ type K8SEnvSpec struct {
 	MetricsEndpoint *MetricsEndpointSpec `json:"metricsEndpoint"`
 	// Datadog agent configuration.
 	Datadog *DatadogSpec `json:"datadog"`
+	// ClickHouse clusters.
+	ClickHouseClusters []*K8SEnvClickHouseClusterSpec `json:"clickHouseClusters"`
+	// ClickHouse Keepers.
+	ClickHouseKeepers []*K8SEnvClickHouseKeeperSpec `json:"clickHouseKeepers"`
 	// MFA destructive operations.
 	// True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
 	Mfa bool `json:"mfa"`
@@ -2978,6 +6207,8 @@ type K8SEnvSpecLogsStorageSpecInput struct {
 type K8SEnvStatus struct {
 	// Applied spec revision (monotonically-increasing).
 	AppliedSpecRevision int64 `json:"appliedSpecRevision"`
+	// Status of ClickHouse clusters.
+	ClickHouseClusters []*K8SEnvClickHouseClusterStatus `json:"clickHouseClusters"`
 	// True indicates that environment is pending deletion.
 	PendingDelete bool `json:"pendingDelete"`
 	// Status errors.
@@ -3216,6 +6447,14 @@ type UpdateAzureEnvSpecInput struct {
 	MetricsEndpoint *MetricsEndpointSpecInput `json:"metricsEndpoint,omitempty"`
 	// Datadog monitoring agent configuration.
 	Datadog *DatadogSpecInput `json:"datadog,omitempty"`
+	// Replaces all ClickHouse clusters exposed by this API.
+	ClickHouseClusters []*AzureEnvClickHouseClusterSpecInput `json:"clickHouseClusters,omitempty"`
+	// Changes ClickHouse clusters exposed by this API. Cannot be combined with clickHouseClusters.
+	ClickHouseClustersPatch *AzureEnvClickHouseClustersPatchInput `json:"clickHouseClustersPatch,omitempty"`
+	// Replaces all ClickHouse Keepers exposed by this API.
+	ClickHouseKeepers []*AzureEnvClickHouseKeeperSpecInput `json:"clickHouseKeepers,omitempty"`
+	// Changes ClickHouse Keepers exposed by this API. Cannot be combined with clickHouseKeepers.
+	ClickHouseKeepersPatch *AzureEnvClickHouseKeepersPatchInput `json:"clickHouseKeepersPatch,omitempty"`
 	// MFA destructive operations.
 	// True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
 	Mfa *bool `json:"mfa,omitempty"`
@@ -3305,6 +6544,14 @@ type UpdateGCPEnvSpecInput struct {
 	Labels []*KeyValueInput `json:"labels,omitempty"`
 	// Datadog monitoring agent configuration.
 	Datadog *DatadogSpecInput `json:"datadog,omitempty"`
+	// Replaces all ClickHouse clusters exposed by this API.
+	ClickHouseClusters []*GCPEnvClickHouseClusterSpecInput `json:"clickHouseClusters,omitempty"`
+	// Changes ClickHouse clusters exposed by this API. Cannot be combined with clickHouseClusters.
+	ClickHouseClustersPatch *GCPEnvClickHouseClustersPatchInput `json:"clickHouseClustersPatch,omitempty"`
+	// Replaces all ClickHouse Keepers exposed by this API.
+	ClickHouseKeepers []*GCPEnvClickHouseKeeperSpecInput `json:"clickHouseKeepers,omitempty"`
+	// Changes ClickHouse Keepers exposed by this API. Cannot be combined with clickHouseKeepers.
+	ClickHouseKeepersPatch *GCPEnvClickHouseKeepersPatchInput `json:"clickHouseKeepersPatch,omitempty"`
 	// MFA destructive operations.
 	// True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
 	Mfa *bool `json:"mfa,omitempty"`
@@ -3384,6 +6631,14 @@ type UpdateHCloudEnvSpecInput struct {
 	MetricsEndpoint *MetricsEndpointSpecInput `json:"metricsEndpoint,omitempty"`
 	// Datadog monitoring agent configuration.
 	Datadog *DatadogSpecInput `json:"datadog,omitempty"`
+	// Replaces all ClickHouse clusters exposed by this API.
+	ClickHouseClusters []*HCloudEnvClickHouseClusterSpecInput `json:"clickHouseClusters,omitempty"`
+	// Changes ClickHouse clusters exposed by this API. Cannot be combined with clickHouseClusters.
+	ClickHouseClustersPatch *HCloudEnvClickHouseClustersPatchInput `json:"clickHouseClustersPatch,omitempty"`
+	// Replaces all ClickHouse Keepers exposed by this API.
+	ClickHouseKeepers []*HCloudEnvClickHouseKeeperSpecInput `json:"clickHouseKeepers,omitempty"`
+	// Changes ClickHouse Keepers exposed by this API. Cannot be combined with clickHouseKeepers.
+	ClickHouseKeepersPatch *HCloudEnvClickHouseKeepersPatchInput `json:"clickHouseKeepersPatch,omitempty"`
 	// MFA destructive operations.
 	// True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
 	Mfa *bool `json:"mfa,omitempty"`
@@ -3461,6 +6716,14 @@ type UpdateK8SEnvSpecInput struct {
 	MetricsEndpoint *MetricsEndpointSpecInput `json:"metricsEndpoint,omitempty"`
 	// Datadog monitoring agent configuration.
 	Datadog *DatadogSpecInput `json:"datadog,omitempty"`
+	// Replaces all ClickHouse clusters exposed by this API.
+	ClickHouseClusters []*K8SEnvClickHouseClusterSpecInput `json:"clickHouseClusters,omitempty"`
+	// Changes ClickHouse clusters exposed by this API. Cannot be combined with clickHouseClusters.
+	ClickHouseClustersPatch *K8SEnvClickHouseClustersPatchInput `json:"clickHouseClustersPatch,omitempty"`
+	// Replaces all ClickHouse Keepers exposed by this API.
+	ClickHouseKeepers []*K8SEnvClickHouseKeeperSpecInput `json:"clickHouseKeepers,omitempty"`
+	// Changes ClickHouse Keepers exposed by this API. Cannot be combined with clickHouseKeepers.
+	ClickHouseKeepersPatch *K8SEnvClickHouseKeepersPatchInput `json:"clickHouseKeepersPatch,omitempty"`
 	// MFA destructive operations.
 	// True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
 	Mfa *bool `json:"mfa,omitempty"`
@@ -3578,6 +6841,179 @@ func (e AKSSupportPolicy) MarshalJSON() ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
+type AWSEnvClickHouseEndpointType string
+
+const (
+	AWSEnvClickHouseEndpointTypePublic   AWSEnvClickHouseEndpointType = "PUBLIC"
+	AWSEnvClickHouseEndpointTypeInternal AWSEnvClickHouseEndpointType = "INTERNAL"
+	AWSEnvClickHouseEndpointTypeVpce     AWSEnvClickHouseEndpointType = "VPCE"
+)
+
+var AllAWSEnvClickHouseEndpointType = []AWSEnvClickHouseEndpointType{
+	AWSEnvClickHouseEndpointTypePublic,
+	AWSEnvClickHouseEndpointTypeInternal,
+	AWSEnvClickHouseEndpointTypeVpce,
+}
+
+func (e AWSEnvClickHouseEndpointType) IsValid() bool {
+	switch e {
+	case AWSEnvClickHouseEndpointTypePublic, AWSEnvClickHouseEndpointTypeInternal, AWSEnvClickHouseEndpointTypeVpce:
+		return true
+	}
+	return false
+}
+
+func (e AWSEnvClickHouseEndpointType) String() string {
+	return string(e)
+}
+
+func (e *AWSEnvClickHouseEndpointType) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = AWSEnvClickHouseEndpointType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid AWSEnvClickHouseEndpointType", str)
+	}
+	return nil
+}
+
+func (e AWSEnvClickHouseEndpointType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *AWSEnvClickHouseEndpointType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e AWSEnvClickHouseEndpointType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+type AWSEnvClickHouseProtocol string
+
+const (
+	AWSEnvClickHouseProtocolHTTPS     AWSEnvClickHouseProtocol = "HTTPS"
+	AWSEnvClickHouseProtocolNativeTLS AWSEnvClickHouseProtocol = "NATIVE_TLS"
+	AWSEnvClickHouseProtocolMysql     AWSEnvClickHouseProtocol = "MYSQL"
+)
+
+var AllAWSEnvClickHouseProtocol = []AWSEnvClickHouseProtocol{
+	AWSEnvClickHouseProtocolHTTPS,
+	AWSEnvClickHouseProtocolNativeTLS,
+	AWSEnvClickHouseProtocolMysql,
+}
+
+func (e AWSEnvClickHouseProtocol) IsValid() bool {
+	switch e {
+	case AWSEnvClickHouseProtocolHTTPS, AWSEnvClickHouseProtocolNativeTLS, AWSEnvClickHouseProtocolMysql:
+		return true
+	}
+	return false
+}
+
+func (e AWSEnvClickHouseProtocol) String() string {
+	return string(e)
+}
+
+func (e *AWSEnvClickHouseProtocol) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = AWSEnvClickHouseProtocol(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid AWSEnvClickHouseProtocol", str)
+	}
+	return nil
+}
+
+func (e AWSEnvClickHouseProtocol) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *AWSEnvClickHouseProtocol) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e AWSEnvClickHouseProtocol) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// Password encoding.
+type AWSEnvClickHouseUserPasswordType string
+
+const (
+	// SHA-256 digest, hex encoded.
+	AWSEnvClickHouseUserPasswordTypeSha256Hex AWSEnvClickHouseUserPasswordType = "SHA256_HEX"
+	// Double SHA-1 digest, hex encoded.
+	// Use only when you need compatibility with legacy MySQL clients. Otherwise its use is discouraged.
+	AWSEnvClickHouseUserPasswordTypeDoubleSha1Hex AWSEnvClickHouseUserPasswordType = "DOUBLE_SHA1_HEX"
+)
+
+var AllAWSEnvClickHouseUserPasswordType = []AWSEnvClickHouseUserPasswordType{
+	AWSEnvClickHouseUserPasswordTypeSha256Hex,
+	AWSEnvClickHouseUserPasswordTypeDoubleSha1Hex,
+}
+
+func (e AWSEnvClickHouseUserPasswordType) IsValid() bool {
+	switch e {
+	case AWSEnvClickHouseUserPasswordTypeSha256Hex, AWSEnvClickHouseUserPasswordTypeDoubleSha1Hex:
+		return true
+	}
+	return false
+}
+
+func (e AWSEnvClickHouseUserPasswordType) String() string {
+	return string(e)
+}
+
+func (e *AWSEnvClickHouseUserPasswordType) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = AWSEnvClickHouseUserPasswordType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid AWSEnvClickHouseUserPasswordType", str)
+	}
+	return nil
+}
+
+func (e AWSEnvClickHouseUserPasswordType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *AWSEnvClickHouseUserPasswordType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e AWSEnvClickHouseUserPasswordType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
 // Access an IAM principal is granted on the EKS API.
 type AWSEnvEKSAccessLevel string
 
@@ -3639,6 +7075,177 @@ func (e AWSEnvEKSAccessLevel) MarshalJSON() ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
+type AWSEnvHostedClickHouseEndpointType string
+
+const (
+	AWSEnvHostedClickHouseEndpointTypePublic AWSEnvHostedClickHouseEndpointType = "PUBLIC"
+	AWSEnvHostedClickHouseEndpointTypeVpce   AWSEnvHostedClickHouseEndpointType = "VPCE"
+)
+
+var AllAWSEnvHostedClickHouseEndpointType = []AWSEnvHostedClickHouseEndpointType{
+	AWSEnvHostedClickHouseEndpointTypePublic,
+	AWSEnvHostedClickHouseEndpointTypeVpce,
+}
+
+func (e AWSEnvHostedClickHouseEndpointType) IsValid() bool {
+	switch e {
+	case AWSEnvHostedClickHouseEndpointTypePublic, AWSEnvHostedClickHouseEndpointTypeVpce:
+		return true
+	}
+	return false
+}
+
+func (e AWSEnvHostedClickHouseEndpointType) String() string {
+	return string(e)
+}
+
+func (e *AWSEnvHostedClickHouseEndpointType) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = AWSEnvHostedClickHouseEndpointType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid AWSEnvHostedClickHouseEndpointType", str)
+	}
+	return nil
+}
+
+func (e AWSEnvHostedClickHouseEndpointType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *AWSEnvHostedClickHouseEndpointType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e AWSEnvHostedClickHouseEndpointType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+type AWSEnvHostedClickHouseProtocol string
+
+const (
+	AWSEnvHostedClickHouseProtocolHTTPS     AWSEnvHostedClickHouseProtocol = "HTTPS"
+	AWSEnvHostedClickHouseProtocolNativeTLS AWSEnvHostedClickHouseProtocol = "NATIVE_TLS"
+	AWSEnvHostedClickHouseProtocolMysql     AWSEnvHostedClickHouseProtocol = "MYSQL"
+)
+
+var AllAWSEnvHostedClickHouseProtocol = []AWSEnvHostedClickHouseProtocol{
+	AWSEnvHostedClickHouseProtocolHTTPS,
+	AWSEnvHostedClickHouseProtocolNativeTLS,
+	AWSEnvHostedClickHouseProtocolMysql,
+}
+
+func (e AWSEnvHostedClickHouseProtocol) IsValid() bool {
+	switch e {
+	case AWSEnvHostedClickHouseProtocolHTTPS, AWSEnvHostedClickHouseProtocolNativeTLS, AWSEnvHostedClickHouseProtocolMysql:
+		return true
+	}
+	return false
+}
+
+func (e AWSEnvHostedClickHouseProtocol) String() string {
+	return string(e)
+}
+
+func (e *AWSEnvHostedClickHouseProtocol) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = AWSEnvHostedClickHouseProtocol(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid AWSEnvHostedClickHouseProtocol", str)
+	}
+	return nil
+}
+
+func (e AWSEnvHostedClickHouseProtocol) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *AWSEnvHostedClickHouseProtocol) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e AWSEnvHostedClickHouseProtocol) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// Password encoding.
+type AWSEnvHostedClickHouseUserPasswordType string
+
+const (
+	// SHA-256 digest, hex encoded.
+	AWSEnvHostedClickHouseUserPasswordTypeSha256Hex AWSEnvHostedClickHouseUserPasswordType = "SHA256_HEX"
+	// Double SHA-1 digest, hex encoded.
+	// Use only when you need compatibility with legacy MySQL clients. Otherwise its use is discouraged.
+	AWSEnvHostedClickHouseUserPasswordTypeDoubleSha1Hex AWSEnvHostedClickHouseUserPasswordType = "DOUBLE_SHA1_HEX"
+)
+
+var AllAWSEnvHostedClickHouseUserPasswordType = []AWSEnvHostedClickHouseUserPasswordType{
+	AWSEnvHostedClickHouseUserPasswordTypeSha256Hex,
+	AWSEnvHostedClickHouseUserPasswordTypeDoubleSha1Hex,
+}
+
+func (e AWSEnvHostedClickHouseUserPasswordType) IsValid() bool {
+	switch e {
+	case AWSEnvHostedClickHouseUserPasswordTypeSha256Hex, AWSEnvHostedClickHouseUserPasswordTypeDoubleSha1Hex:
+		return true
+	}
+	return false
+}
+
+func (e AWSEnvHostedClickHouseUserPasswordType) String() string {
+	return string(e)
+}
+
+func (e *AWSEnvHostedClickHouseUserPasswordType) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = AWSEnvHostedClickHouseUserPasswordType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid AWSEnvHostedClickHouseUserPasswordType", str)
+	}
+	return nil
+}
+
+func (e AWSEnvHostedClickHouseUserPasswordType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *AWSEnvHostedClickHouseUserPasswordType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e AWSEnvHostedClickHouseUserPasswordType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
 // Iceberg catalog type.
 type AWSEnvHostedIcebergCatalogTypeSpec string
 
@@ -3692,6 +7299,247 @@ func (e *AWSEnvHostedIcebergCatalogTypeSpec) UnmarshalJSON(b []byte) error {
 }
 
 func (e AWSEnvHostedIcebergCatalogTypeSpec) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+type AzureEnvClickHouseEndpointType string
+
+const (
+	AzureEnvClickHouseEndpointTypePublic      AzureEnvClickHouseEndpointType = "PUBLIC"
+	AzureEnvClickHouseEndpointTypeInternal    AzureEnvClickHouseEndpointType = "INTERNAL"
+	AzureEnvClickHouseEndpointTypePrivateLink AzureEnvClickHouseEndpointType = "PRIVATE_LINK"
+)
+
+var AllAzureEnvClickHouseEndpointType = []AzureEnvClickHouseEndpointType{
+	AzureEnvClickHouseEndpointTypePublic,
+	AzureEnvClickHouseEndpointTypeInternal,
+	AzureEnvClickHouseEndpointTypePrivateLink,
+}
+
+func (e AzureEnvClickHouseEndpointType) IsValid() bool {
+	switch e {
+	case AzureEnvClickHouseEndpointTypePublic, AzureEnvClickHouseEndpointTypeInternal, AzureEnvClickHouseEndpointTypePrivateLink:
+		return true
+	}
+	return false
+}
+
+func (e AzureEnvClickHouseEndpointType) String() string {
+	return string(e)
+}
+
+func (e *AzureEnvClickHouseEndpointType) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = AzureEnvClickHouseEndpointType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid AzureEnvClickHouseEndpointType", str)
+	}
+	return nil
+}
+
+func (e AzureEnvClickHouseEndpointType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *AzureEnvClickHouseEndpointType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e AzureEnvClickHouseEndpointType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+type AzureEnvClickHouseProtocol string
+
+const (
+	AzureEnvClickHouseProtocolHTTPS     AzureEnvClickHouseProtocol = "HTTPS"
+	AzureEnvClickHouseProtocolNativeTLS AzureEnvClickHouseProtocol = "NATIVE_TLS"
+	AzureEnvClickHouseProtocolMysql     AzureEnvClickHouseProtocol = "MYSQL"
+)
+
+var AllAzureEnvClickHouseProtocol = []AzureEnvClickHouseProtocol{
+	AzureEnvClickHouseProtocolHTTPS,
+	AzureEnvClickHouseProtocolNativeTLS,
+	AzureEnvClickHouseProtocolMysql,
+}
+
+func (e AzureEnvClickHouseProtocol) IsValid() bool {
+	switch e {
+	case AzureEnvClickHouseProtocolHTTPS, AzureEnvClickHouseProtocolNativeTLS, AzureEnvClickHouseProtocolMysql:
+		return true
+	}
+	return false
+}
+
+func (e AzureEnvClickHouseProtocol) String() string {
+	return string(e)
+}
+
+func (e *AzureEnvClickHouseProtocol) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = AzureEnvClickHouseProtocol(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid AzureEnvClickHouseProtocol", str)
+	}
+	return nil
+}
+
+func (e AzureEnvClickHouseProtocol) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *AzureEnvClickHouseProtocol) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e AzureEnvClickHouseProtocol) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// Password encoding.
+type AzureEnvClickHouseUserPasswordType string
+
+const (
+	// SHA-256 digest, hex encoded.
+	AzureEnvClickHouseUserPasswordTypeSha256Hex AzureEnvClickHouseUserPasswordType = "SHA256_HEX"
+	// Double SHA-1 digest, hex encoded.
+	// Use only when you need compatibility with legacy MySQL clients. Otherwise its use is discouraged.
+	AzureEnvClickHouseUserPasswordTypeDoubleSha1Hex AzureEnvClickHouseUserPasswordType = "DOUBLE_SHA1_HEX"
+)
+
+var AllAzureEnvClickHouseUserPasswordType = []AzureEnvClickHouseUserPasswordType{
+	AzureEnvClickHouseUserPasswordTypeSha256Hex,
+	AzureEnvClickHouseUserPasswordTypeDoubleSha1Hex,
+}
+
+func (e AzureEnvClickHouseUserPasswordType) IsValid() bool {
+	switch e {
+	case AzureEnvClickHouseUserPasswordTypeSha256Hex, AzureEnvClickHouseUserPasswordTypeDoubleSha1Hex:
+		return true
+	}
+	return false
+}
+
+func (e AzureEnvClickHouseUserPasswordType) String() string {
+	return string(e)
+}
+
+func (e *AzureEnvClickHouseUserPasswordType) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = AzureEnvClickHouseUserPasswordType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid AzureEnvClickHouseUserPasswordType", str)
+	}
+	return nil
+}
+
+func (e AzureEnvClickHouseUserPasswordType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *AzureEnvClickHouseUserPasswordType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e AzureEnvClickHouseUserPasswordType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// Value used to separate resource consumption into quota buckets.
+// https://clickhouse.com/docs/concepts/features/configuration/server-config/quotas
+type ClickHouseQuotaKeyedBy string
+
+const (
+	// All users assigned to the quota share one bucket.
+	ClickHouseQuotaKeyedByNone ClickHouseQuotaKeyedBy = "NONE"
+	// The client supplies a quota key with each request.
+	ClickHouseQuotaKeyedByClientKey ClickHouseQuotaKeyedBy = "CLIENT_KEY"
+	// The client IP address identifies the bucket.
+	ClickHouseQuotaKeyedByIPAddress ClickHouseQuotaKeyedBy = "IP_ADDRESS"
+	// The first address in the `X-Forwarded-For` header identifies the bucket.
+	ClickHouseQuotaKeyedByForwardedIPAddress ClickHouseQuotaKeyedBy = "FORWARDED_IP_ADDRESS"
+	// The normalized query hash identifies the bucket.
+	ClickHouseQuotaKeyedByNormalizedQueryHash ClickHouseQuotaKeyedBy = "NORMALIZED_QUERY_HASH"
+)
+
+var AllClickHouseQuotaKeyedBy = []ClickHouseQuotaKeyedBy{
+	ClickHouseQuotaKeyedByNone,
+	ClickHouseQuotaKeyedByClientKey,
+	ClickHouseQuotaKeyedByIPAddress,
+	ClickHouseQuotaKeyedByForwardedIPAddress,
+	ClickHouseQuotaKeyedByNormalizedQueryHash,
+}
+
+func (e ClickHouseQuotaKeyedBy) IsValid() bool {
+	switch e {
+	case ClickHouseQuotaKeyedByNone, ClickHouseQuotaKeyedByClientKey, ClickHouseQuotaKeyedByIPAddress, ClickHouseQuotaKeyedByForwardedIPAddress, ClickHouseQuotaKeyedByNormalizedQueryHash:
+		return true
+	}
+	return false
+}
+
+func (e ClickHouseQuotaKeyedBy) String() string {
+	return string(e)
+}
+
+func (e *ClickHouseQuotaKeyedBy) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = ClickHouseQuotaKeyedBy(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid ClickHouseQuotaKeyedBy", str)
+	}
+	return nil
+}
+
+func (e ClickHouseQuotaKeyedBy) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *ClickHouseQuotaKeyedBy) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e ClickHouseQuotaKeyedBy) MarshalJSON() ([]byte, error) {
 	var buf bytes.Buffer
 	e.MarshalGQL(&buf)
 	return buf.Bytes(), nil
@@ -3831,6 +7679,350 @@ func (e EnvStatusErrorCode) MarshalJSON() ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
+type GCPEnvClickHouseEndpointType string
+
+const (
+	GCPEnvClickHouseEndpointTypePublic   GCPEnvClickHouseEndpointType = "PUBLIC"
+	GCPEnvClickHouseEndpointTypeInternal GCPEnvClickHouseEndpointType = "INTERNAL"
+	GCPEnvClickHouseEndpointTypePsc      GCPEnvClickHouseEndpointType = "PSC"
+)
+
+var AllGCPEnvClickHouseEndpointType = []GCPEnvClickHouseEndpointType{
+	GCPEnvClickHouseEndpointTypePublic,
+	GCPEnvClickHouseEndpointTypeInternal,
+	GCPEnvClickHouseEndpointTypePsc,
+}
+
+func (e GCPEnvClickHouseEndpointType) IsValid() bool {
+	switch e {
+	case GCPEnvClickHouseEndpointTypePublic, GCPEnvClickHouseEndpointTypeInternal, GCPEnvClickHouseEndpointTypePsc:
+		return true
+	}
+	return false
+}
+
+func (e GCPEnvClickHouseEndpointType) String() string {
+	return string(e)
+}
+
+func (e *GCPEnvClickHouseEndpointType) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = GCPEnvClickHouseEndpointType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid GCPEnvClickHouseEndpointType", str)
+	}
+	return nil
+}
+
+func (e GCPEnvClickHouseEndpointType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *GCPEnvClickHouseEndpointType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e GCPEnvClickHouseEndpointType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+type GCPEnvClickHouseProtocol string
+
+const (
+	GCPEnvClickHouseProtocolHTTPS     GCPEnvClickHouseProtocol = "HTTPS"
+	GCPEnvClickHouseProtocolNativeTLS GCPEnvClickHouseProtocol = "NATIVE_TLS"
+	GCPEnvClickHouseProtocolMysql     GCPEnvClickHouseProtocol = "MYSQL"
+)
+
+var AllGCPEnvClickHouseProtocol = []GCPEnvClickHouseProtocol{
+	GCPEnvClickHouseProtocolHTTPS,
+	GCPEnvClickHouseProtocolNativeTLS,
+	GCPEnvClickHouseProtocolMysql,
+}
+
+func (e GCPEnvClickHouseProtocol) IsValid() bool {
+	switch e {
+	case GCPEnvClickHouseProtocolHTTPS, GCPEnvClickHouseProtocolNativeTLS, GCPEnvClickHouseProtocolMysql:
+		return true
+	}
+	return false
+}
+
+func (e GCPEnvClickHouseProtocol) String() string {
+	return string(e)
+}
+
+func (e *GCPEnvClickHouseProtocol) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = GCPEnvClickHouseProtocol(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid GCPEnvClickHouseProtocol", str)
+	}
+	return nil
+}
+
+func (e GCPEnvClickHouseProtocol) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *GCPEnvClickHouseProtocol) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e GCPEnvClickHouseProtocol) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// Password encoding.
+type GCPEnvClickHouseUserPasswordType string
+
+const (
+	// SHA-256 digest, hex encoded.
+	GCPEnvClickHouseUserPasswordTypeSha256Hex GCPEnvClickHouseUserPasswordType = "SHA256_HEX"
+	// Double SHA-1 digest, hex encoded.
+	// Use only when you need compatibility with legacy MySQL clients. Otherwise its use is discouraged.
+	GCPEnvClickHouseUserPasswordTypeDoubleSha1Hex GCPEnvClickHouseUserPasswordType = "DOUBLE_SHA1_HEX"
+)
+
+var AllGCPEnvClickHouseUserPasswordType = []GCPEnvClickHouseUserPasswordType{
+	GCPEnvClickHouseUserPasswordTypeSha256Hex,
+	GCPEnvClickHouseUserPasswordTypeDoubleSha1Hex,
+}
+
+func (e GCPEnvClickHouseUserPasswordType) IsValid() bool {
+	switch e {
+	case GCPEnvClickHouseUserPasswordTypeSha256Hex, GCPEnvClickHouseUserPasswordTypeDoubleSha1Hex:
+		return true
+	}
+	return false
+}
+
+func (e GCPEnvClickHouseUserPasswordType) String() string {
+	return string(e)
+}
+
+func (e *GCPEnvClickHouseUserPasswordType) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = GCPEnvClickHouseUserPasswordType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid GCPEnvClickHouseUserPasswordType", str)
+	}
+	return nil
+}
+
+func (e GCPEnvClickHouseUserPasswordType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *GCPEnvClickHouseUserPasswordType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e GCPEnvClickHouseUserPasswordType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+type HCloudEnvClickHouseEndpointType string
+
+const (
+	HCloudEnvClickHouseEndpointTypePublic   HCloudEnvClickHouseEndpointType = "PUBLIC"
+	HCloudEnvClickHouseEndpointTypeInternal HCloudEnvClickHouseEndpointType = "INTERNAL"
+)
+
+var AllHCloudEnvClickHouseEndpointType = []HCloudEnvClickHouseEndpointType{
+	HCloudEnvClickHouseEndpointTypePublic,
+	HCloudEnvClickHouseEndpointTypeInternal,
+}
+
+func (e HCloudEnvClickHouseEndpointType) IsValid() bool {
+	switch e {
+	case HCloudEnvClickHouseEndpointTypePublic, HCloudEnvClickHouseEndpointTypeInternal:
+		return true
+	}
+	return false
+}
+
+func (e HCloudEnvClickHouseEndpointType) String() string {
+	return string(e)
+}
+
+func (e *HCloudEnvClickHouseEndpointType) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = HCloudEnvClickHouseEndpointType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid HCloudEnvClickHouseEndpointType", str)
+	}
+	return nil
+}
+
+func (e HCloudEnvClickHouseEndpointType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *HCloudEnvClickHouseEndpointType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e HCloudEnvClickHouseEndpointType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+type HCloudEnvClickHouseProtocol string
+
+const (
+	HCloudEnvClickHouseProtocolHTTPS     HCloudEnvClickHouseProtocol = "HTTPS"
+	HCloudEnvClickHouseProtocolNativeTLS HCloudEnvClickHouseProtocol = "NATIVE_TLS"
+	HCloudEnvClickHouseProtocolMysql     HCloudEnvClickHouseProtocol = "MYSQL"
+)
+
+var AllHCloudEnvClickHouseProtocol = []HCloudEnvClickHouseProtocol{
+	HCloudEnvClickHouseProtocolHTTPS,
+	HCloudEnvClickHouseProtocolNativeTLS,
+	HCloudEnvClickHouseProtocolMysql,
+}
+
+func (e HCloudEnvClickHouseProtocol) IsValid() bool {
+	switch e {
+	case HCloudEnvClickHouseProtocolHTTPS, HCloudEnvClickHouseProtocolNativeTLS, HCloudEnvClickHouseProtocolMysql:
+		return true
+	}
+	return false
+}
+
+func (e HCloudEnvClickHouseProtocol) String() string {
+	return string(e)
+}
+
+func (e *HCloudEnvClickHouseProtocol) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = HCloudEnvClickHouseProtocol(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid HCloudEnvClickHouseProtocol", str)
+	}
+	return nil
+}
+
+func (e HCloudEnvClickHouseProtocol) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *HCloudEnvClickHouseProtocol) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e HCloudEnvClickHouseProtocol) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// Password encoding.
+type HCloudEnvClickHouseUserPasswordType string
+
+const (
+	// SHA-256 digest, hex encoded.
+	HCloudEnvClickHouseUserPasswordTypeSha256Hex HCloudEnvClickHouseUserPasswordType = "SHA256_HEX"
+	// Double SHA-1 digest, hex encoded.
+	// Use only when you need compatibility with legacy MySQL clients. Otherwise its use is discouraged.
+	HCloudEnvClickHouseUserPasswordTypeDoubleSha1Hex HCloudEnvClickHouseUserPasswordType = "DOUBLE_SHA1_HEX"
+)
+
+var AllHCloudEnvClickHouseUserPasswordType = []HCloudEnvClickHouseUserPasswordType{
+	HCloudEnvClickHouseUserPasswordTypeSha256Hex,
+	HCloudEnvClickHouseUserPasswordTypeDoubleSha1Hex,
+}
+
+func (e HCloudEnvClickHouseUserPasswordType) IsValid() bool {
+	switch e {
+	case HCloudEnvClickHouseUserPasswordTypeSha256Hex, HCloudEnvClickHouseUserPasswordTypeDoubleSha1Hex:
+		return true
+	}
+	return false
+}
+
+func (e HCloudEnvClickHouseUserPasswordType) String() string {
+	return string(e)
+}
+
+func (e *HCloudEnvClickHouseUserPasswordType) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = HCloudEnvClickHouseUserPasswordType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid HCloudEnvClickHouseUserPasswordType", str)
+	}
+	return nil
+}
+
+func (e HCloudEnvClickHouseUserPasswordType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *HCloudEnvClickHouseUserPasswordType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e HCloudEnvClickHouseUserPasswordType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
 // Iceberg catalog type.
 type IcebergCatalogTypeSpec string
 
@@ -3948,6 +8140,181 @@ func (e *K8SDistribution) UnmarshalJSON(b []byte) error {
 }
 
 func (e K8SDistribution) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+type K8SEnvClickHouseEndpointType string
+
+const (
+	K8SEnvClickHouseEndpointTypePublic   K8SEnvClickHouseEndpointType = "PUBLIC"
+	K8SEnvClickHouseEndpointTypeInternal K8SEnvClickHouseEndpointType = "INTERNAL"
+)
+
+var AllK8SEnvClickHouseEndpointType = []K8SEnvClickHouseEndpointType{
+	K8SEnvClickHouseEndpointTypePublic,
+	K8SEnvClickHouseEndpointTypeInternal,
+}
+
+func (e K8SEnvClickHouseEndpointType) IsValid() bool {
+	switch e {
+	case K8SEnvClickHouseEndpointTypePublic, K8SEnvClickHouseEndpointTypeInternal:
+		return true
+	}
+	return false
+}
+
+func (e K8SEnvClickHouseEndpointType) String() string {
+	return string(e)
+}
+
+func (e *K8SEnvClickHouseEndpointType) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = K8SEnvClickHouseEndpointType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid K8SEnvClickHouseEndpointType", str)
+	}
+	return nil
+}
+
+func (e K8SEnvClickHouseEndpointType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *K8SEnvClickHouseEndpointType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e K8SEnvClickHouseEndpointType) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+type K8SEnvClickHouseProtocol string
+
+const (
+	K8SEnvClickHouseProtocolHTTPS     K8SEnvClickHouseProtocol = "HTTPS"
+	K8SEnvClickHouseProtocolNativeTLS K8SEnvClickHouseProtocol = "NATIVE_TLS"
+	K8SEnvClickHouseProtocolMysql     K8SEnvClickHouseProtocol = "MYSQL"
+)
+
+var AllK8SEnvClickHouseProtocol = []K8SEnvClickHouseProtocol{
+	K8SEnvClickHouseProtocolHTTPS,
+	K8SEnvClickHouseProtocolNativeTLS,
+	K8SEnvClickHouseProtocolMysql,
+}
+
+func (e K8SEnvClickHouseProtocol) IsValid() bool {
+	switch e {
+	case K8SEnvClickHouseProtocolHTTPS, K8SEnvClickHouseProtocolNativeTLS, K8SEnvClickHouseProtocolMysql:
+		return true
+	}
+	return false
+}
+
+func (e K8SEnvClickHouseProtocol) String() string {
+	return string(e)
+}
+
+func (e *K8SEnvClickHouseProtocol) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = K8SEnvClickHouseProtocol(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid K8SEnvClickHouseProtocol", str)
+	}
+	return nil
+}
+
+func (e K8SEnvClickHouseProtocol) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *K8SEnvClickHouseProtocol) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e K8SEnvClickHouseProtocol) MarshalJSON() ([]byte, error) {
+	var buf bytes.Buffer
+	e.MarshalGQL(&buf)
+	return buf.Bytes(), nil
+}
+
+// Password encoding.
+type K8SEnvClickHouseUserPasswordType string
+
+const (
+	// SHA-256 digest, hex encoded.
+	K8SEnvClickHouseUserPasswordTypeSha256Hex K8SEnvClickHouseUserPasswordType = "SHA256_HEX"
+	// Double SHA-1 digest, hex encoded.
+	// Use only when you need compatibility with legacy MySQL clients. Otherwise its use is discouraged.
+	K8SEnvClickHouseUserPasswordTypeDoubleSha1Hex K8SEnvClickHouseUserPasswordType = "DOUBLE_SHA1_HEX"
+	// Plain-text password.
+	// Allowed only when the password is provided through `valueFromSecret`.
+	K8SEnvClickHouseUserPasswordTypePlainText K8SEnvClickHouseUserPasswordType = "PLAIN_TEXT"
+)
+
+var AllK8SEnvClickHouseUserPasswordType = []K8SEnvClickHouseUserPasswordType{
+	K8SEnvClickHouseUserPasswordTypeSha256Hex,
+	K8SEnvClickHouseUserPasswordTypeDoubleSha1Hex,
+	K8SEnvClickHouseUserPasswordTypePlainText,
+}
+
+func (e K8SEnvClickHouseUserPasswordType) IsValid() bool {
+	switch e {
+	case K8SEnvClickHouseUserPasswordTypeSha256Hex, K8SEnvClickHouseUserPasswordTypeDoubleSha1Hex, K8SEnvClickHouseUserPasswordTypePlainText:
+		return true
+	}
+	return false
+}
+
+func (e K8SEnvClickHouseUserPasswordType) String() string {
+	return string(e)
+}
+
+func (e *K8SEnvClickHouseUserPasswordType) UnmarshalGQL(v any) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = K8SEnvClickHouseUserPasswordType(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid K8SEnvClickHouseUserPasswordType", str)
+	}
+	return nil
+}
+
+func (e K8SEnvClickHouseUserPasswordType) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
+}
+
+func (e *K8SEnvClickHouseUserPasswordType) UnmarshalJSON(b []byte) error {
+	s, err := strconv.Unquote(string(b))
+	if err != nil {
+		return err
+	}
+	return e.UnmarshalGQL(s)
+}
+
+func (e K8SEnvClickHouseUserPasswordType) MarshalJSON() ([]byte, error) {
 	var buf bytes.Buffer
 	e.MarshalGQL(&buf)
 	return buf.Bytes(), nil

@@ -42,6 +42,8 @@ type AWSEnvSpecFragment struct {
 	MetricsEndpoint              AWSEnvSpecFragment_MetricsEndpoint       "json:\"metricsEndpoint\" graphql:\"metricsEndpoint\""
 	Datadog                      AWSEnvSpecFragment_Datadog               "json:\"datadog\" graphql:\"datadog\""
 	Mfa                          bool                                     "json:\"mfa\" graphql:\"mfa\""
+	ClickHouseClusters           []*AWSEnvSpecFragment_ClickHouseClusters "json:\"clickHouseClusters\" graphql:\"clickHouseClusters\""
+	ClickHouseKeepers            []*AWSEnvSpecFragment_ClickHouseKeepers  "json:\"clickHouseKeepers\" graphql:\"clickHouseKeepers\""
 }
 
 func (t *AWSEnvSpecFragment) GetLoadBalancers() *AWSEnvSpecFragment_LoadBalancers {
@@ -193,6 +195,18 @@ func (t *AWSEnvSpecFragment) GetMfa() bool {
 		t = &AWSEnvSpecFragment{}
 	}
 	return t.Mfa
+}
+func (t *AWSEnvSpecFragment) GetClickHouseClusters() []*AWSEnvSpecFragment_ClickHouseClusters {
+	if t == nil {
+		t = &AWSEnvSpecFragment{}
+	}
+	return t.ClickHouseClusters
+}
+func (t *AWSEnvSpecFragment) GetClickHouseKeepers() []*AWSEnvSpecFragment_ClickHouseKeepers {
+	if t == nil {
+		t = &AWSEnvSpecFragment{}
+	}
+	return t.ClickHouseKeepers
 }
 
 type AWSEnvHostedSpecFragment struct {
@@ -1156,6 +1170,531 @@ func (t *AWSEnvSpecFragment_Datadog) GetMetricsEnabled() bool {
 		t = &AWSEnvSpecFragment_Datadog{}
 	}
 	return t.MetricsEnabled
+}
+
+type AWSEnvSpecFragment_ClickHouseClusters_Disk struct {
+	Iops              int64 "json:\"iops\" graphql:\"iops\""
+	SizeInGiB         int64 "json:\"sizeInGiB\" graphql:\"sizeInGiB\""
+	ThroughputInMiBps int64 "json:\"throughputInMiBps\" graphql:\"throughputInMiBps\""
+}
+
+func (t *AWSEnvSpecFragment_ClickHouseClusters_Disk) GetIops() int64 {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters_Disk{}
+	}
+	return t.Iops
+}
+func (t *AWSEnvSpecFragment_ClickHouseClusters_Disk) GetSizeInGiB() int64 {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters_Disk{}
+	}
+	return t.SizeInGiB
+}
+func (t *AWSEnvSpecFragment_ClickHouseClusters_Disk) GetThroughputInMiBps() int64 {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters_Disk{}
+	}
+	return t.ThroughputInMiBps
+}
+
+type AWSEnvSpecFragment_ClickHouseClusters_ExtraDisks struct {
+	Iops              int64  "json:\"iops\" graphql:\"iops\""
+	Name              string "json:\"name\" graphql:\"name\""
+	SizeInGiB         int64  "json:\"sizeInGiB\" graphql:\"sizeInGiB\""
+	ThroughputInMiBps int64  "json:\"throughputInMiBps\" graphql:\"throughputInMiBps\""
+}
+
+func (t *AWSEnvSpecFragment_ClickHouseClusters_ExtraDisks) GetIops() int64 {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters_ExtraDisks{}
+	}
+	return t.Iops
+}
+func (t *AWSEnvSpecFragment_ClickHouseClusters_ExtraDisks) GetName() string {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters_ExtraDisks{}
+	}
+	return t.Name
+}
+func (t *AWSEnvSpecFragment_ClickHouseClusters_ExtraDisks) GetSizeInGiB() int64 {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters_ExtraDisks{}
+	}
+	return t.SizeInGiB
+}
+func (t *AWSEnvSpecFragment_ClickHouseClusters_ExtraDisks) GetThroughputInMiBps() int64 {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters_ExtraDisks{}
+	}
+	return t.ThroughputInMiBps
+}
+
+type AWSEnvSpecFragment_ClickHouseClusters_Users_Networks struct {
+	Ips []string "json:\"ips\" graphql:\"ips\""
+}
+
+func (t *AWSEnvSpecFragment_ClickHouseClusters_Users_Networks) GetIps() []string {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters_Users_Networks{}
+	}
+	return t.Ips
+}
+
+type AWSEnvSpecFragment_ClickHouseClusters_Users_Databases struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *AWSEnvSpecFragment_ClickHouseClusters_Users_Databases) GetName() string {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters_Users_Databases{}
+	}
+	return t.Name
+}
+
+type AWSEnvSpecFragment_ClickHouseClusters_Users_Password struct {
+	Type AWSEnvClickHouseUserPasswordType "json:\"type\" graphql:\"type\""
+}
+
+func (t *AWSEnvSpecFragment_ClickHouseClusters_Users_Password) GetType() *AWSEnvClickHouseUserPasswordType {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters_Users_Password{}
+	}
+	return &t.Type
+}
+
+type AWSEnvSpecFragment_ClickHouseClusters_Users struct {
+	AccessManagement            bool                                                     "json:\"accessManagement\" graphql:\"accessManagement\""
+	Databases                   []*AWSEnvSpecFragment_ClickHouseClusters_Users_Databases "json:\"databases\" graphql:\"databases\""
+	Grants                      []string                                                 "json:\"grants\" graphql:\"grants\""
+	Name                        string                                                   "json:\"name\" graphql:\"name\""
+	NamedCollectionControl      bool                                                     "json:\"namedCollectionControl\" graphql:\"namedCollectionControl\""
+	Networks                    AWSEnvSpecFragment_ClickHouseClusters_Users_Networks     "json:\"networks\" graphql:\"networks\""
+	Password                    AWSEnvSpecFragment_ClickHouseClusters_Users_Password     "json:\"password\" graphql:\"password\""
+	Profile                     string                                                   "json:\"profile\" graphql:\"profile\""
+	Quota                       string                                                   "json:\"quota\" graphql:\"quota\""
+	ShowNamedCollectionsSecrets bool                                                     "json:\"showNamedCollectionsSecrets\" graphql:\"showNamedCollectionsSecrets\""
+}
+
+func (t *AWSEnvSpecFragment_ClickHouseClusters_Users) GetAccessManagement() bool {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters_Users{}
+	}
+	return t.AccessManagement
+}
+func (t *AWSEnvSpecFragment_ClickHouseClusters_Users) GetDatabases() []*AWSEnvSpecFragment_ClickHouseClusters_Users_Databases {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters_Users{}
+	}
+	return t.Databases
+}
+func (t *AWSEnvSpecFragment_ClickHouseClusters_Users) GetGrants() []string {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters_Users{}
+	}
+	return t.Grants
+}
+func (t *AWSEnvSpecFragment_ClickHouseClusters_Users) GetName() string {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters_Users{}
+	}
+	return t.Name
+}
+func (t *AWSEnvSpecFragment_ClickHouseClusters_Users) GetNamedCollectionControl() bool {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters_Users{}
+	}
+	return t.NamedCollectionControl
+}
+func (t *AWSEnvSpecFragment_ClickHouseClusters_Users) GetNetworks() *AWSEnvSpecFragment_ClickHouseClusters_Users_Networks {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters_Users{}
+	}
+	return &t.Networks
+}
+func (t *AWSEnvSpecFragment_ClickHouseClusters_Users) GetPassword() *AWSEnvSpecFragment_ClickHouseClusters_Users_Password {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters_Users{}
+	}
+	return &t.Password
+}
+func (t *AWSEnvSpecFragment_ClickHouseClusters_Users) GetProfile() string {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters_Users{}
+	}
+	return t.Profile
+}
+func (t *AWSEnvSpecFragment_ClickHouseClusters_Users) GetQuota() string {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters_Users{}
+	}
+	return t.Quota
+}
+func (t *AWSEnvSpecFragment_ClickHouseClusters_Users) GetShowNamedCollectionsSecrets() bool {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters_Users{}
+	}
+	return t.ShowNamedCollectionsSecrets
+}
+
+type AWSEnvSpecFragment_ClickHouseClusters_Profiles_Settings struct {
+	Key   string "json:\"key\" graphql:\"key\""
+	Value string "json:\"value\" graphql:\"value\""
+}
+
+func (t *AWSEnvSpecFragment_ClickHouseClusters_Profiles_Settings) GetKey() string {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters_Profiles_Settings{}
+	}
+	return t.Key
+}
+func (t *AWSEnvSpecFragment_ClickHouseClusters_Profiles_Settings) GetValue() string {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters_Profiles_Settings{}
+	}
+	return t.Value
+}
+
+type AWSEnvSpecFragment_ClickHouseClusters_Profiles struct {
+	Name     string                                                     "json:\"name\" graphql:\"name\""
+	Settings []*AWSEnvSpecFragment_ClickHouseClusters_Profiles_Settings "json:\"settings\" graphql:\"settings\""
+}
+
+func (t *AWSEnvSpecFragment_ClickHouseClusters_Profiles) GetName() string {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters_Profiles{}
+	}
+	return t.Name
+}
+func (t *AWSEnvSpecFragment_ClickHouseClusters_Profiles) GetSettings() []*AWSEnvSpecFragment_ClickHouseClusters_Profiles_Settings {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters_Profiles{}
+	}
+	return t.Settings
+}
+
+type AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals struct {
+	Duration                        uint64   "json:\"duration\" graphql:\"duration\""
+	Errors                          *uint64  "json:\"errors,omitempty\" graphql:\"errors\""
+	ExecutionTime                   *float64 "json:\"executionTime,omitempty\" graphql:\"executionTime\""
+	FailedSequentialAuthentications *uint64  "json:\"failedSequentialAuthentications,omitempty\" graphql:\"failedSequentialAuthentications\""
+	Queries                         *uint64  "json:\"queries,omitempty\" graphql:\"queries\""
+	QueriesPerNormalizedHash        *uint64  "json:\"queriesPerNormalizedHash,omitempty\" graphql:\"queriesPerNormalizedHash\""
+	QueryInserts                    *uint64  "json:\"queryInserts,omitempty\" graphql:\"queryInserts\""
+	QuerySelects                    *uint64  "json:\"querySelects,omitempty\" graphql:\"querySelects\""
+	ReadBytes                       *uint64  "json:\"readBytes,omitempty\" graphql:\"readBytes\""
+	ReadRows                        *uint64  "json:\"readRows,omitempty\" graphql:\"readRows\""
+	ResultBytes                     *uint64  "json:\"resultBytes,omitempty\" graphql:\"resultBytes\""
+	ResultRows                      *uint64  "json:\"resultRows,omitempty\" graphql:\"resultRows\""
+	WrittenBytes                    *uint64  "json:\"writtenBytes,omitempty\" graphql:\"writtenBytes\""
+}
+
+func (t *AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals) GetDuration() uint64 {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals{}
+	}
+	return t.Duration
+}
+func (t *AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals) GetErrors() *uint64 {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals{}
+	}
+	return t.Errors
+}
+func (t *AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals) GetExecutionTime() *float64 {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals{}
+	}
+	return t.ExecutionTime
+}
+func (t *AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals) GetFailedSequentialAuthentications() *uint64 {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals{}
+	}
+	return t.FailedSequentialAuthentications
+}
+func (t *AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals) GetQueries() *uint64 {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals{}
+	}
+	return t.Queries
+}
+func (t *AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals) GetQueriesPerNormalizedHash() *uint64 {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals{}
+	}
+	return t.QueriesPerNormalizedHash
+}
+func (t *AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals) GetQueryInserts() *uint64 {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals{}
+	}
+	return t.QueryInserts
+}
+func (t *AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals) GetQuerySelects() *uint64 {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals{}
+	}
+	return t.QuerySelects
+}
+func (t *AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals) GetReadBytes() *uint64 {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals{}
+	}
+	return t.ReadBytes
+}
+func (t *AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals) GetReadRows() *uint64 {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals{}
+	}
+	return t.ReadRows
+}
+func (t *AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals) GetResultBytes() *uint64 {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals{}
+	}
+	return t.ResultBytes
+}
+func (t *AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals) GetResultRows() *uint64 {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals{}
+	}
+	return t.ResultRows
+}
+func (t *AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals) GetWrittenBytes() *uint64 {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals{}
+	}
+	return t.WrittenBytes
+}
+
+type AWSEnvSpecFragment_ClickHouseClusters_Quotas struct {
+	Intervals      []*AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals "json:\"intervals\" graphql:\"intervals\""
+	Ipv4PrefixBits *int64                                                    "json:\"ipv4PrefixBits,omitempty\" graphql:\"ipv4PrefixBits\""
+	Ipv6PrefixBits *int64                                                    "json:\"ipv6PrefixBits,omitempty\" graphql:\"ipv6PrefixBits\""
+	KeyedBy        ClickHouseQuotaKeyedBy                                    "json:\"keyedBy\" graphql:\"keyedBy\""
+	Name           string                                                    "json:\"name\" graphql:\"name\""
+}
+
+func (t *AWSEnvSpecFragment_ClickHouseClusters_Quotas) GetIntervals() []*AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters_Quotas{}
+	}
+	return t.Intervals
+}
+func (t *AWSEnvSpecFragment_ClickHouseClusters_Quotas) GetIpv4PrefixBits() *int64 {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters_Quotas{}
+	}
+	return t.Ipv4PrefixBits
+}
+func (t *AWSEnvSpecFragment_ClickHouseClusters_Quotas) GetIpv6PrefixBits() *int64 {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters_Quotas{}
+	}
+	return t.Ipv6PrefixBits
+}
+func (t *AWSEnvSpecFragment_ClickHouseClusters_Quotas) GetKeyedBy() *ClickHouseQuotaKeyedBy {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters_Quotas{}
+	}
+	return &t.KeyedBy
+}
+func (t *AWSEnvSpecFragment_ClickHouseClusters_Quotas) GetName() string {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters_Quotas{}
+	}
+	return t.Name
+}
+
+type AWSEnvSpecFragment_ClickHouseClusters_ServerSettings struct {
+	Key   string "json:\"key\" graphql:\"key\""
+	Value string "json:\"value\" graphql:\"value\""
+}
+
+func (t *AWSEnvSpecFragment_ClickHouseClusters_ServerSettings) GetKey() string {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters_ServerSettings{}
+	}
+	return t.Key
+}
+func (t *AWSEnvSpecFragment_ClickHouseClusters_ServerSettings) GetValue() string {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters_ServerSettings{}
+	}
+	return t.Value
+}
+
+type AWSEnvSpecFragment_ClickHouseClusters struct {
+	Disk           AWSEnvSpecFragment_ClickHouseClusters_Disk              "json:\"disk\" graphql:\"disk\""
+	ExtraDisks     []*AWSEnvSpecFragment_ClickHouseClusters_ExtraDisks     "json:\"extraDisks\" graphql:\"extraDisks\""
+	Image          string                                                  "json:\"image\" graphql:\"image\""
+	InstanceType   string                                                  "json:\"instanceType\" graphql:\"instanceType\""
+	Keeper         string                                                  "json:\"keeper\" graphql:\"keeper\""
+	Name           string                                                  "json:\"name\" graphql:\"name\""
+	Profiles       []*AWSEnvSpecFragment_ClickHouseClusters_Profiles       "json:\"profiles\" graphql:\"profiles\""
+	Quotas         []*AWSEnvSpecFragment_ClickHouseClusters_Quotas         "json:\"quotas\" graphql:\"quotas\""
+	Replicas       int64                                                   "json:\"replicas\" graphql:\"replicas\""
+	ServerSettings []*AWSEnvSpecFragment_ClickHouseClusters_ServerSettings "json:\"serverSettings\" graphql:\"serverSettings\""
+	Shards         int64                                                   "json:\"shards\" graphql:\"shards\""
+	Stopped        bool                                                    "json:\"stopped\" graphql:\"stopped\""
+	Users          []*AWSEnvSpecFragment_ClickHouseClusters_Users          "json:\"users\" graphql:\"users\""
+	Zones          []string                                                "json:\"zones\" graphql:\"zones\""
+}
+
+func (t *AWSEnvSpecFragment_ClickHouseClusters) GetDisk() *AWSEnvSpecFragment_ClickHouseClusters_Disk {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters{}
+	}
+	return &t.Disk
+}
+func (t *AWSEnvSpecFragment_ClickHouseClusters) GetExtraDisks() []*AWSEnvSpecFragment_ClickHouseClusters_ExtraDisks {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters{}
+	}
+	return t.ExtraDisks
+}
+func (t *AWSEnvSpecFragment_ClickHouseClusters) GetImage() string {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters{}
+	}
+	return t.Image
+}
+func (t *AWSEnvSpecFragment_ClickHouseClusters) GetInstanceType() string {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters{}
+	}
+	return t.InstanceType
+}
+func (t *AWSEnvSpecFragment_ClickHouseClusters) GetKeeper() string {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters{}
+	}
+	return t.Keeper
+}
+func (t *AWSEnvSpecFragment_ClickHouseClusters) GetName() string {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters{}
+	}
+	return t.Name
+}
+func (t *AWSEnvSpecFragment_ClickHouseClusters) GetProfiles() []*AWSEnvSpecFragment_ClickHouseClusters_Profiles {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters{}
+	}
+	return t.Profiles
+}
+func (t *AWSEnvSpecFragment_ClickHouseClusters) GetQuotas() []*AWSEnvSpecFragment_ClickHouseClusters_Quotas {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters{}
+	}
+	return t.Quotas
+}
+func (t *AWSEnvSpecFragment_ClickHouseClusters) GetReplicas() int64 {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters{}
+	}
+	return t.Replicas
+}
+func (t *AWSEnvSpecFragment_ClickHouseClusters) GetServerSettings() []*AWSEnvSpecFragment_ClickHouseClusters_ServerSettings {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters{}
+	}
+	return t.ServerSettings
+}
+func (t *AWSEnvSpecFragment_ClickHouseClusters) GetShards() int64 {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters{}
+	}
+	return t.Shards
+}
+func (t *AWSEnvSpecFragment_ClickHouseClusters) GetStopped() bool {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters{}
+	}
+	return t.Stopped
+}
+func (t *AWSEnvSpecFragment_ClickHouseClusters) GetUsers() []*AWSEnvSpecFragment_ClickHouseClusters_Users {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters{}
+	}
+	return t.Users
+}
+func (t *AWSEnvSpecFragment_ClickHouseClusters) GetZones() []string {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseClusters{}
+	}
+	return t.Zones
+}
+
+type AWSEnvSpecFragment_ClickHouseKeepers_Disk struct {
+	Iops              int64 "json:\"iops\" graphql:\"iops\""
+	SizeInGiB         int64 "json:\"sizeInGiB\" graphql:\"sizeInGiB\""
+	ThroughputInMiBps int64 "json:\"throughputInMiBps\" graphql:\"throughputInMiBps\""
+}
+
+func (t *AWSEnvSpecFragment_ClickHouseKeepers_Disk) GetIops() int64 {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseKeepers_Disk{}
+	}
+	return t.Iops
+}
+func (t *AWSEnvSpecFragment_ClickHouseKeepers_Disk) GetSizeInGiB() int64 {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseKeepers_Disk{}
+	}
+	return t.SizeInGiB
+}
+func (t *AWSEnvSpecFragment_ClickHouseKeepers_Disk) GetThroughputInMiBps() int64 {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseKeepers_Disk{}
+	}
+	return t.ThroughputInMiBps
+}
+
+type AWSEnvSpecFragment_ClickHouseKeepers struct {
+	Disk         AWSEnvSpecFragment_ClickHouseKeepers_Disk "json:\"disk\" graphql:\"disk\""
+	InstanceType string                                    "json:\"instanceType\" graphql:\"instanceType\""
+	Name         string                                    "json:\"name\" graphql:\"name\""
+	Replicas     int64                                     "json:\"replicas\" graphql:\"replicas\""
+	Stopped      bool                                      "json:\"stopped\" graphql:\"stopped\""
+	Zones        []string                                  "json:\"zones\" graphql:\"zones\""
+}
+
+func (t *AWSEnvSpecFragment_ClickHouseKeepers) GetDisk() *AWSEnvSpecFragment_ClickHouseKeepers_Disk {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseKeepers{}
+	}
+	return &t.Disk
+}
+func (t *AWSEnvSpecFragment_ClickHouseKeepers) GetInstanceType() string {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseKeepers{}
+	}
+	return t.InstanceType
+}
+func (t *AWSEnvSpecFragment_ClickHouseKeepers) GetName() string {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseKeepers{}
+	}
+	return t.Name
+}
+func (t *AWSEnvSpecFragment_ClickHouseKeepers) GetReplicas() int64 {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseKeepers{}
+	}
+	return t.Replicas
+}
+func (t *AWSEnvSpecFragment_ClickHouseKeepers) GetStopped() bool {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseKeepers{}
+	}
+	return t.Stopped
+}
+func (t *AWSEnvSpecFragment_ClickHouseKeepers) GetZones() []string {
+	if t == nil {
+		t = &AWSEnvSpecFragment_ClickHouseKeepers{}
+	}
+	return t.Zones
 }
 
 type AWSEnvHostedSpecFragment_LoadBalancers_Public struct {
@@ -2927,6 +3466,531 @@ func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_Datadog) GetMetricsEnabled() b
 	return t.MetricsEnabled
 }
 
+type GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Disk struct {
+	Iops              int64 "json:\"iops\" graphql:\"iops\""
+	SizeInGiB         int64 "json:\"sizeInGiB\" graphql:\"sizeInGiB\""
+	ThroughputInMiBps int64 "json:\"throughputInMiBps\" graphql:\"throughputInMiBps\""
+}
+
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Disk) GetIops() int64 {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Disk{}
+	}
+	return t.Iops
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Disk) GetSizeInGiB() int64 {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Disk{}
+	}
+	return t.SizeInGiB
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Disk) GetThroughputInMiBps() int64 {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Disk{}
+	}
+	return t.ThroughputInMiBps
+}
+
+type GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_ExtraDisks struct {
+	Iops              int64  "json:\"iops\" graphql:\"iops\""
+	Name              string "json:\"name\" graphql:\"name\""
+	SizeInGiB         int64  "json:\"sizeInGiB\" graphql:\"sizeInGiB\""
+	ThroughputInMiBps int64  "json:\"throughputInMiBps\" graphql:\"throughputInMiBps\""
+}
+
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_ExtraDisks) GetIops() int64 {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_ExtraDisks{}
+	}
+	return t.Iops
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_ExtraDisks) GetName() string {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_ExtraDisks{}
+	}
+	return t.Name
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_ExtraDisks) GetSizeInGiB() int64 {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_ExtraDisks{}
+	}
+	return t.SizeInGiB
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_ExtraDisks) GetThroughputInMiBps() int64 {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_ExtraDisks{}
+	}
+	return t.ThroughputInMiBps
+}
+
+type GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Networks struct {
+	Ips []string "json:\"ips\" graphql:\"ips\""
+}
+
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Networks) GetIps() []string {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Networks{}
+	}
+	return t.Ips
+}
+
+type GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Databases struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Databases) GetName() string {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Databases{}
+	}
+	return t.Name
+}
+
+type GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Password struct {
+	Type AWSEnvClickHouseUserPasswordType "json:\"type\" graphql:\"type\""
+}
+
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Password) GetType() *AWSEnvClickHouseUserPasswordType {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Password{}
+	}
+	return &t.Type
+}
+
+type GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users struct {
+	AccessManagement            bool                                                                           "json:\"accessManagement\" graphql:\"accessManagement\""
+	Databases                   []*GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Databases "json:\"databases\" graphql:\"databases\""
+	Grants                      []string                                                                       "json:\"grants\" graphql:\"grants\""
+	Name                        string                                                                         "json:\"name\" graphql:\"name\""
+	NamedCollectionControl      bool                                                                           "json:\"namedCollectionControl\" graphql:\"namedCollectionControl\""
+	Networks                    GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Networks     "json:\"networks\" graphql:\"networks\""
+	Password                    GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Password     "json:\"password\" graphql:\"password\""
+	Profile                     string                                                                         "json:\"profile\" graphql:\"profile\""
+	Quota                       string                                                                         "json:\"quota\" graphql:\"quota\""
+	ShowNamedCollectionsSecrets bool                                                                           "json:\"showNamedCollectionsSecrets\" graphql:\"showNamedCollectionsSecrets\""
+}
+
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users) GetAccessManagement() bool {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users{}
+	}
+	return t.AccessManagement
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users) GetDatabases() []*GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Databases {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users{}
+	}
+	return t.Databases
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users) GetGrants() []string {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users{}
+	}
+	return t.Grants
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users) GetName() string {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users{}
+	}
+	return t.Name
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users) GetNamedCollectionControl() bool {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users{}
+	}
+	return t.NamedCollectionControl
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users) GetNetworks() *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Networks {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users{}
+	}
+	return &t.Networks
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users) GetPassword() *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Password {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users{}
+	}
+	return &t.Password
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users) GetProfile() string {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users{}
+	}
+	return t.Profile
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users) GetQuota() string {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users{}
+	}
+	return t.Quota
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users) GetShowNamedCollectionsSecrets() bool {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users{}
+	}
+	return t.ShowNamedCollectionsSecrets
+}
+
+type GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Profiles_Settings struct {
+	Key   string "json:\"key\" graphql:\"key\""
+	Value string "json:\"value\" graphql:\"value\""
+}
+
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Profiles_Settings) GetKey() string {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Profiles_Settings{}
+	}
+	return t.Key
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Profiles_Settings) GetValue() string {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Profiles_Settings{}
+	}
+	return t.Value
+}
+
+type GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Profiles struct {
+	Name     string                                                                           "json:\"name\" graphql:\"name\""
+	Settings []*GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Profiles_Settings "json:\"settings\" graphql:\"settings\""
+}
+
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Profiles) GetName() string {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Profiles{}
+	}
+	return t.Name
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Profiles) GetSettings() []*GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Profiles_Settings {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Profiles{}
+	}
+	return t.Settings
+}
+
+type GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals struct {
+	Duration                        uint64   "json:\"duration\" graphql:\"duration\""
+	Errors                          *uint64  "json:\"errors,omitempty\" graphql:\"errors\""
+	ExecutionTime                   *float64 "json:\"executionTime,omitempty\" graphql:\"executionTime\""
+	FailedSequentialAuthentications *uint64  "json:\"failedSequentialAuthentications,omitempty\" graphql:\"failedSequentialAuthentications\""
+	Queries                         *uint64  "json:\"queries,omitempty\" graphql:\"queries\""
+	QueriesPerNormalizedHash        *uint64  "json:\"queriesPerNormalizedHash,omitempty\" graphql:\"queriesPerNormalizedHash\""
+	QueryInserts                    *uint64  "json:\"queryInserts,omitempty\" graphql:\"queryInserts\""
+	QuerySelects                    *uint64  "json:\"querySelects,omitempty\" graphql:\"querySelects\""
+	ReadBytes                       *uint64  "json:\"readBytes,omitempty\" graphql:\"readBytes\""
+	ReadRows                        *uint64  "json:\"readRows,omitempty\" graphql:\"readRows\""
+	ResultBytes                     *uint64  "json:\"resultBytes,omitempty\" graphql:\"resultBytes\""
+	ResultRows                      *uint64  "json:\"resultRows,omitempty\" graphql:\"resultRows\""
+	WrittenBytes                    *uint64  "json:\"writtenBytes,omitempty\" graphql:\"writtenBytes\""
+}
+
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals) GetDuration() uint64 {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals{}
+	}
+	return t.Duration
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals) GetErrors() *uint64 {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals{}
+	}
+	return t.Errors
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals) GetExecutionTime() *float64 {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals{}
+	}
+	return t.ExecutionTime
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals) GetFailedSequentialAuthentications() *uint64 {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals{}
+	}
+	return t.FailedSequentialAuthentications
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals) GetQueries() *uint64 {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals{}
+	}
+	return t.Queries
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals) GetQueriesPerNormalizedHash() *uint64 {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals{}
+	}
+	return t.QueriesPerNormalizedHash
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals) GetQueryInserts() *uint64 {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals{}
+	}
+	return t.QueryInserts
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals) GetQuerySelects() *uint64 {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals{}
+	}
+	return t.QuerySelects
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals) GetReadBytes() *uint64 {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals{}
+	}
+	return t.ReadBytes
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals) GetReadRows() *uint64 {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals{}
+	}
+	return t.ReadRows
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals) GetResultBytes() *uint64 {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals{}
+	}
+	return t.ResultBytes
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals) GetResultRows() *uint64 {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals{}
+	}
+	return t.ResultRows
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals) GetWrittenBytes() *uint64 {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals{}
+	}
+	return t.WrittenBytes
+}
+
+type GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas struct {
+	Intervals      []*GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals "json:\"intervals\" graphql:\"intervals\""
+	Ipv4PrefixBits *int64                                                                          "json:\"ipv4PrefixBits,omitempty\" graphql:\"ipv4PrefixBits\""
+	Ipv6PrefixBits *int64                                                                          "json:\"ipv6PrefixBits,omitempty\" graphql:\"ipv6PrefixBits\""
+	KeyedBy        ClickHouseQuotaKeyedBy                                                          "json:\"keyedBy\" graphql:\"keyedBy\""
+	Name           string                                                                          "json:\"name\" graphql:\"name\""
+}
+
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas) GetIntervals() []*GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas{}
+	}
+	return t.Intervals
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas) GetIpv4PrefixBits() *int64 {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas{}
+	}
+	return t.Ipv4PrefixBits
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas) GetIpv6PrefixBits() *int64 {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas{}
+	}
+	return t.Ipv6PrefixBits
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas) GetKeyedBy() *ClickHouseQuotaKeyedBy {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas{}
+	}
+	return &t.KeyedBy
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas) GetName() string {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas{}
+	}
+	return t.Name
+}
+
+type GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_ServerSettings struct {
+	Key   string "json:\"key\" graphql:\"key\""
+	Value string "json:\"value\" graphql:\"value\""
+}
+
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_ServerSettings) GetKey() string {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_ServerSettings{}
+	}
+	return t.Key
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_ServerSettings) GetValue() string {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_ServerSettings{}
+	}
+	return t.Value
+}
+
+type GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters struct {
+	Disk           GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Disk              "json:\"disk\" graphql:\"disk\""
+	ExtraDisks     []*GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_ExtraDisks     "json:\"extraDisks\" graphql:\"extraDisks\""
+	Image          string                                                                        "json:\"image\" graphql:\"image\""
+	InstanceType   string                                                                        "json:\"instanceType\" graphql:\"instanceType\""
+	Keeper         string                                                                        "json:\"keeper\" graphql:\"keeper\""
+	Name           string                                                                        "json:\"name\" graphql:\"name\""
+	Profiles       []*GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Profiles       "json:\"profiles\" graphql:\"profiles\""
+	Quotas         []*GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas         "json:\"quotas\" graphql:\"quotas\""
+	Replicas       int64                                                                         "json:\"replicas\" graphql:\"replicas\""
+	ServerSettings []*GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_ServerSettings "json:\"serverSettings\" graphql:\"serverSettings\""
+	Shards         int64                                                                         "json:\"shards\" graphql:\"shards\""
+	Stopped        bool                                                                          "json:\"stopped\" graphql:\"stopped\""
+	Users          []*GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users          "json:\"users\" graphql:\"users\""
+	Zones          []string                                                                      "json:\"zones\" graphql:\"zones\""
+}
+
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters) GetDisk() *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Disk {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters{}
+	}
+	return &t.Disk
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters) GetExtraDisks() []*GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_ExtraDisks {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters{}
+	}
+	return t.ExtraDisks
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters) GetImage() string {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters{}
+	}
+	return t.Image
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters) GetInstanceType() string {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters{}
+	}
+	return t.InstanceType
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters) GetKeeper() string {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters{}
+	}
+	return t.Keeper
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters) GetName() string {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters{}
+	}
+	return t.Name
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters) GetProfiles() []*GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Profiles {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters{}
+	}
+	return t.Profiles
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters) GetQuotas() []*GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters{}
+	}
+	return t.Quotas
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters) GetReplicas() int64 {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters{}
+	}
+	return t.Replicas
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters) GetServerSettings() []*GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_ServerSettings {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters{}
+	}
+	return t.ServerSettings
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters) GetShards() int64 {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters{}
+	}
+	return t.Shards
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters) GetStopped() bool {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters{}
+	}
+	return t.Stopped
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters) GetUsers() []*GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters{}
+	}
+	return t.Users
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters) GetZones() []string {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters{}
+	}
+	return t.Zones
+}
+
+type GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers_Disk struct {
+	Iops              int64 "json:\"iops\" graphql:\"iops\""
+	SizeInGiB         int64 "json:\"sizeInGiB\" graphql:\"sizeInGiB\""
+	ThroughputInMiBps int64 "json:\"throughputInMiBps\" graphql:\"throughputInMiBps\""
+}
+
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers_Disk) GetIops() int64 {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers_Disk{}
+	}
+	return t.Iops
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers_Disk) GetSizeInGiB() int64 {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers_Disk{}
+	}
+	return t.SizeInGiB
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers_Disk) GetThroughputInMiBps() int64 {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers_Disk{}
+	}
+	return t.ThroughputInMiBps
+}
+
+type GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers struct {
+	Disk         GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers_Disk "json:\"disk\" graphql:\"disk\""
+	InstanceType string                                                          "json:\"instanceType\" graphql:\"instanceType\""
+	Name         string                                                          "json:\"name\" graphql:\"name\""
+	Replicas     int64                                                           "json:\"replicas\" graphql:\"replicas\""
+	Stopped      bool                                                            "json:\"stopped\" graphql:\"stopped\""
+	Zones        []string                                                        "json:\"zones\" graphql:\"zones\""
+}
+
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers) GetDisk() *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers_Disk {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers{}
+	}
+	return &t.Disk
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers) GetInstanceType() string {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers{}
+	}
+	return t.InstanceType
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers) GetName() string {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers{}
+	}
+	return t.Name
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers) GetReplicas() int64 {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers{}
+	}
+	return t.Replicas
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers) GetStopped() bool {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers{}
+	}
+	return t.Stopped
+}
+func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers) GetZones() []string {
+	if t == nil {
+		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers{}
+	}
+	return t.Zones
+}
+
 type GetAWSEnv_AWSEnv struct {
 	Name         string              "json:\"name\" graphql:\"name\""
 	Spec         *AWSEnvSpecFragment "json:\"spec\" graphql:\"spec\""
@@ -3524,6 +4588,531 @@ func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_Datadog) GetMetricsEn
 	return t.MetricsEnabled
 }
 
+type CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Disk struct {
+	Iops              int64 "json:\"iops\" graphql:\"iops\""
+	SizeInGiB         int64 "json:\"sizeInGiB\" graphql:\"sizeInGiB\""
+	ThroughputInMiBps int64 "json:\"throughputInMiBps\" graphql:\"throughputInMiBps\""
+}
+
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Disk) GetIops() int64 {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Disk{}
+	}
+	return t.Iops
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Disk) GetSizeInGiB() int64 {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Disk{}
+	}
+	return t.SizeInGiB
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Disk) GetThroughputInMiBps() int64 {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Disk{}
+	}
+	return t.ThroughputInMiBps
+}
+
+type CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_ExtraDisks struct {
+	Iops              int64  "json:\"iops\" graphql:\"iops\""
+	Name              string "json:\"name\" graphql:\"name\""
+	SizeInGiB         int64  "json:\"sizeInGiB\" graphql:\"sizeInGiB\""
+	ThroughputInMiBps int64  "json:\"throughputInMiBps\" graphql:\"throughputInMiBps\""
+}
+
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_ExtraDisks) GetIops() int64 {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_ExtraDisks{}
+	}
+	return t.Iops
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_ExtraDisks) GetName() string {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_ExtraDisks{}
+	}
+	return t.Name
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_ExtraDisks) GetSizeInGiB() int64 {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_ExtraDisks{}
+	}
+	return t.SizeInGiB
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_ExtraDisks) GetThroughputInMiBps() int64 {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_ExtraDisks{}
+	}
+	return t.ThroughputInMiBps
+}
+
+type CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Networks struct {
+	Ips []string "json:\"ips\" graphql:\"ips\""
+}
+
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Networks) GetIps() []string {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Networks{}
+	}
+	return t.Ips
+}
+
+type CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Databases struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Databases) GetName() string {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Databases{}
+	}
+	return t.Name
+}
+
+type CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Password struct {
+	Type AWSEnvClickHouseUserPasswordType "json:\"type\" graphql:\"type\""
+}
+
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Password) GetType() *AWSEnvClickHouseUserPasswordType {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Password{}
+	}
+	return &t.Type
+}
+
+type CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users struct {
+	AccessManagement            bool                                                                                    "json:\"accessManagement\" graphql:\"accessManagement\""
+	Databases                   []*CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Databases "json:\"databases\" graphql:\"databases\""
+	Grants                      []string                                                                                "json:\"grants\" graphql:\"grants\""
+	Name                        string                                                                                  "json:\"name\" graphql:\"name\""
+	NamedCollectionControl      bool                                                                                    "json:\"namedCollectionControl\" graphql:\"namedCollectionControl\""
+	Networks                    CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Networks     "json:\"networks\" graphql:\"networks\""
+	Password                    CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Password     "json:\"password\" graphql:\"password\""
+	Profile                     string                                                                                  "json:\"profile\" graphql:\"profile\""
+	Quota                       string                                                                                  "json:\"quota\" graphql:\"quota\""
+	ShowNamedCollectionsSecrets bool                                                                                    "json:\"showNamedCollectionsSecrets\" graphql:\"showNamedCollectionsSecrets\""
+}
+
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users) GetAccessManagement() bool {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users{}
+	}
+	return t.AccessManagement
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users) GetDatabases() []*CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Databases {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users{}
+	}
+	return t.Databases
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users) GetGrants() []string {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users{}
+	}
+	return t.Grants
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users) GetName() string {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users{}
+	}
+	return t.Name
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users) GetNamedCollectionControl() bool {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users{}
+	}
+	return t.NamedCollectionControl
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users) GetNetworks() *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Networks {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users{}
+	}
+	return &t.Networks
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users) GetPassword() *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Password {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users{}
+	}
+	return &t.Password
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users) GetProfile() string {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users{}
+	}
+	return t.Profile
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users) GetQuota() string {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users{}
+	}
+	return t.Quota
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users) GetShowNamedCollectionsSecrets() bool {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users{}
+	}
+	return t.ShowNamedCollectionsSecrets
+}
+
+type CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Profiles_Settings struct {
+	Key   string "json:\"key\" graphql:\"key\""
+	Value string "json:\"value\" graphql:\"value\""
+}
+
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Profiles_Settings) GetKey() string {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Profiles_Settings{}
+	}
+	return t.Key
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Profiles_Settings) GetValue() string {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Profiles_Settings{}
+	}
+	return t.Value
+}
+
+type CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Profiles struct {
+	Name     string                                                                                    "json:\"name\" graphql:\"name\""
+	Settings []*CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Profiles_Settings "json:\"settings\" graphql:\"settings\""
+}
+
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Profiles) GetName() string {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Profiles{}
+	}
+	return t.Name
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Profiles) GetSettings() []*CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Profiles_Settings {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Profiles{}
+	}
+	return t.Settings
+}
+
+type CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals struct {
+	Duration                        uint64   "json:\"duration\" graphql:\"duration\""
+	Errors                          *uint64  "json:\"errors,omitempty\" graphql:\"errors\""
+	ExecutionTime                   *float64 "json:\"executionTime,omitempty\" graphql:\"executionTime\""
+	FailedSequentialAuthentications *uint64  "json:\"failedSequentialAuthentications,omitempty\" graphql:\"failedSequentialAuthentications\""
+	Queries                         *uint64  "json:\"queries,omitempty\" graphql:\"queries\""
+	QueriesPerNormalizedHash        *uint64  "json:\"queriesPerNormalizedHash,omitempty\" graphql:\"queriesPerNormalizedHash\""
+	QueryInserts                    *uint64  "json:\"queryInserts,omitempty\" graphql:\"queryInserts\""
+	QuerySelects                    *uint64  "json:\"querySelects,omitempty\" graphql:\"querySelects\""
+	ReadBytes                       *uint64  "json:\"readBytes,omitempty\" graphql:\"readBytes\""
+	ReadRows                        *uint64  "json:\"readRows,omitempty\" graphql:\"readRows\""
+	ResultBytes                     *uint64  "json:\"resultBytes,omitempty\" graphql:\"resultBytes\""
+	ResultRows                      *uint64  "json:\"resultRows,omitempty\" graphql:\"resultRows\""
+	WrittenBytes                    *uint64  "json:\"writtenBytes,omitempty\" graphql:\"writtenBytes\""
+}
+
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals) GetDuration() uint64 {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals{}
+	}
+	return t.Duration
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals) GetErrors() *uint64 {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals{}
+	}
+	return t.Errors
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals) GetExecutionTime() *float64 {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals{}
+	}
+	return t.ExecutionTime
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals) GetFailedSequentialAuthentications() *uint64 {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals{}
+	}
+	return t.FailedSequentialAuthentications
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals) GetQueries() *uint64 {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals{}
+	}
+	return t.Queries
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals) GetQueriesPerNormalizedHash() *uint64 {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals{}
+	}
+	return t.QueriesPerNormalizedHash
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals) GetQueryInserts() *uint64 {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals{}
+	}
+	return t.QueryInserts
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals) GetQuerySelects() *uint64 {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals{}
+	}
+	return t.QuerySelects
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals) GetReadBytes() *uint64 {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals{}
+	}
+	return t.ReadBytes
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals) GetReadRows() *uint64 {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals{}
+	}
+	return t.ReadRows
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals) GetResultBytes() *uint64 {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals{}
+	}
+	return t.ResultBytes
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals) GetResultRows() *uint64 {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals{}
+	}
+	return t.ResultRows
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals) GetWrittenBytes() *uint64 {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals{}
+	}
+	return t.WrittenBytes
+}
+
+type CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas struct {
+	Intervals      []*CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals "json:\"intervals\" graphql:\"intervals\""
+	Ipv4PrefixBits *int64                                                                                   "json:\"ipv4PrefixBits,omitempty\" graphql:\"ipv4PrefixBits\""
+	Ipv6PrefixBits *int64                                                                                   "json:\"ipv6PrefixBits,omitempty\" graphql:\"ipv6PrefixBits\""
+	KeyedBy        ClickHouseQuotaKeyedBy                                                                   "json:\"keyedBy\" graphql:\"keyedBy\""
+	Name           string                                                                                   "json:\"name\" graphql:\"name\""
+}
+
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas) GetIntervals() []*CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas{}
+	}
+	return t.Intervals
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas) GetIpv4PrefixBits() *int64 {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas{}
+	}
+	return t.Ipv4PrefixBits
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas) GetIpv6PrefixBits() *int64 {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas{}
+	}
+	return t.Ipv6PrefixBits
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas) GetKeyedBy() *ClickHouseQuotaKeyedBy {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas{}
+	}
+	return &t.KeyedBy
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas) GetName() string {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas{}
+	}
+	return t.Name
+}
+
+type CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_ServerSettings struct {
+	Key   string "json:\"key\" graphql:\"key\""
+	Value string "json:\"value\" graphql:\"value\""
+}
+
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_ServerSettings) GetKey() string {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_ServerSettings{}
+	}
+	return t.Key
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_ServerSettings) GetValue() string {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_ServerSettings{}
+	}
+	return t.Value
+}
+
+type CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters struct {
+	Disk           CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Disk              "json:\"disk\" graphql:\"disk\""
+	ExtraDisks     []*CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_ExtraDisks     "json:\"extraDisks\" graphql:\"extraDisks\""
+	Image          string                                                                                 "json:\"image\" graphql:\"image\""
+	InstanceType   string                                                                                 "json:\"instanceType\" graphql:\"instanceType\""
+	Keeper         string                                                                                 "json:\"keeper\" graphql:\"keeper\""
+	Name           string                                                                                 "json:\"name\" graphql:\"name\""
+	Profiles       []*CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Profiles       "json:\"profiles\" graphql:\"profiles\""
+	Quotas         []*CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas         "json:\"quotas\" graphql:\"quotas\""
+	Replicas       int64                                                                                  "json:\"replicas\" graphql:\"replicas\""
+	ServerSettings []*CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_ServerSettings "json:\"serverSettings\" graphql:\"serverSettings\""
+	Shards         int64                                                                                  "json:\"shards\" graphql:\"shards\""
+	Stopped        bool                                                                                   "json:\"stopped\" graphql:\"stopped\""
+	Users          []*CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users          "json:\"users\" graphql:\"users\""
+	Zones          []string                                                                               "json:\"zones\" graphql:\"zones\""
+}
+
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters) GetDisk() *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Disk {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters{}
+	}
+	return &t.Disk
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters) GetExtraDisks() []*CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_ExtraDisks {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters{}
+	}
+	return t.ExtraDisks
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters) GetImage() string {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters{}
+	}
+	return t.Image
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters) GetInstanceType() string {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters{}
+	}
+	return t.InstanceType
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters) GetKeeper() string {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters{}
+	}
+	return t.Keeper
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters) GetName() string {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters{}
+	}
+	return t.Name
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters) GetProfiles() []*CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Profiles {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters{}
+	}
+	return t.Profiles
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters) GetQuotas() []*CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters{}
+	}
+	return t.Quotas
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters) GetReplicas() int64 {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters{}
+	}
+	return t.Replicas
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters) GetServerSettings() []*CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_ServerSettings {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters{}
+	}
+	return t.ServerSettings
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters) GetShards() int64 {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters{}
+	}
+	return t.Shards
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters) GetStopped() bool {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters{}
+	}
+	return t.Stopped
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters) GetUsers() []*CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters{}
+	}
+	return t.Users
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters) GetZones() []string {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters{}
+	}
+	return t.Zones
+}
+
+type CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers_Disk struct {
+	Iops              int64 "json:\"iops\" graphql:\"iops\""
+	SizeInGiB         int64 "json:\"sizeInGiB\" graphql:\"sizeInGiB\""
+	ThroughputInMiBps int64 "json:\"throughputInMiBps\" graphql:\"throughputInMiBps\""
+}
+
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers_Disk) GetIops() int64 {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers_Disk{}
+	}
+	return t.Iops
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers_Disk) GetSizeInGiB() int64 {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers_Disk{}
+	}
+	return t.SizeInGiB
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers_Disk) GetThroughputInMiBps() int64 {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers_Disk{}
+	}
+	return t.ThroughputInMiBps
+}
+
+type CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers struct {
+	Disk         CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers_Disk "json:\"disk\" graphql:\"disk\""
+	InstanceType string                                                                   "json:\"instanceType\" graphql:\"instanceType\""
+	Name         string                                                                   "json:\"name\" graphql:\"name\""
+	Replicas     int64                                                                    "json:\"replicas\" graphql:\"replicas\""
+	Stopped      bool                                                                     "json:\"stopped\" graphql:\"stopped\""
+	Zones        []string                                                                 "json:\"zones\" graphql:\"zones\""
+}
+
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers) GetDisk() *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers_Disk {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers{}
+	}
+	return &t.Disk
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers) GetInstanceType() string {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers{}
+	}
+	return t.InstanceType
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers) GetName() string {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers{}
+	}
+	return t.Name
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers) GetReplicas() int64 {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers{}
+	}
+	return t.Replicas
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers) GetStopped() bool {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers{}
+	}
+	return t.Stopped
+}
+func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers) GetZones() []string {
+	if t == nil {
+		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers{}
+	}
+	return t.Zones
+}
+
 type CreateAWSEnv_CreateAWSEnv struct {
 	MutationID   string              "json:\"mutationId\" graphql:\"mutationId\""
 	Spec         *AWSEnvSpecFragment "json:\"spec\" graphql:\"spec\""
@@ -3965,6 +5554,531 @@ func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Datadog) GetMetricsEn
 		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_Datadog{}
 	}
 	return t.MetricsEnabled
+}
+
+type UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Disk struct {
+	Iops              int64 "json:\"iops\" graphql:\"iops\""
+	SizeInGiB         int64 "json:\"sizeInGiB\" graphql:\"sizeInGiB\""
+	ThroughputInMiBps int64 "json:\"throughputInMiBps\" graphql:\"throughputInMiBps\""
+}
+
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Disk) GetIops() int64 {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Disk{}
+	}
+	return t.Iops
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Disk) GetSizeInGiB() int64 {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Disk{}
+	}
+	return t.SizeInGiB
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Disk) GetThroughputInMiBps() int64 {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Disk{}
+	}
+	return t.ThroughputInMiBps
+}
+
+type UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_ExtraDisks struct {
+	Iops              int64  "json:\"iops\" graphql:\"iops\""
+	Name              string "json:\"name\" graphql:\"name\""
+	SizeInGiB         int64  "json:\"sizeInGiB\" graphql:\"sizeInGiB\""
+	ThroughputInMiBps int64  "json:\"throughputInMiBps\" graphql:\"throughputInMiBps\""
+}
+
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_ExtraDisks) GetIops() int64 {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_ExtraDisks{}
+	}
+	return t.Iops
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_ExtraDisks) GetName() string {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_ExtraDisks{}
+	}
+	return t.Name
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_ExtraDisks) GetSizeInGiB() int64 {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_ExtraDisks{}
+	}
+	return t.SizeInGiB
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_ExtraDisks) GetThroughputInMiBps() int64 {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_ExtraDisks{}
+	}
+	return t.ThroughputInMiBps
+}
+
+type UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Networks struct {
+	Ips []string "json:\"ips\" graphql:\"ips\""
+}
+
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Networks) GetIps() []string {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Networks{}
+	}
+	return t.Ips
+}
+
+type UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Databases struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Databases) GetName() string {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Databases{}
+	}
+	return t.Name
+}
+
+type UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Password struct {
+	Type AWSEnvClickHouseUserPasswordType "json:\"type\" graphql:\"type\""
+}
+
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Password) GetType() *AWSEnvClickHouseUserPasswordType {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Password{}
+	}
+	return &t.Type
+}
+
+type UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users struct {
+	AccessManagement            bool                                                                                    "json:\"accessManagement\" graphql:\"accessManagement\""
+	Databases                   []*UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Databases "json:\"databases\" graphql:\"databases\""
+	Grants                      []string                                                                                "json:\"grants\" graphql:\"grants\""
+	Name                        string                                                                                  "json:\"name\" graphql:\"name\""
+	NamedCollectionControl      bool                                                                                    "json:\"namedCollectionControl\" graphql:\"namedCollectionControl\""
+	Networks                    UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Networks     "json:\"networks\" graphql:\"networks\""
+	Password                    UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Password     "json:\"password\" graphql:\"password\""
+	Profile                     string                                                                                  "json:\"profile\" graphql:\"profile\""
+	Quota                       string                                                                                  "json:\"quota\" graphql:\"quota\""
+	ShowNamedCollectionsSecrets bool                                                                                    "json:\"showNamedCollectionsSecrets\" graphql:\"showNamedCollectionsSecrets\""
+}
+
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users) GetAccessManagement() bool {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users{}
+	}
+	return t.AccessManagement
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users) GetDatabases() []*UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Databases {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users{}
+	}
+	return t.Databases
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users) GetGrants() []string {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users{}
+	}
+	return t.Grants
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users) GetName() string {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users{}
+	}
+	return t.Name
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users) GetNamedCollectionControl() bool {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users{}
+	}
+	return t.NamedCollectionControl
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users) GetNetworks() *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Networks {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users{}
+	}
+	return &t.Networks
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users) GetPassword() *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Password {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users{}
+	}
+	return &t.Password
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users) GetProfile() string {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users{}
+	}
+	return t.Profile
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users) GetQuota() string {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users{}
+	}
+	return t.Quota
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users) GetShowNamedCollectionsSecrets() bool {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users{}
+	}
+	return t.ShowNamedCollectionsSecrets
+}
+
+type UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Profiles_Settings struct {
+	Key   string "json:\"key\" graphql:\"key\""
+	Value string "json:\"value\" graphql:\"value\""
+}
+
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Profiles_Settings) GetKey() string {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Profiles_Settings{}
+	}
+	return t.Key
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Profiles_Settings) GetValue() string {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Profiles_Settings{}
+	}
+	return t.Value
+}
+
+type UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Profiles struct {
+	Name     string                                                                                    "json:\"name\" graphql:\"name\""
+	Settings []*UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Profiles_Settings "json:\"settings\" graphql:\"settings\""
+}
+
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Profiles) GetName() string {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Profiles{}
+	}
+	return t.Name
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Profiles) GetSettings() []*UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Profiles_Settings {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Profiles{}
+	}
+	return t.Settings
+}
+
+type UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals struct {
+	Duration                        uint64   "json:\"duration\" graphql:\"duration\""
+	Errors                          *uint64  "json:\"errors,omitempty\" graphql:\"errors\""
+	ExecutionTime                   *float64 "json:\"executionTime,omitempty\" graphql:\"executionTime\""
+	FailedSequentialAuthentications *uint64  "json:\"failedSequentialAuthentications,omitempty\" graphql:\"failedSequentialAuthentications\""
+	Queries                         *uint64  "json:\"queries,omitempty\" graphql:\"queries\""
+	QueriesPerNormalizedHash        *uint64  "json:\"queriesPerNormalizedHash,omitempty\" graphql:\"queriesPerNormalizedHash\""
+	QueryInserts                    *uint64  "json:\"queryInserts,omitempty\" graphql:\"queryInserts\""
+	QuerySelects                    *uint64  "json:\"querySelects,omitempty\" graphql:\"querySelects\""
+	ReadBytes                       *uint64  "json:\"readBytes,omitempty\" graphql:\"readBytes\""
+	ReadRows                        *uint64  "json:\"readRows,omitempty\" graphql:\"readRows\""
+	ResultBytes                     *uint64  "json:\"resultBytes,omitempty\" graphql:\"resultBytes\""
+	ResultRows                      *uint64  "json:\"resultRows,omitempty\" graphql:\"resultRows\""
+	WrittenBytes                    *uint64  "json:\"writtenBytes,omitempty\" graphql:\"writtenBytes\""
+}
+
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals) GetDuration() uint64 {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals{}
+	}
+	return t.Duration
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals) GetErrors() *uint64 {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals{}
+	}
+	return t.Errors
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals) GetExecutionTime() *float64 {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals{}
+	}
+	return t.ExecutionTime
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals) GetFailedSequentialAuthentications() *uint64 {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals{}
+	}
+	return t.FailedSequentialAuthentications
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals) GetQueries() *uint64 {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals{}
+	}
+	return t.Queries
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals) GetQueriesPerNormalizedHash() *uint64 {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals{}
+	}
+	return t.QueriesPerNormalizedHash
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals) GetQueryInserts() *uint64 {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals{}
+	}
+	return t.QueryInserts
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals) GetQuerySelects() *uint64 {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals{}
+	}
+	return t.QuerySelects
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals) GetReadBytes() *uint64 {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals{}
+	}
+	return t.ReadBytes
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals) GetReadRows() *uint64 {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals{}
+	}
+	return t.ReadRows
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals) GetResultBytes() *uint64 {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals{}
+	}
+	return t.ResultBytes
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals) GetResultRows() *uint64 {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals{}
+	}
+	return t.ResultRows
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals) GetWrittenBytes() *uint64 {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals{}
+	}
+	return t.WrittenBytes
+}
+
+type UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas struct {
+	Intervals      []*UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals "json:\"intervals\" graphql:\"intervals\""
+	Ipv4PrefixBits *int64                                                                                   "json:\"ipv4PrefixBits,omitempty\" graphql:\"ipv4PrefixBits\""
+	Ipv6PrefixBits *int64                                                                                   "json:\"ipv6PrefixBits,omitempty\" graphql:\"ipv6PrefixBits\""
+	KeyedBy        ClickHouseQuotaKeyedBy                                                                   "json:\"keyedBy\" graphql:\"keyedBy\""
+	Name           string                                                                                   "json:\"name\" graphql:\"name\""
+}
+
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas) GetIntervals() []*UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas_Intervals {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas{}
+	}
+	return t.Intervals
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas) GetIpv4PrefixBits() *int64 {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas{}
+	}
+	return t.Ipv4PrefixBits
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas) GetIpv6PrefixBits() *int64 {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas{}
+	}
+	return t.Ipv6PrefixBits
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas) GetKeyedBy() *ClickHouseQuotaKeyedBy {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas{}
+	}
+	return &t.KeyedBy
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas) GetName() string {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas{}
+	}
+	return t.Name
+}
+
+type UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_ServerSettings struct {
+	Key   string "json:\"key\" graphql:\"key\""
+	Value string "json:\"value\" graphql:\"value\""
+}
+
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_ServerSettings) GetKey() string {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_ServerSettings{}
+	}
+	return t.Key
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_ServerSettings) GetValue() string {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_ServerSettings{}
+	}
+	return t.Value
+}
+
+type UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters struct {
+	Disk           UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Disk              "json:\"disk\" graphql:\"disk\""
+	ExtraDisks     []*UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_ExtraDisks     "json:\"extraDisks\" graphql:\"extraDisks\""
+	Image          string                                                                                 "json:\"image\" graphql:\"image\""
+	InstanceType   string                                                                                 "json:\"instanceType\" graphql:\"instanceType\""
+	Keeper         string                                                                                 "json:\"keeper\" graphql:\"keeper\""
+	Name           string                                                                                 "json:\"name\" graphql:\"name\""
+	Profiles       []*UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Profiles       "json:\"profiles\" graphql:\"profiles\""
+	Quotas         []*UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas         "json:\"quotas\" graphql:\"quotas\""
+	Replicas       int64                                                                                  "json:\"replicas\" graphql:\"replicas\""
+	ServerSettings []*UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_ServerSettings "json:\"serverSettings\" graphql:\"serverSettings\""
+	Shards         int64                                                                                  "json:\"shards\" graphql:\"shards\""
+	Stopped        bool                                                                                   "json:\"stopped\" graphql:\"stopped\""
+	Users          []*UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users          "json:\"users\" graphql:\"users\""
+	Zones          []string                                                                               "json:\"zones\" graphql:\"zones\""
+}
+
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters) GetDisk() *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Disk {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters{}
+	}
+	return &t.Disk
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters) GetExtraDisks() []*UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_ExtraDisks {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters{}
+	}
+	return t.ExtraDisks
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters) GetImage() string {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters{}
+	}
+	return t.Image
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters) GetInstanceType() string {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters{}
+	}
+	return t.InstanceType
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters) GetKeeper() string {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters{}
+	}
+	return t.Keeper
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters) GetName() string {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters{}
+	}
+	return t.Name
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters) GetProfiles() []*UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Profiles {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters{}
+	}
+	return t.Profiles
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters) GetQuotas() []*UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Quotas {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters{}
+	}
+	return t.Quotas
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters) GetReplicas() int64 {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters{}
+	}
+	return t.Replicas
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters) GetServerSettings() []*UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_ServerSettings {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters{}
+	}
+	return t.ServerSettings
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters) GetShards() int64 {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters{}
+	}
+	return t.Shards
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters) GetStopped() bool {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters{}
+	}
+	return t.Stopped
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters) GetUsers() []*UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters{}
+	}
+	return t.Users
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters) GetZones() []string {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters{}
+	}
+	return t.Zones
+}
+
+type UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers_Disk struct {
+	Iops              int64 "json:\"iops\" graphql:\"iops\""
+	SizeInGiB         int64 "json:\"sizeInGiB\" graphql:\"sizeInGiB\""
+	ThroughputInMiBps int64 "json:\"throughputInMiBps\" graphql:\"throughputInMiBps\""
+}
+
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers_Disk) GetIops() int64 {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers_Disk{}
+	}
+	return t.Iops
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers_Disk) GetSizeInGiB() int64 {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers_Disk{}
+	}
+	return t.SizeInGiB
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers_Disk) GetThroughputInMiBps() int64 {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers_Disk{}
+	}
+	return t.ThroughputInMiBps
+}
+
+type UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers struct {
+	Disk         UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers_Disk "json:\"disk\" graphql:\"disk\""
+	InstanceType string                                                                   "json:\"instanceType\" graphql:\"instanceType\""
+	Name         string                                                                   "json:\"name\" graphql:\"name\""
+	Replicas     int64                                                                    "json:\"replicas\" graphql:\"replicas\""
+	Stopped      bool                                                                     "json:\"stopped\" graphql:\"stopped\""
+	Zones        []string                                                                 "json:\"zones\" graphql:\"zones\""
+}
+
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers) GetDisk() *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers_Disk {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers{}
+	}
+	return &t.Disk
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers) GetInstanceType() string {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers{}
+	}
+	return t.InstanceType
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers) GetName() string {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers{}
+	}
+	return t.Name
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers) GetReplicas() int64 {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers{}
+	}
+	return t.Replicas
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers) GetStopped() bool {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers{}
+	}
+	return t.Stopped
+}
+func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers) GetZones() []string {
+	if t == nil {
+		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseKeepers{}
+	}
+	return t.Zones
 }
 
 type UpdateAWSEnv_UpdateAWSEnv struct {
@@ -9358,6 +11472,89 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 		metricsEnabled
 	}
 	mfa
+	clickHouseClusters {
+		name
+		image
+		instanceType
+		zones
+		shards
+		replicas
+		stopped
+		keeper
+		disk {
+			sizeInGiB
+			iops
+			throughputInMiBps
+		}
+		extraDisks {
+			name
+			sizeInGiB
+			iops
+			throughputInMiBps
+		}
+		users {
+			name
+			profile
+			quota
+			networks {
+				ips
+			}
+			accessManagement
+			namedCollectionControl
+			showNamedCollectionsSecrets
+			databases {
+				name
+			}
+			grants
+			password {
+				type
+			}
+		}
+		profiles {
+			name
+			settings {
+				key
+				value
+			}
+		}
+		quotas {
+			name
+			keyedBy
+			ipv4PrefixBits
+			ipv6PrefixBits
+			intervals {
+				duration
+				queries
+				querySelects
+				queryInserts
+				errors
+				resultRows
+				resultBytes
+				readRows
+				readBytes
+				writtenBytes
+				executionTime
+				failedSequentialAuthentications
+				queriesPerNormalizedHash
+			}
+		}
+		serverSettings {
+			key
+			value
+		}
+	}
+	clickHouseKeepers {
+		name
+		instanceType
+		zones
+		replicas
+		stopped
+		disk {
+			sizeInGiB
+			iops
+			throughputInMiBps
+		}
+	}
 }
 `
 
@@ -9527,6 +11724,89 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 		metricsEnabled
 	}
 	mfa
+	clickHouseClusters {
+		name
+		image
+		instanceType
+		zones
+		shards
+		replicas
+		stopped
+		keeper
+		disk {
+			sizeInGiB
+			iops
+			throughputInMiBps
+		}
+		extraDisks {
+			name
+			sizeInGiB
+			iops
+			throughputInMiBps
+		}
+		users {
+			name
+			profile
+			quota
+			networks {
+				ips
+			}
+			accessManagement
+			namedCollectionControl
+			showNamedCollectionsSecrets
+			databases {
+				name
+			}
+			grants
+			password {
+				type
+			}
+		}
+		profiles {
+			name
+			settings {
+				key
+				value
+			}
+		}
+		quotas {
+			name
+			keyedBy
+			ipv4PrefixBits
+			ipv6PrefixBits
+			intervals {
+				duration
+				queries
+				querySelects
+				queryInserts
+				errors
+				resultRows
+				resultBytes
+				readRows
+				readBytes
+				writtenBytes
+				executionTime
+				failedSequentialAuthentications
+				queriesPerNormalizedHash
+			}
+		}
+		serverSettings {
+			key
+			value
+		}
+	}
+	clickHouseKeepers {
+		name
+		instanceType
+		zones
+		replicas
+		stopped
+		disk {
+			sizeInGiB
+			iops
+			throughputInMiBps
+		}
+	}
 }
 `
 
@@ -9649,6 +11929,89 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 		metricsEnabled
 	}
 	mfa
+	clickHouseClusters {
+		name
+		image
+		instanceType
+		zones
+		shards
+		replicas
+		stopped
+		keeper
+		disk {
+			sizeInGiB
+			iops
+			throughputInMiBps
+		}
+		extraDisks {
+			name
+			sizeInGiB
+			iops
+			throughputInMiBps
+		}
+		users {
+			name
+			profile
+			quota
+			networks {
+				ips
+			}
+			accessManagement
+			namedCollectionControl
+			showNamedCollectionsSecrets
+			databases {
+				name
+			}
+			grants
+			password {
+				type
+			}
+		}
+		profiles {
+			name
+			settings {
+				key
+				value
+			}
+		}
+		quotas {
+			name
+			keyedBy
+			ipv4PrefixBits
+			ipv6PrefixBits
+			intervals {
+				duration
+				queries
+				querySelects
+				queryInserts
+				errors
+				resultRows
+				resultBytes
+				readRows
+				readBytes
+				writtenBytes
+				executionTime
+				failedSequentialAuthentications
+				queriesPerNormalizedHash
+			}
+		}
+		serverSettings {
+			key
+			value
+		}
+	}
+	clickHouseKeepers {
+		name
+		instanceType
+		zones
+		replicas
+		stopped
+		disk {
+			sizeInGiB
+			iops
+			throughputInMiBps
+		}
+	}
 }
 `
 

@@ -5,7 +5,7 @@ PROVIDER_BIN:=$(shell basename `git rev-parse --show-toplevel`)
 PROVIDER_NAME:=$(shell echo $(PROVIDER_BIN) | sed 's/terraform-provider-//g')
 PROVIDER_DIRECTORY:=~/.terraform.d/plugins/local/altinity/${PROVIDER_NAME}
 DEFAULT_GRAPHQL_SCHEMA_FILE:=internal/sdk/client/graphql.schema
-DEFAULT_GRAPHQL_SCHEMA_URL:=https://anywhere.altinity.cloud/api/v1/graphql.schema
+DEFAULT_GRAPHQL_SCHEMA_URL:=https://anywhere.dev.altinity.cloud/api/v1/graphql.schema
 
 GRAPHQL_SCHEMA_URL:=$(or $(GRAPHQL_SCHEMA_URL),$(DEFAULT_GRAPHQL_SCHEMA_URL))
 GRAPHQL_SCHEMA_FILE:=$(or $(GRAPHQL_SCHEMA_FILE),$(DEFAULT_GRAPHQL_SCHEMA_FILE))
@@ -87,6 +87,10 @@ docs:
 
 # The fetched schema is overwritten wholesale, so it must stay byte-identical to
 # GRAPHQL_SCHEMA_URL.
+#
+# Tracking dev: prod does not serve the ClickHouse cluster surface yet, and the
+# AWS spec fragment selects it, so a prod sync fails gqlgenc validation. Point
+# this back at anywhere.altinity.cloud once prod serves clickHouseClusters.
 .PHONY: sdk
 sdk:
 	@echo "Fetching GraphQL schema to ${GRAPHQL_SCHEMA_FILE}"
