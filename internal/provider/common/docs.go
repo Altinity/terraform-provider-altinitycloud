@@ -345,3 +345,82 @@ const HOSTED_AWS_CIDR_DESCRIPTION = "VPC CIDR block assigned to the environment.
 const HOSTED_NODE_GROUP_ZONE_IDS_DESCRIPTION = "Availability zone ids the node group spans. Defaults to the environment zone ids."
 const HOSTED_RESOURCE_PREFIX_DESCRIPTION = "Prefix applied to the names of the cloud resources created for this environment. **[IMMUTABLE]**"
 const HOSTED_EXTERNAL_BUCKET_DESCRIPTION = "List of external S3 buckets to allow access to. The environment IAM roles are granted access to every bucket listed here."
+
+const CLICKHOUSE_CLUSTERS_DESCRIPTION = "ClickHouse clusters running in this environment."
+const CLICKHOUSE_CLUSTER_NAME_DESCRIPTION = "Cluster identifier, unique within the environment. 2-15 chars, lowercase alphanumerics and hyphens, must start and end with an alphanumeric. Changing it is not a rename: the old cluster is deleted along with its data and a new, empty one is created."
+const CLICKHOUSE_CLUSTER_IMAGE_DESCRIPTION = "Server image, tag included, e.g. `altinity/clickhouse-server:25.8.16.10002.altinitystable`. The platform picks a current image when omitted."
+const CLICKHOUSE_CLUSTER_INSTANCE_TYPE_DESCRIPTION = "Machine type for the cluster nodes. Must match a node group with a `CLICKHOUSE` reservation."
+const CLICKHOUSE_CLUSTER_ZONES_DESCRIPTION = "Zones the cluster is spread across. All environment zones by default. **[IMMUTABLE]**"
+const CLICKHOUSE_CLUSTER_SHARDS_DESCRIPTION = "Number of shards."
+const CLICKHOUSE_CLUSTER_REPLICAS_DESCRIPTION = "Number of replicas per shard."
+const CLICKHOUSE_CLUSTER_STOPPED_DESCRIPTION = "Whether the cluster is kept stopped."
+const CLICKHOUSE_CLUSTER_KEEPER_DESCRIPTION = "Name of the Keeper this cluster coordinates through. Must name one of `clickhouse_keepers`."
+const CLICKHOUSE_CLUSTER_SERVER_SETTINGS_DESCRIPTION = "Server-level settings applied to every node. See https://clickhouse.com/docs/reference/settings/server-settings/settings."
+
+const CLICKHOUSE_KEEPERS_DESCRIPTION = "ClickHouse Keepers running in this environment."
+const CLICKHOUSE_KEEPER_NAME_DESCRIPTION = "Keeper identifier, unique within the environment. 2-15 chars, lowercase alphanumerics and hyphens, must start and end with an alphanumeric. Changing it is not a rename: the old Keeper is deleted along with its data and a new, empty one is created."
+const CLICKHOUSE_KEEPER_INSTANCE_TYPE_DESCRIPTION = "Machine type for the Keeper nodes. Must match a node group with a `ZOOKEEPER` reservation."
+const CLICKHOUSE_KEEPER_ZONES_DESCRIPTION = "Zones the Keeper is spread across. All environment zones by default. **[IMMUTABLE]**"
+const CLICKHOUSE_KEEPER_REPLICAS_DESCRIPTION = "Number of Keeper nodes. Use 3 for a highly-available ensemble, 1 for a single node. An ensemble cannot be shrunk back to a single node."
+const CLICKHOUSE_KEEPER_STOPPED_DESCRIPTION = "Whether the Keeper is kept stopped."
+
+const CLICKHOUSE_DISK_DESCRIPTION = "Main data volume."
+const CLICKHOUSE_DISK_SIZE_DESCRIPTION = "Size in GiB. Can only be increased, never decreased."
+const CLICKHOUSE_DISK_IOPS_DESCRIPTION = "Provisioned IOPS. Honored only by storage classes that support it, such as AWS gp3 and io2."
+const CLICKHOUSE_DISK_THROUGHPUT_DESCRIPTION = "Provisioned throughput in MiB/s. Honored only by storage classes that support it, such as AWS gp3."
+const CLICKHOUSE_EXTRA_DISKS_DESCRIPTION = "Extra data volumes added to the default ClickHouse storage policy, each replica receiving one volume per entry. ClickHouse balances new data across the main and extra volumes with the `least_used` strategy. 8 maximum."
+const CLICKHOUSE_EXTRA_DISK_NAME_DESCRIPTION = "Volume identifier. A volume named `diskN`, where `N` is a positive integer, is mounted at `/var/lib/clickhouseN`; any other name is mounted at `/var/lib/clickhouse<name>`."
+
+const CLICKHOUSE_SETTING_KEY_DESCRIPTION = "Setting name."
+const CLICKHOUSE_SETTING_VALUE_DESCRIPTION = "Setting value."
+const CLICKHOUSE_PROFILES_DESCRIPTION = "Settings profiles users can be assigned to."
+const CLICKHOUSE_PROFILE_NAME_DESCRIPTION = "Profile name, unique within the cluster. Referenced by a user's `profile`."
+const CLICKHOUSE_PROFILE_SETTINGS_DESCRIPTION = "Session-level settings this profile applies. See https://clickhouse.com/docs/reference/settings/session-settings."
+
+const CLICKHOUSE_USERS_DESCRIPTION = "ClickHouse users."
+const CLICKHOUSE_USER_NAME_DESCRIPTION = "User name, unique within the cluster. `grafana` and `datadog` are reserved for platform-injected users and are rejected."
+const CLICKHOUSE_USER_PROFILE_DESCRIPTION = "Settings profile assigned to this user. Must be one of the cluster's `profiles` or a profile ClickHouse ships with."
+const CLICKHOUSE_USER_QUOTA_DESCRIPTION = "Quota assigned to this user. Must be one of the cluster's `quotas`."
+const CLICKHOUSE_USER_NETWORKS_DESCRIPTION = "Where the user may connect from."
+const CLICKHOUSE_USER_NETWORKS_IPS_DESCRIPTION = "CIDRs the user may connect from. Unrestricted when omitted."
+const CLICKHOUSE_USER_ACCESS_MANAGEMENT_DESCRIPTION = "Whether the user can manage access control: roles, users, grants."
+const CLICKHOUSE_USER_NAMED_COLLECTION_CONTROL_DESCRIPTION = "Whether the user can create and drop named collections."
+const CLICKHOUSE_USER_SHOW_NAMED_COLLECTIONS_SECRETS_DESCRIPTION = "Whether the user can read secrets stored in named collections."
+const CLICKHOUSE_USER_DATABASES_DESCRIPTION = "Databases the user is granted access to. All databases when omitted."
+const CLICKHOUSE_USER_GRANTS_DESCRIPTION = "Grants applied to the user."
+const CLICKHOUSE_USER_PASSWORD_DESCRIPTION = "Credentials for the user."
+const CLICKHOUSE_USER_PASSWORD_TYPE_DESCRIPTION = `Form the password digest is supplied in.
+
+		Possible values:
+		- "SHA256_HEX"
+		- "DOUBLE_SHA1_HEX" (only for legacy MySQL clients; otherwise discouraged)
+`
+const CLICKHOUSE_USER_PASSWORD_ENC_VALUE_DESCRIPTION = "Encrypted password digest, in the form declared by `type`. Write-only: the API never returns it, so the value is kept from the configuration and never refreshed."
+
+const CLICKHOUSE_QUOTAS_DESCRIPTION = "Resource quotas users can be assigned to."
+const CLICKHOUSE_QUOTA_NAME_DESCRIPTION = "Quota name, unique within the cluster. Referenced by a user's `quota`."
+const CLICKHOUSE_QUOTA_KEYED_BY_DESCRIPTION = `What the quota is counted per.
+
+		Possible values:
+		- "NONE"
+		- "CLIENT_KEY"
+		- "IP_ADDRESS"
+		- "FORWARDED_IP_ADDRESS"
+		- "NORMALIZED_QUERY_HASH"
+`
+const CLICKHOUSE_QUOTA_IPV4_PREFIX_BITS_DESCRIPTION = "IPv4 subnet prefix used with `IP_ADDRESS` or `FORWARDED_IP_ADDRESS`. 0-32."
+const CLICKHOUSE_QUOTA_IPV6_PREFIX_BITS_DESCRIPTION = "IPv6 subnet prefix used with `IP_ADDRESS` or `FORWARDED_IP_ADDRESS`. 0-128."
+const CLICKHOUSE_QUOTA_INTERVALS_DESCRIPTION = "Intervals the quota limits are measured over. At least one."
+const CLICKHOUSE_QUOTA_INTERVAL_DURATION_DESCRIPTION = "Length of the interval, in seconds."
+const CLICKHOUSE_QUOTA_QUERIES_DESCRIPTION = "Maximum queries in the interval. Unlimited when omitted."
+const CLICKHOUSE_QUOTA_QUERY_SELECTS_DESCRIPTION = "Maximum SELECT queries in the interval. Unlimited when omitted."
+const CLICKHOUSE_QUOTA_QUERY_INSERTS_DESCRIPTION = "Maximum INSERT queries in the interval. Unlimited when omitted."
+const CLICKHOUSE_QUOTA_ERRORS_DESCRIPTION = "Maximum queries that throw in the interval. Unlimited when omitted."
+const CLICKHOUSE_QUOTA_RESULT_ROWS_DESCRIPTION = "Maximum rows returned in the interval. Unlimited when omitted."
+const CLICKHOUSE_QUOTA_RESULT_BYTES_DESCRIPTION = "Maximum bytes returned in the interval. Unlimited when omitted."
+const CLICKHOUSE_QUOTA_READ_ROWS_DESCRIPTION = "Maximum rows read from tables in the interval. Unlimited when omitted."
+const CLICKHOUSE_QUOTA_READ_BYTES_DESCRIPTION = "Maximum bytes read from tables in the interval. Unlimited when omitted."
+const CLICKHOUSE_QUOTA_WRITTEN_BYTES_DESCRIPTION = "Maximum bytes written to tables in the interval. Unlimited when omitted."
+const CLICKHOUSE_QUOTA_EXECUTION_TIME_DESCRIPTION = "Maximum total query execution time in the interval, in seconds. Unlimited when omitted."
+const CLICKHOUSE_QUOTA_FAILED_AUTH_DESCRIPTION = "Maximum consecutive failed authentication attempts. Unlimited when omitted."
+const CLICKHOUSE_QUOTA_QUERIES_PER_HASH_DESCRIPTION = "Maximum queries per normalized query hash in the interval. Unlimited when omitted."

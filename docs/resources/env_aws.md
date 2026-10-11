@@ -862,6 +862,8 @@ data "altinitycloud_env_aws_status" "this" {
 
 - `allow_delete_while_disconnected` (Boolean) Set to `true` to allow deletion of the environment while it is disconnected from the cloud connect. If the the environment is not connected during the deletion process you will end up in a delete timeout (default `false`).
 - `backups` (Attributes) Configuration for backup storage (see [below for nested schema](#nestedatt--backups))
+- `clickhouse_clusters` (Attributes List) ClickHouse clusters running in this environment. (see [below for nested schema](#nestedatt--clickhouse_clusters))
+- `clickhouse_keepers` (Attributes List) ClickHouse Keepers running in this environment. (see [below for nested schema](#nestedatt--clickhouse_keepers))
 - `cloud_connect` (Boolean) `true` indicates that cloud resources are to be managed via altinity/cloud-connect and `false` means direct management (default `true`). **[IMMUTABLE]**
 - `custom_domain` (String, Deprecated) Deprecated. Use `custom_domains` instead.
 - `custom_domains` (List of String) Custom domains.
@@ -970,6 +972,211 @@ Required:
 - `name` (String) S3 bucket name for backups
 - `region` (String) AWS region where the backup bucket is located
 - `role_arn` (String) Authentication configuration for backup bucket access
+
+
+
+<a id="nestedatt--clickhouse_clusters"></a>
+### Nested Schema for `clickhouse_clusters`
+
+Required:
+
+- `disk` (Attributes) Main data volume. (see [below for nested schema](#nestedatt--clickhouse_clusters--disk))
+- `instance_type` (String) Machine type for the cluster nodes. Must match a node group with a `CLICKHOUSE` reservation.
+- `name` (String) Cluster identifier, unique within the environment. 2-15 chars, lowercase alphanumerics and hyphens, must start and end with an alphanumeric. Changing it is not a rename: the old cluster is deleted along with its data and a new, empty one is created.
+
+Optional:
+
+- `extra_disks` (Attributes List) Extra data volumes added to the default ClickHouse storage policy, each replica receiving one volume per entry. ClickHouse balances new data across the main and extra volumes with the `least_used` strategy. 8 maximum. (see [below for nested schema](#nestedatt--clickhouse_clusters--extra_disks))
+- `image` (String) Server image, tag included, e.g. `altinity/clickhouse-server:25.8.16.10002.altinitystable`. The platform picks a current image when omitted.
+- `keeper` (String) Name of the Keeper this cluster coordinates through. Must name one of `clickhouse_keepers`.
+- `profiles` (Attributes List) Settings profiles users can be assigned to. (see [below for nested schema](#nestedatt--clickhouse_clusters--profiles))
+- `quotas` (Attributes List) Resource quotas users can be assigned to. (see [below for nested schema](#nestedatt--clickhouse_clusters--quotas))
+- `replicas` (Number) Number of replicas per shard.
+- `server_settings` (Attributes List) Server-level settings applied to every node. See https://clickhouse.com/docs/reference/settings/server-settings/settings. (see [below for nested schema](#nestedatt--clickhouse_clusters--server_settings))
+- `shards` (Number) Number of shards.
+- `stopped` (Boolean) Whether the cluster is kept stopped.
+- `users` (Attributes List) ClickHouse users. (see [below for nested schema](#nestedatt--clickhouse_clusters--users))
+- `zones` (List of String) Zones the cluster is spread across. All environment zones by default. **[IMMUTABLE]**
+
+<a id="nestedatt--clickhouse_clusters--disk"></a>
+### Nested Schema for `clickhouse_clusters.disk`
+
+Required:
+
+- `size_gib` (Number) Size in GiB. Can only be increased, never decreased.
+
+Optional:
+
+- `iops` (Number) Provisioned IOPS. Honored only by storage classes that support it, such as AWS gp3 and io2.
+- `throughput_mibps` (Number) Provisioned throughput in MiB/s. Honored only by storage classes that support it, such as AWS gp3.
+
+
+<a id="nestedatt--clickhouse_clusters--extra_disks"></a>
+### Nested Schema for `clickhouse_clusters.extra_disks`
+
+Required:
+
+- `name` (String) Volume identifier. A volume named `diskN`, where `N` is a positive integer, is mounted at `/var/lib/clickhouseN`; any other name is mounted at `/var/lib/clickhouse<name>`.
+- `size_gib` (Number) Size in GiB. Can only be increased, never decreased.
+
+Optional:
+
+- `iops` (Number) Provisioned IOPS. Honored only by storage classes that support it, such as AWS gp3 and io2.
+- `throughput_mibps` (Number) Provisioned throughput in MiB/s. Honored only by storage classes that support it, such as AWS gp3.
+
+
+<a id="nestedatt--clickhouse_clusters--profiles"></a>
+### Nested Schema for `clickhouse_clusters.profiles`
+
+Required:
+
+- `name` (String) Profile name, unique within the cluster. Referenced by a user's `profile`.
+
+Optional:
+
+- `settings` (Attributes List) Session-level settings this profile applies. See https://clickhouse.com/docs/reference/settings/session-settings. (see [below for nested schema](#nestedatt--clickhouse_clusters--profiles--settings))
+
+<a id="nestedatt--clickhouse_clusters--profiles--settings"></a>
+### Nested Schema for `clickhouse_clusters.profiles.settings`
+
+Required:
+
+- `key` (String) Setting name.
+
+Optional:
+
+- `value` (String) Setting value.
+
+
+
+<a id="nestedatt--clickhouse_clusters--quotas"></a>
+### Nested Schema for `clickhouse_clusters.quotas`
+
+Required:
+
+- `intervals` (Attributes List) Intervals the quota limits are measured over. At least one. (see [below for nested schema](#nestedatt--clickhouse_clusters--quotas--intervals))
+- `name` (String) Quota name, unique within the cluster. Referenced by a user's `quota`.
+
+Optional:
+
+- `ipv4_prefix_bits` (Number) IPv4 subnet prefix used with `IP_ADDRESS` or `FORWARDED_IP_ADDRESS`. 0-32.
+- `ipv6_prefix_bits` (Number) IPv6 subnet prefix used with `IP_ADDRESS` or `FORWARDED_IP_ADDRESS`. 0-128.
+- `keyed_by` (String) What the quota is counted per.
+
+		Possible values:
+		- "NONE"
+		- "CLIENT_KEY"
+		- "IP_ADDRESS"
+		- "FORWARDED_IP_ADDRESS"
+		- "NORMALIZED_QUERY_HASH"
+
+<a id="nestedatt--clickhouse_clusters--quotas--intervals"></a>
+### Nested Schema for `clickhouse_clusters.quotas.intervals`
+
+Required:
+
+- `duration_seconds` (Number) Length of the interval, in seconds.
+
+Optional:
+
+- `errors` (Number) Maximum queries that throw in the interval. Unlimited when omitted.
+- `execution_time_seconds` (Number) Maximum total query execution time in the interval, in seconds. Unlimited when omitted.
+- `failed_sequential_authentications` (Number) Maximum consecutive failed authentication attempts. Unlimited when omitted.
+- `queries` (Number) Maximum queries in the interval. Unlimited when omitted.
+- `queries_per_normalized_hash` (Number) Maximum queries per normalized query hash in the interval. Unlimited when omitted.
+- `query_inserts` (Number) Maximum INSERT queries in the interval. Unlimited when omitted.
+- `query_selects` (Number) Maximum SELECT queries in the interval. Unlimited when omitted.
+- `read_bytes` (Number) Maximum bytes read from tables in the interval. Unlimited when omitted.
+- `read_rows` (Number) Maximum rows read from tables in the interval. Unlimited when omitted.
+- `result_bytes` (Number) Maximum bytes returned in the interval. Unlimited when omitted.
+- `result_rows` (Number) Maximum rows returned in the interval. Unlimited when omitted.
+- `written_bytes` (Number) Maximum bytes written to tables in the interval. Unlimited when omitted.
+
+
+
+<a id="nestedatt--clickhouse_clusters--server_settings"></a>
+### Nested Schema for `clickhouse_clusters.server_settings`
+
+Required:
+
+- `key` (String) Setting name.
+
+Optional:
+
+- `value` (String) Setting value.
+
+
+<a id="nestedatt--clickhouse_clusters--users"></a>
+### Nested Schema for `clickhouse_clusters.users`
+
+Required:
+
+- `name` (String) User name, unique within the cluster. `grafana` and `datadog` are reserved for platform-injected users and are rejected.
+- `password` (Attributes) Credentials for the user. (see [below for nested schema](#nestedatt--clickhouse_clusters--users--password))
+
+Optional:
+
+- `access_management` (Boolean) Whether the user can manage access control: roles, users, grants.
+- `databases` (List of String) Databases the user is granted access to. All databases when omitted.
+- `grants` (List of String) Grants applied to the user.
+- `named_collection_control` (Boolean) Whether the user can create and drop named collections.
+- `networks` (Attributes) Where the user may connect from. (see [below for nested schema](#nestedatt--clickhouse_clusters--users--networks))
+- `profile` (String) Settings profile assigned to this user. Must be one of the cluster's `profiles` or a profile ClickHouse ships with.
+- `quota` (String) Quota assigned to this user. Must be one of the cluster's `quotas`.
+- `show_named_collections_secrets` (Boolean) Whether the user can read secrets stored in named collections.
+
+<a id="nestedatt--clickhouse_clusters--users--password"></a>
+### Nested Schema for `clickhouse_clusters.users.password`
+
+Required:
+
+- `type` (String) Form the password digest is supplied in.
+
+		Possible values:
+		- "SHA256_HEX"
+		- "DOUBLE_SHA1_HEX" (only for legacy MySQL clients; otherwise discouraged)
+
+Optional:
+
+- `enc_value` (String, Sensitive) Encrypted password digest, in the form declared by `type`. Write-only: the API never returns it, so the value is kept from the configuration and never refreshed.
+
+
+<a id="nestedatt--clickhouse_clusters--users--networks"></a>
+### Nested Schema for `clickhouse_clusters.users.networks`
+
+Optional:
+
+- `ips` (List of String) CIDRs the user may connect from. Unrestricted when omitted.
+
+
+
+
+<a id="nestedatt--clickhouse_keepers"></a>
+### Nested Schema for `clickhouse_keepers`
+
+Required:
+
+- `disk` (Attributes) Main data volume. (see [below for nested schema](#nestedatt--clickhouse_keepers--disk))
+- `instance_type` (String) Machine type for the Keeper nodes. Must match a node group with a `ZOOKEEPER` reservation.
+- `name` (String) Keeper identifier, unique within the environment. 2-15 chars, lowercase alphanumerics and hyphens, must start and end with an alphanumeric. Changing it is not a rename: the old Keeper is deleted along with its data and a new, empty one is created.
+
+Optional:
+
+- `replicas` (Number) Number of Keeper nodes. Use 3 for a highly-available ensemble, 1 for a single node. An ensemble cannot be shrunk back to a single node.
+- `stopped` (Boolean) Whether the Keeper is kept stopped.
+- `zones` (List of String) Zones the Keeper is spread across. All environment zones by default. **[IMMUTABLE]**
+
+<a id="nestedatt--clickhouse_keepers--disk"></a>
+### Nested Schema for `clickhouse_keepers.disk`
+
+Required:
+
+- `size_gib` (Number) Size in GiB. Can only be increased, never decreased.
+
+Optional:
+
+- `iops` (Number) Provisioned IOPS. Honored only by storage classes that support it, such as AWS gp3 and io2.
+- `throughput_mibps` (Number) Provisioned throughput in MiB/s. Honored only by storage classes that support it, such as AWS gp3.
 
 
 
