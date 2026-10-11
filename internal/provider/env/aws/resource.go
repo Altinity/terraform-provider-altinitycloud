@@ -229,8 +229,7 @@ func (r *AWSEnvResource) Update(ctx context.Context, req resource.UpdateRequest,
 	resp.Diagnostics.Append(diags...)
 }
 
-// Patch Replace upserts by name, so a plan that shows a pure create would
-// silently overwrite an unmanaged cluster or Keeper carrying the same name.
+// Patch Replace upserts by name, so a "pure create" plan can overwrite an unmanaged entry.
 func (r *AWSEnvResource) rejectClickHouseCollisions(ctx context.Context, envName string, state, plan *AWSEnvResourceModel) diag.Diagnostics {
 	var diags diag.Diagnostics
 

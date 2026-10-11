@@ -377,7 +377,7 @@ const CLICKHOUSE_USER_ACCESS_MANAGEMENT_DESCRIPTION = "Whether the user can mana
 const CLICKHOUSE_USER_NAMED_COLLECTION_CONTROL_DESCRIPTION = "Whether the user can create and drop named collections."
 const CLICKHOUSE_USER_SHOW_NAMED_COLLECTIONS_SECRETS_DESCRIPTION = "Whether the user can read secrets stored in named collections."
 const CLICKHOUSE_USER_DATABASES_DESCRIPTION = "Databases the user is granted access to. All databases when omitted."
-const CLICKHOUSE_USER_GRANTS_DESCRIPTION = "Grants applied to the user."
+const CLICKHOUSE_USER_GRANTS_DESCRIPTION = "Grants applied to the user. Cannot be combined with `databases`, `access_management`, `named_collection_control` or `show_named_collections_secrets`."
 const CLICKHOUSE_USER_PASSWORD_DESCRIPTION = "Credentials for the user."
 const CLICKHOUSE_USER_PASSWORD_TYPE_DESCRIPTION = `Form the password digest is supplied in.
 
