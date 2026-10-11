@@ -272,3 +272,68 @@ func TestClickHouseClustersToSpec(t *testing.T) {
 		t.Errorf("unexpected ips: %v", s.Users[0].Ips)
 	}
 }
+
+func TestUpdateUsesPatchSoConsoleClustersSurvive(t *testing.T) {
+	model := AWSEnvModel{
+		Name:               types.StringValue("env"),
+		Region:             types.StringValue("us-east-1"),
+		CIDR:               types.StringValue("10.0.0.0/16"),
+		AWSAccountID:       types.StringValue("111122223333"),
+		Zones:              types.ListNull(types.StringType),
+		ClickHouseClusters: []common.ClickHouseClusterModel{minimalClusterModel("mine")},
+		ClickHouseKeepers: []common.ClickHouseKeeperModel{{
+			Name:         types.StringValue("keeper"),
+			InstanceType: types.StringValue("t4g.large"),
+			Zones:        types.ListNull(types.StringType),
+			Disk:         &common.ClickHouseDiskModel{SizeGiB: types.Int64Value(30)},
+		}},
+	}
+
+	_, update, diags := model.toSDK(context.Background())
+	if diags.HasError() {
+		t.Fatalf("unexpected diags: %v", diags)
+	}
+
+	// The flat list replaces everything the API exposes; the patch does not.
+	if update.Spec.ClickHouseClusters != nil || update.Spec.ClickHouseKeepers != nil {
+		t.Errorf("an update must not send the replace-all list: %#v", update.Spec)
+	}
+	if update.Spec.ClickHouseClustersPatch == nil || len(update.Spec.ClickHouseClustersPatch.Replace) != 1 {
+		t.Fatalf("unexpected cluster patch: %#v", update.Spec.ClickHouseClustersPatch)
+	}
+	if update.Spec.ClickHouseClustersPatch.Replace[0].Name != "mine" {
+		t.Errorf("unexpected cluster: %#v", update.Spec.ClickHouseClustersPatch.Replace[0])
+	}
+	if update.Spec.ClickHouseKeepersPatch == nil || len(update.Spec.ClickHouseKeepersPatch.Replace) != 1 {
+		t.Errorf("unexpected keeper patch: %#v", update.Spec.ClickHouseKeepersPatch)
+	}
+
+	// Nothing was dropped from the configuration, so nothing is named for deletion.
+	if update.Spec.ClickHouseClustersPatch.Delete != nil {
+		t.Errorf("unexpected deletes: %v", update.Spec.ClickHouseClustersPatch.Delete)
+	}
+}
+
+func TestClickHouseNamesToDelete(t *testing.T) {
+	prior := []common.ClickHouseClusterModel{minimalClusterModel("keep"), minimalClusterModel("dropped")}
+	planned := []common.ClickHouseClusterModel{minimalClusterModel("keep"), minimalClusterModel("new")}
+
+	got := common.ClickHouseClusterNamesToDelete(prior, planned)
+	if len(got) != 1 || got[0] != "dropped" {
+		t.Errorf("expected [dropped], got %v", got)
+	}
+
+	// A console cluster is in neither list, so it is never named for deletion.
+	if got := common.ClickHouseClusterNamesToDelete(nil, planned); got != nil {
+		t.Errorf("expected nil with no prior state, got %v", got)
+	}
+	if got := common.ClickHouseClusterNamesToDelete(prior, prior); got != nil {
+		t.Errorf("expected nil when nothing was dropped, got %v", got)
+	}
+
+	keepersPrior := []common.ClickHouseKeeperModel{{Name: types.StringValue("a")}, {Name: types.StringValue("b")}}
+	keepersPlanned := []common.ClickHouseKeeperModel{{Name: types.StringValue("b")}}
+	if got := common.ClickHouseKeeperNamesToDelete(keepersPrior, keepersPlanned); len(got) != 1 || got[0] != "a" {
+		t.Errorf("expected [a], got %v", got)
+	}
+}
