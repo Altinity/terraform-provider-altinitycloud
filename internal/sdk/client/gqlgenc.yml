@@ -9,6 +9,8 @@ models:
     model: github.com/99designs/gqlgen/graphql.ID
   Int:
     model: github.com/99designs/gqlgen/graphql.Int64
+  UInt64:
+    model: github.com/99designs/gqlgen/graphql.Uint64
 schema:
   - "./graphql.schema"
 query:

@@ -2857,40 +2857,40 @@ type AzureEnvStatus struct {
 // https://clickhouse.com/docs/concepts/features/configuration/server-config/quotas
 type ClickHouseQuotaIntervalSpec struct {
 	// Interval duration in seconds.
-	Duration     string  `json:"duration"`
-	Queries      *string `json:"queries,omitempty"`
-	QuerySelects *string `json:"querySelects,omitempty"`
-	QueryInserts *string `json:"queryInserts,omitempty"`
-	Errors       *string `json:"errors,omitempty"`
-	ResultRows   *string `json:"resultRows,omitempty"`
-	ResultBytes  *string `json:"resultBytes,omitempty"`
-	ReadRows     *string `json:"readRows,omitempty"`
-	ReadBytes    *string `json:"readBytes,omitempty"`
-	WrittenBytes *string `json:"writtenBytes,omitempty"`
+	Duration     uint64  `json:"duration"`
+	Queries      *uint64 `json:"queries,omitempty"`
+	QuerySelects *uint64 `json:"querySelects,omitempty"`
+	QueryInserts *uint64 `json:"queryInserts,omitempty"`
+	Errors       *uint64 `json:"errors,omitempty"`
+	ResultRows   *uint64 `json:"resultRows,omitempty"`
+	ResultBytes  *uint64 `json:"resultBytes,omitempty"`
+	ReadRows     *uint64 `json:"readRows,omitempty"`
+	ReadBytes    *uint64 `json:"readBytes,omitempty"`
+	WrittenBytes *uint64 `json:"writtenBytes,omitempty"`
 	// Total query execution time in seconds. Fractional values are supported.
 	ExecutionTime                   *float64 `json:"executionTime,omitempty"`
-	FailedSequentialAuthentications *string  `json:"failedSequentialAuthentications,omitempty"`
-	QueriesPerNormalizedHash        *string  `json:"queriesPerNormalizedHash,omitempty"`
+	FailedSequentialAuthentications *uint64  `json:"failedSequentialAuthentications,omitempty"`
+	QueriesPerNormalizedHash        *uint64  `json:"queriesPerNormalizedHash,omitempty"`
 }
 
 // Resource limits accumulated during a quota interval.
 // https://clickhouse.com/docs/concepts/features/configuration/server-config/quotas
 type ClickHouseQuotaIntervalSpecInput struct {
 	// Interval duration in seconds. Must be greater than zero.
-	Duration     string  `json:"duration"`
-	Queries      *string `json:"queries,omitempty"`
-	QuerySelects *string `json:"querySelects,omitempty"`
-	QueryInserts *string `json:"queryInserts,omitempty"`
-	Errors       *string `json:"errors,omitempty"`
-	ResultRows   *string `json:"resultRows,omitempty"`
-	ResultBytes  *string `json:"resultBytes,omitempty"`
-	ReadRows     *string `json:"readRows,omitempty"`
-	ReadBytes    *string `json:"readBytes,omitempty"`
-	WrittenBytes *string `json:"writtenBytes,omitempty"`
+	Duration     uint64  `json:"duration"`
+	Queries      *uint64 `json:"queries,omitempty"`
+	QuerySelects *uint64 `json:"querySelects,omitempty"`
+	QueryInserts *uint64 `json:"queryInserts,omitempty"`
+	Errors       *uint64 `json:"errors,omitempty"`
+	ResultRows   *uint64 `json:"resultRows,omitempty"`
+	ResultBytes  *uint64 `json:"resultBytes,omitempty"`
+	ReadRows     *uint64 `json:"readRows,omitempty"`
+	ReadBytes    *uint64 `json:"readBytes,omitempty"`
+	WrittenBytes *uint64 `json:"writtenBytes,omitempty"`
 	// Total query execution time in seconds. Must be finite and non-negative.
 	ExecutionTime                   *float64 `json:"executionTime,omitempty"`
-	FailedSequentialAuthentications *string  `json:"failedSequentialAuthentications,omitempty"`
-	QueriesPerNormalizedHash        *string  `json:"queriesPerNormalizedHash,omitempty"`
+	FailedSequentialAuthentications *uint64  `json:"failedSequentialAuthentications,omitempty"`
+	QueriesPerNormalizedHash        *uint64  `json:"queriesPerNormalizedHash,omitempty"`
 }
 
 // ClickHouse resource usage quota.
