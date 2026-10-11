@@ -270,7 +270,7 @@ Optional:
 
 - `access_management` (Boolean) Whether the user can manage access control: roles, users, grants.
 - `databases` (List of String) Databases the user is granted access to. All databases when omitted.
-- `grants` (List of String) Grants applied to the user.
+- `grants` (List of String) Grants applied to the user. Cannot be combined with `databases`, `access_management`, `named_collection_control` or `show_named_collections_secrets`.
 - `named_collection_control` (Boolean) Whether the user can create and drop named collections.
 - `networks` (Attributes) Where the user may connect from. (see [below for nested schema](#nestedatt--clickhouse_clusters--users--networks))
 - `profile` (String) Settings profile assigned to this user. Must be one of the cluster's `profiles` or a profile ClickHouse ships with.

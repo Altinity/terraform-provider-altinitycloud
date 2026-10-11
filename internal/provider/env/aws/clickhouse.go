@@ -8,8 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 )
 
-// gqlgenc emits one fragment and one input family per env, so each env lowers
-// its own into the shared spec structs and raises the shared model back out.
+// gqlgenc emits one fragment and input family per env; this adapts AWS's to the shared structs.
 
 func clickHouseClustersToSpec(clusters []*sdk.AWSEnvSpecFragment_ClickHouseClusters) []common.ClickHouseClusterSpec {
 	var specs []common.ClickHouseClusterSpec

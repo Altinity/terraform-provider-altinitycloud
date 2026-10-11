@@ -70,8 +70,7 @@ type ClickHouseUserNetworksModel struct {
 	Ips types.List `tfsdk:"ips"`
 }
 
-// `enc_value` is write-only: the API never returns it, the way datadog's
-// enc_api_key does not come back either.
+// `enc_value` is write-only, like datadog's enc_api_key: the API never returns it.
 type ClickHouseUserPasswordModel struct {
 	Type     types.String `tfsdk:"type"`
 	EncValue types.String `tfsdk:"enc_value"`
