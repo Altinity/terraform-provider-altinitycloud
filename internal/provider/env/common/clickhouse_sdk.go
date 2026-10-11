@@ -89,8 +89,7 @@ func knownFloat64Pointer(value types.Float64) *float64 {
 	return value.ValueFloat64Pointer()
 }
 
-// Quota limits are UInt64 in the schema but Int64 in the config, since Terraform
-// has no unsigned number type; the schema validator keeps them non-negative.
+// Terraform has no unsigned type, so quota limits ride Int64 with a non-negative validator.
 func knownUint64Pointer(value types.Int64) *uint64 {
 	if value.IsNull() || value.IsUnknown() {
 		return nil
@@ -106,8 +105,7 @@ func knownString(value types.String) (string, bool) {
 	return value.ValueString(), true
 }
 
-// A patch only touches what Terraform owns, so an entry dropped from the
-// configuration has to be named explicitly or the API keeps it.
+// A patch only touches what Terraform owns, so a dropped entry must be named or the API keeps it.
 func ClickHouseClusterNamesToDelete(prior, planned []ClickHouseClusterModel) []string {
 	return namesToDelete(prior, planned,
 		func(m ClickHouseClusterModel) string { return m.Name.ValueString() })

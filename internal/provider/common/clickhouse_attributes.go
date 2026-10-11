@@ -7,6 +7,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	rschema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
@@ -352,6 +353,12 @@ func getClickHouseUsersAttribute() rschema.ListNestedAttribute {
 					MarkdownDescription: CLICKHOUSE_USER_GRANTS_DESCRIPTION,
 					Validators: []validator.List{
 						listvalidator.UniqueValues(),
+						listvalidator.ConflictsWith(
+							path.MatchRelative().AtParent().AtName("databases"),
+							path.MatchRelative().AtParent().AtName("access_management"),
+							path.MatchRelative().AtParent().AtName("named_collection_control"),
+							path.MatchRelative().AtParent().AtName("show_named_collections_secrets"),
+						),
 					},
 				},
 				"password": rschema.SingleNestedAttribute{

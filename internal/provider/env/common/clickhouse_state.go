@@ -8,9 +8,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
-// Terraform only tracks what prior state already managed: a cluster created
-// outside the configuration must not be adopted, or the next plan proposes
-// deleting it along with its data.
+// Only entries prior state already managed: adopting a console cluster would propose deleting it.
 func ClickHouseClustersToModel(prior []ClickHouseClusterModel, specs []ClickHouseClusterSpec) []ClickHouseClusterModel {
 	if prior == nil {
 		return nil
@@ -33,8 +31,7 @@ func ClickHouseClustersToModel(prior []ClickHouseClusterModel, specs []ClickHous
 	return models
 }
 
-// A data source reports the environment as it is, so it keeps the clusters a
-// resource would refuse to adopt, reserved users included.
+// A data source reports the environment as it is, reserved users and unmanaged clusters included.
 func ClickHouseClustersToDataSourceModel(specs []ClickHouseClusterSpec) []ClickHouseClusterModel {
 	if len(specs) == 0 {
 		return nil
@@ -250,8 +247,7 @@ func quotasToModel(prior []ClickHouseQuotaModel, specs []ClickHouseQuotaSpec) []
 	return models
 }
 
-// Reserved users are platform-injected: the configuration can never declare
-// them, so keeping them would make the applied state differ from the plan.
+// Platform-injected users can never be declared, so keeping them would diverge state from plan.
 func usersToModel(prior []ClickHouseUserModel, specs []ClickHouseUserSpec) []ClickHouseUserModel {
 	if len(specs) == 0 {
 		return nil
@@ -326,8 +322,7 @@ func uint64ToModel(value *uint64) types.Int64 {
 	return types.Int64Value(int64(*value))
 }
 
-// A null list must stay null: turning it into an empty one fails the
-// post-apply check that the state matches the plan.
+// A null or empty echo must stay null, or the post-apply plan/state check fails.
 func reorderStringList(prior types.List, values []string) types.List {
 	if len(values) == 0 {
 		return types.ListNull(types.StringType)
