@@ -133,3 +133,30 @@ func namesToDelete[M any](prior, planned []M, key func(M) string) []string {
 
 	return deleted
 }
+
+// Patch Replace upserts by name, so an added name colliding with an unmanaged entry would overwrite it.
+func ClickHouseClusterNamesAdded(prior, planned []ClickHouseClusterModel) []string {
+	return namesToDelete(planned, prior,
+		func(m ClickHouseClusterModel) string { return m.Name.ValueString() })
+}
+
+func ClickHouseKeeperNamesAdded(prior, planned []ClickHouseKeeperModel) []string {
+	return namesToDelete(planned, prior,
+		func(m ClickHouseKeeperModel) string { return m.Name.ValueString() })
+}
+
+func ClickHouseCollisions(added, existing []string) []string {
+	existingSet := make(map[string]bool, len(existing))
+	for _, e := range existing {
+		existingSet[e] = true
+	}
+
+	var collisions []string
+	for _, a := range added {
+		if existingSet[a] {
+			collisions = append(collisions, a)
+		}
+	}
+
+	return collisions
+}
