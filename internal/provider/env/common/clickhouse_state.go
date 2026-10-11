@@ -33,6 +33,43 @@ func ClickHouseClustersToModel(prior []ClickHouseClusterModel, specs []ClickHous
 	return models
 }
 
+// A data source reports the environment as it is, so it keeps the clusters a
+// resource would refuse to adopt, reserved users included.
+func ClickHouseClustersToDataSourceModel(specs []ClickHouseClusterSpec) []ClickHouseClusterModel {
+	if specs == nil {
+		return nil
+	}
+
+	models := make([]ClickHouseClusterModel, 0, len(specs))
+	for _, s := range specs {
+		model := clickHouseClusterToModel(ClickHouseClusterModel{}, s)
+		model.Users = allUsersToModel(s.Users)
+		models = append(models, model)
+	}
+
+	return models
+}
+
+func ClickHouseKeepersToDataSourceModel(specs []ClickHouseKeeperSpec) []ClickHouseKeeperModel {
+	if specs == nil {
+		return nil
+	}
+
+	models := make([]ClickHouseKeeperModel, 0, len(specs))
+	for _, s := range specs {
+		models = append(models, ClickHouseKeeperModel{
+			Name:         types.StringValue(s.Name),
+			InstanceType: types.StringValue(s.InstanceType),
+			Zones:        reorderStringList(types.ListNull(types.StringType), s.Zones),
+			Replicas:     types.Int64Value(s.Replicas),
+			Stopped:      types.BoolValue(s.Stopped),
+			Disk:         diskToModel(s.Disk),
+		})
+	}
+
+	return models
+}
+
 func ClickHouseKeepersToModel(prior []ClickHouseKeeperModel, specs []ClickHouseKeeperSpec) []ClickHouseKeeperModel {
 	if prior == nil {
 		return nil
@@ -229,41 +266,43 @@ func usersToModel(prior []ClickHouseUserModel, specs []ClickHouseUserSpec) []Cli
 
 	models := make([]ClickHouseUserModel, 0, len(ordered))
 	for _, s := range ordered {
-		p := priorByName[s.Name]
-
-		// The API never returns enc_value, so it can only come from the config.
-		encValue := types.StringNull()
-		if p.Password != nil {
-			encValue = p.Password.EncValue
-		}
-
-		var networks *ClickHouseUserNetworksModel
-		if p.Networks != nil || len(s.Ips) > 0 {
-			priorIps := types.ListNull(types.StringType)
-			if p.Networks != nil {
-				priorIps = p.Networks.Ips
-			}
-			networks = &ClickHouseUserNetworksModel{Ips: reorderStringList(priorIps, s.Ips)}
-		}
-
-		models = append(models, ClickHouseUserModel{
-			Name:                        types.StringValue(s.Name),
-			Profile:                     types.StringValue(s.Profile),
-			Quota:                       types.StringValue(s.Quota),
-			Networks:                    networks,
-			AccessManagement:            types.BoolValue(s.AccessManagement),
-			NamedCollectionControl:      types.BoolValue(s.NamedCollectionControl),
-			ShowNamedCollectionsSecrets: types.BoolValue(s.ShowNamedCollectionsSecrets),
-			Databases:                   reorderStringList(p.Databases, s.Databases),
-			Grants:                      reorderStringList(p.Grants, s.Grants),
-			Password: &ClickHouseUserPasswordModel{
-				Type:     types.StringValue(s.PasswordType),
-				EncValue: encValue,
-			},
-		})
+		models = append(models, userToModel(priorByName[s.Name], s))
 	}
 
 	return models
+}
+
+func userToModel(prior ClickHouseUserModel, spec ClickHouseUserSpec) ClickHouseUserModel {
+	// The API never returns enc_value, so it can only come from the config.
+	encValue := types.StringNull()
+	if prior.Password != nil {
+		encValue = prior.Password.EncValue
+	}
+
+	var networks *ClickHouseUserNetworksModel
+	if prior.Networks != nil || len(spec.Ips) > 0 {
+		priorIps := types.ListNull(types.StringType)
+		if prior.Networks != nil {
+			priorIps = prior.Networks.Ips
+		}
+		networks = &ClickHouseUserNetworksModel{Ips: reorderStringList(priorIps, spec.Ips)}
+	}
+
+	return ClickHouseUserModel{
+		Name:                        types.StringValue(spec.Name),
+		Profile:                     types.StringValue(spec.Profile),
+		Quota:                       types.StringValue(spec.Quota),
+		Networks:                    networks,
+		AccessManagement:            types.BoolValue(spec.AccessManagement),
+		NamedCollectionControl:      types.BoolValue(spec.NamedCollectionControl),
+		ShowNamedCollectionsSecrets: types.BoolValue(spec.ShowNamedCollectionsSecrets),
+		Databases:                   reorderStringList(prior.Databases, spec.Databases),
+		Grants:                      reorderStringList(prior.Grants, spec.Grants),
+		Password: &ClickHouseUserPasswordModel{
+			Type:     types.StringValue(spec.PasswordType),
+			EncValue: encValue,
+		},
+	}
 }
 
 func uint64ToModel(value *uint64) types.Int64 {
@@ -348,4 +387,17 @@ func reorderByName[M any, S any](prior []M, specs []S, priorKey func(M) string, 
 	}
 
 	return ordered
+}
+
+func allUsersToModel(specs []ClickHouseUserSpec) []ClickHouseUserModel {
+	if specs == nil {
+		return nil
+	}
+
+	models := make([]ClickHouseUserModel, 0, len(specs))
+	for _, s := range specs {
+		models = append(models, userToModel(ClickHouseUserModel{}, s))
+	}
+
+	return models
 }
