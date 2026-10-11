@@ -94,6 +94,8 @@ func (r *AWSEnvResource) Create(ctx context.Context, req resource.CreateRequest,
 	resp.Diagnostics.Append(diags...)
 	data.SpecRevision = types.Int64Value(apiResp.CreateAWSEnv.SpecRevision)
 	data.ResourcePrefix = types.StringValue(apiResp.CreateAWSEnv.Spec.ResourcePrefix)
+	data.ClickHouseClusters = common.ClickHouseClustersToModel(data.ClickHouseClusters, clickHouseClustersToSpec(apiResp.CreateAWSEnv.Spec.ClickHouseClusters))
+	data.ClickHouseKeepers = common.ClickHouseKeepersToModel(data.ClickHouseKeepers, clickHouseKeepersToSpec(apiResp.CreateAWSEnv.Spec.ClickHouseKeepers))
 
 	if resp.Diagnostics.HasError() {
 		return
@@ -206,6 +208,8 @@ func (r *AWSEnvResource) Update(ctx context.Context, req resource.UpdateRequest,
 	resp.Diagnostics.Append(diags...)
 	data.SpecRevision = types.Int64Value(apiResp.UpdateAWSEnv.SpecRevision)
 	data.ResourcePrefix = types.StringValue(apiResp.UpdateAWSEnv.Spec.ResourcePrefix)
+	data.ClickHouseClusters = common.ClickHouseClustersToModel(data.ClickHouseClusters, clickHouseClustersToSpec(apiResp.UpdateAWSEnv.Spec.ClickHouseClusters))
+	data.ClickHouseKeepers = common.ClickHouseKeepersToModel(data.ClickHouseKeepers, clickHouseKeepersToSpec(apiResp.UpdateAWSEnv.Spec.ClickHouseKeepers))
 
 	if resp.Diagnostics.HasError() {
 		return
