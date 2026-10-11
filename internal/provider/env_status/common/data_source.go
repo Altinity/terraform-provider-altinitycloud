@@ -53,13 +53,10 @@ type PollResult struct {
 	Found               bool
 }
 
-// PollFunc is a callback that fetches the current env status from the API.
-type PollFunc func(ctx context.Context, envName string) (*PollResult, error)
-
-// WaitForSpecRevision polls the environment status until the applied spec revision
+// waitForSpecRevision polls the environment status until the applied spec revision
 // matches the target revision. It handles TTY output, DISCONNECTED errors, and timeouts.
 // Returns true if the target revision was reached, false otherwise (errors added to diags).
-func WaitForSpecRevision(ctx context.Context, envName string, targetRevision int64, verbose bool, poll PollFunc, diags *diag.Diagnostics, readTimeout time.Duration) bool {
+func waitForSpecRevision(ctx context.Context, envName string, targetRevision int64, verbose bool, refresh StatusRefreshFunc, diags *diag.Diagnostics, readTimeout time.Duration) bool {
 	if readTimeout == 0 {
 		readTimeout = MATCH_SPEC_TIMEOUT
 	}
@@ -80,7 +77,7 @@ func WaitForSpecRevision(ctx context.Context, envName string, targetRevision int
 		Pending: []string{"WAITING", "CONNECTING"},
 		Target:  []string{"READY"},
 		Refresh: func() (interface{}, string, error) {
-			result, err := poll(ctx, envName)
+			result, err := refresh(ctx)
 			if err != nil {
 				return nil, "", fmt.Errorf("unable to read env status %s, got error: %s", envName, client.FormatError(err, envName))
 			}
@@ -94,15 +91,13 @@ func WaitForSpecRevision(ctx context.Context, envName string, targetRevision int
 			if len(result.Errors) > 0 {
 				var blockingErrors []EnvError
 				for _, e := range result.Errors {
-					if e.Code == "DISCONNECTED" || e.Code == "K8S_DISCONNECTED" {
-						if result.AppliedSpecRevision == 0 {
-							if tty != nil {
-								tty.printf("%s: [%s] waiting for initial connection (not yet provisioned)...\n",
-									prefix, elapsed)
-							}
-							continue
+					// An env that never provisioned reports DISCONNECTED until it
+					// first connects, which is progress rather than a failure.
+					if (e.Code == "DISCONNECTED" || e.Code == "K8S_DISCONNECTED") && result.AppliedSpecRevision == 0 {
+						if tty != nil {
+							tty.printf("%s: [%s] waiting for initial connection (not yet provisioned)...\n",
+								prefix, elapsed)
 						}
-						blockingErrors = append(blockingErrors, e)
 						continue
 					}
 					blockingErrors = append(blockingErrors, e)

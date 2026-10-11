@@ -2,11 +2,8 @@ package hosted_env_status
 
 import (
 	"context"
-	"fmt"
 
-	clientsupport "github.com/altinity/terraform-provider-altinitycloud/internal/provider/common"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/provider/env_status/common"
-	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/client"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
@@ -35,70 +32,40 @@ func (d *AWSEnvHostedStatusDataSource) Read(ctx context.Context, req datasource.
 		return
 	}
 
-	envName := data.Name.ValueString()
-	apiResp, err := d.Client.GetAWSEnvHostedStatus(ctx, envName)
-	if err != nil {
-		clientsupport.AddClientError(&resp.Diagnostics, fmt.Sprintf("Unable to read env status %s, got error: %s", envName, client.FormatError(err, envName)))
-		return
-	}
-
-	if apiResp.AWSEnvHosted == nil {
-		clientsupport.AddClientError(&resp.Diagnostics, fmt.Sprintf("Environment %s was not found", envName))
-		return
-	}
-
-	waitForAppliedSpecRevision := data.WaitForAppliedSpecRevision.ValueInt64()
-	if waitForAppliedSpecRevision == 0 || apiResp.AWSEnvHosted.Status.AppliedSpecRevision >= waitForAppliedSpecRevision {
-		tflog.Trace(ctx, "env status matches spec", map[string]interface{}{"name": envName})
-		data.toModel(*apiResp.AWSEnvHosted)
-		data.Id = data.Name
-
-		resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
-		return
-	}
-
-	poll := func(ctx context.Context, name string) (*common.PollResult, error) {
-		statusResp, err := d.Client.GetAWSEnvHostedStatus(ctx, name)
-		if err != nil {
-			return nil, err
-		}
-		if statusResp.AWSEnvHosted == nil {
-			return &common.PollResult{Found: false}, nil
-		}
-		var errors []common.EnvError
-		for _, e := range statusResp.AWSEnvHosted.Status.Errors {
-			errors = append(errors, common.EnvError{Code: string(e.Code), Message: e.Message})
-		}
-		return &common.PollResult{
-			AppliedSpecRevision: statusResp.AWSEnvHosted.Status.AppliedSpecRevision,
-			Errors:              errors,
-			Found:               true,
-		}, nil
-	}
-
 	readTimeout, diags := data.Timeouts.Read(ctx, common.MATCH_SPEC_TIMEOUT)
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
 
-	if !common.WaitForSpecRevision(ctx, envName, waitForAppliedSpecRevision, data.Verbose.ValueBool(), poll, &resp.Diagnostics, readTimeout) {
+	envName := data.Name.ValueString()
+	refresh := func(ctx context.Context) (*common.PollResult, error) {
+		apiResp, err := d.Client.GetAWSEnvHostedStatus(ctx, envName)
+		if err != nil {
+			return nil, err
+		}
+		if apiResp.AWSEnvHosted == nil {
+			return &common.PollResult{}, nil
+		}
+
+		data.toModel(*apiResp.AWSEnvHosted)
+
+		var errors []common.EnvError
+		for _, e := range apiResp.AWSEnvHosted.Status.Errors {
+			errors = append(errors, common.EnvError{Code: string(e.Code), Message: e.Message})
+		}
+
+		return &common.PollResult{
+			AppliedSpecRevision: apiResp.AWSEnvHosted.Status.AppliedSpecRevision,
+			Errors:              errors,
+			Found:               true,
+		}, nil
+	}
+
+	if !common.ReadEnvStatus(ctx, envName, data.WaitForAppliedSpecRevision.ValueInt64(), data.Verbose.ValueBool(), readTimeout, refresh, &resp.Diagnostics) {
 		return
 	}
 
-	// Re-fetch to populate the model with latest data
-	apiResp, err = d.Client.GetAWSEnvHostedStatus(ctx, envName)
-	if err != nil {
-		clientsupport.AddClientError(&resp.Diagnostics, fmt.Sprintf("Unable to read env status %s, got error: %s", envName, client.FormatError(err, envName)))
-		return
-	}
-
-	if apiResp.AWSEnvHosted == nil {
-		clientsupport.AddClientError(&resp.Diagnostics, fmt.Sprintf("Environment %s was not found", envName))
-		return
-	}
-
-	data.toModel(*apiResp.AWSEnvHosted)
 	data.Id = data.Name
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
