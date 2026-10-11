@@ -277,3 +277,68 @@ func TestClickHouseComputedValuesComeBackFromTheAPI(t *testing.T) {
 		t.Errorf("disk defaults must come back from the API: %#v", c.Disk)
 	}
 }
+
+func TestClickHouseEmptyAPIEchoesStayNull(t *testing.T) {
+	// JSON [] unmarshals to a non-nil empty slice; it must map like an omission.
+	spec := minimalClusterSpec("ch")
+	spec.ExtraDisks = []ClickHouseNamedDiskSpec{}
+	spec.ServerSettings = []ClickHouseSettingSpec{}
+	spec.Users = []ClickHouseUserSpec{
+		{Name: "grafana", PasswordType: "SHA256_HEX"},
+		{Name: "datadog", PasswordType: "SHA256_HEX"},
+	}
+
+	prior := []ClickHouseClusterModel{{Name: types.StringValue("ch")}}
+	c := ClickHouseClustersToModel(prior, []ClickHouseClusterSpec{spec})[0]
+	if c.ExtraDisks != nil || c.ServerSettings != nil {
+		t.Errorf("empty echoes must stay nil, got %#v / %#v", c.ExtraDisks, c.ServerSettings)
+	}
+	if c.Users != nil {
+		t.Errorf("a cluster with only platform users must keep users null, got %#v", c.Users)
+	}
+
+	priorUser := []ClickHouseUserModel{{Name: types.StringValue("app")}}
+	u := usersToModel(priorUser, []ClickHouseUserSpec{{Name: "app", Ips: []string{}, PasswordType: "SHA256_HEX"}})[0]
+	if u.Networks != nil {
+		t.Errorf("an empty ips echo must not invent a networks block, got %#v", u.Networks)
+	}
+
+	withBlock := []ClickHouseUserModel{{
+		Name:     types.StringValue("app"),
+		Networks: &ClickHouseUserNetworksModel{Ips: types.ListNull(types.StringType)},
+	}}
+	u = usersToModel(withBlock, []ClickHouseUserSpec{{Name: "app", Ips: []string{}, PasswordType: "SHA256_HEX"}})[0]
+	if u.Networks == nil || !u.Networks.Ips.IsNull() {
+		t.Errorf("ips was null in the plan, so [] must come back null, got %#v", u.Networks)
+	}
+}
+
+func TestClickHouseQuotaIntervalsFollowConfigOrder(t *testing.T) {
+	prior := []ClickHouseQuotaModel{{
+		Name: types.StringValue("q"),
+		Intervals: []ClickHouseQuotaIntervalModel{
+			{DurationSeconds: types.Int64Value(86400)},
+			{DurationSeconds: types.Int64Value(3600)},
+		},
+	}}
+
+	got := quotasToModel(prior, []ClickHouseQuotaSpec{{
+		Name: "q",
+		Intervals: []ClickHouseQuotaIntervalSpec{
+			{DurationSeconds: 3600},
+			{DurationSeconds: 86400},
+		},
+	}})
+
+	intervals := got[0].Intervals
+	if intervals[0].DurationSeconds.ValueInt64() != 86400 || intervals[1].DurationSeconds.ValueInt64() != 3600 {
+		t.Errorf("expected config order [86400 3600], got %#v", intervals)
+	}
+}
+
+func TestReorderStringsKeepsDuplicates(t *testing.T) {
+	got := reorderStrings([]string{"a", "a", "b"}, []string{"b", "a", "a"})
+	if len(got) != 3 || got[0] != "a" || got[1] != "a" || got[2] != "b" {
+		t.Errorf("expected [a a b], got %v", got)
+	}
+}
