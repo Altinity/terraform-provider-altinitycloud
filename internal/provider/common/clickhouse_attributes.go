@@ -73,6 +73,7 @@ func GetClickHouseClustersAttribute(required, optional, computed bool) rschema.L
 					MarkdownDescription: CLICKHOUSE_CLUSTER_ZONES_DESCRIPTION,
 					Validators: []validator.List{
 						listvalidator.SizeAtLeast(1),
+						listvalidator.UniqueValues(),
 					},
 				},
 				"shards": rschema.Int64Attribute{
@@ -148,6 +149,7 @@ func GetClickHouseKeepersAttribute(required, optional, computed bool) rschema.Li
 					MarkdownDescription: CLICKHOUSE_KEEPER_ZONES_DESCRIPTION,
 					Validators: []validator.List{
 						listvalidator.SizeAtLeast(1),
+						listvalidator.UniqueValues(),
 					},
 				},
 				"replicas": rschema.Int64Attribute{
@@ -314,6 +316,7 @@ func getClickHouseUsersAttribute() rschema.ListNestedAttribute {
 							MarkdownDescription: CLICKHOUSE_USER_NETWORKS_IPS_DESCRIPTION,
 							Validators: []validator.List{
 								listvalidator.SizeAtLeast(1),
+								listvalidator.UniqueValues(),
 							},
 						},
 					},
@@ -339,6 +342,7 @@ func getClickHouseUsersAttribute() rschema.ListNestedAttribute {
 					MarkdownDescription: CLICKHOUSE_USER_DATABASES_DESCRIPTION,
 					Validators: []validator.List{
 						listvalidator.SizeAtLeast(1),
+						listvalidator.UniqueValues(),
 					},
 				},
 				"grants": rschema.ListAttribute{
@@ -346,6 +350,9 @@ func getClickHouseUsersAttribute() rschema.ListNestedAttribute {
 					Optional:            true,
 					Computed:            true,
 					MarkdownDescription: CLICKHOUSE_USER_GRANTS_DESCRIPTION,
+					Validators: []validator.List{
+						listvalidator.UniqueValues(),
+					},
 				},
 				"password": rschema.SingleNestedAttribute{
 					Required:            true,

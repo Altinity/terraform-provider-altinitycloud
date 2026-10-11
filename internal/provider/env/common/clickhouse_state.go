@@ -36,7 +36,7 @@ func ClickHouseClustersToModel(prior []ClickHouseClusterModel, specs []ClickHous
 // A data source reports the environment as it is, so it keeps the clusters a
 // resource would refuse to adopt, reserved users included.
 func ClickHouseClustersToDataSourceModel(specs []ClickHouseClusterSpec) []ClickHouseClusterModel {
-	if specs == nil {
+	if len(specs) == 0 {
 		return nil
 	}
 
@@ -51,7 +51,7 @@ func ClickHouseClustersToDataSourceModel(specs []ClickHouseClusterSpec) []ClickH
 }
 
 func ClickHouseKeepersToDataSourceModel(specs []ClickHouseKeeperSpec) []ClickHouseKeeperModel {
-	if specs == nil {
+	if len(specs) == 0 {
 		return nil
 	}
 
@@ -128,11 +128,11 @@ func diskToModel(spec ClickHouseDiskSpec) *ClickHouseDiskModel {
 }
 
 func extraDisksToModel(prior []ClickHouseNamedDiskModel, specs []ClickHouseNamedDiskSpec) []ClickHouseNamedDiskModel {
-	if specs == nil {
+	if len(specs) == 0 {
 		return nil
 	}
 
-	ordered := reorderByName(prior, specs,
+	ordered := ReorderByKey(prior, specs,
 		func(m ClickHouseNamedDiskModel) string { return m.Name.ValueString() },
 		func(s ClickHouseNamedDiskSpec) string { return s.Name },
 	)
@@ -151,11 +151,11 @@ func extraDisksToModel(prior []ClickHouseNamedDiskModel, specs []ClickHouseNamed
 }
 
 func settingsToModel(prior []ClickHouseSettingModel, specs []ClickHouseSettingSpec) []ClickHouseSettingModel {
-	if specs == nil {
+	if len(specs) == 0 {
 		return nil
 	}
 
-	ordered := reorderByName(prior, specs,
+	ordered := ReorderByKey(prior, specs,
 		func(m ClickHouseSettingModel) string { return m.Key.ValueString() },
 		func(s ClickHouseSettingSpec) string { return s.Key },
 	)
@@ -172,11 +172,11 @@ func settingsToModel(prior []ClickHouseSettingModel, specs []ClickHouseSettingSp
 }
 
 func profilesToModel(prior []ClickHouseProfileModel, specs []ClickHouseProfileSpec) []ClickHouseProfileModel {
-	if specs == nil {
+	if len(specs) == 0 {
 		return nil
 	}
 
-	ordered := reorderByName(prior, specs,
+	ordered := ReorderByKey(prior, specs,
 		func(m ClickHouseProfileModel) string { return m.Name.ValueString() },
 		func(s ClickHouseProfileSpec) string { return s.Name },
 	)
@@ -198,19 +198,29 @@ func profilesToModel(prior []ClickHouseProfileModel, specs []ClickHouseProfileSp
 }
 
 func quotasToModel(prior []ClickHouseQuotaModel, specs []ClickHouseQuotaSpec) []ClickHouseQuotaModel {
-	if specs == nil {
+	if len(specs) == 0 {
 		return nil
 	}
 
-	ordered := reorderByName(prior, specs,
+	ordered := ReorderByKey(prior, specs,
 		func(m ClickHouseQuotaModel) string { return m.Name.ValueString() },
 		func(s ClickHouseQuotaSpec) string { return s.Name },
 	)
 
+	priorByName := make(map[string][]ClickHouseQuotaIntervalModel, len(prior))
+	for _, p := range prior {
+		priorByName[p.Name.ValueString()] = p.Intervals
+	}
+
 	models := make([]ClickHouseQuotaModel, 0, len(ordered))
 	for _, s := range ordered {
-		intervals := make([]ClickHouseQuotaIntervalModel, 0, len(s.Intervals))
-		for _, i := range s.Intervals {
+		orderedIntervals := ReorderByKey(priorByName[s.Name], s.Intervals,
+			func(m ClickHouseQuotaIntervalModel) string { return m.DurationSeconds.String() },
+			func(i ClickHouseQuotaIntervalSpec) string { return types.Int64Value(int64(i.DurationSeconds)).String() },
+		)
+
+		intervals := make([]ClickHouseQuotaIntervalModel, 0, len(orderedIntervals))
+		for _, i := range orderedIntervals {
 			intervals = append(intervals, ClickHouseQuotaIntervalModel{
 				DurationSeconds:                 types.Int64Value(int64(i.DurationSeconds)),
 				Queries:                         uint64ToModel(i.Queries),
@@ -243,7 +253,7 @@ func quotasToModel(prior []ClickHouseQuotaModel, specs []ClickHouseQuotaSpec) []
 // Reserved users are platform-injected: the configuration can never declare
 // them, so keeping them would make the applied state differ from the plan.
 func usersToModel(prior []ClickHouseUserModel, specs []ClickHouseUserSpec) []ClickHouseUserModel {
-	if specs == nil {
+	if len(specs) == 0 {
 		return nil
 	}
 
@@ -254,7 +264,11 @@ func usersToModel(prior []ClickHouseUserModel, specs []ClickHouseUserSpec) []Cli
 		}
 	}
 
-	ordered := reorderByName(prior, kept,
+	if len(kept) == 0 {
+		return nil
+	}
+
+	ordered := ReorderByKey(prior, kept,
 		func(m ClickHouseUserModel) string { return m.Name.ValueString() },
 		func(s ClickHouseUserSpec) string { return s.Name },
 	)
@@ -315,7 +329,7 @@ func uint64ToModel(value *uint64) types.Int64 {
 // A null list must stay null: turning it into an empty one fails the
 // post-apply check that the state matches the plan.
 func reorderStringList(prior types.List, values []string) types.List {
-	if values == nil {
+	if len(values) == 0 {
 		return types.ListNull(types.StringType)
 	}
 
@@ -342,47 +356,24 @@ func reorderStringList(prior types.List, values []string) types.List {
 	return list
 }
 
+// Counted, not set-keyed, so a duplicated value is kept instead of dropped.
 func reorderStrings(prior, values []string) []string {
-	remaining := make(map[string]bool, len(values))
+	remaining := make(map[string]int, len(values))
 	for _, v := range values {
-		remaining[v] = true
+		remaining[v]++
 	}
 
 	ordered := make([]string, 0, len(values))
 	for _, p := range prior {
-		if remaining[p] {
+		if remaining[p] > 0 {
 			ordered = append(ordered, p)
-			delete(remaining, p)
+			remaining[p]--
 		}
 	}
 	for _, v := range values {
-		if remaining[v] {
+		if remaining[v] > 0 {
 			ordered = append(ordered, v)
-			delete(remaining, v)
-		}
-	}
-
-	return ordered
-}
-
-// Entries the configuration never named go last, in the order the API gave them.
-func reorderByName[M any, S any](prior []M, specs []S, priorKey func(M) string, specKey func(S) string) []S {
-	index := make(map[string]int, len(specs))
-	for i, s := range specs {
-		index[specKey(s)] = i
-	}
-
-	ordered := make([]S, 0, len(specs))
-	taken := make([]bool, len(specs))
-	for _, p := range prior {
-		if i, ok := index[priorKey(p)]; ok && !taken[i] {
-			ordered = append(ordered, specs[i])
-			taken[i] = true
-		}
-	}
-	for i, s := range specs {
-		if !taken[i] {
-			ordered = append(ordered, s)
+			remaining[v]--
 		}
 	}
 
@@ -390,7 +381,7 @@ func reorderByName[M any, S any](prior []M, specs []S, priorKey func(M) string, 
 }
 
 func allUsersToModel(specs []ClickHouseUserSpec) []ClickHouseUserModel {
-	if specs == nil {
+	if len(specs) == 0 {
 		return nil
 	}
 
