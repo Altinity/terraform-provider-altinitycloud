@@ -105,3 +105,31 @@ func knownString(value types.String) (string, bool) {
 	}
 	return value.ValueString(), true
 }
+
+// A patch only touches what Terraform owns, so an entry dropped from the
+// configuration has to be named explicitly or the API keeps it.
+func ClickHouseClusterNamesToDelete(prior, planned []ClickHouseClusterModel) []string {
+	return namesToDelete(prior, planned,
+		func(m ClickHouseClusterModel) string { return m.Name.ValueString() })
+}
+
+func ClickHouseKeeperNamesToDelete(prior, planned []ClickHouseKeeperModel) []string {
+	return namesToDelete(prior, planned,
+		func(m ClickHouseKeeperModel) string { return m.Name.ValueString() })
+}
+
+func namesToDelete[M any](prior, planned []M, key func(M) string) []string {
+	kept := make(map[string]bool, len(planned))
+	for _, p := range planned {
+		kept[key(p)] = true
+	}
+
+	var deleted []string
+	for _, p := range prior {
+		if name := key(p); !kept[name] {
+			deleted = append(deleted, name)
+		}
+	}
+
+	return deleted
+}

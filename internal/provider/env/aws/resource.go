@@ -171,6 +171,13 @@ func (r *AWSEnvResource) Update(ctx context.Context, req resource.UpdateRequest,
 		return
 	}
 
+	var state *AWSEnvResourceModel
+	diags = req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	envName := data.Name.ValueString()
 	tflog.Trace(ctx, "updating resource", map[string]interface{}{"name": envName})
 
@@ -179,6 +186,9 @@ func (r *AWSEnvResource) Update(ctx context.Context, req resource.UpdateRequest,
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
+	sdkEnv.Spec.ClickHouseClustersPatch.Delete = common.ClickHouseClusterNamesToDelete(state.ClickHouseClusters, data.ClickHouseClusters)
+	sdkEnv.Spec.ClickHouseKeepersPatch.Delete = common.ClickHouseKeeperNamesToDelete(state.ClickHouseKeepers, data.ClickHouseKeepers)
 	apiResp, err := r.Client.UpdateAWSEnv(ctx, sdkEnv)
 
 	if err != nil {
