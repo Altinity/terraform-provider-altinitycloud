@@ -217,3 +217,63 @@ func TestClickHouseKeepersToModel(t *testing.T) {
 		}
 	})
 }
+
+func TestClickHouseDataSourceModelReportsEverything(t *testing.T) {
+	specs := []ClickHouseClusterSpec{minimalClusterSpec("mine"), minimalClusterSpec("made-in-the-console")}
+	specs[0].Users = []ClickHouseUserSpec{
+		{Name: "app", PasswordType: "SHA256_HEX"},
+		{Name: "grafana", PasswordType: "SHA256_HEX"},
+	}
+
+	// The resource mapper owns nothing without prior state; the data source
+	// must still report the environment as it is.
+	if got := ClickHouseClustersToModel(nil, specs); got != nil {
+		t.Errorf("resource mapper adopted %#v", got)
+	}
+
+	got := ClickHouseClustersToDataSourceModel(specs)
+	if len(got) != 2 {
+		t.Fatalf("expected both clusters, got %d", len(got))
+	}
+	if len(got[0].Users) != 2 {
+		t.Errorf("expected reserved users kept, got %#v", got[0].Users)
+	}
+
+	keepers := ClickHouseKeepersToDataSourceModel([]ClickHouseKeeperSpec{{Name: "keeper", Replicas: 3}})
+	if len(keepers) != 1 || keepers[0].Replicas.ValueInt64() != 3 {
+		t.Errorf("unexpected keepers: %#v", keepers)
+	}
+
+	if ClickHouseClustersToDataSourceModel(nil) != nil {
+		t.Error("an env without clusters must stay null, not an empty list")
+	}
+}
+
+func TestClickHouseComputedValuesComeBackFromTheAPI(t *testing.T) {
+	// What a create plans: the name is known, every Optional+Computed value is not.
+	planned := []ClickHouseClusterModel{{
+		Name:         types.StringValue("ch"),
+		Image:        types.StringUnknown(),
+		InstanceType: types.StringValue("m6i.large"),
+		Zones:        types.ListUnknown(types.StringType),
+		Shards:       types.Int64Unknown(),
+		Replicas:     types.Int64Unknown(),
+		Keeper:       types.StringUnknown(),
+	}}
+
+	got := ClickHouseClustersToModel(planned, []ClickHouseClusterSpec{minimalClusterSpec("ch")})
+	if len(got) != 1 {
+		t.Fatalf("expected the planned cluster, got %#v", got)
+	}
+
+	c := got[0]
+	if c.Image.IsUnknown() || c.Shards.IsUnknown() || c.Replicas.IsUnknown() || c.Keeper.IsUnknown() || c.Zones.IsUnknown() {
+		t.Errorf("an unknown left in state fails the post-apply check: %#v", c)
+	}
+	if c.Image.ValueString() != "altinity/clickhouse-server:25.8" || c.Shards.ValueInt64() != 1 {
+		t.Errorf("unexpected resolved values: %#v", c)
+	}
+	if c.Disk.Iops.ValueInt64() != 3000 || c.Disk.ThroughputMiBs.ValueInt64() != 125 {
+		t.Errorf("disk defaults must come back from the API: %#v", c.Disk)
+	}
+}
