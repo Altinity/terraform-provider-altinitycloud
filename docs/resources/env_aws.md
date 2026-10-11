@@ -1146,7 +1146,7 @@ Optional:
 
 Optional:
 
-- `ips` (List of String) CIDRs the user may connect from. Unrestricted when omitted.
+- `ips` (List of String) IP addresses or CIDRs the user may connect from. When omitted or empty, only `127.0.0.1` and `::1` are allowed.
 
 
 
