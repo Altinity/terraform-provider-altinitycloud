@@ -337,3 +337,24 @@ func TestClickHouseNamesToDelete(t *testing.T) {
 		t.Errorf("expected [a], got %v", got)
 	}
 }
+
+func TestClickHouseCollisionDetection(t *testing.T) {
+	state := []common.ClickHouseClusterModel{minimalClusterModel("mine")}
+	plan := []common.ClickHouseClusterModel{minimalClusterModel("mine"), minimalClusterModel("prod-ch")}
+
+	added := common.ClickHouseClusterNamesAdded(state, plan)
+	if len(added) != 1 || added[0] != "prod-ch" {
+		t.Fatalf("expected [prod-ch], got %v", added)
+	}
+
+	// The console cluster carries the planned name: adding it would overwrite, not create.
+	if got := common.ClickHouseCollisions(added, []string{"mine", "prod-ch"}); len(got) != 1 || got[0] != "prod-ch" {
+		t.Errorf("expected [prod-ch], got %v", got)
+	}
+	if got := common.ClickHouseCollisions(added, []string{"mine"}); got != nil {
+		t.Errorf("expected no collisions, got %v", got)
+	}
+	if got := common.ClickHouseCollisions(nil, []string{"mine"}); got != nil {
+		t.Errorf("expected no collisions with nothing added, got %v", got)
+	}
+}
