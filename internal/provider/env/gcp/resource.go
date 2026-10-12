@@ -93,6 +93,7 @@ func (r *GCPEnvResource) Create(ctx context.Context, req resource.CreateRequest,
 	data.NodeGroups, diags = nodeGroupsToModel(apiResp.CreateGCPEnv.Spec.NodeGroups)
 	resp.Diagnostics.Append(diags...)
 	data.SpecRevision = types.Int64Value(apiResp.CreateGCPEnv.SpecRevision)
+	data.MFA = types.BoolValue(apiResp.CreateGCPEnv.Spec.Mfa)
 
 	if resp.Diagnostics.HasError() {
 		return
@@ -199,6 +200,7 @@ func (r *GCPEnvResource) Update(ctx context.Context, req resource.UpdateRequest,
 	data.NodeGroups, diags = nodeGroupsToModel(apiResp.UpdateGCPEnv.Spec.NodeGroups)
 	resp.Diagnostics.Append(diags...)
 	data.SpecRevision = types.Int64Value(apiResp.UpdateGCPEnv.SpecRevision)
+	data.MFA = types.BoolValue(apiResp.UpdateGCPEnv.Spec.Mfa)
 
 	if resp.Diagnostics.HasError() {
 		return

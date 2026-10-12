@@ -90,6 +90,17 @@ func (r *EnvResourceBase) ModifyPlan(ctx context.Context, req resource.ModifyPla
 	if !req.State.Raw.IsNull() && !req.Plan.Raw.Equal(req.State.Raw) {
 		resp.Diagnostics.Append(resp.Plan.SetAttribute(ctx, path.Root("spec_revision"), types.Int64Unknown())...)
 	}
+
+	// The API rejects disabling mfa once enabled; fail at plan time instead of mid-apply.
+	if !req.State.Raw.IsNull() {
+		var stateMFA, planMFA types.Bool
+		resp.Diagnostics.Append(req.State.GetAttribute(ctx, path.Root("mfa"), &stateMFA)...)
+		resp.Diagnostics.Append(req.Plan.GetAttribute(ctx, path.Root("mfa"), &planMFA)...)
+		if stateMFA.ValueBool() && !planMFA.IsUnknown() && !planMFA.IsNull() && !planMFA.ValueBool() {
+			resp.Diagnostics.AddAttributeError(path.Root("mfa"), "MFA Cannot Be Disabled",
+				"MFA is enabled on this environment and cannot be disabled once enabled. Set `mfa = true` or remove the attribute; disabling it requires recreating the environment.")
+		}
+	}
 }
 
 func WaitForDeletion(ctx context.Context, resp *resource.DeleteResponse, envName string, pendingMfa bool, checkStatus StatusCheckFunc, deleteTimeout time.Duration, mfaTimeout time.Duration) {

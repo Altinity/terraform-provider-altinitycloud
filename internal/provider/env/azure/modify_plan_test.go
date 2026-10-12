@@ -9,3 +9,7 @@ import (
 func TestAzureModifyPlanSpecRevision(t *testing.T) {
 	testutil.AssertModifyPlanSpecRevision(t, &AzureEnvResource{})
 }
+
+func TestAzureModifyPlanMFA(t *testing.T) {
+	testutil.AssertModifyPlanMFA(t, &AzureEnvResource{})
+}

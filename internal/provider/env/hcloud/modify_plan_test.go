@@ -9,3 +9,7 @@ import (
 func TestHCloudModifyPlanSpecRevision(t *testing.T) {
 	testutil.AssertModifyPlanSpecRevision(t, &HCloudEnvResource{})
 }
+
+func TestHCloudModifyPlanMFA(t *testing.T) {
+	testutil.AssertModifyPlanMFA(t, &HCloudEnvResource{})
+}

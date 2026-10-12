@@ -9,3 +9,7 @@ import (
 func TestHostedAWSModifyPlanSpecRevision(t *testing.T) {
 	testutil.AssertModifyPlanSpecRevisionWithAttr(t, &AWSEnvHostedResource{}, "kms_key_arn")
 }
+
+func TestAWSHostedModifyPlanMFA(t *testing.T) {
+	testutil.AssertModifyPlanMFA(t, &AWSEnvHostedResource{})
+}

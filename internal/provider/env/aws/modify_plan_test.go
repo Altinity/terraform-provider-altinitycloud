@@ -9,3 +9,7 @@ import (
 func TestAWSModifyPlanSpecRevision(t *testing.T) {
 	testutil.AssertModifyPlanSpecRevision(t, &AWSEnvResource{})
 }
+
+func TestAWSModifyPlanMFA(t *testing.T) {
+	testutil.AssertModifyPlanMFA(t, &AWSEnvResource{})
+}
