@@ -31,6 +31,8 @@ func (r *HCloudEnvResource) Metadata(ctx context.Context, req resource.MetadataR
 }
 
 func (r *HCloudEnvResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
+	resp.Diagnostics.Append(common.ValidateNodeGroupNames(ctx, req.Config)...)
+
 	// Read only datadog: a full Config.Get panics on unknown nested struct-pointer attrs.
 	var datadogObj types.Object
 	resp.Diagnostics.Append(req.Config.GetAttribute(ctx, path.Root("datadog"), &datadogObj)...)
