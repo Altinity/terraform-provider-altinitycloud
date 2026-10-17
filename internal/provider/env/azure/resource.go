@@ -89,6 +89,7 @@ func (r *AzureEnvResource) Create(ctx context.Context, req resource.CreateReques
 	data.NodeGroups, diags = nodeGroupsToModel(apiResp.CreateAzureEnv.Spec.NodeGroups)
 	resp.Diagnostics.Append(diags...)
 	data.SpecRevision = types.Int64Value(apiResp.CreateAzureEnv.SpecRevision)
+	data.MFA = types.BoolValue(apiResp.CreateAzureEnv.Spec.Mfa)
 
 	if resp.Diagnostics.HasError() {
 		return
@@ -187,6 +188,7 @@ func (r *AzureEnvResource) Update(ctx context.Context, req resource.UpdateReques
 	data.NodeGroups, diags = nodeGroupsToModel(apiResp.UpdateAzureEnv.Spec.NodeGroups)
 	resp.Diagnostics.Append(diags...)
 	data.SpecRevision = types.Int64Value(apiResp.UpdateAzureEnv.SpecRevision)
+	data.MFA = types.BoolValue(apiResp.UpdateAzureEnv.Spec.Mfa)
 
 	if resp.Diagnostics.HasError() {
 		return

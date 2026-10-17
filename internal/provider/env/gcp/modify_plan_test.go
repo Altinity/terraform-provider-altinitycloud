@@ -9,3 +9,7 @@ import (
 func TestGCPModifyPlanSpecRevision(t *testing.T) {
 	testutil.AssertModifyPlanSpecRevision(t, &GCPEnvResource{})
 }
+
+func TestGCPModifyPlanMFA(t *testing.T) {
+	testutil.AssertModifyPlanMFA(t, &GCPEnvResource{})
+}

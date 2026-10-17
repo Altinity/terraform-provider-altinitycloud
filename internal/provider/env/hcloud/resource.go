@@ -85,6 +85,7 @@ func (r *HCloudEnvResource) Create(ctx context.Context, req resource.CreateReque
 	data.NodeGroups, diags = nodeGroupsToModel(apiResp.CreateHCloudEnv.Spec.NodeGroups)
 	resp.Diagnostics.Append(diags...)
 	data.SpecRevision = types.Int64Value(apiResp.CreateHCloudEnv.SpecRevision)
+	data.MFA = types.BoolValue(apiResp.CreateHCloudEnv.Spec.Mfa)
 
 	if resp.Diagnostics.HasError() {
 		return
@@ -175,6 +176,7 @@ func (r *HCloudEnvResource) Update(ctx context.Context, req resource.UpdateReque
 	data.NodeGroups, diags = nodeGroupsToModel(apiResp.UpdateHCloudEnv.Spec.NodeGroups)
 	resp.Diagnostics.Append(diags...)
 	data.SpecRevision = types.Int64Value(apiResp.UpdateHCloudEnv.SpecRevision)
+	data.MFA = types.BoolValue(apiResp.UpdateHCloudEnv.Spec.Mfa)
 
 	if resp.Diagnostics.HasError() {
 		return

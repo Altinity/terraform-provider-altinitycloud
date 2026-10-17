@@ -84,3 +84,59 @@ func AssertModifyPlanSpecRevisionWithAttr(t *testing.T, r SpecRevResource, mutab
 		}
 	})
 }
+
+func AssertModifyPlanMFA(t *testing.T, r SpecRevResource) {
+	t.Helper()
+	ctx := context.Background()
+
+	sresp := &resource.SchemaResponse{}
+	r.Schema(ctx, resource.SchemaRequest{}, sresp)
+	schema := sresp.Schema
+
+	objType, ok := schema.Type().TerraformType(ctx).(tftypes.Object)
+	if !ok {
+		t.Fatal("schema type is not a tftypes.Object")
+	}
+
+	build := func(mfa interface{}) tftypes.Value {
+		vals := map[string]tftypes.Value{}
+		for n, at := range objType.AttributeTypes {
+			switch n {
+			case "name", "id":
+				vals[n] = tftypes.NewValue(at, "env")
+			case "mfa":
+				vals[n] = tftypes.NewValue(at, mfa)
+			default:
+				vals[n] = tftypes.NewValue(at, nil)
+			}
+		}
+		return tftypes.NewValue(objType, vals)
+	}
+
+	tests := []struct {
+		name    string
+		state   tftypes.Value
+		plan    tftypes.Value
+		wantErr bool
+	}{
+		{name: "disabling an enabled mfa errors", state: build(true), plan: build(false), wantErr: true},
+		{name: "enabling mfa is allowed", state: build(false), plan: build(true)},
+		{name: "keeping mfa enabled is allowed", state: build(true), plan: build(true)},
+		{name: "keeping mfa disabled is allowed", state: build(false), plan: build(false)},
+		{name: "unknown plan value is allowed", state: build(true), plan: build(tftypes.UnknownValue)},
+		{name: "create with mfa disabled is allowed", state: tftypes.NewValue(objType, nil), plan: build(false)},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			resp := &resource.ModifyPlanResponse{Plan: tfsdk.Plan{Raw: tt.plan, Schema: schema}}
+			r.ModifyPlan(ctx, resource.ModifyPlanRequest{
+				State: tfsdk.State{Raw: tt.state, Schema: schema},
+				Plan:  tfsdk.Plan{Raw: tt.plan, Schema: schema},
+			}, resp)
+			if got := resp.Diagnostics.HasError(); got != tt.wantErr {
+				t.Fatalf("ModifyPlan error = %v, want %v: %v", got, tt.wantErr, resp.Diagnostics.Errors())
+			}
+		})
+	}
+}

@@ -92,6 +92,7 @@ func (r *AWSEnvResource) Create(ctx context.Context, req resource.CreateRequest,
 	data.NodeGroups, diags = nodeGroupsToModel(apiResp.CreateAWSEnv.Spec.NodeGroups)
 	resp.Diagnostics.Append(diags...)
 	data.SpecRevision = types.Int64Value(apiResp.CreateAWSEnv.SpecRevision)
+	data.MFA = types.BoolValue(apiResp.CreateAWSEnv.Spec.Mfa)
 	data.ResourcePrefix = types.StringValue(apiResp.CreateAWSEnv.Spec.ResourcePrefix)
 
 	if resp.Diagnostics.HasError() {
@@ -198,6 +199,7 @@ func (r *AWSEnvResource) Update(ctx context.Context, req resource.UpdateRequest,
 	data.NodeGroups, diags = nodeGroupsToModel(apiResp.UpdateAWSEnv.Spec.NodeGroups)
 	resp.Diagnostics.Append(diags...)
 	data.SpecRevision = types.Int64Value(apiResp.UpdateAWSEnv.SpecRevision)
+	data.MFA = types.BoolValue(apiResp.UpdateAWSEnv.Spec.Mfa)
 	data.ResourcePrefix = types.StringValue(apiResp.UpdateAWSEnv.Spec.ResourcePrefix)
 
 	if resp.Diagnostics.HasError() {
