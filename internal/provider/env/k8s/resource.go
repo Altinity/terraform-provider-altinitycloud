@@ -94,6 +94,13 @@ func (r *K8SEnvResource) Read(ctx context.Context, req resource.ReadRequest, res
 		return
 	}
 
+	// A successful query still returns a null env when it is already gone.
+	if apiResp.K8sEnv == nil {
+		tflog.Trace(ctx, "removing resource from state", map[string]interface{}{"name": envName})
+		resp.State.RemoveResource(ctx)
+		return
+	}
+
 	// Reorder node groups  and zones to respect order in the user's configuration
 	apiResp.K8sEnv.Spec.NodeGroups, diags = reorderNodeGroups(ctx, data.NodeGroups, apiResp.K8sEnv.Spec.NodeGroups)
 	resp.Diagnostics.Append(diags...)
@@ -171,6 +178,12 @@ func (r *K8SEnvResource) Delete(ctx context.Context, req resource.DeleteRequest,
 		return
 	}
 
+	// A successful query still returns a null env when it is already gone.
+	if envStatus.K8sEnv == nil {
+		tflog.Trace(ctx, "deleted resource", map[string]interface{}{"name": envName})
+		return
+	}
+
 	if len(envStatus.K8sEnv.Status.Errors) > 0 {
 		for _, err := range envStatus.K8sEnv.Status.Errors {
 			resp.Diagnostics.Append(common.ValidateDisconnected(
@@ -208,6 +221,9 @@ func (r *K8SEnvResource) Delete(ctx context.Context, req resource.DeleteRequest,
 			status, err := r.Client.GetK8SEnvStatus(ctx, name)
 			if err != nil {
 				return false, err
+			}
+			if status.K8sEnv == nil {
+				return false, common.ErrEnvNotFound
 			}
 			return status.K8sEnv.Status.PendingDelete, nil
 		},

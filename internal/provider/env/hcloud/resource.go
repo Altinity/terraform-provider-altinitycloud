@@ -119,6 +119,13 @@ func (r *HCloudEnvResource) Read(ctx context.Context, req resource.ReadRequest, 
 		return
 	}
 
+	// A successful query still returns a null env when it is already gone.
+	if apiResp.HcloudEnv == nil {
+		tflog.Trace(ctx, "removing resource from state", map[string]interface{}{"name": envName})
+		resp.State.RemoveResource(ctx)
+		return
+	}
+
 	// Reorder node groups  and locations to respect order in the user's configuration
 	apiResp.HcloudEnv.Spec.NodeGroups = common.ReorderByKey(data.NodeGroups, apiResp.HcloudEnv.Spec.NodeGroups,
 		func(m NodeGroupsModel) string { return m.NodeType.ValueString() },
@@ -211,6 +218,12 @@ func (r *HCloudEnvResource) Delete(ctx context.Context, req resource.DeleteReque
 		return
 	}
 
+	// A successful query still returns a null env when it is already gone.
+	if envStatus.HcloudEnv == nil {
+		tflog.Trace(ctx, "deleted resource", map[string]interface{}{"name": envName})
+		return
+	}
+
 	if len(envStatus.HcloudEnv.Status.Errors) > 0 {
 		for _, err := range envStatus.HcloudEnv.Status.Errors {
 			resp.Diagnostics.Append(common.ValidateDisconnected(
@@ -248,6 +261,9 @@ func (r *HCloudEnvResource) Delete(ctx context.Context, req resource.DeleteReque
 			status, err := r.Client.GetHCloudEnvStatus(ctx, name)
 			if err != nil {
 				return false, err
+			}
+			if status.HcloudEnv == nil {
+				return false, common.ErrEnvNotFound
 			}
 			return status.HcloudEnv.Status.PendingDelete, nil
 		},

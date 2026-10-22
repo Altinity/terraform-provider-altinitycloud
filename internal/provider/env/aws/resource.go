@@ -126,6 +126,13 @@ func (r *AWSEnvResource) Read(ctx context.Context, req resource.ReadRequest, res
 		return
 	}
 
+	// A successful query still returns a null env when it is already gone.
+	if apiResp.AWSEnv == nil {
+		tflog.Trace(ctx, "removing resource from state", map[string]interface{}{"name": envName})
+		resp.State.RemoveResource(ctx)
+		return
+	}
+
 	// Reorder node groups, zones and tags to respect order in the user's configuration
 	apiResp.AWSEnv.Spec.NodeGroups = common.ReorderByKey(data.NodeGroups, apiResp.AWSEnv.Spec.NodeGroups,
 		func(m common.NodeGroupsModel) string { return m.NodeType.ValueString() },
@@ -235,6 +242,12 @@ func (r *AWSEnvResource) Delete(ctx context.Context, req resource.DeleteRequest,
 		return
 	}
 
+	// A successful query still returns a null env when it is already gone.
+	if envStatus.AWSEnv == nil {
+		tflog.Trace(ctx, "deleted resource", map[string]interface{}{"name": envName})
+		return
+	}
+
 	if len(envStatus.AWSEnv.Status.Errors) > 0 {
 		for _, err := range envStatus.AWSEnv.Status.Errors {
 			resp.Diagnostics.Append(common.ValidateDisconnected(
@@ -272,6 +285,9 @@ func (r *AWSEnvResource) Delete(ctx context.Context, req resource.DeleteRequest,
 			status, err := r.Client.GetAWSEnvStatus(ctx, name)
 			if err != nil {
 				return false, err
+			}
+			if status.AWSEnv == nil {
+				return false, common.ErrEnvNotFound
 			}
 			return status.AWSEnv.Status.PendingDelete, nil
 		},
