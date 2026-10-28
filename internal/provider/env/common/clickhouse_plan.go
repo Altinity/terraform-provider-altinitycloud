@@ -24,7 +24,7 @@ var clickHouseListKeys = map[string]string{
 	"quotas":              "name",
 	"settings":            "key",
 	"server_settings":     "key",
-	"intervals":           "duration_seconds",
+	"intervals":           "duration",
 }
 
 // Optional+Computed values the config omits plan as the same-keyed state entry's value, or unknown when that entry is new.

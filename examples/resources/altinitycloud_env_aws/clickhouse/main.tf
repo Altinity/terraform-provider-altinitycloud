@@ -71,7 +71,7 @@ resource "altinitycloud_env_aws" "this" {
       zones         = local.zones
       replicas      = 3
       disk = {
-        size_gib = 30
+        size_in_gib = 30
       }
     }
   ]
@@ -85,7 +85,7 @@ resource "altinitycloud_env_aws" "this" {
       replicas      = 2
       keeper        = "keeper" // must name one of clickhouse_keepers
       disk = {
-        size_gib = 100
+        size_in_gib = 100
       }
       users = [
         {
@@ -127,8 +127,8 @@ resource "altinitycloud_env_aws" "this" {
           name = "default"
           intervals = [
             {
-              duration_seconds = 3600
-              queries          = 1000
+              duration = 3600
+              queries  = 1000
             }
           ]
         }
