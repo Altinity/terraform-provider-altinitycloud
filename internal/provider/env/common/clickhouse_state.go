@@ -2,6 +2,7 @@ package env
 
 import (
 	"slices"
+	"strconv"
 
 	clientsupport "github.com/altinity/terraform-provider-altinitycloud/internal/provider/common"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -31,42 +32,6 @@ func ClickHouseClustersToModel(prior []ClickHouseClusterModel, specs []ClickHous
 	return models
 }
 
-// A data source reports the environment as it is, reserved users and unmanaged clusters included.
-func ClickHouseClustersToDataSourceModel(specs []ClickHouseClusterSpec) []ClickHouseClusterModel {
-	if len(specs) == 0 {
-		return nil
-	}
-
-	models := make([]ClickHouseClusterModel, 0, len(specs))
-	for _, s := range specs {
-		model := clickHouseClusterToModel(ClickHouseClusterModel{}, s)
-		model.Users = allUsersToModel(s.Users)
-		models = append(models, model)
-	}
-
-	return models
-}
-
-func ClickHouseKeepersToDataSourceModel(specs []ClickHouseKeeperSpec) []ClickHouseKeeperModel {
-	if len(specs) == 0 {
-		return nil
-	}
-
-	models := make([]ClickHouseKeeperModel, 0, len(specs))
-	for _, s := range specs {
-		models = append(models, ClickHouseKeeperModel{
-			Name:         types.StringValue(s.Name),
-			InstanceType: types.StringValue(s.InstanceType),
-			Zones:        reorderStringList(types.ListNull(types.StringType), s.Zones),
-			Replicas:     types.Int64Value(s.Replicas),
-			Stopped:      types.BoolValue(s.Stopped),
-			Disk:         diskToModel(s.Disk),
-		})
-	}
-
-	return models
-}
-
 func ClickHouseKeepersToModel(prior []ClickHouseKeeperModel, specs []ClickHouseKeeperSpec) []ClickHouseKeeperModel {
 	if prior == nil {
 		return nil
@@ -83,18 +48,51 @@ func ClickHouseKeepersToModel(prior []ClickHouseKeeperModel, specs []ClickHouseK
 		if !ok {
 			continue
 		}
-
-		models = append(models, ClickHouseKeeperModel{
-			Name:         types.StringValue(spec.Name),
-			InstanceType: types.StringValue(spec.InstanceType),
-			Zones:        reorderStringList(p.Zones, spec.Zones),
-			Replicas:     types.Int64Value(spec.Replicas),
-			Stopped:      types.BoolValue(spec.Stopped),
-			Disk:         diskToModel(spec.Disk),
-		})
+		models = append(models, clickHouseKeeperToModel(p, spec))
 	}
 
 	return models
+}
+
+// Import is the one read that takes ownership of every cluster and Keeper the environment has.
+func AdoptClickHouseClusters(specs []ClickHouseClusterSpec) []ClickHouseClusterModel {
+	if len(specs) == 0 {
+		return nil
+	}
+
+	models := make([]ClickHouseClusterModel, 0, len(specs))
+	for _, s := range specs {
+		models = append(models, clickHouseClusterToModel(ClickHouseClusterModel{}, s))
+	}
+
+	return models
+}
+
+func AdoptClickHouseKeepers(specs []ClickHouseKeeperSpec) []ClickHouseKeeperModel {
+	if len(specs) == 0 {
+		return nil
+	}
+
+	models := make([]ClickHouseKeeperModel, 0, len(specs))
+	for _, s := range specs {
+		models = append(models, clickHouseKeeperToModel(ClickHouseKeeperModel{}, s))
+	}
+
+	return models
+}
+
+// A data source reports the environment as it is, reserved users included.
+func ClickHouseClustersToDataSourceModel(specs []ClickHouseClusterSpec) []ClickHouseClusterModel {
+	models := AdoptClickHouseClusters(specs)
+	for i, s := range specs {
+		models[i].Users = allUsersToModel(s.Users)
+	}
+
+	return models
+}
+
+func ClickHouseKeepersToDataSourceModel(specs []ClickHouseKeeperSpec) []ClickHouseKeeperModel {
+	return AdoptClickHouseKeepers(specs)
 }
 
 func clickHouseClusterToModel(prior ClickHouseClusterModel, spec ClickHouseClusterSpec) ClickHouseClusterModel {
@@ -116,6 +114,17 @@ func clickHouseClusterToModel(prior ClickHouseClusterModel, spec ClickHouseClust
 	}
 }
 
+func clickHouseKeeperToModel(prior ClickHouseKeeperModel, spec ClickHouseKeeperSpec) ClickHouseKeeperModel {
+	return ClickHouseKeeperModel{
+		Name:         types.StringValue(spec.Name),
+		InstanceType: types.StringValue(spec.InstanceType),
+		Zones:        reorderStringList(prior.Zones, spec.Zones),
+		Replicas:     types.Int64Value(spec.Replicas),
+		Stopped:      types.BoolValue(spec.Stopped),
+		Disk:         diskToModel(spec.Disk),
+	}
+}
+
 func diskToModel(spec ClickHouseDiskSpec) *ClickHouseDiskModel {
 	return &ClickHouseDiskModel{
 		SizeGiB:        types.Int64Value(spec.SizeGiB),
@@ -124,9 +133,17 @@ func diskToModel(spec ClickHouseDiskSpec) *ClickHouseDiskModel {
 	}
 }
 
+// A null plan must read back null and an empty one empty, or the post-apply check fails.
+func emptyLike[M any](prior []M) []M {
+	if prior == nil {
+		return nil
+	}
+	return []M{}
+}
+
 func extraDisksToModel(prior []ClickHouseNamedDiskModel, specs []ClickHouseNamedDiskSpec) []ClickHouseNamedDiskModel {
 	if len(specs) == 0 {
-		return nil
+		return emptyLike(prior)
 	}
 
 	ordered := ReorderByKey(prior, specs,
@@ -149,7 +166,7 @@ func extraDisksToModel(prior []ClickHouseNamedDiskModel, specs []ClickHouseNamed
 
 func settingsToModel(prior []ClickHouseSettingModel, specs []ClickHouseSettingSpec) []ClickHouseSettingModel {
 	if len(specs) == 0 {
-		return nil
+		return emptyLike(prior)
 	}
 
 	ordered := ReorderByKey(prior, specs,
@@ -170,7 +187,7 @@ func settingsToModel(prior []ClickHouseSettingModel, specs []ClickHouseSettingSp
 
 func profilesToModel(prior []ClickHouseProfileModel, specs []ClickHouseProfileSpec) []ClickHouseProfileModel {
 	if len(specs) == 0 {
-		return nil
+		return emptyLike(prior)
 	}
 
 	ordered := ReorderByKey(prior, specs,
@@ -196,7 +213,7 @@ func profilesToModel(prior []ClickHouseProfileModel, specs []ClickHouseProfileSp
 
 func quotasToModel(prior []ClickHouseQuotaModel, specs []ClickHouseQuotaSpec) []ClickHouseQuotaModel {
 	if len(specs) == 0 {
-		return nil
+		return emptyLike(prior)
 	}
 
 	ordered := ReorderByKey(prior, specs,
@@ -212,8 +229,10 @@ func quotasToModel(prior []ClickHouseQuotaModel, specs []ClickHouseQuotaSpec) []
 	models := make([]ClickHouseQuotaModel, 0, len(ordered))
 	for _, s := range ordered {
 		orderedIntervals := ReorderByKey(priorByName[s.Name], s.Intervals,
-			func(m ClickHouseQuotaIntervalModel) string { return m.DurationSeconds.String() },
-			func(i ClickHouseQuotaIntervalSpec) string { return types.Int64Value(int64(i.DurationSeconds)).String() },
+			func(m ClickHouseQuotaIntervalModel) string {
+				return strconv.FormatInt(m.DurationSeconds.ValueInt64(), 10)
+			},
+			func(i ClickHouseQuotaIntervalSpec) string { return strconv.FormatUint(i.DurationSeconds, 10) },
 		)
 
 		intervals := make([]ClickHouseQuotaIntervalModel, 0, len(orderedIntervals))
@@ -249,10 +268,6 @@ func quotasToModel(prior []ClickHouseQuotaModel, specs []ClickHouseQuotaSpec) []
 
 // Platform-injected users can never be declared, so keeping them would diverge state from plan.
 func usersToModel(prior []ClickHouseUserModel, specs []ClickHouseUserSpec) []ClickHouseUserModel {
-	if len(specs) == 0 {
-		return nil
-	}
-
 	kept := make([]ClickHouseUserSpec, 0, len(specs))
 	for _, s := range specs {
 		if !slices.Contains(clientsupport.ReservedClickHouseUsers, s.Name) {
@@ -261,7 +276,7 @@ func usersToModel(prior []ClickHouseUserModel, specs []ClickHouseUserSpec) []Cli
 	}
 
 	if len(kept) == 0 {
-		return nil
+		return emptyLike(prior)
 	}
 
 	ordered := ReorderByKey(prior, kept,
@@ -322,10 +337,13 @@ func uint64ToModel(value *uint64) types.Int64 {
 	return types.Int64Value(int64(*value))
 }
 
-// A null or empty echo must stay null, or the post-apply plan/state check fails.
+// Null and empty echoes mirror the prior value, or the post-apply plan/state check fails.
 func reorderStringList(prior types.List, values []string) types.List {
 	if len(values) == 0 {
-		return types.ListNull(types.StringType)
+		if prior.IsNull() || prior.IsUnknown() {
+			return types.ListNull(types.StringType)
+		}
+		return types.ListValueMust(types.StringType, []attr.Value{})
 	}
 
 	ordered := values
@@ -344,35 +362,7 @@ func reorderStringList(prior types.List, values []string) types.List {
 		elements = append(elements, types.StringValue(v))
 	}
 
-	list, diags := types.ListValue(types.StringType, elements)
-	if diags.HasError() {
-		return types.ListNull(types.StringType)
-	}
-	return list
-}
-
-// Counted, not set-keyed, so a duplicated value is kept instead of dropped.
-func reorderStrings(prior, values []string) []string {
-	remaining := make(map[string]int, len(values))
-	for _, v := range values {
-		remaining[v]++
-	}
-
-	ordered := make([]string, 0, len(values))
-	for _, p := range prior {
-		if remaining[p] > 0 {
-			ordered = append(ordered, p)
-			remaining[p]--
-		}
-	}
-	for _, v := range values {
-		if remaining[v] > 0 {
-			ordered = append(ordered, v)
-			remaining[v]--
-		}
-	}
-
-	return ordered
+	return types.ListValueMust(types.StringType, elements)
 }
 
 func allUsersToModel(specs []ClickHouseUserSpec) []ClickHouseUserModel {
