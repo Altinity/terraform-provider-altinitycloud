@@ -915,6 +915,7 @@ resource "altinitycloud_env_aws" "this" {
   clickhouse_clusters = [
     {
       name          = "analytics"
+      image         = "altinity/clickhouse-server:24.8.14.10459.altinitystable" // omit to get the platform default
       instance_type = "m6i.large"
       zones         = local.zones
       shards        = 1
@@ -923,6 +924,19 @@ resource "altinitycloud_env_aws" "this" {
       disk = {
         size_in_gib = 100
       }
+      // Extra volumes join the default storage policy; names must start with "disk".
+      extra_disks = [
+        {
+          name        = "diskcold"
+          size_in_gib = 500
+        }
+      ]
+      server_settings = [
+        {
+          key   = "max_concurrent_queries"
+          value = "200"
+        }
+      ]
       users = [
         {
           name    = "app"
@@ -982,6 +996,7 @@ resource "altinitycloud_env_aws" "this" {
 // ⚠️ Environment provisioning is asynchronous.
 // Without this data source, Terraform cannot detect provisioning failures.
 // This data source waits until the environment is fully reconciled and reports errors.
+// Cluster endpoints (https://<cluster>.<env>.altinity.cloud:8443) come up shortly after it returns.
 data "altinitycloud_env_aws_status" "this" {
   name                           = altinitycloud_env_aws.this.name
   wait_for_applied_spec_revision = altinitycloud_env_aws.this.spec_revision
