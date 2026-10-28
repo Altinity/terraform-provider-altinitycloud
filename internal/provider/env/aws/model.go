@@ -131,7 +131,8 @@ type AWSEnvIcebergCatalogWatchModel struct {
 	PathsRelativeToTableLocation []types.String `tfsdk:"paths_relative_to_table_location"`
 }
 
-func (e AWSEnvModel) toSDK(ctx context.Context) (sdk.CreateAWSEnvInput, sdk.UpdateAWSEnvInput, diag.Diagnostics) {
+// prior is the state an update starts from: ClickHouse entries it had and the plan dropped are named for deletion.
+func (e AWSEnvModel) toSDK(ctx context.Context, prior *AWSEnvModel) (sdk.CreateAWSEnvInput, sdk.UpdateAWSEnvInput, diag.Diagnostics) {
 	var zones []string
 	var allDiags diag.Diagnostics
 	if !e.Zones.IsUnknown() && !e.Zones.IsNull() {
@@ -143,6 +144,11 @@ func (e AWSEnvModel) toSDK(ctx context.Context) (sdk.CreateAWSEnvInput, sdk.Upda
 	allDiags.Append(diags...)
 	clickHouseKeepers, diags := clickHouseKeepersToSDK(ctx, e.ClickHouseKeepers)
 	allDiags.Append(diags...)
+	var priorClusters []common.ClickHouseClusterModel
+	var priorKeepers []common.ClickHouseKeeperModel
+	if prior != nil {
+		priorClusters, priorKeepers = prior.ClickHouseClusters, prior.ClickHouseKeepers
+	}
 
 	var peeringConnections []*sdk.AWSEnvPeeringConnectionSpecInput
 	for _, p := range e.PeeringConnections {
@@ -259,8 +265,8 @@ func (e AWSEnvModel) toSDK(ctx context.Context) (sdk.CreateAWSEnvInput, sdk.Upda
 			EksLogging:              e.EksLogging.ValueBoolPointer(),
 			Mfa:                     e.MFA.ValueBoolPointer(),
 			EksAccessEntries:        eksAccessEntries,
-			ClickHouseClustersPatch: &sdk.AWSEnvClickHouseClustersPatchInput{Replace: clickHouseClusters},
-			ClickHouseKeepersPatch:  &sdk.AWSEnvClickHouseKeepersPatchInput{Replace: clickHouseKeepers},
+			ClickHouseClustersPatch: clickHouseClustersPatch(clickHouseClusters, common.ClickHouseClusterNamesToDelete(priorClusters, e.ClickHouseClusters)),
+			ClickHouseKeepersPatch:  clickHouseKeepersPatch(clickHouseKeepers, common.ClickHouseKeeperNamesToDelete(priorKeepers, e.ClickHouseKeepers)),
 		},
 	}
 
@@ -633,15 +639,12 @@ func ptrString(s *string) string {
 	return ""
 }
 
-// icebergCatalogKey builds a composite identity (name + type). name is optional,
-// so two unnamed catalogs would collide on name alone; including type reduces
-// that, and positional matching in ReorderByKey keeps it loss-safe regardless.
+// name is optional, so unnamed catalogs would collide on it alone; type disambiguates, positional pairing covers the rest.
 func icebergCatalogKey(name, catalogType string) string {
 	return name + "\x1f" + catalogType
 }
 
-// reorderIceberg reorders the API iceberg catalogs (and each catalog's watches)
-// into the user's configured order to avoid drift. Mutates spec in place.
+// Config order for catalogs and their watches, or the API echo drifts; mutates spec in place.
 func reorderIceberg(model *AWSEnvIcebergModel, spec *sdk.AWSEnvSpecFragment_Iceberg) {
 	if model == nil || spec == nil {
 		return

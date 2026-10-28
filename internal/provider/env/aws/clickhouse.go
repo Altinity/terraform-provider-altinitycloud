@@ -261,6 +261,21 @@ func clickHouseKeepersToSDK(ctx context.Context, keepers []common.ClickHouseKeep
 	return input, allDiags
 }
 
+// A nil patch leaves the API's entries untouched; one is sent only when Terraform owns a change.
+func clickHouseClustersPatch(replace []*sdk.AWSEnvClickHouseClusterSpecInput, remove []string) *sdk.AWSEnvClickHouseClustersPatchInput {
+	if replace == nil && remove == nil {
+		return nil
+	}
+	return &sdk.AWSEnvClickHouseClustersPatchInput{Replace: replace, Delete: remove}
+}
+
+func clickHouseKeepersPatch(replace []*sdk.AWSEnvClickHouseKeeperSpecInput, remove []string) *sdk.AWSEnvClickHouseKeepersPatchInput {
+	if replace == nil && remove == nil {
+		return nil
+	}
+	return &sdk.AWSEnvClickHouseKeepersPatchInput{Replace: replace, Delete: remove}
+}
+
 func clickHouseDiskToSDK(disk *common.ClickHouseDiskModel) *sdk.AWSEnvClickHouseClusterDiskSpecInput {
 	if disk == nil {
 		return nil
