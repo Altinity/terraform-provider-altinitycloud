@@ -907,7 +907,7 @@ resource "altinitycloud_env_aws" "this" {
       zones         = local.zones
       replicas      = 3
       disk = {
-        size_gib = 30
+        size_in_gib = 30
       }
     }
   ]
@@ -921,7 +921,7 @@ resource "altinitycloud_env_aws" "this" {
       replicas      = 2
       keeper        = "keeper" // must name one of clickhouse_keepers
       disk = {
-        size_gib = 100
+        size_in_gib = 100
       }
       users = [
         {
@@ -963,8 +963,8 @@ resource "altinitycloud_env_aws" "this" {
           name = "default"
           intervals = [
             {
-              duration_seconds = 3600
-              queries          = 1000
+              duration = 3600
+              queries  = 1000
             }
           ]
         }
@@ -1158,12 +1158,12 @@ Optional:
 
 Required:
 
-- `size_gib` (Number) Size in GiB. Can only be increased, never decreased.
+- `size_in_gib` (Number) Size in GiB. Can only be increased, never decreased.
 
 Optional:
 
 - `iops` (Number) Provisioned IOPS. Honored only by storage classes that support it, such as AWS gp3 and io2.
-- `throughput_mibps` (Number) Provisioned throughput in MiB/s. Honored only by storage classes that support it, such as AWS gp3.
+- `throughput_in_mibps` (Number) Provisioned throughput in MiB/s. Honored only by storage classes that support it, such as AWS gp3.
 
 
 <a id="nestedatt--clickhouse_clusters--extra_disks"></a>
@@ -1172,12 +1172,12 @@ Optional:
 Required:
 
 - `name` (String) Volume identifier, 16 chars max, must start with `disk`. A volume named `diskN`, where `N` is a positive integer, is mounted at `/var/lib/clickhouseN`; any other name is mounted at `/var/lib/clickhouse<name>`. **[IMMUTABLE]**
-- `size_gib` (Number) Size in GiB. Can only be increased, never decreased.
+- `size_in_gib` (Number) Size in GiB. Can only be increased, never decreased.
 
 Optional:
 
 - `iops` (Number) Provisioned IOPS. Honored only by storage classes that support it, such as AWS gp3 and io2.
-- `throughput_mibps` (Number) Provisioned throughput in MiB/s. Honored only by storage classes that support it, such as AWS gp3.
+- `throughput_in_mibps` (Number) Provisioned throughput in MiB/s. Honored only by storage classes that support it, such as AWS gp3.
 
 
 <a id="nestedatt--clickhouse_clusters--profiles"></a>
@@ -1230,12 +1230,12 @@ Optional:
 
 Required:
 
-- `duration_seconds` (Number) Length of the interval, in seconds.
+- `duration` (Number) Length of the interval, in seconds.
 
 Optional:
 
 - `errors` (Number) Maximum queries that throw in the interval. Unlimited when omitted.
-- `execution_time_seconds` (Number) Maximum total query execution time in the interval, in seconds. Non-negative. Unlimited when omitted.
+- `execution_time` (Number) Maximum total query execution time in the interval, in seconds. Non-negative. Unlimited when omitted.
 - `failed_sequential_authentications` (Number) Maximum consecutive failed authentication attempts. Unlimited when omitted.
 - `queries` (Number) Maximum queries in the interval. Unlimited when omitted.
 - `queries_per_normalized_hash` (Number) Maximum queries per normalized query hash in the interval. Unlimited when omitted.
@@ -1326,12 +1326,12 @@ Optional:
 
 Required:
 
-- `size_gib` (Number) Size in GiB. Can only be increased, never decreased.
+- `size_in_gib` (Number) Size in GiB. Can only be increased, never decreased.
 
 Optional:
 
 - `iops` (Number) Provisioned IOPS. Honored only by storage classes that support it, such as AWS gp3 and io2.
-- `throughput_mibps` (Number) Provisioned throughput in MiB/s. Honored only by storage classes that support it, such as AWS gp3.
+- `throughput_in_mibps` (Number) Provisioned throughput in MiB/s. Honored only by storage classes that support it, such as AWS gp3.
 
 
 

@@ -31,16 +31,16 @@ type ClickHouseKeeperModel struct {
 }
 
 type ClickHouseDiskModel struct {
-	SizeGiB        types.Int64 `tfsdk:"size_gib"`
+	SizeGiB        types.Int64 `tfsdk:"size_in_gib"`
 	Iops           types.Int64 `tfsdk:"iops"`
-	ThroughputMiBs types.Int64 `tfsdk:"throughput_mibps"`
+	ThroughputMiBs types.Int64 `tfsdk:"throughput_in_mibps"`
 }
 
 type ClickHouseNamedDiskModel struct {
 	Name           types.String `tfsdk:"name"`
-	SizeGiB        types.Int64  `tfsdk:"size_gib"`
+	SizeGiB        types.Int64  `tfsdk:"size_in_gib"`
 	Iops           types.Int64  `tfsdk:"iops"`
-	ThroughputMiBs types.Int64  `tfsdk:"throughput_mibps"`
+	ThroughputMiBs types.Int64  `tfsdk:"throughput_in_mibps"`
 }
 
 type ClickHouseSettingModel struct {
@@ -85,7 +85,7 @@ type ClickHouseQuotaModel struct {
 }
 
 type ClickHouseQuotaIntervalModel struct {
-	DurationSeconds                 types.Int64   `tfsdk:"duration_seconds"`
+	DurationSeconds                 types.Int64   `tfsdk:"duration"`
 	Queries                         types.Int64   `tfsdk:"queries"`
 	QuerySelects                    types.Int64   `tfsdk:"query_selects"`
 	QueryInserts                    types.Int64   `tfsdk:"query_inserts"`
@@ -95,7 +95,7 @@ type ClickHouseQuotaIntervalModel struct {
 	ReadRows                        types.Int64   `tfsdk:"read_rows"`
 	ReadBytes                       types.Int64   `tfsdk:"read_bytes"`
 	WrittenBytes                    types.Int64   `tfsdk:"written_bytes"`
-	ExecutionTimeSeconds            types.Float64 `tfsdk:"execution_time_seconds"`
+	ExecutionTimeSeconds            types.Float64 `tfsdk:"execution_time"`
 	FailedSequentialAuthentications types.Int64   `tfsdk:"failed_sequential_authentications"`
 	QueriesPerNormalizedHash        types.Int64   `tfsdk:"queries_per_normalized_hash"`
 }

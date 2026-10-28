@@ -135,7 +135,7 @@ resource "%s" "dummy" {
     zones         = ["us-east-1a", "us-east-1b"]
     replicas      = 3
     disk = {
-      size_gib = 30
+      size_in_gib = 30
     }
   }]
 
@@ -147,11 +147,11 @@ resource "%s" "dummy" {
     replicas      = 2
     keeper        = "keeper"
     disk = {
-      size_gib = 100
+      size_in_gib = 100
     }
     extra_disks = [{
       name     = "disk1"
-      size_gib = 50
+      size_in_gib = 50
     }]
     profiles = [{
       name = "analysts"
@@ -163,7 +163,7 @@ resource "%s" "dummy" {
     quotas = [{
       name = "analysts"
       intervals = [{
-        duration_seconds = 3600
+        duration = 3600
         queries          = 1000
       }]
     }]

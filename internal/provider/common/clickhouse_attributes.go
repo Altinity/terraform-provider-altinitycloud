@@ -192,9 +192,9 @@ func getClickHouseDiskAttribute() rschema.SingleNestedAttribute {
 		Required:            true,
 		MarkdownDescription: CLICKHOUSE_DISK_DESCRIPTION,
 		Attributes: map[string]rschema.Attribute{
-			"size_gib":         getClickHouseDiskSizeAttribute(),
-			"iops":             getClickHouseDiskIopsAttribute(),
-			"throughput_mibps": getClickHouseDiskThroughputAttribute(),
+			"size_in_gib":         getClickHouseDiskSizeAttribute(),
+			"iops":                getClickHouseDiskIopsAttribute(),
+			"throughput_in_mibps": getClickHouseDiskThroughputAttribute(),
 		},
 	}
 }
@@ -217,9 +217,9 @@ func getClickHouseExtraDisksAttribute() rschema.ListNestedAttribute {
 						stringvalidator.RegexMatches(clickHouseExtraDiskNameRegex, "must start with `disk`"),
 					},
 				},
-				"size_gib":         getClickHouseDiskSizeAttribute(),
-				"iops":             getClickHouseDiskIopsAttribute(),
-				"throughput_mibps": getClickHouseDiskThroughputAttribute(),
+				"size_in_gib":         getClickHouseDiskSizeAttribute(),
+				"iops":                getClickHouseDiskIopsAttribute(),
+				"throughput_in_mibps": getClickHouseDiskThroughputAttribute(),
 			},
 		},
 	}
@@ -465,7 +465,7 @@ func getClickHouseQuotaIntervalsAttribute() rschema.ListNestedAttribute {
 		},
 		NestedObject: rschema.NestedAttributeObject{
 			Attributes: map[string]rschema.Attribute{
-				"duration_seconds": rschema.Int64Attribute{
+				"duration": rschema.Int64Attribute{
 					Required:            true,
 					MarkdownDescription: CLICKHOUSE_QUOTA_INTERVAL_DURATION_DESCRIPTION,
 					Validators: []validator.Int64{
@@ -483,7 +483,7 @@ func getClickHouseQuotaIntervalsAttribute() rschema.ListNestedAttribute {
 				"written_bytes":                     getClickHouseQuotaLimitAttribute(CLICKHOUSE_QUOTA_WRITTEN_BYTES_DESCRIPTION),
 				"failed_sequential_authentications": getClickHouseQuotaLimitAttribute(CLICKHOUSE_QUOTA_FAILED_AUTH_DESCRIPTION),
 				"queries_per_normalized_hash":       getClickHouseQuotaLimitAttribute(CLICKHOUSE_QUOTA_QUERIES_PER_HASH_DESCRIPTION),
-				"execution_time_seconds": rschema.Float64Attribute{
+				"execution_time": rschema.Float64Attribute{
 					Optional:            true,
 					MarkdownDescription: CLICKHOUSE_QUOTA_EXECUTION_TIME_DESCRIPTION,
 					Validators: []validator.Float64{
