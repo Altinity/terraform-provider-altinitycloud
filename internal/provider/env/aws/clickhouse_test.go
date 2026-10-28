@@ -289,7 +289,7 @@ func TestUpdateUsesPatchSoConsoleClustersSurvive(t *testing.T) {
 		}},
 	}
 
-	_, update, diags := model.toSDK(context.Background())
+	_, update, diags := model.toSDK(context.Background(), nil)
 	if diags.HasError() {
 		t.Fatalf("unexpected diags: %v", diags)
 	}
@@ -311,6 +311,38 @@ func TestUpdateUsesPatchSoConsoleClustersSurvive(t *testing.T) {
 	// Nothing was dropped from the configuration, so nothing is named for deletion.
 	if update.Spec.ClickHouseClustersPatch.Delete != nil {
 		t.Errorf("unexpected deletes: %v", update.Spec.ClickHouseClustersPatch.Delete)
+	}
+}
+
+func TestUpdateNamesDroppedClickHouseEntriesForDeletion(t *testing.T) {
+	prior := AWSEnvModel{
+		ClickHouseClusters: []common.ClickHouseClusterModel{minimalClusterModel("keep"), minimalClusterModel("dropped")},
+		ClickHouseKeepers:  []common.ClickHouseKeeperModel{{Name: types.StringValue("old-keeper")}},
+	}
+	planned := AWSEnvModel{ClickHouseClusters: []common.ClickHouseClusterModel{minimalClusterModel("keep")}}
+
+	_, update, diags := planned.toSDK(context.Background(), &prior)
+	if diags.HasError() {
+		t.Fatalf("unexpected diags: %v", diags)
+	}
+
+	clusters := update.Spec.ClickHouseClustersPatch
+	if clusters == nil || len(clusters.Replace) != 1 || len(clusters.Delete) != 1 || clusters.Delete[0] != "dropped" {
+		t.Errorf("expected keep replaced and dropped deleted, got %#v", clusters)
+	}
+	keepers := update.Spec.ClickHouseKeepersPatch
+	if keepers == nil || keepers.Replace != nil || len(keepers.Delete) != 1 || keepers.Delete[0] != "old-keeper" {
+		t.Errorf("expected only a delete for the dropped keeper, got %#v", keepers)
+	}
+}
+
+func TestUpdateWithoutClickHouseSendsNoPatch(t *testing.T) {
+	_, update, diags := AWSEnvModel{}.toSDK(context.Background(), &AWSEnvModel{})
+	if diags.HasError() {
+		t.Fatalf("unexpected diags: %v", diags)
+	}
+	if update.Spec.ClickHouseClustersPatch != nil || update.Spec.ClickHouseKeepersPatch != nil {
+		t.Errorf("an env without clusters must leave the API's entries untouched, got %#v / %#v", update.Spec.ClickHouseClustersPatch, update.Spec.ClickHouseKeepersPatch)
 	}
 }
 
