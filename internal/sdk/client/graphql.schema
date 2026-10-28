@@ -174,6 +174,10 @@ type AWSEnvSpec {
   """
   externalBuckets: [AWSEnvExternalBucketSpec!]!
   """
+  IAM roles that ClickHouse workloads can assume.
+  """
+  assumableRoles: [AWSEnvAssumableRoleSpec!]!
+  """
   Backups configuration.
   """
   backups: AWSEnvBackupsSpec
@@ -202,6 +206,14 @@ type AWSEnvSpec {
   and EBS volumes.
   """
   kmsKeyARN: String
+  """
+  ClickHouse clusters.
+  """
+  clickHouseClusters: [AWSEnvClickHouseClusterSpec!]!
+  """
+  ClickHouse Keepers.
+  """
+  clickHouseKeepers: [AWSEnvClickHouseKeeperSpec!]!
   """
   MFA destructive operations.
   True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
@@ -433,6 +445,16 @@ type AWSEnvExternalBucketSpec {
 }
 
 """
+IAM role that ClickHouse workloads can assume.
+"""
+type AWSEnvAssumableRoleSpec {
+  """
+  ARN of the target IAM role.
+  """
+  roleARN: String!
+}
+
+"""
 Backups configuration.
 """
 type AWSEnvBackupsSpec {
@@ -477,6 +499,10 @@ type AWSEnvStatus {
   """
   peeringConnections: [AWSEnvPeeringConnectionStatus!]!
   """
+  Status of ClickHouse clusters.
+  """
+  clickHouseClusters: [AWSEnvClickHouseClusterStatus!]!
+  """
   True indicates that environment is pending deletion.
   """
   pendingDelete: Boolean!
@@ -488,6 +514,30 @@ type AWSEnvStatus {
   Status errors.
   """
   errors: [EnvStatusError!]!
+}
+
+type AWSEnvClickHouseClusterStatus {
+  name: String!
+  endpoints: [AWSEnvClickHouseEndpoint!]!
+}
+
+type AWSEnvClickHouseEndpoint {
+  protocol: AWSEnvClickHouseProtocol!
+  """Host, including port."""
+  host: String!
+  type: AWSEnvClickHouseEndpointType
+}
+
+enum AWSEnvClickHouseEndpointType {
+  PUBLIC
+  INTERNAL
+  VPCE
+}
+
+enum AWSEnvClickHouseProtocol {
+  HTTPS
+  NATIVE_TLS
+  MYSQL
 }
 
 """
@@ -522,6 +572,572 @@ type AWSEnvPeeringConnectionStatus {
   Target VPC ID.
   """
   vpcID: String!
+}
+"""ClickHouse cluster configuration."""
+type AWSEnvClickHouseClusterSpec {
+  """Cluster name."""
+  name: String!
+  """Server image, tag included."""
+  image: String!
+  """AWS EC2 instance type used by the nodes."""
+  instanceType: String!
+  """AWS availability zones used by the nodes."""
+  zones: [String!]!
+  """Number of shards."""
+  shards: Int!
+  """Number of replicas per shard."""
+  replicas: Int!
+  """Whether the cluster is stopped."""
+  stopped: Boolean!
+  """Main data volume."""
+  disk: AWSEnvClickHouseClusterDiskSpec!
+  """
+  Extra data volumes added to the default ClickHouse storage policy.
+  Each replica receives one volume per entry.
+
+  By default, ClickHouse balances new data across the main and extra volumes using `least_used` strategy.
+
+  A volume named `diskN`, where `N` is a positive integer, is mounted at `/var/lib/clickhouseN`;
+  other names are mounted at `/var/lib/clickhouse<name>`.
+  """
+  extraDisks: [AWSEnvClickHouseNamedDiskSpec!]!
+  """Name of the Keeper this cluster coordinates through. Empty when no Keeper configured."""
+  keeper: String!
+  """ClickHouse users."""
+  users: [AWSEnvClickHouseUserSpec!]!
+  """Settings profiles users can be assigned to."""
+  profiles: [AWSEnvClickHouseProfileSpec!]!
+  """Resource usage quotas users can be assigned to."""
+  quotas: [ClickHouseQuotaSpec!]!
+  """Server configuration settings."""
+  serverSettings: [AWSEnvClickHouseServerSettingSpec!]!
+}
+
+"""ClickHouse cluster."""
+input AWSEnvClickHouseClusterSpecInput {
+  """
+  Cluster name.
+  Must be 2-15 characters long, containing only lowercase letters, numbers, and hyphens
+  (cannot start or end with a hyphen).
+  Immutable.
+  """
+  name: String!
+  """
+  Server image.
+  e.g. altinity/clickhouse-server:25.8.16.10002.altinitystable
+  """
+  image: String
+  """
+  AWS EC2 instance type.
+  Must match a node group with a `CLICKHOUSE` reservation.
+  """
+  instanceType: String!
+  """
+  AWS availability zones.
+  Defaults to environment's zones.
+  Immutable.
+  """
+  zones: [String!]
+  """Number of shards."""
+  shards: Int
+  """Number of replicas per shard."""
+  replicas: Int
+  """Whether the cluster should be stopped."""
+  stopped: Boolean
+  """Name of the Keeper this cluster coordinates through."""
+  keeper: String
+  """Main data volume."""
+  disk: AWSEnvClickHouseClusterDiskSpecInput!
+  """
+  Extra data volumes added to the default ClickHouse storage policy.
+  Each replica receives one volume per entry.
+
+  By default, ClickHouse balances new data across the main and extra volumes using `least_used` strategy.
+
+  A volume named `diskN`, where `N` is a positive integer, is mounted at `/var/lib/clickhouseN`;
+  other names are mounted at `/var/lib/clickhouse<name>`.
+  """
+  extraDisks: [AWSEnvClickHouseNamedDiskSpecInput!]
+  """ClickHouse users."""
+  users: [AWSEnvClickHouseUserSpecInput!]
+  """Settings profiles users can be assigned to."""
+  profiles: [AWSEnvClickHouseProfileSpecInput!]
+  """Resource usage quotas users can be assigned to."""
+  quotas: [ClickHouseQuotaSpecInput!]
+  """Server configuration settings."""
+  serverSettings: [AWSEnvClickHouseServerSettingSpecInput!]
+}
+
+input AWSEnvClickHouseClustersPatchInput {
+  """Clusters to add or replace."""
+  replace: [AWSEnvClickHouseClusterSpecInput!]
+  """Updates to existing clusters (unspecified fields are kept untouched)."""
+  update: [AWSEnvClickHouseClusterUpdateSpecInput!]
+  """Clusters to delete. Missing clusters are ignored."""
+  delete: [String!]
+}
+
+"""ClickHouse cluster update."""
+input AWSEnvClickHouseClusterUpdateSpecInput {
+  """Cluster identifier."""
+  name: String!
+  """
+  Server image.
+  e.g. altinity/clickhouse-server:25.8.16.10002.altinitystable
+  """
+  image: String
+  """
+  AWS EC2 instance type.
+  Must match a node group with a `CLICKHOUSE` reservation.
+  """
+  instanceType: String
+  """Number of shards."""
+  shards: Int
+  """Number of replicas per shard."""
+  replicas: Int
+  """Whether the cluster should be stopped."""
+  stopped: Boolean
+  """Name of the Keeper this cluster coordinates through."""
+  keeper: String
+  """Main data volume."""
+  disk: AWSEnvClickHouseClusterDiskUpdateSpecInput
+  """
+  Extra data volumes added to the default ClickHouse storage policy.
+  Each replica receives one volume per entry.
+
+  By default, ClickHouse balances new data across the main and extra volumes using `least_used` strategy.
+
+  A volume named `diskN`, where `N` is a positive integer, is mounted at `/var/lib/clickhouseN`;
+  other names are mounted at `/var/lib/clickhouse<name>`.
+  """
+  extraDisks: [AWSEnvClickHouseNamedDiskSpecInput!]
+  """Partial extraDisks update."""
+  extraDisksPatch: AWSEnvClickHouseNamedDisksPatchInput
+  """ClickHouse users."""
+  users: [AWSEnvClickHouseUserSpecInput!]
+  """Partial users update."""
+  usersPatch: AWSEnvClickHouseUsersPatchInput
+  """Settings profiles users can be assigned to."""
+  profiles: [AWSEnvClickHouseProfileSpecInput!]
+  """Partial profiles update."""
+  profilesPatch: AWSEnvClickHouseProfilesPatchInput
+  """Resource usage quotas users can be assigned to."""
+  quotas: [ClickHouseQuotaSpecInput!]
+  """Partial quotas update."""
+  quotasPatch: ClickHouseQuotaSpecsPatchInput
+  """Server configuration settings."""
+  serverSettings: [AWSEnvClickHouseServerSettingSpecInput!]
+  """Partial serverSettings update."""
+  serverSettingsPatch: AWSEnvClickHouseServerSettingsPatchInput
+}
+"""ClickHouse cluster data volume."""
+type AWSEnvClickHouseClusterDiskSpec {
+  """Size in GiB."""
+  sizeInGiB: Int!
+  """Provisioned IOPS. 0 when not set."""
+  iops: Int!
+  """Provisioned throughput in MiB/s. 0 when not set."""
+  throughputInMiBps: Int!
+}
+
+"""ClickHouse cluster data volume."""
+input AWSEnvClickHouseClusterDiskSpecInput {
+  """Size in GiB."""
+  sizeInGiB: Int!
+  """Provisioned IOPS."""
+  iops: Int
+  """Provisioned throughput in MiB/s."""
+  throughputInMiBps: Int
+}
+
+"""ClickHouse cluster data volume update."""
+input AWSEnvClickHouseClusterDiskUpdateSpecInput {
+  """
+  Size in GiB.
+  The size of the volume cannot be decreased.
+  """
+  sizeInGiB: Int
+  """Provisioned IOPS."""
+  iops: Int
+  """Provisioned throughput in MiB/s."""
+  throughputInMiBps: Int
+}
+
+"""ClickHouse Keeper data volume."""
+type AWSEnvClickHouseKeeperDiskSpec {
+  """Size in GiB."""
+  sizeInGiB: Int!
+  """Provisioned IOPS. 0 when not set."""
+  iops: Int!
+  """Provisioned throughput in MiB/s. 0 when not set."""
+  throughputInMiBps: Int!
+}
+
+"""ClickHouse Keeper data volume."""
+input AWSEnvClickHouseKeeperDiskSpecInput {
+  """Size in GiB."""
+  sizeInGiB: Int!
+  """Provisioned IOPS."""
+  iops: Int
+  """Provisioned throughput in MiB/s."""
+  throughputInMiBps: Int
+}
+
+"""ClickHouse Keeper data volume update."""
+input AWSEnvClickHouseKeeperDiskUpdateSpecInput {
+  """
+  Size in GiB.
+  The size of the volume cannot be decreased.
+  """
+  sizeInGiB: Int
+  """Provisioned IOPS."""
+  iops: Int
+  """Provisioned throughput in MiB/s."""
+  throughputInMiBps: Int
+}
+
+"""ClickHouse named data volume."""
+type AWSEnvClickHouseNamedDiskSpec {
+  """Volume name."""
+  name: String!
+  """Size in GiB."""
+  sizeInGiB: Int!
+  """Provisioned IOPS. 0 when not set."""
+  iops: Int!
+  """Provisioned throughput in MiB/s. 0 when not set."""
+  throughputInMiBps: Int!
+}
+
+"""ClickHouse named data volume."""
+input AWSEnvClickHouseNamedDiskSpecInput {
+  """
+  Volume name.
+  Must start with `disk`; 16 characters max.
+  Immutable.
+  """
+  name: String!
+  """Size in GiB."""
+  sizeInGiB: Int!
+  """Provisioned IOPS."""
+  iops: Int
+  """Provisioned throughput in MiB/s."""
+  throughputInMiBps: Int
+}
+
+"""ClickHouse named data volume patch."""
+input AWSEnvClickHouseNamedDisksPatchInput {
+  """Volumes to add or replace."""
+  replace: [AWSEnvClickHouseNamedDiskSpecInput!]
+  """Updates to existing volumes."""
+  update: [AWSEnvClickHouseNamedDiskUpdateSpecInput!]
+  """Volumes to delete."""
+  delete: [String!]
+}
+
+"""ClickHouse named data volume update. Omitted fields retain their values."""
+input AWSEnvClickHouseNamedDiskUpdateSpecInput {
+  """Volume name."""
+  name: String!
+  """
+  Size in GiB.
+  The size of the volume cannot be decreased.
+  """
+  sizeInGiB: Int
+  """Provisioned IOPS."""
+  iops: Int
+  """Provisioned throughput in MiB/s."""
+  throughputInMiBps: Int
+}
+"""ClickHouse Keeper configuration."""
+type AWSEnvClickHouseKeeperSpec {
+  """Keeper cluster name."""
+  name: String!
+  """AWS EC2 instance type the Keeper nodes run on."""
+  instanceType: String!
+  """AWS availability zones the Keeper is spread across. Keeper replicas are distributed across these locations."""
+  zones: [String!]!
+  """Number of Keeper replicas."""
+  replicas: Int!
+  """Whether the Keeper is stopped."""
+  stopped: Boolean!
+  """Data volume."""
+  disk: AWSEnvClickHouseKeeperDiskSpec!
+}
+
+"""ClickHouse Keeper configuration."""
+input AWSEnvClickHouseKeeperSpecInput {
+  """
+  Keeper cluster name.
+  Must be 2-15 characters long, containing only lowercase letters, numbers, and hyphens
+  (cannot start or end with a hyphen).
+  Immutable.
+  """
+  name: String!
+  """
+  AWS EC2 instance type.
+  Must match a node group with a `ZOOKEEPER` reservation.
+  """
+  instanceType: String!
+  """AWS availability zones. Defaults to all environment zones. Immutable."""
+  zones: [String!]
+  """Number of Keeper replicas. Defaults to 1. Set to 3 for high availability."""
+  replicas: Int
+  """Whether the Keeper should be stopped."""
+  stopped: Boolean
+  """Data volume."""
+  disk: AWSEnvClickHouseKeeperDiskSpecInput!
+}
+
+input AWSEnvClickHouseKeepersPatchInput {
+  """Keepers to add or replace."""
+  replace: [AWSEnvClickHouseKeeperSpecInput!]
+  """Updates to existing keepers."""
+  update: [AWSEnvClickHouseKeeperUpdateSpecInput!]
+  """Keepers to delete. Missing keepers are ignored."""
+  delete: [String!]
+}
+
+"""ClickHouse Keeper configuration update. Omitted fields retain their values."""
+input AWSEnvClickHouseKeeperUpdateSpecInput {
+  """Keeper cluster name."""
+  name: String!
+  """
+  AWS EC2 instance type.
+  Must match a node group with a `ZOOKEEPER` reservation.
+  """
+  instanceType: String
+  """Number of Keeper replicas. Cannot be decreased."""
+  replicas: Int
+  """Whether the Keeper should be stopped."""
+  stopped: Boolean
+  """Data volume."""
+  disk: AWSEnvClickHouseKeeperDiskUpdateSpecInput
+}
+"""ClickHouse settings profile."""
+type AWSEnvClickHouseProfileSpec {
+  """Profile name."""
+  name: String!
+  """Settings the profile carries."""
+  settings: [AWSEnvClickHouseProfileSettingSpec!]!
+}
+
+"""ClickHouse settings profile."""
+input AWSEnvClickHouseProfileSpecInput {
+  """Profile name."""
+  name: String!
+  """Settings the profile should carry."""
+  settings: [AWSEnvClickHouseProfileSettingSpecInput!]
+}
+
+input AWSEnvClickHouseProfilesPatchInput {
+  """Profiles to add or replace."""
+  replace: [AWSEnvClickHouseProfileSpecInput!]
+  """Updates to existing profiles."""
+  update: [AWSEnvClickHouseProfileUpdateSpecInput!]
+  """Profiles to delete. Missing profiles are ignored."""
+  delete: [String!]
+}
+
+"""ClickHouse settings profile update. Omitted fields retain their values."""
+input AWSEnvClickHouseProfileUpdateSpecInput {
+  """Profile name."""
+  name: String!
+  """Settings the profile should carry."""
+  settings: [AWSEnvClickHouseProfileSettingSpecInput!]
+  """Settings patch."""
+  settingsPatch: AWSEnvClickHouseProfileSettingsPatchInput
+}
+
+"""A single ClickHouse setting."""
+type AWSEnvClickHouseProfileSettingSpec {
+  """Setting name."""
+  key: String!
+  """Setting value."""
+  value: String!
+}
+
+"""A single ClickHouse setting."""
+input AWSEnvClickHouseProfileSettingSpecInput {
+  """
+  Setting name.
+  https://clickhouse.com/docs/reference/settings/session-settings
+  """
+  key: String!
+  """Setting value."""
+  value: String
+}
+
+input AWSEnvClickHouseProfileSettingsPatchInput {
+  """Settings to add or replace."""
+  replace: [AWSEnvClickHouseProfileSettingSpecInput!]
+  """Settings to delete. Missing settings are ignored."""
+  delete: [String!]
+}
+"""
+ClickHouse server setting.
+"""
+type AWSEnvClickHouseServerSettingSpec {
+  """Setting name."""
+  key: String!
+  """Setting value."""
+  value: String!
+}
+
+"""
+ClickHouse server setting.
+"""
+input AWSEnvClickHouseServerSettingSpecInput {
+  """
+  Setting name.
+  https://clickhouse.com/docs/reference/settings/server-settings/settings
+  """
+  key: String!
+  """Setting value."""
+  value: String
+}
+
+input AWSEnvClickHouseServerSettingsPatchInput {
+  """Settings to add or replace."""
+  replace: [AWSEnvClickHouseServerSettingSpecInput!]
+  """Settings to delete. Missing settings are ignored."""
+  delete: [String!]
+}
+"""ClickHouse user."""
+type AWSEnvClickHouseUserSpec {
+  """User name."""
+  name: String!
+  """Settings profile assigned to the user."""
+  profile: String!
+  """Quota assigned to the user."""
+  quota: String!
+  """Networks the user may connect from."""
+  networks: AWSEnvClickHouseUserNetworksSpec!
+  """Whether the user can manage roles, users, and grants."""
+  accessManagement: Boolean!
+  """Whether the user can create and drop named collections."""
+  namedCollectionControl: Boolean!
+  """Whether the user can read secrets stored in named collections."""
+  showNamedCollectionsSecrets: Boolean!
+  """Databases the user is granted access to. All by default."""
+  databases: [AWSEnvClickHouseUserDatabaseSpec!]!
+  """
+  User grants, e.g. "GRANT SHOW ON *.*".
+  This setting cannot be combined with
+  accessManagement, namedCollectionControl, showNamedCollectionsSecrets and databases settings.
+  """
+  grants: [String!]!
+  """User password."""
+  password: AWSEnvClickHouseUserPasswordSpec!
+}
+
+type AWSEnvClickHouseUserNetworksSpec {
+  """
+  IP addresses or CIDRs the user may connect from. When omitted or empty, only `127.0.0.1` and `::1` are allowed.
+  """
+  ips: [String!]!
+}
+
+input AWSEnvClickHouseUserNetworksSpecInput {
+  """
+  IP addresses or CIDRs the user may connect from. When omitted or empty, only `127.0.0.1` and `::1` are allowed.
+  """
+  ips: [String!]
+}
+
+type AWSEnvClickHouseUserDatabaseSpec {
+  name: String!
+}
+
+input AWSEnvClickHouseUserDatabaseSpecInput {
+  name: String!
+}
+
+type AWSEnvClickHouseUserPasswordSpec {
+  """Password encoding."""
+  type: AWSEnvClickHouseUserPasswordType!
+}
+
+input AWSEnvClickHouseUserPasswordSpecInput {
+  """Password encoding."""
+  type: AWSEnvClickHouseUserPasswordType!
+  """Password value encoded according to `type` and encrypted with the environment public key."""
+  encValue: Sensitive
+}
+
+"""Password encoding."""
+enum AWSEnvClickHouseUserPasswordType {
+  """SHA-256 digest, hex encoded."""
+  SHA256_HEX
+  """
+  Double SHA-1 digest, hex encoded.
+  Use only when you need compatibility with legacy MySQL clients. Otherwise its use is discouraged.
+  """
+  DOUBLE_SHA1_HEX
+}
+
+"""ClickHouse user."""
+input AWSEnvClickHouseUserSpecInput {
+  """User name."""
+  name: String!
+  """Settings profile assigned to the user."""
+  profile: String
+  """Quota assigned to the user."""
+  quota: String
+  """Networks the user may connect from."""
+  networks: AWSEnvClickHouseUserNetworksSpecInput
+  """Whether the user can manage roles, users, and grants."""
+  accessManagement: Boolean
+  """Whether the user can create and drop named collections."""
+  namedCollectionControl: Boolean
+  """Whether the user can read secrets stored in named collections."""
+  showNamedCollectionsSecrets: Boolean
+  """Databases the user is granted access to. All by default."""
+  databases: [AWSEnvClickHouseUserDatabaseSpecInput!]
+  """
+  User grants, e.g. "GRANT SHOW ON *.*".
+  This setting cannot be combined with
+  accessManagement, namedCollectionControl, showNamedCollectionsSecrets and databases settings.
+  """
+  grants: [String!]
+  """Password."""
+  password: AWSEnvClickHouseUserPasswordSpecInput!
+}
+
+input AWSEnvClickHouseUsersPatchInput {
+  """Users to add or replace."""
+  replace: [AWSEnvClickHouseUserSpecInput!]
+  """Updates to existing users."""
+  update: [AWSEnvClickHouseUserUpdateSpecInput!]
+  """Users to delete. Missing users are ignored."""
+  delete: [String!]
+}
+
+"""ClickHouse user update. Omitted fields retain their values."""
+input AWSEnvClickHouseUserUpdateSpecInput {
+  """User name, unique within the cluster."""
+  name: String!
+  """Settings profile assigned to the user."""
+  profile: String
+  """Quota assigned to the user."""
+  quota: String
+  """Networks the user may connect from."""
+  networks: AWSEnvClickHouseUserNetworksSpecInput
+  """Whether the user can manage roles, users, and grants."""
+  accessManagement: Boolean
+  """Whether the user can create and drop named collections."""
+  namedCollectionControl: Boolean
+  """Whether the user can read secrets stored in named collections."""
+  showNamedCollectionsSecrets: Boolean
+  """Databases the user is granted access to. All by default."""
+  databases: [AWSEnvClickHouseUserDatabaseSpecInput!]
+  """
+  User grants, e.g. "GRANT SHOW ON *.*".
+  This setting cannot be combined with
+  accessManagement, namedCollectionControl, showNamedCollectionsSecrets and databases settings.
+  """
+  grants: [String!]
+  """Password."""
+  password: AWSEnvClickHouseUserPasswordSpecInput
 }
 extend type Mutation {
   """
@@ -690,6 +1306,10 @@ input CreateAWSEnvSpecInput {
   """
   externalBuckets: [AWSEnvExternalBucketSpecInput!]
   """
+  IAM roles that ClickHouse workloads can assume.
+  """
+  assumableRoles: [AWSEnvAssumableRoleSpecInput!]
+  """
   Backups configuration.
   """
   backups: AWSEnvBackupsSpecInput
@@ -718,6 +1338,14 @@ input CreateAWSEnvSpecInput {
   and EBS volumes.
   """
   kmsKeyARN: String
+  """
+  ClickHouse clusters to create.
+  """
+  clickHouseClusters: [AWSEnvClickHouseClusterSpecInput!]
+  """
+  ClickHouse Keepers to create.
+  """
+  clickHouseKeepers: [AWSEnvClickHouseKeeperSpecInput!]
   """
   MFA destructive operations.
   True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
@@ -912,6 +1540,16 @@ input AWSEnvExternalBucketSpecInput {
   applies and is the customer's responsibility.
   """
   kmsKeyARN: String
+}
+
+"""
+IAM role that ClickHouse workloads can assume.
+"""
+input AWSEnvAssumableRoleSpecInput {
+  """
+  ARN of the target IAM role.
+  """
+  roleARN: String!
 }
 
 """
@@ -1128,6 +1766,10 @@ type AWSEnvHostedSpec {
   """
   externalBuckets: [AWSEnvHostedExternalBucketSpec!]!
   """
+  IAM roles that ClickHouse workloads can assume.
+  """
+  assumableRoles: [AWSEnvHostedAssumableRoleSpec!]!
+  """
   Backups configuration.
   """
   backups: AWSEnvHostedBackupsSpec
@@ -1148,6 +1790,14 @@ type AWSEnvHostedSpec {
   and EBS volumes.
   """
   kmsKeyARN: String
+  """
+  ClickHouse clusters.
+  """
+  clickHouseClusters: [AWSEnvHostedClickHouseClusterSpec!]!
+  """
+  ClickHouse Keepers.
+  """
+  clickHouseKeepers: [AWSEnvHostedClickHouseKeeperSpec!]!
   """
   MFA destructive operations.
   True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
@@ -1289,6 +1939,16 @@ type AWSEnvHostedExternalBucketSpec {
 }
 
 """
+IAM role that ClickHouse workloads can assume.
+"""
+type AWSEnvHostedAssumableRoleSpec {
+  """
+  ARN of the target IAM role.
+  """
+  roleARN: String!
+}
+
+"""
 Backups configuration.
 """
 type AWSEnvHostedBackupsSpec {
@@ -1329,6 +1989,10 @@ type AWSEnvHostedStatus {
   """
   loadBalancers: AWSEnvHostedLoadBalancersStatus!
   """
+  Status of ClickHouse clusters.
+  """
+  clickHouseClusters: [AWSEnvHostedClickHouseClusterStatus!]!
+  """
   True indicates that environment is pending deletion.
   """
   pendingDelete: Boolean!
@@ -1336,6 +2000,29 @@ type AWSEnvHostedStatus {
   Status errors.
   """
   errors: [EnvStatusError!]!
+}
+
+type AWSEnvHostedClickHouseClusterStatus {
+  name: String!
+  endpoints: [AWSEnvHostedClickHouseEndpoint!]!
+}
+
+type AWSEnvHostedClickHouseEndpoint {
+  protocol: AWSEnvHostedClickHouseProtocol!
+  """Host, including port."""
+  host: String!
+  type: AWSEnvHostedClickHouseEndpointType
+}
+
+enum AWSEnvHostedClickHouseEndpointType {
+  PUBLIC
+  VPCE
+}
+
+enum AWSEnvHostedClickHouseProtocol {
+  HTTPS
+  NATIVE_TLS
+  MYSQL
 }
 
 """
@@ -1356,6 +2043,575 @@ type AWSEnvHostedLoadBalancerInternalStatus {
   VPC endpoint service name in $endpoint_service_id.$region.vpce.amazonaws.com format (if any).
   """
   endpointServiceName: String
+}
+"""ClickHouse cluster configuration."""
+type AWSEnvHostedClickHouseClusterSpec {
+  """Cluster name."""
+  name: String!
+  """
+  Server image.
+  e.g. altinity/clickhouse-server:25.8.16.10002.altinitystable
+  """
+  image: String!
+  """AWS EC2 instance type used by the nodes."""
+  instanceType: String!
+  """AWS availability zone IDs used by the nodes."""
+  zoneIDs: [String!]!
+  """Number of shards."""
+  shards: Int!
+  """Number of replicas per shard."""
+  replicas: Int!
+  """Whether the cluster is stopped."""
+  stopped: Boolean!
+  """Main data volume."""
+  disk: AWSEnvHostedClickHouseClusterDiskSpec!
+  """
+  Extra data volumes added to the default ClickHouse storage policy.
+  Each replica receives one volume per entry.
+
+  By default, ClickHouse balances new data across the main and extra volumes using `least_used` strategy.
+
+  A volume named `diskN`, where `N` is a positive integer, is mounted at `/var/lib/clickhouseN`;
+  other names are mounted at `/var/lib/clickhouse<name>`.
+  """
+  extraDisks: [AWSEnvHostedClickHouseNamedDiskSpec!]!
+  """Name of the Keeper this cluster coordinates through. Empty when no Keeper configured."""
+  keeper: String!
+  """ClickHouse users."""
+  users: [AWSEnvHostedClickHouseUserSpec!]!
+  """Settings profiles users can be assigned to."""
+  profiles: [AWSEnvHostedClickHouseProfileSpec!]!
+  """Resource usage quotas users can be assigned to."""
+  quotas: [ClickHouseQuotaSpec!]!
+  """Server configuration settings."""
+  serverSettings: [AWSEnvHostedClickHouseServerSettingSpec!]!
+}
+
+"""ClickHouse cluster."""
+input AWSEnvHostedClickHouseClusterSpecInput {
+  """
+  Cluster name.
+  Must be 2-15 characters long, containing only lowercase letters, numbers, and hyphens
+  (cannot start or end with a hyphen).
+  Immutable.
+  """
+  name: String!
+  """
+  Server image.
+  e.g. altinity/clickhouse-server:25.8.16.10002.altinitystable
+  """
+  image: String
+  """
+  AWS EC2 instance type.
+  Must match a node group with a `CLICKHOUSE` reservation.
+  """
+  instanceType: String!
+  """
+  AWS availability zone IDs.
+  Defaults to environment's zone IDs.
+  Immutable.
+  """
+  zoneIDs: [String!]
+  """Number of shards."""
+  shards: Int
+  """Number of replicas per shard."""
+  replicas: Int
+  """Whether the cluster should be stopped."""
+  stopped: Boolean
+  """Name of the Keeper this cluster coordinates through."""
+  keeper: String
+  """Main data volume."""
+  disk: AWSEnvHostedClickHouseClusterDiskSpecInput!
+  """
+  Extra data volumes added to the default ClickHouse storage policy.
+  Each replica receives one volume per entry.
+
+  By default, ClickHouse balances new data across the main and extra volumes using `least_used` strategy.
+
+  A volume named `diskN`, where `N` is a positive integer, is mounted at `/var/lib/clickhouseN`;
+  other names are mounted at `/var/lib/clickhouse<name>`.
+  """
+  extraDisks: [AWSEnvHostedClickHouseNamedDiskSpecInput!]
+  """ClickHouse users."""
+  users: [AWSEnvHostedClickHouseUserSpecInput!]
+  """Settings profiles users can be assigned to."""
+  profiles: [AWSEnvHostedClickHouseProfileSpecInput!]
+  """Resource usage quotas users can be assigned to."""
+  quotas: [ClickHouseQuotaSpecInput!]
+  """Server configuration settings."""
+  serverSettings: [AWSEnvHostedClickHouseServerSettingSpecInput!]
+}
+
+input AWSEnvHostedClickHouseClustersPatchInput {
+  """Clusters to add or replace."""
+  replace: [AWSEnvHostedClickHouseClusterSpecInput!]
+  """Updates to existing clusters (unspecified fields are kept untouched)."""
+  update: [AWSEnvHostedClickHouseClusterUpdateSpecInput!]
+  """Clusters to delete. Missing clusters are ignored."""
+  delete: [String!]
+}
+
+"""ClickHouse cluster update."""
+input AWSEnvHostedClickHouseClusterUpdateSpecInput {
+  """Cluster identifier."""
+  name: String!
+  """
+  Server image, tag included.
+  Altinity-hosted environments only accept `altinity/clickhouse-server` and `clickhouse/clickhouse-server` images.
+  """
+  image: String
+  """
+  AWS EC2 instance type.
+  Must match a node group with a `CLICKHOUSE` reservation.
+  """
+  instanceType: String
+  """Number of shards."""
+  shards: Int
+  """Number of replicas per shard."""
+  replicas: Int
+  """Whether the cluster should be stopped."""
+  stopped: Boolean
+  """Name of the Keeper this cluster coordinates through."""
+  keeper: String
+  """Main data volume."""
+  disk: AWSEnvHostedClickHouseClusterDiskUpdateSpecInput
+  """
+  Extra data volumes added to the default ClickHouse storage policy.
+  Each replica receives one volume per entry.
+
+  By default, ClickHouse balances new data across the main and extra volumes using `least_used` strategy.
+
+  A volume named `diskN`, where `N` is a positive integer, is mounted at `/var/lib/clickhouseN`;
+  other names are mounted at `/var/lib/clickhouse<name>`.
+  """
+  extraDisks: [AWSEnvHostedClickHouseNamedDiskSpecInput!]
+  """Partial extraDisks update."""
+  extraDisksPatch: AWSEnvHostedClickHouseNamedDisksPatchInput
+  """ClickHouse users."""
+  users: [AWSEnvHostedClickHouseUserSpecInput!]
+  """Partial users update."""
+  usersPatch: AWSEnvHostedClickHouseUsersPatchInput
+  """Settings profiles users can be assigned to."""
+  profiles: [AWSEnvHostedClickHouseProfileSpecInput!]
+  """Partial profiles update."""
+  profilesPatch: AWSEnvHostedClickHouseProfilesPatchInput
+  """Resource usage quotas users can be assigned to."""
+  quotas: [ClickHouseQuotaSpecInput!]
+  """Partial quotas update."""
+  quotasPatch: ClickHouseQuotaSpecsPatchInput
+  """Server configuration settings."""
+  serverSettings: [AWSEnvHostedClickHouseServerSettingSpecInput!]
+  """Partial serverSettings update."""
+  serverSettingsPatch: AWSEnvHostedClickHouseServerSettingsPatchInput
+}
+"""ClickHouse cluster data volume."""
+type AWSEnvHostedClickHouseClusterDiskSpec {
+  """Size in GiB."""
+  sizeInGiB: Int!
+  """Provisioned IOPS. 0 when not set."""
+  iops: Int!
+  """Provisioned throughput in MiB/s. 0 when not set."""
+  throughputInMiBps: Int!
+}
+
+"""ClickHouse cluster data volume."""
+input AWSEnvHostedClickHouseClusterDiskSpecInput {
+  """Size in GiB."""
+  sizeInGiB: Int!
+  """Provisioned IOPS."""
+  iops: Int
+  """Provisioned throughput in MiB/s."""
+  throughputInMiBps: Int
+}
+
+"""ClickHouse cluster data volume update."""
+input AWSEnvHostedClickHouseClusterDiskUpdateSpecInput {
+  """
+  Size in GiB.
+  The size of the volume cannot be decreased.
+  """
+  sizeInGiB: Int
+  """Provisioned IOPS."""
+  iops: Int
+  """Provisioned throughput in MiB/s."""
+  throughputInMiBps: Int
+}
+
+"""ClickHouse Keeper data volume."""
+type AWSEnvHostedClickHouseKeeperDiskSpec {
+  """Size in GiB."""
+  sizeInGiB: Int!
+  """Provisioned IOPS. 0 when not set."""
+  iops: Int!
+  """Provisioned throughput in MiB/s. 0 when not set."""
+  throughputInMiBps: Int!
+}
+
+"""ClickHouse Keeper data volume."""
+input AWSEnvHostedClickHouseKeeperDiskSpecInput {
+  """Size in GiB."""
+  sizeInGiB: Int!
+  """Provisioned IOPS."""
+  iops: Int
+  """Provisioned throughput in MiB/s."""
+  throughputInMiBps: Int
+}
+
+"""ClickHouse Keeper data volume update."""
+input AWSEnvHostedClickHouseKeeperDiskUpdateSpecInput {
+  """
+  Size in GiB.
+  The size of the volume cannot be decreased.
+  """
+  sizeInGiB: Int
+  """Provisioned IOPS."""
+  iops: Int
+  """Provisioned throughput in MiB/s."""
+  throughputInMiBps: Int
+}
+
+"""ClickHouse named data volume."""
+type AWSEnvHostedClickHouseNamedDiskSpec {
+  """Volume name."""
+  name: String!
+  """Size in GiB."""
+  sizeInGiB: Int!
+  """Provisioned IOPS. 0 when not set."""
+  iops: Int!
+  """Provisioned throughput in MiB/s. 0 when not set."""
+  throughputInMiBps: Int!
+}
+
+"""ClickHouse named data volume."""
+input AWSEnvHostedClickHouseNamedDiskSpecInput {
+  """
+  Volume name.
+  Must start with `disk`; 16 characters max.
+  Immutable.
+  """
+  name: String!
+  """Size in GiB."""
+  sizeInGiB: Int!
+  """Provisioned IOPS."""
+  iops: Int
+  """Provisioned throughput in MiB/s."""
+  throughputInMiBps: Int
+}
+
+"""ClickHouse named data volume patch."""
+input AWSEnvHostedClickHouseNamedDisksPatchInput {
+  """Volumes to add or replace."""
+  replace: [AWSEnvHostedClickHouseNamedDiskSpecInput!]
+  """Updates to existing volumes."""
+  update: [AWSEnvHostedClickHouseNamedDiskUpdateSpecInput!]
+  """Volumes to delete."""
+  delete: [String!]
+}
+
+"""ClickHouse named data volume update. Omitted fields retain their values."""
+input AWSEnvHostedClickHouseNamedDiskUpdateSpecInput {
+  """Volume name."""
+  name: String!
+  """
+  Size in GiB.
+  The size of the volume cannot be decreased.
+  """
+  sizeInGiB: Int
+  """Provisioned IOPS."""
+  iops: Int
+  """Provisioned throughput in MiB/s."""
+  throughputInMiBps: Int
+}
+"""ClickHouse Keeper configuration."""
+type AWSEnvHostedClickHouseKeeperSpec {
+  """Keeper cluster name."""
+  name: String!
+  """AWS EC2 instance type the Keeper nodes run on."""
+  instanceType: String!
+  """AWS availability zone IDs the Keeper is spread across. Keeper replicas are distributed across these locations."""
+  zoneIDs: [String!]!
+  """Number of Keeper replicas."""
+  replicas: Int!
+  """Whether the Keeper is stopped."""
+  stopped: Boolean!
+  """Data volume."""
+  disk: AWSEnvHostedClickHouseKeeperDiskSpec!
+}
+
+"""ClickHouse Keeper configuration."""
+input AWSEnvHostedClickHouseKeeperSpecInput {
+  """
+  Keeper cluster name.
+  Must be 2-15 characters long, containing only lowercase letters, numbers, and hyphens
+  (cannot start or end with a hyphen).
+  Immutable.
+  """
+  name: String!
+  """
+  AWS EC2 instance type.
+  Must match a node group with a `ZOOKEEPER` reservation.
+  """
+  instanceType: String!
+  """AWS availability zone IDs. Defaults to all environment zone IDs. Immutable."""
+  zoneIDs: [String!]
+  """Number of Keeper replicas. Defaults to 1. Set to 3 for high availability."""
+  replicas: Int
+  """Whether the Keeper should be stopped."""
+  stopped: Boolean
+  """Data volume."""
+  disk: AWSEnvHostedClickHouseKeeperDiskSpecInput!
+}
+
+input AWSEnvHostedClickHouseKeepersPatchInput {
+  """Keepers to add or replace."""
+  replace: [AWSEnvHostedClickHouseKeeperSpecInput!]
+  """Updates to existing keepers."""
+  update: [AWSEnvHostedClickHouseKeeperUpdateSpecInput!]
+  """Keepers to delete. Missing keepers are ignored."""
+  delete: [String!]
+}
+
+"""ClickHouse Keeper configuration update. Omitted fields retain their values."""
+input AWSEnvHostedClickHouseKeeperUpdateSpecInput {
+  """Keeper cluster name."""
+  name: String!
+  """
+  AWS EC2 instance type.
+  Must match a node group with a `ZOOKEEPER` reservation.
+  """
+  instanceType: String
+  """Number of Keeper replicas. Cannot be decreased."""
+  replicas: Int
+  """Whether the Keeper should be stopped."""
+  stopped: Boolean
+  """Data volume."""
+  disk: AWSEnvHostedClickHouseKeeperDiskUpdateSpecInput
+}
+"""ClickHouse settings profile."""
+type AWSEnvHostedClickHouseProfileSpec {
+  """Profile name."""
+  name: String!
+  """Settings the profile carries."""
+  settings: [AWSEnvHostedClickHouseProfileSettingSpec!]!
+}
+
+"""ClickHouse settings profile."""
+input AWSEnvHostedClickHouseProfileSpecInput {
+  """Profile name."""
+  name: String!
+  """Settings the profile should carry."""
+  settings: [AWSEnvHostedClickHouseProfileSettingSpecInput!]
+}
+
+input AWSEnvHostedClickHouseProfilesPatchInput {
+  """Profiles to add or replace."""
+  replace: [AWSEnvHostedClickHouseProfileSpecInput!]
+  """Updates to existing profiles."""
+  update: [AWSEnvHostedClickHouseProfileUpdateSpecInput!]
+  """Profiles to delete. Missing profiles are ignored."""
+  delete: [String!]
+}
+
+"""ClickHouse settings profile update. Omitted fields retain their values."""
+input AWSEnvHostedClickHouseProfileUpdateSpecInput {
+  """Profile name."""
+  name: String!
+  """Settings the profile should carry."""
+  settings: [AWSEnvHostedClickHouseProfileSettingSpecInput!]
+  """Settings patch."""
+  settingsPatch: AWSEnvHostedClickHouseProfileSettingsPatchInput
+}
+
+"""A single ClickHouse setting."""
+type AWSEnvHostedClickHouseProfileSettingSpec {
+  """Setting name."""
+  key: String!
+  """Setting value."""
+  value: String!
+}
+
+"""A single ClickHouse setting."""
+input AWSEnvHostedClickHouseProfileSettingSpecInput {
+  """
+  Setting name.
+  https://clickhouse.com/docs/reference/settings/session-settings
+  """
+  key: String!
+  """Setting value."""
+  value: String
+}
+
+input AWSEnvHostedClickHouseProfileSettingsPatchInput {
+  """Settings to add or replace."""
+  replace: [AWSEnvHostedClickHouseProfileSettingSpecInput!]
+  """Settings to delete. Missing settings are ignored."""
+  delete: [String!]
+}
+"""
+ClickHouse server setting.
+"""
+type AWSEnvHostedClickHouseServerSettingSpec {
+  """Setting name."""
+  key: String!
+  """Setting value."""
+  value: String!
+}
+
+"""
+ClickHouse server setting.
+"""
+input AWSEnvHostedClickHouseServerSettingSpecInput {
+  """
+  Setting name.
+  https://clickhouse.com/docs/reference/settings/server-settings/settings
+  """
+  key: String!
+  """Setting value."""
+  value: String
+}
+
+input AWSEnvHostedClickHouseServerSettingsPatchInput {
+  """Settings to add or replace."""
+  replace: [AWSEnvHostedClickHouseServerSettingSpecInput!]
+  """Settings to delete. Missing settings are ignored."""
+  delete: [String!]
+}
+"""ClickHouse user."""
+type AWSEnvHostedClickHouseUserSpec {
+  """User name."""
+  name: String!
+  """Settings profile assigned to the user."""
+  profile: String!
+  """Quota assigned to the user."""
+  quota: String!
+  """Networks the user may connect from."""
+  networks: AWSEnvHostedClickHouseUserNetworksSpec!
+  """Whether the user can manage roles, users, and grants."""
+  accessManagement: Boolean!
+  """Whether the user can create and drop named collections."""
+  namedCollectionControl: Boolean!
+  """Whether the user can read secrets stored in named collections."""
+  showNamedCollectionsSecrets: Boolean!
+  """Databases the user is granted access to. All by default."""
+  databases: [AWSEnvHostedClickHouseUserDatabaseSpec!]!
+  """
+  User grants, e.g. "GRANT SHOW ON *.*".
+  This setting cannot be combined with
+  accessManagement, namedCollectionControl, showNamedCollectionsSecrets and databases settings.
+  """
+  grants: [String!]!
+  """User password."""
+  password: AWSEnvHostedClickHouseUserPasswordSpec!
+}
+
+type AWSEnvHostedClickHouseUserNetworksSpec {
+  """
+  IP addresses or CIDRs the user may connect from. When omitted or empty, only `127.0.0.1` and `::1` are allowed.
+  """
+  ips: [String!]!
+}
+
+input AWSEnvHostedClickHouseUserNetworksSpecInput {
+  """
+  IP addresses or CIDRs the user may connect from. When omitted or empty, only `127.0.0.1` and `::1` are allowed.
+  """
+  ips: [String!]
+}
+
+type AWSEnvHostedClickHouseUserDatabaseSpec {
+  name: String!
+}
+
+input AWSEnvHostedClickHouseUserDatabaseSpecInput {
+  name: String!
+}
+
+type AWSEnvHostedClickHouseUserPasswordSpec {
+  """Password encoding."""
+  type: AWSEnvHostedClickHouseUserPasswordType!
+}
+
+input AWSEnvHostedClickHouseUserPasswordSpecInput {
+  """Password encoding."""
+  type: AWSEnvHostedClickHouseUserPasswordType!
+  """Password value encoded according to `type` and encrypted with the environment public key."""
+  encValue: Sensitive
+}
+
+"""Password encoding."""
+enum AWSEnvHostedClickHouseUserPasswordType {
+  """SHA-256 digest, hex encoded."""
+  SHA256_HEX
+  """
+  Double SHA-1 digest, hex encoded.
+  Use only when you need compatibility with legacy MySQL clients. Otherwise its use is discouraged.
+  """
+  DOUBLE_SHA1_HEX
+}
+
+"""ClickHouse user."""
+input AWSEnvHostedClickHouseUserSpecInput {
+  """User name."""
+  name: String!
+  """Settings profile assigned to the user."""
+  profile: String
+  """Quota assigned to the user."""
+  quota: String
+  """Networks the user may connect from."""
+  networks: AWSEnvHostedClickHouseUserNetworksSpecInput
+  """Whether the user can manage roles, users, and grants."""
+  accessManagement: Boolean
+  """Whether the user can create and drop named collections."""
+  namedCollectionControl: Boolean
+  """Whether the user can read secrets stored in named collections."""
+  showNamedCollectionsSecrets: Boolean
+  """Databases the user is granted access to. All by default."""
+  databases: [AWSEnvHostedClickHouseUserDatabaseSpecInput!]
+  """
+  User grants, e.g. "GRANT SHOW ON *.*".
+  This setting cannot be combined with
+  accessManagement, namedCollectionControl, showNamedCollectionsSecrets and databases settings.
+  """
+  grants: [String!]
+  """Password."""
+  password: AWSEnvHostedClickHouseUserPasswordSpecInput!
+}
+
+input AWSEnvHostedClickHouseUsersPatchInput {
+  """Users to add or replace."""
+  replace: [AWSEnvHostedClickHouseUserSpecInput!]
+  """Updates to existing users."""
+  update: [AWSEnvHostedClickHouseUserUpdateSpecInput!]
+  """Users to delete. Missing users are ignored."""
+  delete: [String!]
+}
+
+"""ClickHouse user update. Omitted fields retain their values."""
+input AWSEnvHostedClickHouseUserUpdateSpecInput {
+  """User name, unique within the cluster."""
+  name: String!
+  """Settings profile assigned to the user."""
+  profile: String
+  """Quota assigned to the user."""
+  quota: String
+  """Networks the user may connect from."""
+  networks: AWSEnvHostedClickHouseUserNetworksSpecInput
+  """Whether the user can manage roles, users, and grants."""
+  accessManagement: Boolean
+  """Whether the user can create and drop named collections."""
+  namedCollectionControl: Boolean
+  """Whether the user can read secrets stored in named collections."""
+  showNamedCollectionsSecrets: Boolean
+  """Databases the user is granted access to. All by default."""
+  databases: [AWSEnvHostedClickHouseUserDatabaseSpecInput!]
+  """
+  User grants, e.g. "GRANT SHOW ON *.*".
+  This setting cannot be combined with
+  accessManagement, namedCollectionControl, showNamedCollectionsSecrets and databases settings.
+  """
+  grants: [String!]
+  """Password."""
+  password: AWSEnvHostedClickHouseUserPasswordSpecInput
 }
 extend type Mutation {
   """
@@ -1470,6 +2726,10 @@ input CreateAWSEnvHostedSpecInput {
   """
   externalBuckets: [AWSEnvHostedExternalBucketSpecInput!]
   """
+  IAM roles that ClickHouse workloads can assume.
+  """
+  assumableRoles: [AWSEnvHostedAssumableRoleSpecInput!]
+  """
   Backups configuration.
   """
   backups: AWSEnvHostedBackupsSpecInput
@@ -1490,6 +2750,14 @@ input CreateAWSEnvHostedSpecInput {
   and EBS volumes.
   """
   kmsKeyARN: String
+  """
+  ClickHouse clusters to create.
+  """
+  clickHouseClusters: [AWSEnvHostedClickHouseClusterSpecInput!]
+  """
+  ClickHouse Keepers to create.
+  """
+  clickHouseKeepers: [AWSEnvHostedClickHouseKeeperSpecInput!]
   """
   MFA destructive operations.
   True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
@@ -1631,6 +2899,16 @@ input AWSEnvHostedExternalBucketSpecInput {
   applies and is the customer's responsibility.
   """
   kmsKeyARN: String
+}
+
+"""
+IAM role that ClickHouse workloads can assume.
+"""
+input AWSEnvHostedAssumableRoleSpecInput {
+  """
+  ARN of the target IAM role.
+  """
+  roleARN: String!
 }
 
 """
@@ -1995,6 +3273,10 @@ input AWSEnvHostedUpdateSpecInput {
   """
   externalBuckets: [AWSEnvHostedExternalBucketSpecInput!]
   """
+  IAM roles that ClickHouse workloads can assume.
+  """
+  assumableRoles: [AWSEnvHostedAssumableRoleSpecInput!]
+  """
   Backups configuration.
   """
   backups: AWSEnvHostedBackupsSpecInput
@@ -2010,6 +3292,14 @@ input AWSEnvHostedUpdateSpecInput {
   Datadog monitoring agent configuration.
   """
   datadog: DatadogSpecInput
+  """Replaces all ClickHouse clusters exposed by this API."""
+  clickHouseClusters: [AWSEnvHostedClickHouseClusterSpecInput!]
+  """Changes ClickHouse clusters exposed by this API. Cannot be combined with clickHouseClusters."""
+  clickHouseClustersPatch: AWSEnvHostedClickHouseClustersPatchInput
+  """Replaces all ClickHouse Keepers exposed by this API."""
+  clickHouseKeepers: [AWSEnvHostedClickHouseKeeperSpecInput!]
+  """Changes ClickHouse Keepers exposed by this API. Cannot be combined with clickHouseKeepers."""
+  clickHouseKeepersPatch: AWSEnvHostedClickHouseKeepersPatchInput
   """
   MFA destructive operations.
   True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
@@ -2144,6 +3434,10 @@ input AWSEnvUpdateSpecInput {
   """
   externalBuckets: [AWSEnvExternalBucketSpecInput!]
   """
+  IAM roles that ClickHouse workloads can assume.
+  """
+  assumableRoles: [AWSEnvAssumableRoleSpecInput!]
+  """
   Backups configuration.
   """
   backups: AWSEnvBackupsSpecInput
@@ -2167,6 +3461,14 @@ input AWSEnvUpdateSpecInput {
   Datadog monitoring agent configuration.
   """
   datadog: DatadogSpecInput
+  """Replaces all ClickHouse clusters exposed by this API."""
+  clickHouseClusters: [AWSEnvClickHouseClusterSpecInput!]
+  """Changes ClickHouse clusters exposed by this API. Cannot be combined with clickHouseClusters."""
+  clickHouseClustersPatch: AWSEnvClickHouseClustersPatchInput
+  """Replaces all ClickHouse Keepers exposed by this API."""
+  clickHouseKeepers: [AWSEnvClickHouseKeeperSpecInput!]
+  """Changes ClickHouse Keepers exposed by this API. Cannot be combined with clickHouseKeepers."""
+  clickHouseKeepersPatch: AWSEnvClickHouseKeepersPatchInput
   """
   MFA destructive operations.
   True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
@@ -2358,6 +3660,14 @@ type AzureEnvSpec {
   """
   datadog: DatadogSpec!
   """
+  ClickHouse clusters.
+  """
+  clickHouseClusters: [AzureEnvClickHouseClusterSpec!]!
+  """
+  ClickHouse Keepers.
+  """
+  clickHouseKeepers: [AzureEnvClickHouseKeeperSpec!]!
+  """
   MFA destructive operations.
   True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
   """
@@ -2467,6 +3777,10 @@ type AzureEnvStatus {
   """
   appliedSpecRevision: Int!
   """
+  ClickHouse cluster runtime status.
+  """
+  clickHouseClusters: [AzureEnvClickHouseClusterStatus!]!
+  """
   Status of load balancers.
   """
   loadBalancers: AzureEnvLoadBalancersStatus!
@@ -2478,6 +3792,30 @@ type AzureEnvStatus {
   Status errors.
   """
   errors: [EnvStatusError!]!
+}
+
+type AzureEnvClickHouseClusterStatus {
+  name: String!
+  endpoints: [AzureEnvClickHouseEndpoint!]!
+}
+
+type AzureEnvClickHouseEndpoint {
+  protocol: AzureEnvClickHouseProtocol!
+  """Host, including port."""
+  host: String!
+  type: AzureEnvClickHouseEndpointType
+}
+
+enum AzureEnvClickHouseEndpointType {
+  PUBLIC
+  INTERNAL
+  PRIVATE_LINK
+}
+
+enum AzureEnvClickHouseProtocol {
+  HTTPS
+  NATIVE_TLS
+  MYSQL
 }
 
 """
@@ -2509,6 +3847,536 @@ input AzureEnvFilter {
   Names that don't match any of the existing environments are ignored.
   """
   names: [String!]
+}
+"""ClickHouse cluster configuration."""
+type AzureEnvClickHouseClusterSpec {
+  """Cluster name."""
+  name: String!
+  """Server image, tag included."""
+  image: String!
+  """Azure VM size used by the nodes."""
+  vmSize: String!
+  """Azure availability zones used by the nodes."""
+  zones: [String!]!
+  """Number of shards."""
+  shards: Int!
+  """Number of replicas per shard."""
+  replicas: Int!
+  """Whether the cluster is stopped."""
+  stopped: Boolean!
+  """Main data volume."""
+  disk: AzureEnvClickHouseClusterDiskSpec!
+  """
+  Extra data volumes added to the default ClickHouse storage policy.
+  Each replica receives one volume per entry.
+
+  By default, ClickHouse balances new data across the main and extra volumes using `least_used` strategy.
+
+  A volume named `diskN`, where `N` is a positive integer, is mounted at `/var/lib/clickhouseN`;
+  other names are mounted at `/var/lib/clickhouse<name>`.
+  """
+  extraDisks: [AzureEnvClickHouseNamedDiskSpec!]!
+  """Name of the Keeper this cluster coordinates through. Empty when no Keeper configured."""
+  keeper: String!
+  """ClickHouse users."""
+  users: [AzureEnvClickHouseUserSpec!]!
+  """Settings profiles users can be assigned to."""
+  profiles: [AzureEnvClickHouseProfileSpec!]!
+  """Resource usage quotas users can be assigned to."""
+  quotas: [ClickHouseQuotaSpec!]!
+  """Server configuration settings."""
+  serverSettings: [AzureEnvClickHouseServerSettingSpec!]!
+}
+
+"""ClickHouse cluster."""
+input AzureEnvClickHouseClusterSpecInput {
+  """
+  Cluster name.
+  Must be 2-15 characters long, containing only lowercase letters, numbers, and hyphens
+  (cannot start or end with a hyphen).
+  Immutable.
+  """
+  name: String!
+  """
+  Server image.
+  e.g. altinity/clickhouse-server:25.8.16.10002.altinitystable
+  """
+  image: String
+  """
+  Azure VM size.
+  Must match a node group with a `CLICKHOUSE` reservation.
+  """
+  vmSize: String!
+  """
+  Azure availability zones.
+  Defaults to environment's zones.
+  Immutable.
+  """
+  zones: [String!]
+  """Number of shards."""
+  shards: Int
+  """Number of replicas per shard."""
+  replicas: Int
+  """Whether the cluster should be stopped."""
+  stopped: Boolean
+  """Name of the Keeper this cluster coordinates through."""
+  keeper: String
+  """Main data volume."""
+  disk: AzureEnvClickHouseClusterDiskSpecInput!
+  """
+  Extra data volumes added to the default ClickHouse storage policy.
+  Each replica receives one volume per entry.
+
+  By default, ClickHouse balances new data across the main and extra volumes using `least_used` strategy.
+
+  A volume named `diskN`, where `N` is a positive integer, is mounted at `/var/lib/clickhouseN`;
+  other names are mounted at `/var/lib/clickhouse<name>`.
+  """
+  extraDisks: [AzureEnvClickHouseNamedDiskSpecInput!]
+  """ClickHouse users."""
+  users: [AzureEnvClickHouseUserSpecInput!]
+  """Settings profiles users can be assigned to."""
+  profiles: [AzureEnvClickHouseProfileSpecInput!]
+  """Resource usage quotas users can be assigned to."""
+  quotas: [ClickHouseQuotaSpecInput!]
+  """Server configuration settings."""
+  serverSettings: [AzureEnvClickHouseServerSettingSpecInput!]
+}
+
+input AzureEnvClickHouseClustersPatchInput {
+  """Clusters to add or replace."""
+  replace: [AzureEnvClickHouseClusterSpecInput!]
+  """Updates to existing clusters (unspecified fields are kept untouched)."""
+  update: [AzureEnvClickHouseClusterUpdateSpecInput!]
+  """Clusters to delete. Missing clusters are ignored."""
+  delete: [String!]
+}
+
+"""ClickHouse cluster update."""
+input AzureEnvClickHouseClusterUpdateSpecInput {
+  """Cluster identifier."""
+  name: String!
+  """
+  Server image.
+  e.g. altinity/clickhouse-server:25.8.16.10002.altinitystable
+  """
+  image: String
+  """
+  Azure VM size.
+  Must match a node group with a `CLICKHOUSE` reservation.
+  """
+  vmSize: String
+  """Number of shards."""
+  shards: Int
+  """Number of replicas per shard."""
+  replicas: Int
+  """Whether the cluster should be stopped."""
+  stopped: Boolean
+  """Name of the Keeper this cluster coordinates through."""
+  keeper: String
+  """Main data volume."""
+  disk: AzureEnvClickHouseClusterDiskUpdateSpecInput
+  """
+  Extra data volumes added to the default ClickHouse storage policy.
+  Each replica receives one volume per entry.
+
+  By default, ClickHouse balances new data across the main and extra volumes using `least_used` strategy.
+
+  A volume named `diskN`, where `N` is a positive integer, is mounted at `/var/lib/clickhouseN`;
+  other names are mounted at `/var/lib/clickhouse<name>`.
+  """
+  extraDisks: [AzureEnvClickHouseNamedDiskSpecInput!]
+  """Partial extraDisks update."""
+  extraDisksPatch: AzureEnvClickHouseNamedDisksPatchInput
+  """ClickHouse users."""
+  users: [AzureEnvClickHouseUserSpecInput!]
+  """Partial users update."""
+  usersPatch: AzureEnvClickHouseUsersPatchInput
+  """Settings profiles users can be assigned to."""
+  profiles: [AzureEnvClickHouseProfileSpecInput!]
+  """Partial profiles update."""
+  profilesPatch: AzureEnvClickHouseProfilesPatchInput
+  """Resource usage quotas users can be assigned to."""
+  quotas: [ClickHouseQuotaSpecInput!]
+  """Partial quotas update."""
+  quotasPatch: ClickHouseQuotaSpecsPatchInput
+  """Server configuration settings."""
+  serverSettings: [AzureEnvClickHouseServerSettingSpecInput!]
+  """Partial serverSettings update."""
+  serverSettingsPatch: AzureEnvClickHouseServerSettingsPatchInput
+}
+"""ClickHouse cluster data volume."""
+type AzureEnvClickHouseClusterDiskSpec {
+  """Size in GiB."""
+  sizeInGiB: Int!
+}
+
+"""ClickHouse cluster data volume."""
+input AzureEnvClickHouseClusterDiskSpecInput {
+  """Size in GiB."""
+  sizeInGiB: Int!
+}
+
+"""ClickHouse cluster data volume update."""
+input AzureEnvClickHouseClusterDiskUpdateSpecInput {
+  """
+  Size in GiB.
+  The size of the volume cannot be decreased.
+  """
+  sizeInGiB: Int
+}
+
+"""ClickHouse Keeper data volume."""
+type AzureEnvClickHouseKeeperDiskSpec {
+  """Size in GiB."""
+  sizeInGiB: Int!
+}
+
+"""ClickHouse Keeper data volume."""
+input AzureEnvClickHouseKeeperDiskSpecInput {
+  """Size in GiB."""
+  sizeInGiB: Int!
+}
+
+"""ClickHouse Keeper data volume update."""
+input AzureEnvClickHouseKeeperDiskUpdateSpecInput {
+  """
+  Size in GiB.
+  The size of the volume cannot be decreased.
+  """
+  sizeInGiB: Int
+}
+
+"""ClickHouse named data volume."""
+type AzureEnvClickHouseNamedDiskSpec {
+  """Volume name."""
+  name: String!
+  """Size in GiB."""
+  sizeInGiB: Int!
+}
+
+"""ClickHouse named data volume."""
+input AzureEnvClickHouseNamedDiskSpecInput {
+  """
+  Volume name.
+  Must start with `disk`; 16 characters max.
+  Immutable.
+  """
+  name: String!
+  """Size in GiB."""
+  sizeInGiB: Int!
+}
+
+"""ClickHouse named data volume patch."""
+input AzureEnvClickHouseNamedDisksPatchInput {
+  """Volumes to add or replace."""
+  replace: [AzureEnvClickHouseNamedDiskSpecInput!]
+  """Updates to existing volumes."""
+  update: [AzureEnvClickHouseNamedDiskUpdateSpecInput!]
+  """Volumes to delete."""
+  delete: [String!]
+}
+
+"""ClickHouse named data volume update. Omitted fields retain their values."""
+input AzureEnvClickHouseNamedDiskUpdateSpecInput {
+  """Volume name."""
+  name: String!
+  """
+  Size in GiB.
+  The size of the volume cannot be decreased.
+  """
+  sizeInGiB: Int
+}
+"""ClickHouse Keeper configuration."""
+type AzureEnvClickHouseKeeperSpec {
+  """Keeper cluster name."""
+  name: String!
+  """Azure VM size the Keeper nodes run on."""
+  vmSize: String!
+  """Azure availability zones the Keeper is spread across. Keeper replicas are distributed across these locations."""
+  zones: [String!]!
+  """Number of Keeper replicas."""
+  replicas: Int!
+  """Whether the Keeper is stopped."""
+  stopped: Boolean!
+  """Data volume."""
+  disk: AzureEnvClickHouseKeeperDiskSpec!
+}
+
+"""ClickHouse Keeper configuration."""
+input AzureEnvClickHouseKeeperSpecInput {
+  """
+  Keeper cluster name.
+  Must be 2-15 characters long, containing only lowercase letters, numbers, and hyphens
+  (cannot start or end with a hyphen).
+  Immutable.
+  """
+  name: String!
+  """
+  Azure VM size.
+  Must match a node group with a `ZOOKEEPER` reservation.
+  """
+  vmSize: String!
+  """Azure availability zones. Defaults to all environment zones. Immutable."""
+  zones: [String!]
+  """Number of Keeper replicas. Defaults to 1. Set to 3 for high availability."""
+  replicas: Int
+  """Whether the Keeper should be stopped."""
+  stopped: Boolean
+  """Data volume."""
+  disk: AzureEnvClickHouseKeeperDiskSpecInput!
+}
+
+input AzureEnvClickHouseKeepersPatchInput {
+  """Keepers to add or replace."""
+  replace: [AzureEnvClickHouseKeeperSpecInput!]
+  """Updates to existing keepers."""
+  update: [AzureEnvClickHouseKeeperUpdateSpecInput!]
+  """Keepers to delete. Missing keepers are ignored."""
+  delete: [String!]
+}
+
+"""ClickHouse Keeper configuration update. Omitted fields retain their values."""
+input AzureEnvClickHouseKeeperUpdateSpecInput {
+  """Keeper cluster name."""
+  name: String!
+  """
+  Azure VM size.
+  Must match a node group with a `ZOOKEEPER` reservation.
+  """
+  vmSize: String
+  """Number of Keeper replicas. Cannot be decreased."""
+  replicas: Int
+  """Whether the Keeper should be stopped."""
+  stopped: Boolean
+  """Data volume."""
+  disk: AzureEnvClickHouseKeeperDiskUpdateSpecInput
+}
+"""ClickHouse settings profile."""
+type AzureEnvClickHouseProfileSpec {
+  """Profile name."""
+  name: String!
+  """Settings the profile carries."""
+  settings: [AzureEnvClickHouseProfileSettingSpec!]!
+}
+
+"""ClickHouse settings profile."""
+input AzureEnvClickHouseProfileSpecInput {
+  """Profile name."""
+  name: String!
+  """Settings the profile should carry."""
+  settings: [AzureEnvClickHouseProfileSettingSpecInput!]
+}
+
+input AzureEnvClickHouseProfilesPatchInput {
+  """Profiles to add or replace."""
+  replace: [AzureEnvClickHouseProfileSpecInput!]
+  """Updates to existing profiles."""
+  update: [AzureEnvClickHouseProfileUpdateSpecInput!]
+  """Profiles to delete. Missing profiles are ignored."""
+  delete: [String!]
+}
+
+"""ClickHouse settings profile update. Omitted fields retain their values."""
+input AzureEnvClickHouseProfileUpdateSpecInput {
+  """Profile name."""
+  name: String!
+  """Settings the profile should carry."""
+  settings: [AzureEnvClickHouseProfileSettingSpecInput!]
+  """Settings patch."""
+  settingsPatch: AzureEnvClickHouseProfileSettingsPatchInput
+}
+
+"""A single ClickHouse setting."""
+type AzureEnvClickHouseProfileSettingSpec {
+  """Setting name."""
+  key: String!
+  """Setting value."""
+  value: String!
+}
+
+"""A single ClickHouse setting."""
+input AzureEnvClickHouseProfileSettingSpecInput {
+  """
+  Setting name.
+  https://clickhouse.com/docs/reference/settings/session-settings
+  """
+  key: String!
+  """Setting value."""
+  value: String
+}
+
+input AzureEnvClickHouseProfileSettingsPatchInput {
+  """Settings to add or replace."""
+  replace: [AzureEnvClickHouseProfileSettingSpecInput!]
+  """Settings to delete. Missing settings are ignored."""
+  delete: [String!]
+}
+"""
+ClickHouse server setting.
+"""
+type AzureEnvClickHouseServerSettingSpec {
+  """Setting name."""
+  key: String!
+  """Setting value."""
+  value: String!
+}
+
+"""
+ClickHouse server setting.
+"""
+input AzureEnvClickHouseServerSettingSpecInput {
+  """
+  Setting name.
+  https://clickhouse.com/docs/reference/settings/server-settings/settings
+  """
+  key: String!
+  """Setting value."""
+  value: String
+}
+
+input AzureEnvClickHouseServerSettingsPatchInput {
+  """Settings to add or replace."""
+  replace: [AzureEnvClickHouseServerSettingSpecInput!]
+  """Settings to delete. Missing settings are ignored."""
+  delete: [String!]
+}
+"""ClickHouse user."""
+type AzureEnvClickHouseUserSpec {
+  """User name."""
+  name: String!
+  """Settings profile assigned to the user."""
+  profile: String!
+  """Quota assigned to the user."""
+  quota: String!
+  """Networks the user may connect from."""
+  networks: AzureEnvClickHouseUserNetworksSpec!
+  """Whether the user can manage roles, users, and grants."""
+  accessManagement: Boolean!
+  """Whether the user can create and drop named collections."""
+  namedCollectionControl: Boolean!
+  """Whether the user can read secrets stored in named collections."""
+  showNamedCollectionsSecrets: Boolean!
+  """Databases the user is granted access to. All by default."""
+  databases: [AzureEnvClickHouseUserDatabaseSpec!]!
+  """
+  User grants, e.g. "GRANT SHOW ON *.*".
+  This setting cannot be combined with
+  accessManagement, namedCollectionControl, showNamedCollectionsSecrets and databases settings.
+  """
+  grants: [String!]!
+  """User password."""
+  password: AzureEnvClickHouseUserPasswordSpec!
+}
+
+type AzureEnvClickHouseUserNetworksSpec {
+  """
+  IP addresses or CIDRs the user may connect from. When omitted or empty, only `127.0.0.1` and `::1` are allowed.
+  """
+  ips: [String!]!
+}
+
+input AzureEnvClickHouseUserNetworksSpecInput {
+  """
+  IP addresses or CIDRs the user may connect from. When omitted or empty, only `127.0.0.1` and `::1` are allowed.
+  """
+  ips: [String!]
+}
+
+type AzureEnvClickHouseUserDatabaseSpec {
+  name: String!
+}
+
+input AzureEnvClickHouseUserDatabaseSpecInput {
+  name: String!
+}
+
+type AzureEnvClickHouseUserPasswordSpec {
+  """Password encoding."""
+  type: AzureEnvClickHouseUserPasswordType!
+}
+
+input AzureEnvClickHouseUserPasswordSpecInput {
+  """Password encoding."""
+  type: AzureEnvClickHouseUserPasswordType!
+  """Password value encoded according to `type` and encrypted with the environment public key."""
+  encValue: Sensitive
+}
+
+"""Password encoding."""
+enum AzureEnvClickHouseUserPasswordType {
+  """SHA-256 digest, hex encoded."""
+  SHA256_HEX
+  """
+  Double SHA-1 digest, hex encoded.
+  Use only when you need compatibility with legacy MySQL clients. Otherwise its use is discouraged.
+  """
+  DOUBLE_SHA1_HEX
+}
+
+"""ClickHouse user."""
+input AzureEnvClickHouseUserSpecInput {
+  """User name."""
+  name: String!
+  """Settings profile assigned to the user."""
+  profile: String
+  """Quota assigned to the user."""
+  quota: String
+  """Networks the user may connect from."""
+  networks: AzureEnvClickHouseUserNetworksSpecInput
+  """Whether the user can manage roles, users, and grants."""
+  accessManagement: Boolean
+  """Whether the user can create and drop named collections."""
+  namedCollectionControl: Boolean
+  """Whether the user can read secrets stored in named collections."""
+  showNamedCollectionsSecrets: Boolean
+  """Databases the user is granted access to. All by default."""
+  databases: [AzureEnvClickHouseUserDatabaseSpecInput!]
+  """
+  User grants, e.g. "GRANT SHOW ON *.*".
+  This setting cannot be combined with
+  accessManagement, namedCollectionControl, showNamedCollectionsSecrets and databases settings.
+  """
+  grants: [String!]
+  """Password."""
+  password: AzureEnvClickHouseUserPasswordSpecInput!
+}
+
+input AzureEnvClickHouseUsersPatchInput {
+  """Users to add or replace."""
+  replace: [AzureEnvClickHouseUserSpecInput!]
+  """Updates to existing users."""
+  update: [AzureEnvClickHouseUserUpdateSpecInput!]
+  """Users to delete. Missing users are ignored."""
+  delete: [String!]
+}
+
+"""ClickHouse user update. Omitted fields retain their values."""
+input AzureEnvClickHouseUserUpdateSpecInput {
+  """User name, unique within the cluster."""
+  name: String!
+  """Settings profile assigned to the user."""
+  profile: String
+  """Quota assigned to the user."""
+  quota: String
+  """Networks the user may connect from."""
+  networks: AzureEnvClickHouseUserNetworksSpecInput
+  """Whether the user can manage roles, users, and grants."""
+  accessManagement: Boolean
+  """Whether the user can create and drop named collections."""
+  namedCollectionControl: Boolean
+  """Whether the user can read secrets stored in named collections."""
+  showNamedCollectionsSecrets: Boolean
+  """Databases the user is granted access to. All by default."""
+  databases: [AzureEnvClickHouseUserDatabaseSpecInput!]
+  """
+  User grants, e.g. "GRANT SHOW ON *.*".
+  This setting cannot be combined with
+  accessManagement, namedCollectionControl, showNamedCollectionsSecrets and databases settings.
+  """
+  grants: [String!]
+  """Password."""
+  password: AzureEnvClickHouseUserPasswordSpecInput
 }
 extend type Mutation {
   """
@@ -2671,6 +4539,14 @@ input CreateAzureEnvSpecInput {
   Datadog monitoring agent configuration.
   """
   datadog: DatadogSpecInput
+  """
+  ClickHouse clusters to create.
+  """
+  clickHouseClusters: [AzureEnvClickHouseClusterSpecInput!]
+  """
+  ClickHouse Keepers to create.
+  """
+  clickHouseKeepers: [AzureEnvClickHouseKeeperSpecInput!]
   """
   MFA destructive operations.
   True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
@@ -2952,6 +4828,14 @@ input UpdateAzureEnvSpecInput {
   Datadog monitoring agent configuration.
   """
   datadog: DatadogSpecInput
+  """Replaces all ClickHouse clusters exposed by this API."""
+  clickHouseClusters: [AzureEnvClickHouseClusterSpecInput!]
+  """Changes ClickHouse clusters exposed by this API. Cannot be combined with clickHouseClusters."""
+  clickHouseClustersPatch: AzureEnvClickHouseClustersPatchInput
+  """Replaces all ClickHouse Keepers exposed by this API."""
+  clickHouseKeepers: [AzureEnvClickHouseKeeperSpecInput!]
+  """Changes ClickHouse Keepers exposed by this API. Cannot be combined with clickHouseKeepers."""
+  clickHouseKeepersPatch: AzureEnvClickHouseKeepersPatchInput
   """
   MFA destructive operations.
   True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
@@ -2976,7 +4860,126 @@ type UpdateAzureEnvResult {
   """
   specRevision: Int!
 }
+"""
+ClickHouse resource usage quota.
+https://clickhouse.com/docs/concepts/features/configuration/server-config/quotas
+"""
+type ClickHouseQuotaSpec {
+  """Quota name, unique within the cluster."""
+  name: String!
+  """Value used to separate resource consumption into quota buckets."""
+  keyedBy: ClickHouseQuotaKeyedBy!
+  """IPv4 subnet prefix used with IP-based keys."""
+  ipv4PrefixBits: Int
+  """IPv6 subnet prefix used with IP-based keys."""
+  ipv6PrefixBits: Int
+  """
+  Time intervals over which resource consumption is accumulated. Exactly one interval is currently supported.
+  """
+  intervals: [ClickHouseQuotaIntervalSpec!]!
+}
+
+"""ClickHouse resource usage quota."""
+input ClickHouseQuotaSpecInput {
+  """Quota name."""
+  name: String!
+  """Value used to separate resource consumption into quota buckets. Defaults to `NONE`."""
+  keyedBy: ClickHouseQuotaKeyedBy
+  """IPv4 subnet prefix used with `IP_ADDRESS` or `FORWARDED_IP_ADDRESS`. Valid range is 0-32."""
+  ipv4PrefixBits: Int
+  """IPv6 subnet prefix used with `IP_ADDRESS` or `FORWARDED_IP_ADDRESS`. Valid range is 0-128."""
+  ipv6PrefixBits: Int
+  """
+  Time intervals over which resource consumption is accumulated. Exactly one interval is currently supported.
+  """
+  intervals: [ClickHouseQuotaIntervalSpecInput!]!
+}
+
+"""
+Value used to separate resource consumption into quota buckets.
+https://clickhouse.com/docs/concepts/features/configuration/server-config/quotas
+"""
+enum ClickHouseQuotaKeyedBy {
+  """All users assigned to the quota share one bucket."""
+  NONE
+  """The client supplies a quota key with each request."""
+  CLIENT_KEY
+  """The client IP address identifies the bucket."""
+  IP_ADDRESS
+  """The first address in the `X-Forwarded-For` header identifies the bucket."""
+  FORWARDED_IP_ADDRESS
+  """The normalized query hash identifies the bucket."""
+  NORMALIZED_QUERY_HASH
+}
+
+"""
+Resource limits accumulated during a quota interval.
+https://clickhouse.com/docs/concepts/features/configuration/server-config/quotas
+"""
+type ClickHouseQuotaIntervalSpec {
+  """Interval duration in seconds."""
+  duration: UInt64!
+  queries: UInt64
+  querySelects: UInt64
+  queryInserts: UInt64
+  errors: UInt64
+  resultRows: UInt64
+  resultBytes: UInt64
+  readRows: UInt64
+  readBytes: UInt64
+  writtenBytes: UInt64
+  """Total query execution time in seconds. Fractional values are supported."""
+  executionTime: Float
+  failedSequentialAuthentications: UInt64
+  queriesPerNormalizedHash: UInt64
+}
+
+"""
+Resource limits accumulated during a quota interval.
+https://clickhouse.com/docs/concepts/features/configuration/server-config/quotas
+"""
+input ClickHouseQuotaIntervalSpecInput {
+  """Interval duration in seconds. Must be greater than zero."""
+  duration: UInt64!
+  queries: UInt64
+  querySelects: UInt64
+  queryInserts: UInt64
+  errors: UInt64
+  resultRows: UInt64
+  resultBytes: UInt64
+  readRows: UInt64
+  readBytes: UInt64
+  writtenBytes: UInt64
+  """Total query execution time in seconds. Must be finite and non-negative."""
+  executionTime: Float
+  failedSequentialAuthentications: UInt64
+  queriesPerNormalizedHash: UInt64
+}
+
+input ClickHouseQuotaSpecsPatchInput {
+  """Quotas to add or replace."""
+  replace: [ClickHouseQuotaSpecInput!]
+  """Updates to existing quotas (unspecified fields are kept untouched)."""
+  update: [ClickHouseQuotaUpdateSpecInput!]
+  """Quotas to delete. Missing quotas are ignored."""
+  delete: [String!]
+}
+
+"""ClickHouse resource usage quota update."""
+input ClickHouseQuotaUpdateSpecInput {
+  """Quota name, unique within the cluster."""
+  name: String!
+  """Value used to separate resource consumption into quota buckets."""
+  keyedBy: ClickHouseQuotaKeyedBy
+  """IPv4 subnet prefix used with `IP_ADDRESS` or `FORWARDED_IP_ADDRESS`. Valid range is 0-32."""
+  ipv4PrefixBits: Int
+  """IPv6 subnet prefix used with `IP_ADDRESS` or `FORWARDED_IP_ADDRESS`. Valid range is 0-128."""
+  ipv6PrefixBits: Int
+  """Replacement time intervals."""
+  intervals: [ClickHouseQuotaIntervalSpecInput!]
+}
 scalar Sensitive
+scalar UInt64
 
 """
 Update strategy.
@@ -3636,6 +5639,14 @@ type GCPEnvSpec {
   """
   datadog: DatadogSpec!
   """
+  ClickHouse clusters.
+  """
+  clickHouseClusters: [GCPEnvClickHouseClusterSpec!]!
+  """
+  ClickHouse Keepers.
+  """
+  clickHouseKeepers: [GCPEnvClickHouseKeeperSpec!]!
+  """
   MFA destructive operations.
   True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
   """
@@ -3762,6 +5773,10 @@ type GCPEnvStatus {
   """
   appliedSpecRevision: Int!
   """
+  Status of ClickHouse clusters.
+  """
+  clickHouseClusters: [GCPEnvClickHouseClusterStatus!]!
+  """
   True indicates that environment is pending deletion.
   """
   pendingDelete: Boolean!
@@ -3769,6 +5784,30 @@ type GCPEnvStatus {
   Status errors.
   """
   errors: [EnvStatusError!]!
+}
+
+type GCPEnvClickHouseClusterStatus {
+  name: String!
+  endpoints: [GCPEnvClickHouseEndpoint!]!
+}
+
+type GCPEnvClickHouseEndpoint {
+  protocol: GCPEnvClickHouseProtocol!
+  """Host, including port."""
+  host: String!
+  type: GCPEnvClickHouseEndpointType
+}
+
+enum GCPEnvClickHouseEndpointType {
+  PUBLIC
+  INTERNAL
+  PSC
+}
+
+enum GCPEnvClickHouseProtocol {
+  HTTPS
+  NATIVE_TLS
+  MYSQL
 }
 
 """
@@ -3780,6 +5819,536 @@ input GCPEnvFilter {
   Names that don't match any of the existing environments are ignored.
   """
   names: [String!]
+}
+"""ClickHouse cluster configuration."""
+type GCPEnvClickHouseClusterSpec {
+  """Cluster name."""
+  name: String!
+  """Server image, tag included."""
+  image: String!
+  """GCP machine type used by the nodes."""
+  machineType: String!
+  """GCP zones used by the nodes."""
+  zones: [String!]!
+  """Number of shards."""
+  shards: Int!
+  """Number of replicas per shard."""
+  replicas: Int!
+  """Whether the cluster is stopped."""
+  stopped: Boolean!
+  """Main data volume."""
+  disk: GCPEnvClickHouseClusterDiskSpec!
+  """
+  Extra data volumes added to the default ClickHouse storage policy.
+  Each replica receives one volume per entry.
+
+  By default, ClickHouse balances new data across the main and extra volumes using `least_used` strategy.
+
+  A volume named `diskN`, where `N` is a positive integer, is mounted at `/var/lib/clickhouseN`;
+  other names are mounted at `/var/lib/clickhouse<name>`.
+  """
+  extraDisks: [GCPEnvClickHouseNamedDiskSpec!]!
+  """Name of the Keeper this cluster coordinates through. Empty when no Keeper configured."""
+  keeper: String!
+  """ClickHouse users."""
+  users: [GCPEnvClickHouseUserSpec!]!
+  """Settings profiles users can be assigned to."""
+  profiles: [GCPEnvClickHouseProfileSpec!]!
+  """Resource usage quotas users can be assigned to."""
+  quotas: [ClickHouseQuotaSpec!]!
+  """Server configuration settings."""
+  serverSettings: [GCPEnvClickHouseServerSettingSpec!]!
+}
+
+"""ClickHouse cluster."""
+input GCPEnvClickHouseClusterSpecInput {
+  """
+  Cluster name.
+  Must be 2-15 characters long, containing only lowercase letters, numbers, and hyphens
+  (cannot start or end with a hyphen).
+  Immutable.
+  """
+  name: String!
+  """
+  Server image.
+  e.g. altinity/clickhouse-server:25.8.16.10002.altinitystable
+  """
+  image: String
+  """
+  GCP machine type.
+  Must match a node group with a `CLICKHOUSE` reservation.
+  """
+  machineType: String!
+  """
+  GCP zones.
+  Defaults to environment's zones.
+  Immutable.
+  """
+  zones: [String!]
+  """Number of shards."""
+  shards: Int
+  """Number of replicas per shard."""
+  replicas: Int
+  """Whether the cluster should be stopped."""
+  stopped: Boolean
+  """Name of the Keeper this cluster coordinates through. Required when replicas is greater than 1."""
+  keeper: String
+  """Main data volume."""
+  disk: GCPEnvClickHouseClusterDiskSpecInput!
+  """
+  Extra data volumes added to the default ClickHouse storage policy.
+  Each replica receives one volume per entry.
+
+  By default, ClickHouse balances new data across the main and extra volumes using `least_used` strategy.
+
+  A volume named `diskN`, where `N` is a positive integer, is mounted at `/var/lib/clickhouseN`;
+  other names are mounted at `/var/lib/clickhouse<name>`.
+  """
+  extraDisks: [GCPEnvClickHouseNamedDiskSpecInput!]
+  """ClickHouse users."""
+  users: [GCPEnvClickHouseUserSpecInput!]
+  """Settings profiles users can be assigned to."""
+  profiles: [GCPEnvClickHouseProfileSpecInput!]
+  """Resource usage quotas users can be assigned to."""
+  quotas: [ClickHouseQuotaSpecInput!]
+  """Server configuration settings."""
+  serverSettings: [GCPEnvClickHouseServerSettingSpecInput!]
+}
+
+input GCPEnvClickHouseClustersPatchInput {
+  """Clusters to add or replace."""
+  replace: [GCPEnvClickHouseClusterSpecInput!]
+  """Updates to existing clusters (unspecified fields are kept untouched)."""
+  update: [GCPEnvClickHouseClusterUpdateSpecInput!]
+  """Clusters to delete. Missing clusters are ignored."""
+  delete: [String!]
+}
+
+"""ClickHouse cluster update."""
+input GCPEnvClickHouseClusterUpdateSpecInput {
+  """Cluster identifier."""
+  name: String!
+  """
+  Server image.
+  e.g. altinity/clickhouse-server:25.8.16.10002.altinitystable
+  """
+  image: String
+  """
+  GCP machine type.
+  Must match a node group with a `CLICKHOUSE` reservation.
+  """
+  machineType: String
+  """Number of shards."""
+  shards: Int
+  """Number of replicas per shard."""
+  replicas: Int
+  """Whether the cluster should be stopped."""
+  stopped: Boolean
+  """Name of the Keeper this cluster coordinates through. A Keeper must be configured when replicas is greater than 1."""
+  keeper: String
+  """Main data volume."""
+  disk: GCPEnvClickHouseClusterDiskUpdateSpecInput
+  """
+  Extra data volumes added to the default ClickHouse storage policy.
+  Each replica receives one volume per entry.
+
+  By default, ClickHouse balances new data across the main and extra volumes using `least_used` strategy.
+
+  A volume named `diskN`, where `N` is a positive integer, is mounted at `/var/lib/clickhouseN`;
+  other names are mounted at `/var/lib/clickhouse<name>`.
+  """
+  extraDisks: [GCPEnvClickHouseNamedDiskSpecInput!]
+  """Partial extraDisks update."""
+  extraDisksPatch: GCPEnvClickHouseNamedDisksPatchInput
+  """ClickHouse users."""
+  users: [GCPEnvClickHouseUserSpecInput!]
+  """Partial users update."""
+  usersPatch: GCPEnvClickHouseUsersPatchInput
+  """Settings profiles users can be assigned to."""
+  profiles: [GCPEnvClickHouseProfileSpecInput!]
+  """Partial profiles update."""
+  profilesPatch: GCPEnvClickHouseProfilesPatchInput
+  """Resource usage quotas users can be assigned to."""
+  quotas: [ClickHouseQuotaSpecInput!]
+  """Partial quotas update."""
+  quotasPatch: ClickHouseQuotaSpecsPatchInput
+  """Server configuration settings."""
+  serverSettings: [GCPEnvClickHouseServerSettingSpecInput!]
+  """Partial serverSettings update."""
+  serverSettingsPatch: GCPEnvClickHouseServerSettingsPatchInput
+}
+"""ClickHouse cluster data volume."""
+type GCPEnvClickHouseClusterDiskSpec {
+  """Size in GiB."""
+  sizeInGiB: Int!
+}
+
+"""ClickHouse cluster data volume."""
+input GCPEnvClickHouseClusterDiskSpecInput {
+  """Size in GiB."""
+  sizeInGiB: Int!
+}
+
+"""ClickHouse cluster data volume update."""
+input GCPEnvClickHouseClusterDiskUpdateSpecInput {
+  """
+  Size in GiB.
+  The size of the volume cannot be decreased.
+  """
+  sizeInGiB: Int
+}
+
+"""ClickHouse Keeper data volume."""
+type GCPEnvClickHouseKeeperDiskSpec {
+  """Size in GiB."""
+  sizeInGiB: Int!
+}
+
+"""ClickHouse Keeper data volume."""
+input GCPEnvClickHouseKeeperDiskSpecInput {
+  """Size in GiB."""
+  sizeInGiB: Int!
+}
+
+"""ClickHouse Keeper data volume update."""
+input GCPEnvClickHouseKeeperDiskUpdateSpecInput {
+  """
+  Size in GiB.
+  The size of the volume cannot be decreased.
+  """
+  sizeInGiB: Int
+}
+
+"""ClickHouse named data volume."""
+type GCPEnvClickHouseNamedDiskSpec {
+  """Volume name."""
+  name: String!
+  """Size in GiB."""
+  sizeInGiB: Int!
+}
+
+"""ClickHouse named data volume."""
+input GCPEnvClickHouseNamedDiskSpecInput {
+  """
+  Volume name.
+  Must start with `disk`; 16 characters max.
+  Immutable.
+  """
+  name: String!
+  """Size in GiB."""
+  sizeInGiB: Int!
+}
+
+"""ClickHouse named data volume patch."""
+input GCPEnvClickHouseNamedDisksPatchInput {
+  """Volumes to add or replace."""
+  replace: [GCPEnvClickHouseNamedDiskSpecInput!]
+  """Updates to existing volumes."""
+  update: [GCPEnvClickHouseNamedDiskUpdateSpecInput!]
+  """Volumes to delete."""
+  delete: [String!]
+}
+
+"""ClickHouse named data volume update. Omitted fields retain their values."""
+input GCPEnvClickHouseNamedDiskUpdateSpecInput {
+  """Volume name."""
+  name: String!
+  """
+  Size in GiB.
+  The size of the volume cannot be decreased.
+  """
+  sizeInGiB: Int
+}
+"""ClickHouse Keeper configuration."""
+type GCPEnvClickHouseKeeperSpec {
+  """Keeper cluster name."""
+  name: String!
+  """GCP machine type the Keeper nodes run on."""
+  machineType: String!
+  """GCP zones the Keeper is spread across. Keeper replicas are distributed across these locations."""
+  zones: [String!]!
+  """Number of Keeper replicas."""
+  replicas: Int!
+  """Whether the Keeper is stopped."""
+  stopped: Boolean!
+  """Data volume."""
+  disk: GCPEnvClickHouseKeeperDiskSpec!
+}
+
+"""ClickHouse Keeper configuration."""
+input GCPEnvClickHouseKeeperSpecInput {
+  """
+  Keeper cluster name.
+  Must be 2-15 characters long, containing only lowercase letters, numbers, and hyphens
+  (cannot start or end with a hyphen).
+  Immutable.
+  """
+  name: String!
+  """
+  GCP machine type.
+  Must match a node group with a `ZOOKEEPER` reservation.
+  """
+  machineType: String!
+  """GCP zones. Defaults to all environment zones. Immutable."""
+  zones: [String!]
+  """Number of Keeper replicas. Defaults to 1. Set to 3 for high availability."""
+  replicas: Int
+  """Whether the Keeper should be stopped."""
+  stopped: Boolean
+  """Data volume."""
+  disk: GCPEnvClickHouseKeeperDiskSpecInput!
+}
+
+input GCPEnvClickHouseKeepersPatchInput {
+  """Keepers to add or replace."""
+  replace: [GCPEnvClickHouseKeeperSpecInput!]
+  """Updates to existing keepers."""
+  update: [GCPEnvClickHouseKeeperUpdateSpecInput!]
+  """Keepers to delete. Missing keepers are ignored."""
+  delete: [String!]
+}
+
+"""ClickHouse Keeper configuration update. Omitted fields retain their values."""
+input GCPEnvClickHouseKeeperUpdateSpecInput {
+  """Keeper cluster name."""
+  name: String!
+  """
+  GCP machine type.
+  Must match a node group with a `ZOOKEEPER` reservation.
+  """
+  machineType: String
+  """Number of Keeper replicas. Cannot be decreased."""
+  replicas: Int
+  """Whether the Keeper should be stopped."""
+  stopped: Boolean
+  """Data volume."""
+  disk: GCPEnvClickHouseKeeperDiskUpdateSpecInput
+}
+"""ClickHouse settings profile."""
+type GCPEnvClickHouseProfileSpec {
+  """Profile name."""
+  name: String!
+  """Settings the profile carries."""
+  settings: [GCPEnvClickHouseProfileSettingSpec!]!
+}
+
+"""ClickHouse settings profile."""
+input GCPEnvClickHouseProfileSpecInput {
+  """Profile name."""
+  name: String!
+  """Settings the profile should carry."""
+  settings: [GCPEnvClickHouseProfileSettingSpecInput!]
+}
+
+input GCPEnvClickHouseProfilesPatchInput {
+  """Profiles to add or replace."""
+  replace: [GCPEnvClickHouseProfileSpecInput!]
+  """Updates to existing profiles."""
+  update: [GCPEnvClickHouseProfileUpdateSpecInput!]
+  """Profiles to delete. Missing profiles are ignored."""
+  delete: [String!]
+}
+
+"""ClickHouse settings profile update. Omitted fields retain their values."""
+input GCPEnvClickHouseProfileUpdateSpecInput {
+  """Profile name."""
+  name: String!
+  """Settings the profile should carry."""
+  settings: [GCPEnvClickHouseProfileSettingSpecInput!]
+  """Settings patch."""
+  settingsPatch: GCPEnvClickHouseProfileSettingsPatchInput
+}
+
+"""A single ClickHouse setting."""
+type GCPEnvClickHouseProfileSettingSpec {
+  """Setting name."""
+  key: String!
+  """Setting value."""
+  value: String!
+}
+
+"""A single ClickHouse setting."""
+input GCPEnvClickHouseProfileSettingSpecInput {
+  """
+  Setting name.
+  https://clickhouse.com/docs/reference/settings/session-settings
+  """
+  key: String!
+  """Setting value."""
+  value: String
+}
+
+input GCPEnvClickHouseProfileSettingsPatchInput {
+  """Settings to add or replace."""
+  replace: [GCPEnvClickHouseProfileSettingSpecInput!]
+  """Settings to delete. Missing settings are ignored."""
+  delete: [String!]
+}
+"""
+ClickHouse server setting.
+"""
+type GCPEnvClickHouseServerSettingSpec {
+  """Setting name."""
+  key: String!
+  """Setting value."""
+  value: String!
+}
+
+"""
+ClickHouse server setting.
+"""
+input GCPEnvClickHouseServerSettingSpecInput {
+  """
+  Setting name.
+  https://clickhouse.com/docs/reference/settings/server-settings/settings
+  """
+  key: String!
+  """Setting value."""
+  value: String
+}
+
+input GCPEnvClickHouseServerSettingsPatchInput {
+  """Settings to add or replace."""
+  replace: [GCPEnvClickHouseServerSettingSpecInput!]
+  """Settings to delete. Missing settings are ignored."""
+  delete: [String!]
+}
+"""ClickHouse user."""
+type GCPEnvClickHouseUserSpec {
+  """User name."""
+  name: String!
+  """Settings profile assigned to the user."""
+  profile: String!
+  """Quota assigned to the user."""
+  quota: String!
+  """Networks the user may connect from."""
+  networks: GCPEnvClickHouseUserNetworksSpec!
+  """Whether the user can manage roles, users, and grants."""
+  accessManagement: Boolean!
+  """Whether the user can create and drop named collections."""
+  namedCollectionControl: Boolean!
+  """Whether the user can read secrets stored in named collections."""
+  showNamedCollectionsSecrets: Boolean!
+  """Databases the user is granted access to. All by default."""
+  databases: [GCPEnvClickHouseUserDatabaseSpec!]!
+  """
+  User grants, e.g. "GRANT SHOW ON *.*".
+  This setting cannot be combined with
+  accessManagement, namedCollectionControl, showNamedCollectionsSecrets and databases settings.
+  """
+  grants: [String!]!
+  """User password."""
+  password: GCPEnvClickHouseUserPasswordSpec!
+}
+
+type GCPEnvClickHouseUserNetworksSpec {
+  """
+  IP addresses or CIDRs the user may connect from. When omitted or empty, only `127.0.0.1` and `::1` are allowed.
+  """
+  ips: [String!]!
+}
+
+input GCPEnvClickHouseUserNetworksSpecInput {
+  """
+  IP addresses or CIDRs the user may connect from. When omitted or empty, only `127.0.0.1` and `::1` are allowed.
+  """
+  ips: [String!]
+}
+
+type GCPEnvClickHouseUserDatabaseSpec {
+  name: String!
+}
+
+input GCPEnvClickHouseUserDatabaseSpecInput {
+  name: String!
+}
+
+type GCPEnvClickHouseUserPasswordSpec {
+  """Password encoding."""
+  type: GCPEnvClickHouseUserPasswordType!
+}
+
+input GCPEnvClickHouseUserPasswordSpecInput {
+  """Password encoding."""
+  type: GCPEnvClickHouseUserPasswordType!
+  """Password value encoded according to `type` and encrypted with the environment public key."""
+  encValue: Sensitive
+}
+
+"""Password encoding."""
+enum GCPEnvClickHouseUserPasswordType {
+  """SHA-256 digest, hex encoded."""
+  SHA256_HEX
+  """
+  Double SHA-1 digest, hex encoded.
+  Use only when you need compatibility with legacy MySQL clients. Otherwise its use is discouraged.
+  """
+  DOUBLE_SHA1_HEX
+}
+
+"""ClickHouse user."""
+input GCPEnvClickHouseUserSpecInput {
+  """User name."""
+  name: String!
+  """Settings profile assigned to the user."""
+  profile: String
+  """Quota assigned to the user."""
+  quota: String
+  """Networks the user may connect from."""
+  networks: GCPEnvClickHouseUserNetworksSpecInput
+  """Whether the user can manage roles, users, and grants."""
+  accessManagement: Boolean
+  """Whether the user can create and drop named collections."""
+  namedCollectionControl: Boolean
+  """Whether the user can read secrets stored in named collections."""
+  showNamedCollectionsSecrets: Boolean
+  """Databases the user is granted access to. All by default."""
+  databases: [GCPEnvClickHouseUserDatabaseSpecInput!]
+  """
+  User grants, e.g. "GRANT SHOW ON *.*".
+  This setting cannot be combined with
+  accessManagement, namedCollectionControl, showNamedCollectionsSecrets and databases settings.
+  """
+  grants: [String!]
+  """Password."""
+  password: GCPEnvClickHouseUserPasswordSpecInput!
+}
+
+input GCPEnvClickHouseUsersPatchInput {
+  """Users to add or replace."""
+  replace: [GCPEnvClickHouseUserSpecInput!]
+  """Updates to existing users."""
+  update: [GCPEnvClickHouseUserUpdateSpecInput!]
+  """Users to delete. Missing users are ignored."""
+  delete: [String!]
+}
+
+"""ClickHouse user update. Omitted fields retain their values."""
+input GCPEnvClickHouseUserUpdateSpecInput {
+  """User name, unique within the cluster."""
+  name: String!
+  """Settings profile assigned to the user."""
+  profile: String
+  """Quota assigned to the user."""
+  quota: String
+  """Networks the user may connect from."""
+  networks: GCPEnvClickHouseUserNetworksSpecInput
+  """Whether the user can manage roles, users, and grants."""
+  accessManagement: Boolean
+  """Whether the user can create and drop named collections."""
+  namedCollectionControl: Boolean
+  """Whether the user can read secrets stored in named collections."""
+  showNamedCollectionsSecrets: Boolean
+  """Databases the user is granted access to. All by default."""
+  databases: [GCPEnvClickHouseUserDatabaseSpecInput!]
+  """
+  User grants, e.g. "GRANT SHOW ON *.*".
+  This setting cannot be combined with
+  accessManagement, namedCollectionControl, showNamedCollectionsSecrets and databases settings.
+  """
+  grants: [String!]
+  """Password."""
+  password: GCPEnvClickHouseUserPasswordSpecInput
 }
 extend type Mutation {
   """
@@ -3937,6 +6506,14 @@ input CreateGCPEnvSpecInput {
   Datadog monitoring agent configuration.
   """
   datadog: DatadogSpecInput
+  """
+  ClickHouse clusters to create.
+  """
+  clickHouseClusters: [GCPEnvClickHouseClusterSpecInput!]
+  """
+  ClickHouse Keepers to create.
+  """
+  clickHouseKeepers: [GCPEnvClickHouseKeeperSpecInput!]
   """
   MFA destructive operations.
   True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
@@ -4238,6 +6815,14 @@ input UpdateGCPEnvSpecInput {
   Datadog monitoring agent configuration.
   """
   datadog: DatadogSpecInput
+  """Replaces all ClickHouse clusters exposed by this API."""
+  clickHouseClusters: [GCPEnvClickHouseClusterSpecInput!]
+  """Changes ClickHouse clusters exposed by this API. Cannot be combined with clickHouseClusters."""
+  clickHouseClustersPatch: GCPEnvClickHouseClustersPatchInput
+  """Replaces all ClickHouse Keepers exposed by this API."""
+  clickHouseKeepers: [GCPEnvClickHouseKeeperSpecInput!]
+  """Changes ClickHouse Keepers exposed by this API. Cannot be combined with clickHouseKeepers."""
+  clickHouseKeepersPatch: GCPEnvClickHouseKeepersPatchInput
   """
   MFA destructive operations.
   True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
@@ -4409,6 +6994,14 @@ type HCloudEnvSpec {
   """
   datadog: DatadogSpec!
   """
+  ClickHouse clusters.
+  """
+  clickHouseClusters: [HCloudEnvClickHouseClusterSpec!]!
+  """
+  ClickHouse Keepers.
+  """
+  clickHouseKeepers: [HCloudEnvClickHouseKeeperSpec!]!
+  """
   MFA destructive operations.
   True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
   """
@@ -4520,6 +7113,10 @@ type HCloudEnvStatus {
   """
   appliedSpecRevision: Int!
   """
+  Status of ClickHouse clusters.
+  """
+  clickHouseClusters: [HCloudEnvClickHouseClusterStatus!]!
+  """
   True indicates that environment is pending deletion.
   """
   pendingDelete: Boolean!
@@ -4527,6 +7124,29 @@ type HCloudEnvStatus {
   Status errors.
   """
   errors: [EnvStatusError!]!
+}
+
+type HCloudEnvClickHouseClusterStatus {
+  name: String!
+  endpoints: [HCloudEnvClickHouseEndpoint!]!
+}
+
+type HCloudEnvClickHouseEndpoint {
+  protocol: HCloudEnvClickHouseProtocol!
+  """Host, including port."""
+  host: String!
+  type: HCloudEnvClickHouseEndpointType
+}
+
+enum HCloudEnvClickHouseEndpointType {
+  PUBLIC
+  INTERNAL
+}
+
+enum HCloudEnvClickHouseProtocol {
+  HTTPS
+  NATIVE_TLS
+  MYSQL
 }
 
 """
@@ -4538,6 +7158,536 @@ input HCloudEnvFilter {
   Names that don't match any of the existing environments are ignored.
   """
   names: [String!]
+}
+"""ClickHouse cluster configuration."""
+type HCloudEnvClickHouseClusterSpec {
+  """Cluster name."""
+  name: String!
+  """Server image, tag included."""
+  image: String!
+  """Hetzner Cloud server type used by the nodes."""
+  serverType: String!
+  """Hetzner Cloud locations used by the nodes."""
+  locations: [String!]!
+  """Number of shards."""
+  shards: Int!
+  """Number of replicas per shard."""
+  replicas: Int!
+  """Whether the cluster is stopped."""
+  stopped: Boolean!
+  """Main data volume."""
+  disk: HCloudEnvClickHouseClusterDiskSpec!
+  """
+  Extra data volumes added to the default ClickHouse storage policy.
+  Each replica receives one volume per entry.
+
+  By default, ClickHouse balances new data across the main and extra volumes using `least_used` strategy.
+
+  A volume named `diskN`, where `N` is a positive integer, is mounted at `/var/lib/clickhouseN`;
+  other names are mounted at `/var/lib/clickhouse<name>`.
+  """
+  extraDisks: [HCloudEnvClickHouseNamedDiskSpec!]!
+  """Name of the Keeper this cluster coordinates through. Empty when no Keeper configured."""
+  keeper: String!
+  """ClickHouse users."""
+  users: [HCloudEnvClickHouseUserSpec!]!
+  """Settings profiles users can be assigned to."""
+  profiles: [HCloudEnvClickHouseProfileSpec!]!
+  """Resource usage quotas users can be assigned to."""
+  quotas: [ClickHouseQuotaSpec!]!
+  """Server configuration settings."""
+  serverSettings: [HCloudEnvClickHouseServerSettingSpec!]!
+}
+
+"""ClickHouse cluster."""
+input HCloudEnvClickHouseClusterSpecInput {
+  """
+  Cluster name.
+  Must be 2-15 characters long, containing only lowercase letters, numbers, and hyphens
+  (cannot start or end with a hyphen).
+  Immutable.
+  """
+  name: String!
+  """
+  Server image.
+  e.g. altinity/clickhouse-server:25.8.16.10002.altinitystable
+  """
+  image: String
+  """
+  Hetzner Cloud server type.
+  Must match a node group with a `CLICKHOUSE` reservation.
+  """
+  serverType: String!
+  """
+  Hetzner Cloud locations.
+  Defaults to environment's locations.
+  Immutable.
+  """
+  locations: [String!]
+  """Number of shards."""
+  shards: Int
+  """Number of replicas per shard."""
+  replicas: Int
+  """Whether the cluster should be stopped."""
+  stopped: Boolean
+  """Name of the Keeper this cluster coordinates through."""
+  keeper: String
+  """Main data volume."""
+  disk: HCloudEnvClickHouseClusterDiskSpecInput!
+  """
+  Extra data volumes added to the default ClickHouse storage policy.
+  Each replica receives one volume per entry.
+
+  By default, ClickHouse balances new data across the main and extra volumes using `least_used` strategy.
+
+  A volume named `diskN`, where `N` is a positive integer, is mounted at `/var/lib/clickhouseN`;
+  other names are mounted at `/var/lib/clickhouse<name>`.
+  """
+  extraDisks: [HCloudEnvClickHouseNamedDiskSpecInput!]
+  """ClickHouse users."""
+  users: [HCloudEnvClickHouseUserSpecInput!]
+  """Settings profiles users can be assigned to."""
+  profiles: [HCloudEnvClickHouseProfileSpecInput!]
+  """Resource usage quotas users can be assigned to."""
+  quotas: [ClickHouseQuotaSpecInput!]
+  """Server configuration settings."""
+  serverSettings: [HCloudEnvClickHouseServerSettingSpecInput!]
+}
+
+input HCloudEnvClickHouseClustersPatchInput {
+  """Clusters to add or replace."""
+  replace: [HCloudEnvClickHouseClusterSpecInput!]
+  """Updates to existing clusters (unspecified fields are kept untouched)."""
+  update: [HCloudEnvClickHouseClusterUpdateSpecInput!]
+  """Clusters to delete. Missing clusters are ignored."""
+  delete: [String!]
+}
+
+"""ClickHouse cluster update."""
+input HCloudEnvClickHouseClusterUpdateSpecInput {
+  """Cluster identifier."""
+  name: String!
+  """
+  Server image.
+  e.g. altinity/clickhouse-server:25.8.16.10002.altinitystable
+  """
+  image: String
+  """
+  Hetzner Cloud server type.
+  Must match a node group with a `CLICKHOUSE` reservation.
+  """
+  serverType: String
+  """Number of shards."""
+  shards: Int
+  """Number of replicas per shard."""
+  replicas: Int
+  """Whether the cluster should be stopped."""
+  stopped: Boolean
+  """Name of the Keeper this cluster coordinates through."""
+  keeper: String
+  """Main data volume."""
+  disk: HCloudEnvClickHouseClusterDiskUpdateSpecInput
+  """
+  Extra data volumes added to the default ClickHouse storage policy.
+  Each replica receives one volume per entry.
+
+  By default, ClickHouse balances new data across the main and extra volumes using `least_used` strategy.
+
+  A volume named `diskN`, where `N` is a positive integer, is mounted at `/var/lib/clickhouseN`;
+  other names are mounted at `/var/lib/clickhouse<name>`.
+  """
+  extraDisks: [HCloudEnvClickHouseNamedDiskSpecInput!]
+  """Partial extraDisks update."""
+  extraDisksPatch: HCloudEnvClickHouseNamedDisksPatchInput
+  """ClickHouse users."""
+  users: [HCloudEnvClickHouseUserSpecInput!]
+  """Partial users update."""
+  usersPatch: HCloudEnvClickHouseUsersPatchInput
+  """Settings profiles users can be assigned to."""
+  profiles: [HCloudEnvClickHouseProfileSpecInput!]
+  """Partial profiles update."""
+  profilesPatch: HCloudEnvClickHouseProfilesPatchInput
+  """Resource usage quotas users can be assigned to."""
+  quotas: [ClickHouseQuotaSpecInput!]
+  """Partial quotas update."""
+  quotasPatch: ClickHouseQuotaSpecsPatchInput
+  """Server configuration settings."""
+  serverSettings: [HCloudEnvClickHouseServerSettingSpecInput!]
+  """Partial serverSettings update."""
+  serverSettingsPatch: HCloudEnvClickHouseServerSettingsPatchInput
+}
+"""ClickHouse cluster data volume."""
+type HCloudEnvClickHouseClusterDiskSpec {
+  """Size in GiB."""
+  sizeInGiB: Int!
+}
+
+"""ClickHouse cluster data volume."""
+input HCloudEnvClickHouseClusterDiskSpecInput {
+  """Size in GiB."""
+  sizeInGiB: Int!
+}
+
+"""ClickHouse cluster data volume update."""
+input HCloudEnvClickHouseClusterDiskUpdateSpecInput {
+  """
+  Size in GiB.
+  The size of the volume cannot be decreased.
+  """
+  sizeInGiB: Int
+}
+
+"""ClickHouse Keeper data volume."""
+type HCloudEnvClickHouseKeeperDiskSpec {
+  """Size in GiB."""
+  sizeInGiB: Int!
+}
+
+"""ClickHouse Keeper data volume."""
+input HCloudEnvClickHouseKeeperDiskSpecInput {
+  """Size in GiB."""
+  sizeInGiB: Int!
+}
+
+"""ClickHouse Keeper data volume update."""
+input HCloudEnvClickHouseKeeperDiskUpdateSpecInput {
+  """
+  Size in GiB.
+  The size of the volume cannot be decreased.
+  """
+  sizeInGiB: Int
+}
+
+"""ClickHouse named data volume."""
+type HCloudEnvClickHouseNamedDiskSpec {
+  """Volume name."""
+  name: String!
+  """Size in GiB."""
+  sizeInGiB: Int!
+}
+
+"""ClickHouse named data volume."""
+input HCloudEnvClickHouseNamedDiskSpecInput {
+  """
+  Volume name.
+  Must start with `disk`; 16 characters max.
+  Immutable.
+  """
+  name: String!
+  """Size in GiB."""
+  sizeInGiB: Int!
+}
+
+"""ClickHouse named data volume patch."""
+input HCloudEnvClickHouseNamedDisksPatchInput {
+  """Volumes to add or replace."""
+  replace: [HCloudEnvClickHouseNamedDiskSpecInput!]
+  """Updates to existing volumes."""
+  update: [HCloudEnvClickHouseNamedDiskUpdateSpecInput!]
+  """Volumes to delete."""
+  delete: [String!]
+}
+
+"""ClickHouse named data volume update. Omitted fields retain their values."""
+input HCloudEnvClickHouseNamedDiskUpdateSpecInput {
+  """Volume name."""
+  name: String!
+  """
+  Size in GiB.
+  The size of the volume cannot be decreased.
+  """
+  sizeInGiB: Int
+}
+"""ClickHouse Keeper configuration."""
+type HCloudEnvClickHouseKeeperSpec {
+  """Keeper cluster name."""
+  name: String!
+  """Hetzner Cloud server type the Keeper nodes run on."""
+  serverType: String!
+  """Hetzner Cloud locations the Keeper is spread across. Keeper replicas are distributed across these locations."""
+  locations: [String!]!
+  """Number of Keeper replicas."""
+  replicas: Int!
+  """Whether the Keeper is stopped."""
+  stopped: Boolean!
+  """Data volume."""
+  disk: HCloudEnvClickHouseKeeperDiskSpec!
+}
+
+"""ClickHouse Keeper configuration."""
+input HCloudEnvClickHouseKeeperSpecInput {
+  """
+  Keeper cluster name.
+  Must be 2-15 characters long, containing only lowercase letters, numbers, and hyphens
+  (cannot start or end with a hyphen).
+  Immutable.
+  """
+  name: String!
+  """
+  Hetzner Cloud server type.
+  Must match a node group with a `ZOOKEEPER` reservation.
+  """
+  serverType: String!
+  """Hetzner Cloud locations. Defaults to all environment locations. Immutable."""
+  locations: [String!]
+  """Number of Keeper replicas. Defaults to 1. Set to 3 for high availability."""
+  replicas: Int
+  """Whether the Keeper should be stopped."""
+  stopped: Boolean
+  """Data volume."""
+  disk: HCloudEnvClickHouseKeeperDiskSpecInput!
+}
+
+input HCloudEnvClickHouseKeepersPatchInput {
+  """Keepers to add or replace."""
+  replace: [HCloudEnvClickHouseKeeperSpecInput!]
+  """Updates to existing keepers."""
+  update: [HCloudEnvClickHouseKeeperUpdateSpecInput!]
+  """Keepers to delete. Missing keepers are ignored."""
+  delete: [String!]
+}
+
+"""ClickHouse Keeper configuration update. Omitted fields retain their values."""
+input HCloudEnvClickHouseKeeperUpdateSpecInput {
+  """Keeper cluster name."""
+  name: String!
+  """
+  Hetzner Cloud server type.
+  Must match a node group with a `ZOOKEEPER` reservation.
+  """
+  serverType: String
+  """Number of Keeper replicas. Cannot be decreased."""
+  replicas: Int
+  """Whether the Keeper should be stopped."""
+  stopped: Boolean
+  """Data volume."""
+  disk: HCloudEnvClickHouseKeeperDiskUpdateSpecInput
+}
+"""ClickHouse settings profile."""
+type HCloudEnvClickHouseProfileSpec {
+  """Profile name."""
+  name: String!
+  """Settings the profile carries."""
+  settings: [HCloudEnvClickHouseProfileSettingSpec!]!
+}
+
+"""ClickHouse settings profile."""
+input HCloudEnvClickHouseProfileSpecInput {
+  """Profile name."""
+  name: String!
+  """Settings the profile should carry."""
+  settings: [HCloudEnvClickHouseProfileSettingSpecInput!]
+}
+
+input HCloudEnvClickHouseProfilesPatchInput {
+  """Profiles to add or replace."""
+  replace: [HCloudEnvClickHouseProfileSpecInput!]
+  """Updates to existing profiles."""
+  update: [HCloudEnvClickHouseProfileUpdateSpecInput!]
+  """Profiles to delete. Missing profiles are ignored."""
+  delete: [String!]
+}
+
+"""ClickHouse settings profile update. Omitted fields retain their values."""
+input HCloudEnvClickHouseProfileUpdateSpecInput {
+  """Profile name."""
+  name: String!
+  """Settings the profile should carry."""
+  settings: [HCloudEnvClickHouseProfileSettingSpecInput!]
+  """Settings patch."""
+  settingsPatch: HCloudEnvClickHouseProfileSettingsPatchInput
+}
+
+"""A single ClickHouse setting."""
+type HCloudEnvClickHouseProfileSettingSpec {
+  """Setting name."""
+  key: String!
+  """Setting value."""
+  value: String!
+}
+
+"""A single ClickHouse setting."""
+input HCloudEnvClickHouseProfileSettingSpecInput {
+  """
+  Setting name.
+  https://clickhouse.com/docs/reference/settings/session-settings
+  """
+  key: String!
+  """Setting value."""
+  value: String
+}
+
+input HCloudEnvClickHouseProfileSettingsPatchInput {
+  """Settings to add or replace."""
+  replace: [HCloudEnvClickHouseProfileSettingSpecInput!]
+  """Settings to delete. Missing settings are ignored."""
+  delete: [String!]
+}
+"""
+ClickHouse server setting.
+"""
+type HCloudEnvClickHouseServerSettingSpec {
+  """Setting name."""
+  key: String!
+  """Setting value."""
+  value: String!
+}
+
+"""
+ClickHouse server setting.
+"""
+input HCloudEnvClickHouseServerSettingSpecInput {
+  """
+  Setting name.
+  https://clickhouse.com/docs/reference/settings/server-settings/settings
+  """
+  key: String!
+  """Setting value."""
+  value: String
+}
+
+input HCloudEnvClickHouseServerSettingsPatchInput {
+  """Settings to add or replace."""
+  replace: [HCloudEnvClickHouseServerSettingSpecInput!]
+  """Settings to delete. Missing settings are ignored."""
+  delete: [String!]
+}
+"""ClickHouse user."""
+type HCloudEnvClickHouseUserSpec {
+  """User name."""
+  name: String!
+  """Settings profile assigned to the user."""
+  profile: String!
+  """Quota assigned to the user."""
+  quota: String!
+  """Networks the user may connect from."""
+  networks: HCloudEnvClickHouseUserNetworksSpec!
+  """Whether the user can manage roles, users, and grants."""
+  accessManagement: Boolean!
+  """Whether the user can create and drop named collections."""
+  namedCollectionControl: Boolean!
+  """Whether the user can read secrets stored in named collections."""
+  showNamedCollectionsSecrets: Boolean!
+  """Databases the user is granted access to. All by default."""
+  databases: [HCloudEnvClickHouseUserDatabaseSpec!]!
+  """
+  User grants, e.g. "GRANT SHOW ON *.*".
+  This setting cannot be combined with
+  accessManagement, namedCollectionControl, showNamedCollectionsSecrets and databases settings.
+  """
+  grants: [String!]!
+  """User password."""
+  password: HCloudEnvClickHouseUserPasswordSpec!
+}
+
+type HCloudEnvClickHouseUserNetworksSpec {
+  """
+  IP addresses or CIDRs the user may connect from. When omitted or empty, only `127.0.0.1` and `::1` are allowed.
+  """
+  ips: [String!]!
+}
+
+input HCloudEnvClickHouseUserNetworksSpecInput {
+  """
+  IP addresses or CIDRs the user may connect from. When omitted or empty, only `127.0.0.1` and `::1` are allowed.
+  """
+  ips: [String!]
+}
+
+type HCloudEnvClickHouseUserDatabaseSpec {
+  name: String!
+}
+
+input HCloudEnvClickHouseUserDatabaseSpecInput {
+  name: String!
+}
+
+type HCloudEnvClickHouseUserPasswordSpec {
+  """Password encoding."""
+  type: HCloudEnvClickHouseUserPasswordType!
+}
+
+input HCloudEnvClickHouseUserPasswordSpecInput {
+  """Password encoding."""
+  type: HCloudEnvClickHouseUserPasswordType!
+  """Password value encoded according to `type` and encrypted with the environment public key."""
+  encValue: Sensitive
+}
+
+"""Password encoding."""
+enum HCloudEnvClickHouseUserPasswordType {
+  """SHA-256 digest, hex encoded."""
+  SHA256_HEX
+  """
+  Double SHA-1 digest, hex encoded.
+  Use only when you need compatibility with legacy MySQL clients. Otherwise its use is discouraged.
+  """
+  DOUBLE_SHA1_HEX
+}
+
+"""ClickHouse user."""
+input HCloudEnvClickHouseUserSpecInput {
+  """User name."""
+  name: String!
+  """Settings profile assigned to the user."""
+  profile: String
+  """Quota assigned to the user."""
+  quota: String
+  """Networks the user may connect from."""
+  networks: HCloudEnvClickHouseUserNetworksSpecInput
+  """Whether the user can manage roles, users, and grants."""
+  accessManagement: Boolean
+  """Whether the user can create and drop named collections."""
+  namedCollectionControl: Boolean
+  """Whether the user can read secrets stored in named collections."""
+  showNamedCollectionsSecrets: Boolean
+  """Databases the user is granted access to. All by default."""
+  databases: [HCloudEnvClickHouseUserDatabaseSpecInput!]
+  """
+  User grants, e.g. "GRANT SHOW ON *.*".
+  This setting cannot be combined with
+  accessManagement, namedCollectionControl, showNamedCollectionsSecrets and databases settings.
+  """
+  grants: [String!]
+  """Password."""
+  password: HCloudEnvClickHouseUserPasswordSpecInput!
+}
+
+input HCloudEnvClickHouseUsersPatchInput {
+  """Users to add or replace."""
+  replace: [HCloudEnvClickHouseUserSpecInput!]
+  """Updates to existing users."""
+  update: [HCloudEnvClickHouseUserUpdateSpecInput!]
+  """Users to delete. Missing users are ignored."""
+  delete: [String!]
+}
+
+"""ClickHouse user update. Omitted fields retain their values."""
+input HCloudEnvClickHouseUserUpdateSpecInput {
+  """User name, unique within the cluster."""
+  name: String!
+  """Settings profile assigned to the user."""
+  profile: String
+  """Quota assigned to the user."""
+  quota: String
+  """Networks the user may connect from."""
+  networks: HCloudEnvClickHouseUserNetworksSpecInput
+  """Whether the user can manage roles, users, and grants."""
+  accessManagement: Boolean
+  """Whether the user can create and drop named collections."""
+  namedCollectionControl: Boolean
+  """Whether the user can read secrets stored in named collections."""
+  showNamedCollectionsSecrets: Boolean
+  """Databases the user is granted access to. All by default."""
+  databases: [HCloudEnvClickHouseUserDatabaseSpecInput!]
+  """
+  User grants, e.g. "GRANT SHOW ON *.*".
+  This setting cannot be combined with
+  accessManagement, namedCollectionControl, showNamedCollectionsSecrets and databases settings.
+  """
+  grants: [String!]
+  """Password."""
+  password: HCloudEnvClickHouseUserPasswordSpecInput
 }
 extend type Mutation {
   """
@@ -4673,6 +7823,14 @@ input CreateHCloudEnvSpecInput {
   Datadog monitoring agent configuration.
   """
   datadog: DatadogSpecInput
+  """
+  ClickHouse clusters to create.
+  """
+  clickHouseClusters: [HCloudEnvClickHouseClusterSpecInput!]
+  """
+  ClickHouse Keepers to create.
+  """
+  clickHouseKeepers: [HCloudEnvClickHouseKeeperSpecInput!]
   """
   MFA destructive operations.
   True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
@@ -4938,6 +8096,14 @@ input UpdateHCloudEnvSpecInput {
   Datadog monitoring agent configuration.
   """
   datadog: DatadogSpecInput
+  """Replaces all ClickHouse clusters exposed by this API."""
+  clickHouseClusters: [HCloudEnvClickHouseClusterSpecInput!]
+  """Changes ClickHouse clusters exposed by this API. Cannot be combined with clickHouseClusters."""
+  clickHouseClustersPatch: HCloudEnvClickHouseClustersPatchInput
+  """Replaces all ClickHouse Keepers exposed by this API."""
+  clickHouseKeepers: [HCloudEnvClickHouseKeeperSpecInput!]
+  """Changes ClickHouse Keepers exposed by this API. Cannot be combined with clickHouseKeepers."""
+  clickHouseKeepersPatch: HCloudEnvClickHouseKeepersPatchInput
   """
   MFA destructive operations.
   True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
@@ -4961,6 +8127,608 @@ type UpdateHCloudEnvResult {
   Spec revision (monotonically-increasing).
   """
   specRevision: Int!
+}
+"""ClickHouse cluster configuration."""
+type K8SEnvClickHouseClusterSpec {
+  """Cluster name."""
+  name: String!
+  """Server image, tag included."""
+  image: String!
+  """Instance type used by the nodes."""
+  instanceType: String!
+  """Zones used by the nodes."""
+  zones: [String!]!
+  """Number of shards."""
+  shards: Int!
+  """Number of replicas per shard."""
+  replicas: Int!
+  """Whether the cluster is stopped."""
+  stopped: Boolean!
+  """Main data volume."""
+  disk: K8SEnvClickHouseClusterDiskSpec!
+  """
+  Extra data volumes added to the default ClickHouse storage policy.
+  Each replica receives one volume per entry.
+
+  By default, ClickHouse balances new data across the main and extra volumes using `least_used` strategy.
+
+  A volume named `diskN`, where `N` is a positive integer, is mounted at `/var/lib/clickhouseN`;
+  other names are mounted at `/var/lib/clickhouse<name>`.
+  """
+  extraDisks: [K8SEnvClickHouseNamedDiskSpec!]!
+  """Name of the Keeper this cluster coordinates through. Empty when no Keeper configured."""
+  keeper: String!
+  """ClickHouse users."""
+  users: [K8SEnvClickHouseUserSpec!]!
+  """Settings profiles users can be assigned to."""
+  profiles: [K8SEnvClickHouseProfileSpec!]!
+  """Resource usage quotas users can be assigned to."""
+  quotas: [ClickHouseQuotaSpec!]!
+  """Server configuration settings."""
+  serverSettings: [K8SEnvClickHouseServerSettingSpec!]!
+}
+
+"""ClickHouse cluster."""
+input K8SEnvClickHouseClusterSpecInput {
+  """
+  Cluster name.
+  Must be 2-15 characters long, containing only lowercase letters, numbers, and hyphens
+  (cannot start or end with a hyphen).
+  Immutable.
+  """
+  name: String!
+  """
+  Server image.
+  e.g. altinity/clickhouse-server:25.8.16.10002.altinitystable
+  """
+  image: String
+  """
+  Instance type.
+  Must match a node group with a `CLICKHOUSE` reservation.
+  """
+  instanceType: String!
+  """
+  Zones.
+  Defaults to environment's zones.
+  Immutable.
+  """
+  zones: [String!]
+  """Number of shards."""
+  shards: Int
+  """Number of replicas per shard."""
+  replicas: Int
+  """Whether the cluster should be stopped."""
+  stopped: Boolean
+  """Name of the Keeper this cluster coordinates through."""
+  keeper: String
+  """Main data volume."""
+  disk: K8SEnvClickHouseClusterDiskSpecInput!
+  """
+  Extra data volumes added to the default ClickHouse storage policy.
+  Each replica receives one volume per entry.
+
+  By default, ClickHouse balances new data across the main and extra volumes using `least_used` strategy.
+
+  A volume named `diskN`, where `N` is a positive integer, is mounted at `/var/lib/clickhouseN`;
+  other names are mounted at `/var/lib/clickhouse<name>`.
+  """
+  extraDisks: [K8SEnvClickHouseNamedDiskSpecInput!]
+  """ClickHouse users."""
+  users: [K8SEnvClickHouseUserSpecInput!]
+  """Settings profiles users can be assigned to."""
+  profiles: [K8SEnvClickHouseProfileSpecInput!]
+  """Resource usage quotas users can be assigned to."""
+  quotas: [ClickHouseQuotaSpecInput!]
+  """Server configuration settings."""
+  serverSettings: [K8SEnvClickHouseServerSettingSpecInput!]
+}
+
+input K8SEnvClickHouseClustersPatchInput {
+  """Clusters to add or replace."""
+  replace: [K8SEnvClickHouseClusterSpecInput!]
+  """Updates to existing clusters (unspecified fields are kept untouched)."""
+  update: [K8SEnvClickHouseClusterUpdateSpecInput!]
+  """Clusters to delete. Missing clusters are ignored."""
+  delete: [String!]
+}
+
+"""ClickHouse cluster update."""
+input K8SEnvClickHouseClusterUpdateSpecInput {
+  """Cluster identifier."""
+  name: String!
+  """
+  Server image.
+  e.g. altinity/clickhouse-server:25.8.16.10002.altinitystable
+  """
+  image: String
+  """
+  Instance type.
+  Must match a node group with a `CLICKHOUSE` reservation.
+  """
+  instanceType: String
+  """Number of shards."""
+  shards: Int
+  """Number of replicas per shard."""
+  replicas: Int
+  """Whether the cluster should be stopped."""
+  stopped: Boolean
+  """Name of the Keeper this cluster coordinates through."""
+  keeper: String
+  """Main data volume."""
+  disk: K8SEnvClickHouseClusterDiskUpdateSpecInput
+  """
+  Extra data volumes added to the default ClickHouse storage policy.
+  Each replica receives one volume per entry.
+
+  By default, ClickHouse balances new data across the main and extra volumes using `least_used` strategy.
+
+  A volume named `diskN`, where `N` is a positive integer, is mounted at `/var/lib/clickhouseN`;
+  other names are mounted at `/var/lib/clickhouse<name>`.
+  """
+  extraDisks: [K8SEnvClickHouseNamedDiskSpecInput!]
+  """Partial extraDisks update."""
+  extraDisksPatch: K8SEnvClickHouseNamedDisksPatchInput
+  """ClickHouse users."""
+  users: [K8SEnvClickHouseUserSpecInput!]
+  """Partial users update."""
+  usersPatch: K8SEnvClickHouseUsersPatchInput
+  """Settings profiles users can be assigned to."""
+  profiles: [K8SEnvClickHouseProfileSpecInput!]
+  """Partial profiles update."""
+  profilesPatch: K8SEnvClickHouseProfilesPatchInput
+  """Resource usage quotas users can be assigned to."""
+  quotas: [ClickHouseQuotaSpecInput!]
+  """Partial quotas update."""
+  quotasPatch: ClickHouseQuotaSpecsPatchInput
+  """Server configuration settings."""
+  serverSettings: [K8SEnvClickHouseServerSettingSpecInput!]
+  """Partial serverSettings update."""
+  serverSettingsPatch: K8SEnvClickHouseServerSettingsPatchInput
+}
+"""ClickHouse cluster data volume."""
+type K8SEnvClickHouseClusterDiskSpec {
+  """Storage class backing the volume."""
+  storageClass: String!
+  """Size in GiB."""
+  sizeInGiB: Int!
+  """Provisioned IOPS. 0 when not set."""
+  iops: Int!
+  """Provisioned throughput in MiB/s. 0 when not set."""
+  throughputInMiBps: Int!
+}
+
+"""ClickHouse cluster data volume."""
+input K8SEnvClickHouseClusterDiskSpecInput {
+  """Storage class backing the volume. Defaults to the environment storage class. Immutable."""
+  storageClass: String
+  """Size in GiB."""
+  sizeInGiB: Int!
+  """Provisioned IOPS. Honored only by storage classes that support it, such as AWS gp3 and io2."""
+  iops: Int
+  """Provisioned throughput in MiB/s. Honored only by storage classes that support it, such as AWS gp3."""
+  throughputInMiBps: Int
+}
+
+"""ClickHouse cluster data volume update."""
+input K8SEnvClickHouseClusterDiskUpdateSpecInput {
+  """
+  Size in GiB.
+  The size of the volume cannot be decreased.
+  """
+  sizeInGiB: Int
+  """Provisioned IOPS. Honored only by storage classes that support it, such as AWS gp3 and io2."""
+  iops: Int
+  """Provisioned throughput in MiB/s. Honored only by storage classes that support it, such as AWS gp3."""
+  throughputInMiBps: Int
+}
+
+"""ClickHouse Keeper data volume."""
+type K8SEnvClickHouseKeeperDiskSpec {
+  """Storage class backing the volume."""
+  storageClass: String!
+  """Size in GiB."""
+  sizeInGiB: Int!
+  """Provisioned IOPS. 0 when not set."""
+  iops: Int!
+  """Provisioned throughput in MiB/s. 0 when not set."""
+  throughputInMiBps: Int!
+}
+
+"""ClickHouse Keeper data volume."""
+input K8SEnvClickHouseKeeperDiskSpecInput {
+  """Storage class backing the volume. Defaults to the environment storage class. Immutable."""
+  storageClass: String
+  """Size in GiB."""
+  sizeInGiB: Int!
+  """Provisioned IOPS. Honored only by storage classes that support it, such as AWS gp3 and io2."""
+  iops: Int
+  """Provisioned throughput in MiB/s. Honored only by storage classes that support it, such as AWS gp3."""
+  throughputInMiBps: Int
+}
+
+"""ClickHouse Keeper data volume update."""
+input K8SEnvClickHouseKeeperDiskUpdateSpecInput {
+  """
+  Size in GiB.
+  The size of the volume cannot be decreased.
+  """
+  sizeInGiB: Int
+  """Provisioned IOPS. Honored only by storage classes that support it, such as AWS gp3 and io2."""
+  iops: Int
+  """Provisioned throughput in MiB/s. Honored only by storage classes that support it, such as AWS gp3."""
+  throughputInMiBps: Int
+}
+
+"""ClickHouse named data volume."""
+type K8SEnvClickHouseNamedDiskSpec {
+  """Volume name."""
+  name: String!
+  """Storage class backing the volume. Empty when the environment default is used."""
+  storageClass: String!
+  """Size in GiB."""
+  sizeInGiB: Int!
+  """Provisioned IOPS. 0 when not set."""
+  iops: Int!
+  """Provisioned throughput in MiB/s. 0 when not set."""
+  throughputInMiBps: Int!
+}
+
+"""ClickHouse named data volume."""
+input K8SEnvClickHouseNamedDiskSpecInput {
+  """
+  Volume name.
+  Must start with `disk`; 16 characters max.
+  Immutable.
+  """
+  name: String!
+  """Storage class backing the volume. Defaults to storageClass on environment level. Immutable."""
+  storageClass: String
+  """Size in GiB."""
+  sizeInGiB: Int!
+  """Provisioned IOPS. Honored only by storage classes that support it, such as AWS gp3 and io2."""
+  iops: Int
+  """Provisioned throughput in MiB/s. Honored only by storage classes that support it, such as AWS gp3."""
+  throughputInMiBps: Int
+}
+
+"""ClickHouse named data volume patch."""
+input K8SEnvClickHouseNamedDisksPatchInput {
+  """Volumes to add or replace."""
+  replace: [K8SEnvClickHouseNamedDiskSpecInput!]
+  """Updates to existing volumes."""
+  update: [K8SEnvClickHouseNamedDiskUpdateSpecInput!]
+  """Volumes to delete."""
+  delete: [String!]
+}
+
+"""ClickHouse named data volume update. Omitted fields retain their values."""
+input K8SEnvClickHouseNamedDiskUpdateSpecInput {
+  """Volume name."""
+  name: String!
+  """
+  Size in GiB.
+  The size of the volume cannot be decreased.
+  """
+  sizeInGiB: Int
+  """Provisioned IOPS. Honored only by storage classes that support it, such as AWS gp3 and io2."""
+  iops: Int
+  """Provisioned throughput in MiB/s. Honored only by storage classes that support it, such as AWS gp3."""
+  throughputInMiBps: Int
+}
+"""ClickHouse Keeper configuration."""
+type K8SEnvClickHouseKeeperSpec {
+  """Keeper cluster name."""
+  name: String!
+  """Instance type the Keeper nodes run on."""
+  instanceType: String!
+  """Zones the Keeper is spread across. Keeper replicas are distributed across these locations."""
+  zones: [String!]!
+  """Number of Keeper replicas."""
+  replicas: Int!
+  """Whether the Keeper is stopped."""
+  stopped: Boolean!
+  """Data volume."""
+  disk: K8SEnvClickHouseKeeperDiskSpec!
+}
+
+"""ClickHouse Keeper configuration."""
+input K8SEnvClickHouseKeeperSpecInput {
+  """
+  Keeper cluster name.
+  Must be 2-15 characters long, containing only lowercase letters, numbers, and hyphens
+  (cannot start or end with a hyphen).
+  Immutable.
+  """
+  name: String!
+  """
+  Instance type.
+  Must match a node group with a `ZOOKEEPER` reservation.
+  """
+  instanceType: String!
+  """Zones. Defaults to all environment zones. Immutable."""
+  zones: [String!]
+  """Number of Keeper replicas. Defaults to 1. Set to 3 for high availability."""
+  replicas: Int
+  """Whether the Keeper should be stopped."""
+  stopped: Boolean
+  """Data volume."""
+  disk: K8SEnvClickHouseKeeperDiskSpecInput!
+}
+
+input K8SEnvClickHouseKeepersPatchInput {
+  """Keepers to add or replace."""
+  replace: [K8SEnvClickHouseKeeperSpecInput!]
+  """Updates to existing keepers."""
+  update: [K8SEnvClickHouseKeeperUpdateSpecInput!]
+  """Keepers to delete. Missing keepers are ignored."""
+  delete: [String!]
+}
+
+"""ClickHouse Keeper configuration update. Omitted fields retain their values."""
+input K8SEnvClickHouseKeeperUpdateSpecInput {
+  """Keeper cluster name."""
+  name: String!
+  """
+  Instance type.
+  Must match a node group with a `ZOOKEEPER` reservation.
+  """
+  instanceType: String
+  """Number of Keeper replicas. Cannot be decreased."""
+  replicas: Int
+  """Whether the Keeper should be stopped."""
+  stopped: Boolean
+  """Data volume."""
+  disk: K8SEnvClickHouseKeeperDiskUpdateSpecInput
+}
+"""ClickHouse settings profile."""
+type K8SEnvClickHouseProfileSpec {
+  """Profile name."""
+  name: String!
+  """Settings the profile carries."""
+  settings: [K8SEnvClickHouseProfileSettingSpec!]!
+}
+
+"""ClickHouse settings profile."""
+input K8SEnvClickHouseProfileSpecInput {
+  """Profile name."""
+  name: String!
+  """Settings the profile should carry."""
+  settings: [K8SEnvClickHouseProfileSettingSpecInput!]
+}
+
+input K8SEnvClickHouseProfilesPatchInput {
+  """Profiles to add or replace."""
+  replace: [K8SEnvClickHouseProfileSpecInput!]
+  """Updates to existing profiles."""
+  update: [K8SEnvClickHouseProfileUpdateSpecInput!]
+  """Profiles to delete. Missing profiles are ignored."""
+  delete: [String!]
+}
+
+"""ClickHouse settings profile update. Omitted fields retain their values."""
+input K8SEnvClickHouseProfileUpdateSpecInput {
+  """Profile name."""
+  name: String!
+  """Settings the profile should carry."""
+  settings: [K8SEnvClickHouseProfileSettingSpecInput!]
+  """Settings patch."""
+  settingsPatch: K8SEnvClickHouseProfileSettingsPatchInput
+}
+
+"""A single ClickHouse setting."""
+type K8SEnvClickHouseProfileSettingSpec {
+  """Setting name."""
+  key: String!
+  """Setting value."""
+  value: String!
+}
+
+"""A single ClickHouse setting."""
+input K8SEnvClickHouseProfileSettingSpecInput {
+  """
+  Setting name.
+  https://clickhouse.com/docs/reference/settings/session-settings
+  """
+  key: String!
+  """Setting value."""
+  value: String
+}
+
+input K8SEnvClickHouseProfileSettingsPatchInput {
+  """Settings to add or replace."""
+  replace: [K8SEnvClickHouseProfileSettingSpecInput!]
+  """Settings to delete. Missing settings are ignored."""
+  delete: [String!]
+}
+"""Reference to a key in a Kubernetes secret."""
+type K8SEnvClickHouseSecretRefSpec {
+  """Secret name."""
+  name: String!
+  """Key within the secret."""
+  key: String!
+}
+
+"""Reference to a key in a Kubernetes secret."""
+input K8SEnvClickHouseSecretRefSpecInput {
+  """Secret name."""
+  name: String!
+  """Key within the secret."""
+  key: String!
+}
+"""
+ClickHouse server setting.
+"""
+type K8SEnvClickHouseServerSettingSpec {
+  """Setting name."""
+  key: String!
+  """Setting value."""
+  value: String!
+}
+
+"""
+ClickHouse server setting.
+"""
+input K8SEnvClickHouseServerSettingSpecInput {
+  """
+  Setting name.
+  https://clickhouse.com/docs/reference/settings/server-settings/settings
+  """
+  key: String!
+  """Setting value."""
+  value: String
+}
+
+input K8SEnvClickHouseServerSettingsPatchInput {
+  """Settings to add or replace."""
+  replace: [K8SEnvClickHouseServerSettingSpecInput!]
+  """Settings to delete. Missing settings are ignored."""
+  delete: [String!]
+}
+"""ClickHouse user."""
+type K8SEnvClickHouseUserSpec {
+  """User name."""
+  name: String!
+  """Settings profile assigned to the user."""
+  profile: String!
+  """Quota assigned to the user."""
+  quota: String!
+  """Networks the user may connect from."""
+  networks: K8SEnvClickHouseUserNetworksSpec!
+  """Whether the user can manage roles, users, and grants."""
+  accessManagement: Boolean!
+  """Whether the user can create and drop named collections."""
+  namedCollectionControl: Boolean!
+  """Whether the user can read secrets stored in named collections."""
+  showNamedCollectionsSecrets: Boolean!
+  """Databases the user is granted access to. All by default."""
+  databases: [K8SEnvClickHouseUserDatabaseSpec!]!
+  """
+  User grants, e.g. "GRANT SHOW ON *.*".
+  This setting cannot be combined with
+  accessManagement, namedCollectionControl, showNamedCollectionsSecrets and databases settings.
+  """
+  grants: [String!]!
+  """User password."""
+  password: K8SEnvClickHouseUserPasswordSpec!
+}
+
+type K8SEnvClickHouseUserNetworksSpec {
+  """
+  IP addresses or CIDRs the user may connect from. When omitted or empty, only `127.0.0.1` and `::1` are allowed.
+  """
+  ips: [String!]!
+}
+
+input K8SEnvClickHouseUserNetworksSpecInput {
+  """
+  IP addresses or CIDRs the user may connect from. When omitted or empty, only `127.0.0.1` and `::1` are allowed.
+  """
+  ips: [String!]
+}
+
+type K8SEnvClickHouseUserDatabaseSpec {
+  name: String!
+}
+
+input K8SEnvClickHouseUserDatabaseSpecInput {
+  name: String!
+}
+
+type K8SEnvClickHouseUserPasswordSpec {
+  """Password encoding."""
+  type: K8SEnvClickHouseUserPasswordType!
+  """Kubernetes secret containing the password."""
+  valueFromSecret: K8SEnvClickHouseSecretRefSpec
+}
+
+input K8SEnvClickHouseUserPasswordSpecInput {
+  """Password encoding."""
+  type: K8SEnvClickHouseUserPasswordType!
+  """Password value encoded according to `type` and encrypted with the environment public key."""
+  encValue: Sensitive
+  """Kubernetes secret containing the password. Mutually exclusive with `encValue`."""
+  valueFromSecret: K8SEnvClickHouseSecretRefSpecInput
+}
+
+"""Password encoding."""
+enum K8SEnvClickHouseUserPasswordType {
+  """SHA-256 digest, hex encoded."""
+  SHA256_HEX
+  """
+  Double SHA-1 digest, hex encoded.
+  Use only when you need compatibility with legacy MySQL clients. Otherwise its use is discouraged.
+  """
+  DOUBLE_SHA1_HEX
+  """
+  Plain-text password.
+  Allowed only when the password is provided through `valueFromSecret`.
+  """
+  PLAIN_TEXT
+}
+
+"""ClickHouse user."""
+input K8SEnvClickHouseUserSpecInput {
+  """User name."""
+  name: String!
+  """Settings profile assigned to the user."""
+  profile: String
+  """Quota assigned to the user."""
+  quota: String
+  """Networks the user may connect from."""
+  networks: K8SEnvClickHouseUserNetworksSpecInput
+  """Whether the user can manage roles, users, and grants."""
+  accessManagement: Boolean
+  """Whether the user can create and drop named collections."""
+  namedCollectionControl: Boolean
+  """Whether the user can read secrets stored in named collections."""
+  showNamedCollectionsSecrets: Boolean
+  """Databases the user is granted access to. All by default."""
+  databases: [K8SEnvClickHouseUserDatabaseSpecInput!]
+  """
+  User grants, e.g. "GRANT SHOW ON *.*".
+  This setting cannot be combined with
+  accessManagement, namedCollectionControl, showNamedCollectionsSecrets and databases settings.
+  """
+  grants: [String!]
+  """Password."""
+  password: K8SEnvClickHouseUserPasswordSpecInput!
+}
+
+input K8SEnvClickHouseUsersPatchInput {
+  """Users to add or replace."""
+  replace: [K8SEnvClickHouseUserSpecInput!]
+  """Updates to existing users."""
+  update: [K8SEnvClickHouseUserUpdateSpecInput!]
+  """Users to delete. Missing users are ignored."""
+  delete: [String!]
+}
+
+"""ClickHouse user update. Omitted fields retain their values."""
+input K8SEnvClickHouseUserUpdateSpecInput {
+  """User name, unique within the cluster."""
+  name: String!
+  """Settings profile assigned to the user."""
+  profile: String
+  """Quota assigned to the user."""
+  quota: String
+  """Networks the user may connect from."""
+  networks: K8SEnvClickHouseUserNetworksSpecInput
+  """Whether the user can manage roles, users, and grants."""
+  accessManagement: Boolean
+  """Whether the user can create and drop named collections."""
+  namedCollectionControl: Boolean
+  """Whether the user can read secrets stored in named collections."""
+  showNamedCollectionsSecrets: Boolean
+  """Databases the user is granted access to. All by default."""
+  databases: [K8SEnvClickHouseUserDatabaseSpecInput!]
+  """
+  User grants, e.g. "GRANT SHOW ON *.*".
+  This setting cannot be combined with
+  accessManagement, namedCollectionControl, showNamedCollectionsSecrets and databases settings.
+  """
+  grants: [String!]
+  """Password."""
+  password: K8SEnvClickHouseUserPasswordSpecInput
 }
 extend type Query {
   """
@@ -5084,6 +8852,14 @@ type K8SEnvSpec {
   Datadog agent configuration.
   """
   datadog: DatadogSpec!
+  """
+  ClickHouse clusters.
+  """
+  clickHouseClusters: [K8SEnvClickHouseClusterSpec!]!
+  """
+  ClickHouse Keepers.
+  """
+  clickHouseKeepers: [K8SEnvClickHouseKeeperSpec!]!
   """
   MFA destructive operations.
   True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
@@ -5296,6 +9072,10 @@ type K8SEnvStatus {
   """
   appliedSpecRevision: Int!
   """
+  Status of ClickHouse clusters.
+  """
+  clickHouseClusters: [K8SEnvClickHouseClusterStatus!]!
+  """
   True indicates that environment is pending deletion.
   """
   pendingDelete: Boolean!
@@ -5303,6 +9083,29 @@ type K8SEnvStatus {
   Status errors.
   """
   errors: [EnvStatusError!]!
+}
+
+type K8SEnvClickHouseClusterStatus {
+  name: String!
+  endpoints: [K8SEnvClickHouseEndpoint!]!
+}
+
+type K8SEnvClickHouseEndpoint {
+  protocol: K8SEnvClickHouseProtocol!
+  """Host, including port."""
+  host: String!
+  type: K8SEnvClickHouseEndpointType
+}
+
+enum K8SEnvClickHouseEndpointType {
+  PUBLIC
+  INTERNAL
+}
+
+enum K8SEnvClickHouseProtocol {
+  HTTPS
+  NATIVE_TLS
+  MYSQL
 }
 
 """
@@ -5424,6 +9227,14 @@ input CreateK8SEnvSpecInput {
   Datadog monitoring agent configuration.
   """
   datadog: DatadogSpecInput
+  """
+  ClickHouse clusters to create.
+  """
+  clickHouseClusters: [K8SEnvClickHouseClusterSpecInput!]
+  """
+  ClickHouse Keepers to create.
+  """
+  clickHouseKeepers: [K8SEnvClickHouseKeeperSpecInput!]
   """
   MFA destructive operations.
   True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
@@ -5775,6 +9586,14 @@ input UpdateK8SEnvSpecInput {
   Datadog monitoring agent configuration.
   """
   datadog: DatadogSpecInput
+  """Replaces all ClickHouse clusters exposed by this API."""
+  clickHouseClusters: [K8SEnvClickHouseClusterSpecInput!]
+  """Changes ClickHouse clusters exposed by this API. Cannot be combined with clickHouseClusters."""
+  clickHouseClustersPatch: K8SEnvClickHouseClustersPatchInput
+  """Replaces all ClickHouse Keepers exposed by this API."""
+  clickHouseKeepers: [K8SEnvClickHouseKeeperSpecInput!]
+  """Changes ClickHouse Keepers exposed by this API. Cannot be combined with clickHouseKeepers."""
+  clickHouseKeepersPatch: K8SEnvClickHouseKeepersPatchInput
   """
   MFA destructive operations.
   True by default. Cannot be changed to false after create (but can be enabled if initially disabled).
