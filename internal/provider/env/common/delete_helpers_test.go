@@ -133,6 +133,14 @@ func TestFormatDeleteError(t *testing.T) {
 			err:      activeClustersErr(),
 			contains: "force_destroy_clusters=true",
 		},
+		// A bare "conflict" first would otherwise surface as "already exists" on a delete.
+		"active clusters after another conflict": {
+			err: &clientv2.ErrorResponse{GqlErrors: &gqlerror.List{
+				{Message: "conflict", Extensions: map[string]interface{}{"code": "CONFLICT"}},
+				{Message: "env has active clusters, use forceDestroyClusters=true", Extensions: map[string]interface{}{"code": "CONFLICT"}},
+			}},
+			contains: "force_destroy_clusters=true",
+		},
 		"generic error": {
 			err:      errors.New("connection refused"),
 			contains: "connection refused",
