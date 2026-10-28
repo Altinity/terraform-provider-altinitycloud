@@ -15,6 +15,7 @@ import (
 )
 
 var _ resource.Resource = &HCloudEnvResource{}
+var _ resource.ResourceWithConfigure = &HCloudEnvResource{}
 var _ resource.ResourceWithImportState = &HCloudEnvResource{}
 var _ resource.ResourceWithValidateConfig = &HCloudEnvResource{}
 

@@ -15,6 +15,7 @@ import (
 )
 
 var _ resource.Resource = &AzureEnvResource{}
+var _ resource.ResourceWithConfigure = &AzureEnvResource{}
 var _ resource.ResourceWithImportState = &AzureEnvResource{}
 var _ resource.ResourceWithValidateConfig = &AzureEnvResource{}
 
