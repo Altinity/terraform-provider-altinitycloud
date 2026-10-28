@@ -35,8 +35,8 @@ Bring Your Own Cloud (BYOC) AWS environment data source.
 		Examples:
 		- "10.136.0.0/21"
 		- "172.20.0.0/21"
-- `clickhouse_clusters` (Attributes List) ClickHouse clusters running in this environment. (see [below for nested schema](#nestedatt--clickhouse_clusters))
-- `clickhouse_keepers` (Attributes List) ClickHouse Keepers running in this environment. (see [below for nested schema](#nestedatt--clickhouse_keepers))
+- `clickhouse_clusters` (Attributes List) ClickHouse clusters managed by this resource. Clusters created elsewhere are left alone, and declaring a name that already exists is rejected rather than overwritten; `terraform import` adopts every existing cluster and Keeper. (see [below for nested schema](#nestedatt--clickhouse_clusters))
+- `clickhouse_keepers` (Attributes List) ClickHouse Keepers managed by this resource. Keepers created elsewhere are left alone, and declaring a name that already exists is rejected rather than overwritten; `terraform import` adopts every existing cluster and Keeper. (see [below for nested schema](#nestedatt--clickhouse_keepers))
 - `cloud_connect` (Boolean) `true` indicates that cloud resources are to be managed via altinity/cloud-connect and `false` means direct management (default `true`). **[IMMUTABLE]**
 - `custom_domain` (String, Deprecated) Deprecated. Use `custom_domains` instead.
 - `custom_domains` (List of String) Custom domains.
@@ -168,7 +168,7 @@ Optional:
 
 Required:
 
-- `name` (String) Volume identifier. A volume named `diskN`, where `N` is a positive integer, is mounted at `/var/lib/clickhouseN`; any other name is mounted at `/var/lib/clickhouse<name>`.
+- `name` (String) Volume identifier, 16 chars max, must start with `disk`. A volume named `diskN`, where `N` is a positive integer, is mounted at `/var/lib/clickhouseN`; any other name is mounted at `/var/lib/clickhouse<name>`. **[IMMUTABLE]**
 - `size_gib` (Number) Size in GiB. Can only be increased, never decreased.
 
 Optional:
@@ -206,7 +206,7 @@ Optional:
 
 Required:
 
-- `intervals` (Attributes List) Intervals the quota limits are measured over. At least one. (see [below for nested schema](#nestedatt--clickhouse_clusters--quotas--intervals))
+- `intervals` (Attributes List) Intervals the quota limits are measured over. Exactly one is currently supported. (see [below for nested schema](#nestedatt--clickhouse_clusters--quotas--intervals))
 - `name` (String) Quota name, unique within the cluster. Referenced by a user's `quota`.
 
 Optional:
@@ -232,7 +232,7 @@ Required:
 Optional:
 
 - `errors` (Number) Maximum queries that throw in the interval. Unlimited when omitted.
-- `execution_time_seconds` (Number) Maximum total query execution time in the interval, in seconds. Unlimited when omitted.
+- `execution_time_seconds` (Number) Maximum total query execution time in the interval, in seconds. Non-negative. Unlimited when omitted.
 - `failed_sequential_authentications` (Number) Maximum consecutive failed authentication attempts. Unlimited when omitted.
 - `queries` (Number) Maximum queries in the interval. Unlimited when omitted.
 - `queries_per_normalized_hash` (Number) Maximum queries per normalized query hash in the interval. Unlimited when omitted.
@@ -290,7 +290,7 @@ Required:
 
 Optional:
 
-- `enc_value` (String, Sensitive) Encrypted password digest, in the form declared by `type`. Write-only: the API never returns it, so the value is kept from the configuration and never refreshed.
+- `enc_value` (String, Sensitive) Encrypted password digest, in the form declared by `type`. Required when the user is created; omit it afterwards to keep the current password. Write-only: the API never returns it, so the value is kept from the configuration and never refreshed.
 
 
 <a id="nestedatt--clickhouse_clusters--users--networks"></a>

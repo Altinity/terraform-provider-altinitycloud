@@ -2,8 +2,14 @@ resource "altinitycloud_env_certificate" "this" {
   env_name = "acme-staging"
 }
 
-// SHA256 hex digest of the user's password, stored encrypted via the secret resource.
+// SHA256 hex digests of each user's password, stored encrypted via the secret resource.
+// A password is required to create a user; it can be omitted later to keep the current one.
 variable "app_password_sha256_hex" {
+  type      = string
+  sensitive = true
+}
+
+variable "readonly_password_sha256_hex" {
   type      = string
   sensitive = true
 }
@@ -11,6 +17,11 @@ variable "app_password_sha256_hex" {
 resource "altinitycloud_env_secret" "app_password" {
   pem   = altinitycloud_env_certificate.this.pem
   value = var.app_password_sha256_hex
+}
+
+resource "altinitycloud_env_secret" "readonly_password" {
+  pem   = altinitycloud_env_certificate.this.pem
+  value = var.readonly_password_sha256_hex
 }
 
 locals {
@@ -95,7 +106,8 @@ resource "altinitycloud_env_aws" "this" {
           name   = "readonly"
           grants = ["GRANT SELECT ON analytics.*"]
           password = {
-            type = "SHA256_HEX"
+            type      = "SHA256_HEX"
+            enc_value = altinitycloud_env_secret.readonly_password.secret_value
           }
         }
       ]

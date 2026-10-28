@@ -1,9 +1,12 @@
 package common
 
 import (
+	"fmt"
 	"regexp"
 
+	"github.com/altinity/terraform-provider-altinitycloud/internal/provider/validators"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/client"
+	"github.com/hashicorp/terraform-plugin-framework-validators/float64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
@@ -19,8 +22,9 @@ var ReservedClickHouseUsers = []string{"grafana", "datadog"}
 
 var clickHouseNameRegex = regexp.MustCompile("^[a-z0-9][a-z0-9-]{0,13}[a-z0-9]$")
 
-// The password type enum is generated per env, but every env spells the values
-// the same, so a shared attribute can key off the AWS one.
+var clickHouseExtraDiskNameRegex = regexp.MustCompile("^disk")
+
+// Every env spells the password type enum the same, so the shared attribute keys off AWS's.
 var clickHousePasswordTypes = []string{
 	string(client.AWSEnvClickHouseUserPasswordTypeSha256Hex),
 	string(client.AWSEnvClickHouseUserPasswordTypeDoubleSha1Hex),
@@ -34,6 +38,14 @@ var clickHouseQuotaKeyedBy = []string{
 	string(client.ClickHouseQuotaKeyedByNormalizedQueryHash),
 }
 
+// The API upserts by name, so a repeated name would silently keep only the last entry.
+func uniqueClickHouseNames(attribute, entry string) validator.List {
+	return validators.UniqueListObjectAttribute(attribute, fmt.Sprintf("Duplicate ClickHouse %s", entry),
+		func(value string) string {
+			return fmt.Sprintf("More than one %s is named %q. Names must be unique within the list.", entry, value)
+		})
+}
+
 func GetClickHouseClustersAttribute(required, optional, computed bool) rschema.ListNestedAttribute {
 	return rschema.ListNestedAttribute{
 		Required:            required,
@@ -42,6 +54,7 @@ func GetClickHouseClustersAttribute(required, optional, computed bool) rschema.L
 		MarkdownDescription: CLICKHOUSE_CLUSTERS_DESCRIPTION,
 		Validators: []validator.List{
 			listvalidator.SizeAtLeast(1),
+			uniqueClickHouseNames("name", "cluster"),
 		},
 		NestedObject: rschema.NestedAttributeObject{
 			Attributes: map[string]rschema.Attribute{
@@ -126,6 +139,7 @@ func GetClickHouseKeepersAttribute(required, optional, computed bool) rschema.Li
 		MarkdownDescription: CLICKHOUSE_KEEPERS_DESCRIPTION,
 		Validators: []validator.List{
 			listvalidator.SizeAtLeast(1),
+			uniqueClickHouseNames("name", "Keeper"),
 		},
 		NestedObject: rschema.NestedAttributeObject{
 			Attributes: map[string]rschema.Attribute{
@@ -191,6 +205,7 @@ func getClickHouseExtraDisksAttribute() rschema.ListNestedAttribute {
 		MarkdownDescription: CLICKHOUSE_EXTRA_DISKS_DESCRIPTION,
 		Validators: []validator.List{
 			listvalidator.SizeAtMost(8),
+			uniqueClickHouseNames("name", "extra disk"),
 		},
 		NestedObject: rschema.NestedAttributeObject{
 			Attributes: map[string]rschema.Attribute{
@@ -199,6 +214,7 @@ func getClickHouseExtraDisksAttribute() rschema.ListNestedAttribute {
 					MarkdownDescription: CLICKHOUSE_EXTRA_DISK_NAME_DESCRIPTION,
 					Validators: []validator.String{
 						stringvalidator.LengthBetween(1, 16),
+						stringvalidator.RegexMatches(clickHouseExtraDiskNameRegex, "must start with `disk`"),
 					},
 				},
 				"size_gib":         getClickHouseDiskSizeAttribute(),
@@ -245,6 +261,9 @@ func getClickHouseSettingsAttribute(description string) rschema.ListNestedAttrib
 	return rschema.ListNestedAttribute{
 		Optional:            true,
 		MarkdownDescription: description,
+		Validators: []validator.List{
+			uniqueClickHouseNames("key", "setting"),
+		},
 		NestedObject: rschema.NestedAttributeObject{
 			Attributes: map[string]rschema.Attribute{
 				"key": rschema.StringAttribute{
@@ -268,6 +287,9 @@ func getClickHouseProfilesAttribute() rschema.ListNestedAttribute {
 	return rschema.ListNestedAttribute{
 		Optional:            true,
 		MarkdownDescription: CLICKHOUSE_PROFILES_DESCRIPTION,
+		Validators: []validator.List{
+			uniqueClickHouseNames("name", "profile"),
+		},
 		NestedObject: rschema.NestedAttributeObject{
 			Attributes: map[string]rschema.Attribute{
 				"name": rschema.StringAttribute{
@@ -287,6 +309,9 @@ func getClickHouseUsersAttribute() rschema.ListNestedAttribute {
 	return rschema.ListNestedAttribute{
 		Optional:            true,
 		MarkdownDescription: CLICKHOUSE_USERS_DESCRIPTION,
+		Validators: []validator.List{
+			uniqueClickHouseNames("name", "user"),
+		},
 		NestedObject: rschema.NestedAttributeObject{
 			Attributes: map[string]rschema.Attribute{
 				"name": rschema.StringAttribute{
@@ -391,6 +416,9 @@ func getClickHouseQuotasAttribute() rschema.ListNestedAttribute {
 	return rschema.ListNestedAttribute{
 		Optional:            true,
 		MarkdownDescription: CLICKHOUSE_QUOTAS_DESCRIPTION,
+		Validators: []validator.List{
+			uniqueClickHouseNames("name", "quota"),
+		},
 		NestedObject: rschema.NestedAttributeObject{
 			Attributes: map[string]rschema.Attribute{
 				"name": rschema.StringAttribute{
@@ -433,7 +461,7 @@ func getClickHouseQuotaIntervalsAttribute() rschema.ListNestedAttribute {
 		Required:            true,
 		MarkdownDescription: CLICKHOUSE_QUOTA_INTERVALS_DESCRIPTION,
 		Validators: []validator.List{
-			listvalidator.SizeAtLeast(1),
+			listvalidator.SizeBetween(1, 1),
 		},
 		NestedObject: rschema.NestedAttributeObject{
 			Attributes: map[string]rschema.Attribute{
@@ -458,6 +486,9 @@ func getClickHouseQuotaIntervalsAttribute() rschema.ListNestedAttribute {
 				"execution_time_seconds": rschema.Float64Attribute{
 					Optional:            true,
 					MarkdownDescription: CLICKHOUSE_QUOTA_EXECUTION_TIME_DESCRIPTION,
+					Validators: []validator.Float64{
+						float64validator.AtLeast(0),
+					},
 				},
 			},
 		},
