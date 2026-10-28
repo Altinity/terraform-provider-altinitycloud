@@ -225,8 +225,7 @@ func TestClickHouseDataSourceModelReportsEverything(t *testing.T) {
 		{Name: "grafana", PasswordType: "SHA256_HEX"},
 	}
 
-	// The resource mapper owns nothing without prior state; the data source
-	// must still report the environment as it is.
+	// Without prior state the resource owns nothing; the data source still reports everything.
 	if got := ClickHouseClustersToModel(nil, specs); got != nil {
 		t.Errorf("resource mapper adopted %#v", got)
 	}
@@ -278,8 +277,8 @@ func TestClickHouseComputedValuesComeBackFromTheAPI(t *testing.T) {
 	}
 }
 
-func TestClickHouseEmptyAPIEchoesStayNull(t *testing.T) {
-	// JSON [] unmarshals to a non-nil empty slice; it must map like an omission.
+func TestClickHouseEmptyAPIEchoesMirrorThePlan(t *testing.T) {
+	// JSON [] unmarshals to a non-nil empty slice; it must read back as whatever the plan held.
 	spec := minimalClusterSpec("ch")
 	spec.ExtraDisks = []ClickHouseNamedDiskSpec{}
 	spec.ServerSettings = []ClickHouseSettingSpec{}
@@ -288,13 +287,22 @@ func TestClickHouseEmptyAPIEchoesStayNull(t *testing.T) {
 		{Name: "datadog", PasswordType: "SHA256_HEX"},
 	}
 
-	prior := []ClickHouseClusterModel{{Name: types.StringValue("ch")}}
-	c := ClickHouseClustersToModel(prior, []ClickHouseClusterSpec{spec})[0]
-	if c.ExtraDisks != nil || c.ServerSettings != nil {
-		t.Errorf("empty echoes must stay nil, got %#v / %#v", c.ExtraDisks, c.ServerSettings)
+	omitted := ClickHouseClustersToModel([]ClickHouseClusterModel{{Name: types.StringValue("ch")}}, []ClickHouseClusterSpec{spec})[0]
+	if omitted.ExtraDisks != nil || omitted.ServerSettings != nil || omitted.Users != nil {
+		t.Errorf("omitted collections must stay nil, got %#v", omitted)
 	}
-	if c.Users != nil {
-		t.Errorf("a cluster with only platform users must keep users null, got %#v", c.Users)
+
+	declaredEmpty := ClickHouseClustersToModel([]ClickHouseClusterModel{{
+		Name:           types.StringValue("ch"),
+		ExtraDisks:     []ClickHouseNamedDiskModel{},
+		ServerSettings: []ClickHouseSettingModel{},
+		Users:          []ClickHouseUserModel{},
+	}}, []ClickHouseClusterSpec{spec})[0]
+	if declaredEmpty.ExtraDisks == nil || declaredEmpty.ServerSettings == nil || declaredEmpty.Users == nil {
+		t.Errorf("empty lists in the plan must read back empty, not null, got %#v", declaredEmpty)
+	}
+	if len(declaredEmpty.ExtraDisks)+len(declaredEmpty.ServerSettings)+len(declaredEmpty.Users) != 0 {
+		t.Errorf("expected empty lists, got %#v", declaredEmpty)
 	}
 
 	priorUser := []ClickHouseUserModel{{Name: types.StringValue("app")}}
@@ -302,14 +310,48 @@ func TestClickHouseEmptyAPIEchoesStayNull(t *testing.T) {
 	if u.Networks != nil {
 		t.Errorf("an empty ips echo must not invent a networks block, got %#v", u.Networks)
 	}
+	if !u.Grants.IsNull() {
+		t.Errorf("grants was null in the plan, so [] must come back null, got %#v", u.Grants)
+	}
 
-	withBlock := []ClickHouseUserModel{{
+	withEmpty := []ClickHouseUserModel{{
 		Name:     types.StringValue("app"),
 		Networks: &ClickHouseUserNetworksModel{Ips: types.ListNull(types.StringType)},
+		Grants:   testList(t),
 	}}
-	u = usersToModel(withBlock, []ClickHouseUserSpec{{Name: "app", Ips: []string{}, PasswordType: "SHA256_HEX"}})[0]
+	u = usersToModel(withEmpty, []ClickHouseUserSpec{{Name: "app", Ips: []string{}, PasswordType: "SHA256_HEX"}})[0]
 	if u.Networks == nil || !u.Networks.Ips.IsNull() {
 		t.Errorf("ips was null in the plan, so [] must come back null, got %#v", u.Networks)
+	}
+	if u.Grants.IsNull() || len(u.Grants.Elements()) != 0 {
+		t.Errorf("grants was [] in the plan, so [] must come back empty, got %#v", u.Grants)
+	}
+}
+
+func TestAdoptClickHouseClusters(t *testing.T) {
+	specs := []ClickHouseClusterSpec{minimalClusterSpec("mine"), minimalClusterSpec("made-in-the-console")}
+	specs[1].Users = []ClickHouseUserSpec{
+		{Name: "app", PasswordType: "SHA256_HEX"},
+		{Name: "grafana", PasswordType: "SHA256_HEX"},
+	}
+
+	got := AdoptClickHouseClusters(specs)
+	if len(got) != 2 || got[1].Name.ValueString() != "made-in-the-console" {
+		t.Fatalf("expected both clusters adopted, got %#v", got)
+	}
+	if len(got[1].Users) != 1 || got[1].Users[0].Name.ValueString() != "app" {
+		t.Errorf("reserved users must not be adopted, got %#v", got[1].Users)
+	}
+	if !got[1].Users[0].Password.EncValue.IsNull() {
+		t.Errorf("an adopted user has no enc_value to keep, got %v", got[1].Users[0].Password.EncValue)
+	}
+	if AdoptClickHouseClusters(nil) != nil {
+		t.Error("an env without clusters must stay null")
+	}
+
+	keepers := AdoptClickHouseKeepers([]ClickHouseKeeperSpec{{Name: "keeper", Replicas: 3}})
+	if len(keepers) != 1 || keepers[0].Replicas.ValueInt64() != 3 {
+		t.Errorf("unexpected keepers: %#v", keepers)
 	}
 }
 
@@ -333,12 +375,5 @@ func TestClickHouseQuotaIntervalsFollowConfigOrder(t *testing.T) {
 	intervals := got[0].Intervals
 	if intervals[0].DurationSeconds.ValueInt64() != 86400 || intervals[1].DurationSeconds.ValueInt64() != 3600 {
 		t.Errorf("expected config order [86400 3600], got %#v", intervals)
-	}
-}
-
-func TestReorderStringsKeepsDuplicates(t *testing.T) {
-	got := reorderStrings([]string{"a", "a", "b"}, []string{"b", "a", "a"})
-	if len(got) != 3 || got[0] != "a" || got[1] != "a" || got[2] != "b" {
-		t.Errorf("expected [a a b], got %v", got)
 	}
 }
