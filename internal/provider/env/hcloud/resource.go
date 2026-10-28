@@ -119,6 +119,12 @@ func (r *HCloudEnvResource) Read(ctx context.Context, req resource.ReadRequest, 
 		return
 	}
 
+	if apiResp.HcloudEnv == nil {
+		tflog.Trace(ctx, "removing resource from state", map[string]interface{}{"name": envName})
+		resp.State.RemoveResource(ctx)
+		return
+	}
+
 	// Reorder node groups  and locations to respect order in the user's configuration
 	apiResp.HcloudEnv.Spec.NodeGroups = common.ReorderByKey(data.NodeGroups, apiResp.HcloudEnv.Spec.NodeGroups,
 		func(m NodeGroupsModel) string { return m.NodeType.ValueString() },
@@ -195,11 +201,6 @@ func (r *HCloudEnvResource) Delete(ctx context.Context, req resource.DeleteReque
 	}
 
 	envName := data.Name.ValueString()
-	resp.Diagnostics.Append(common.ValidateForceDestroy(envName, data.ForceDestroy.ValueBool())...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
 	envStatus, err := r.Client.GetHCloudEnvStatus(ctx, envName)
 	if err != nil {
 		notFound, _ := client.IsNotFoundError(err)
@@ -208,6 +209,16 @@ func (r *HCloudEnvResource) Delete(ctx context.Context, req resource.DeleteReque
 		} else {
 			clientsupport.AddClientError(&resp.Diagnostics, fmt.Sprintf("Unable to read env status %s, got error: %s", envName, err))
 		}
+		return
+	}
+
+	if envStatus.HcloudEnv == nil {
+		tflog.Trace(ctx, "deleted resource", map[string]interface{}{"name": envName})
+		return
+	}
+
+	resp.Diagnostics.Append(common.ValidateForceDestroy(envName, data.ForceDestroy.ValueBool())...)
+	if resp.Diagnostics.HasError() {
 		return
 	}
 
@@ -248,6 +259,9 @@ func (r *HCloudEnvResource) Delete(ctx context.Context, req resource.DeleteReque
 			status, err := r.Client.GetHCloudEnvStatus(ctx, name)
 			if err != nil {
 				return false, err
+			}
+			if status.HcloudEnv == nil {
+				return false, common.ErrEnvNotFound
 			}
 			return status.HcloudEnv.Status.PendingDelete, nil
 		},

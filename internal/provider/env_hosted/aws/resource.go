@@ -157,11 +157,6 @@ func (r *AWSEnvHostedResource) Delete(ctx context.Context, req resource.DeleteRe
 	}
 
 	envName := data.Name.ValueString()
-	resp.Diagnostics.Append(common.ValidateForceDestroy(envName, data.ForceDestroy.ValueBool())...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
 	envStatus, err := r.Client.GetAWSEnvHostedStatus(ctx, envName)
 	if err != nil {
 		notFound, _ := client.IsNotFoundError(err)
@@ -176,6 +171,11 @@ func (r *AWSEnvHostedResource) Delete(ctx context.Context, req resource.DeleteRe
 	// A successful query still returns a null env when it is already gone.
 	if envStatus.AWSEnvHosted == nil {
 		tflog.Trace(ctx, "deleted resource", map[string]interface{}{"name": envName})
+		return
+	}
+
+	resp.Diagnostics.Append(common.ValidateForceDestroy(envName, data.ForceDestroy.ValueBool())...)
+	if resp.Diagnostics.HasError() {
 		return
 	}
 

@@ -127,6 +127,12 @@ func (r *GCPEnvResource) Read(ctx context.Context, req resource.ReadRequest, res
 		return
 	}
 
+	if apiResp.GCPEnv == nil {
+		tflog.Trace(ctx, "removing resource from state", map[string]interface{}{"name": envName})
+		resp.State.RemoveResource(ctx)
+		return
+	}
+
 	// Reorder node groups, zones, labels and peering connections to respect order in the user's configuration
 	apiResp.GCPEnv.Spec.NodeGroups = common.ReorderByKey(data.NodeGroups, apiResp.GCPEnv.Spec.NodeGroups,
 		func(m common.NodeGroupsModel) string { return m.NodeType.ValueString() },
@@ -219,11 +225,6 @@ func (r *GCPEnvResource) Delete(ctx context.Context, req resource.DeleteRequest,
 	}
 
 	envName := data.Name.ValueString()
-	resp.Diagnostics.Append(common.ValidateForceDestroy(envName, data.ForceDestroy.ValueBool())...)
-	if resp.Diagnostics.HasError() {
-		return
-	}
-
 	envStatus, err := r.Client.GetGCPEnvStatus(ctx, envName)
 	if err != nil {
 		notFound, _ := client.IsNotFoundError(err)
@@ -232,6 +233,16 @@ func (r *GCPEnvResource) Delete(ctx context.Context, req resource.DeleteRequest,
 		} else {
 			clientsupport.AddClientError(&resp.Diagnostics, fmt.Sprintf("Unable to read env status %s, got error: %s", envName, err))
 		}
+		return
+	}
+
+	if envStatus.GCPEnv == nil {
+		tflog.Trace(ctx, "deleted resource", map[string]interface{}{"name": envName})
+		return
+	}
+
+	resp.Diagnostics.Append(common.ValidateForceDestroy(envName, data.ForceDestroy.ValueBool())...)
+	if resp.Diagnostics.HasError() {
 		return
 	}
 
@@ -272,6 +283,9 @@ func (r *GCPEnvResource) Delete(ctx context.Context, req resource.DeleteRequest,
 			status, err := r.Client.GetGCPEnvStatus(ctx, name)
 			if err != nil {
 				return false, err
+			}
+			if status.GCPEnv == nil {
+				return false, common.ErrEnvNotFound
 			}
 			return status.GCPEnv.Status.PendingDelete, nil
 		},
