@@ -195,15 +195,19 @@ func ObjectsFromList[M any](ctx context.Context, list types.List) ([]M, diag.Dia
 	return models, diags
 }
 
-// The API refuses a new user without a password; an existing one keeps its password when enc_value is omitted.
-func ValidateClickHouseNewUserPasswords(root path.Path, prior, planned []ClickHouseClusterModel) diag.Diagnostics {
+// The API refuses a new user without a password, and silently ignores a password type change without one.
+func ValidateClickHouseUserPasswords(root path.Path, prior, planned []ClickHouseClusterModel) diag.Diagnostics {
 	var diags diag.Diagnostics
 
-	existing := make(map[string]map[string]bool, len(prior))
+	existing := make(map[string]map[string]types.String, len(prior))
 	for _, c := range prior {
-		users := make(map[string]bool, len(c.Users))
+		users := make(map[string]types.String, len(c.Users))
 		for _, u := range c.Users {
-			users[u.Name.ValueString()] = true
+			passwordType := types.StringNull()
+			if u.Password != nil {
+				passwordType = u.Password.Type
+			}
+			users[u.Name.ValueString()] = passwordType
 		}
 		existing[c.Name.ValueString()] = users
 	}
@@ -213,14 +217,19 @@ func ValidateClickHouseNewUserPasswords(root path.Path, prior, planned []ClickHo
 			continue
 		}
 		for j, u := range c.Users {
-			if u.Name.IsUnknown() || u.Password == nil || !u.Password.EncValue.IsNull() || existing[c.Name.ValueString()][u.Name.ValueString()] {
+			if u.Name.IsUnknown() || u.Password == nil || !u.Password.EncValue.IsNull() {
 				continue
 			}
-			diags.AddAttributeError(
-				root.AtListIndex(i).AtName("users").AtListIndex(j).AtName("password").AtName("enc_value"),
-				"Missing ClickHouse User Password",
-				fmt.Sprintf("User %q in cluster %q does not exist yet, and the API requires a password to create it. Set enc_value; it can be omitted later to keep the current password.", u.Name.ValueString(), c.Name.ValueString()),
-			)
+			encValue := root.AtListIndex(i).AtName("users").AtListIndex(j).AtName("password").AtName("enc_value")
+			priorType, exists := existing[c.Name.ValueString()][u.Name.ValueString()]
+			switch {
+			case !exists:
+				diags.AddAttributeError(encValue, "Missing ClickHouse User Password",
+					fmt.Sprintf("User %q in cluster %q does not exist yet, and the API requires a password to create it. Set enc_value; it can be omitted later to keep the current password.", u.Name.ValueString(), c.Name.ValueString()))
+			case !u.Password.Type.IsUnknown() && !priorType.IsNull() && !u.Password.Type.Equal(priorType):
+				diags.AddAttributeError(encValue, "Missing ClickHouse User Password",
+					fmt.Sprintf("User %q in cluster %q changes its password type from %s to %s, which needs a new password in that form. Set enc_value.", u.Name.ValueString(), c.Name.ValueString(), priorType.ValueString(), u.Password.Type.ValueString()))
+			}
 		}
 	}
 
