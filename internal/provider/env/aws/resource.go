@@ -66,10 +66,7 @@ func (r *AWSEnvResource) ModifyPlan(ctx context.Context, req resource.ModifyPlan
 
 	var envName types.String
 	resp.Diagnostics.Append(req.Plan.GetAttribute(ctx, path.Root("name"), &envName)...)
-	resp.Diagnostics.Append(r.rejectClickHouseCollisions(ctx, envName.ValueString(),
-		common.ClickHouseClusterNamesAdded(priorClusters, plannedClusters),
-		common.ClickHouseKeeperNamesAdded(priorKeepers, plannedKeepers),
-	)...)
+	resp.Diagnostics.Append(r.rejectClickHouseCollisions(ctx, envName.ValueString(), priorClusters, plannedClusters, priorKeepers, plannedKeepers)...)
 }
 
 // Computed values the config omits keep their state value, paired by name rather than list index.
@@ -258,6 +255,8 @@ func (r *AWSEnvResource) Update(ctx context.Context, req resource.UpdateRequest,
 
 	_, sdkEnv, diags := data.toSDK(ctx, &state.AWSEnvModel)
 	resp.Diagnostics.Append(diags...)
+	// Names unknown at plan time slip past the ModifyPlan check, and the env can change between plan and apply.
+	resp.Diagnostics.Append(r.rejectClickHouseCollisions(ctx, envName, state.ClickHouseClusters, data.ClickHouseClusters, state.ClickHouseKeepers, data.ClickHouseKeepers)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -303,8 +302,10 @@ func (r *AWSEnvResource) Update(ctx context.Context, req resource.UpdateRequest,
 }
 
 // Patch Replace upserts by name, so a "pure create" plan can overwrite an unmanaged entry.
-func (r *AWSEnvResource) rejectClickHouseCollisions(ctx context.Context, envName string, addedClusters, addedKeepers []string) diag.Diagnostics {
+func (r *AWSEnvResource) rejectClickHouseCollisions(ctx context.Context, envName string, priorClusters, plannedClusters []common.ClickHouseClusterModel, priorKeepers, plannedKeepers []common.ClickHouseKeeperModel) diag.Diagnostics {
 	var diags diag.Diagnostics
+	addedClusters := common.ClickHouseClusterNamesAdded(priorClusters, plannedClusters)
+	addedKeepers := common.ClickHouseKeeperNamesAdded(priorKeepers, plannedKeepers)
 	if len(addedClusters) == 0 && len(addedKeepers) == 0 {
 		return diags
 	}
