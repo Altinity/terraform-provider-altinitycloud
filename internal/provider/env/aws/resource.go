@@ -153,7 +153,9 @@ func (r *AWSEnvResource) Create(ctx context.Context, req resource.CreateRequest,
 	resp.Diagnostics.Append(diags...)
 	data.SpecRevision = types.Int64Value(apiResp.CreateAWSEnv.SpecRevision)
 	data.ResourcePrefix = types.StringValue(apiResp.CreateAWSEnv.Spec.ResourcePrefix)
-	data.ClickHouseClusters = common.ClickHouseClustersToModel(data.ClickHouseClusters, clickHouseClustersToSpec(apiResp.CreateAWSEnv.Spec.ClickHouseClusters))
+	clusterSpecs, diags := clickHouseClustersToSpec(apiResp.CreateAWSEnv.Spec.ClickHouseClusters)
+	resp.Diagnostics.Append(diags...)
+	data.ClickHouseClusters = common.ClickHouseClustersToModel(data.ClickHouseClusters, clusterSpecs)
 	data.ClickHouseKeepers = common.ClickHouseKeepersToModel(data.ClickHouseKeepers, clickHouseKeepersToSpec(apiResp.CreateAWSEnv.Spec.ClickHouseKeepers))
 
 	if resp.Diagnostics.HasError() {
@@ -220,7 +222,9 @@ func (r *AWSEnvResource) Read(ctx context.Context, req resource.ReadRequest, res
 	adopt, diags := req.Private.GetKey(ctx, adoptClickHouseKey)
 	resp.Diagnostics.Append(diags...)
 	if len(adopt) > 0 {
-		data.ClickHouseClusters = common.AdoptClickHouseClusters(clickHouseClustersToSpec(apiResp.AWSEnv.Spec.ClickHouseClusters))
+		clusterSpecs, diags := clickHouseClustersToSpec(apiResp.AWSEnv.Spec.ClickHouseClusters)
+		resp.Diagnostics.Append(diags...)
+		data.ClickHouseClusters = common.AdoptClickHouseClusters(clusterSpecs)
 		data.ClickHouseKeepers = common.AdoptClickHouseKeepers(clickHouseKeepersToSpec(apiResp.AWSEnv.Spec.ClickHouseKeepers))
 		resp.Diagnostics.Append(resp.Private.SetKey(ctx, adoptClickHouseKey, nil)...)
 	}
@@ -285,7 +289,9 @@ func (r *AWSEnvResource) Update(ctx context.Context, req resource.UpdateRequest,
 	resp.Diagnostics.Append(diags...)
 	data.SpecRevision = types.Int64Value(apiResp.UpdateAWSEnv.SpecRevision)
 	data.ResourcePrefix = types.StringValue(apiResp.UpdateAWSEnv.Spec.ResourcePrefix)
-	data.ClickHouseClusters = common.ClickHouseClustersToModel(data.ClickHouseClusters, clickHouseClustersToSpec(apiResp.UpdateAWSEnv.Spec.ClickHouseClusters))
+	clusterSpecs, diags := clickHouseClustersToSpec(apiResp.UpdateAWSEnv.Spec.ClickHouseClusters)
+	resp.Diagnostics.Append(diags...)
+	data.ClickHouseClusters = common.ClickHouseClustersToModel(data.ClickHouseClusters, clusterSpecs)
 	data.ClickHouseKeepers = common.ClickHouseKeepersToModel(data.ClickHouseKeepers, clickHouseKeepersToSpec(apiResp.UpdateAWSEnv.Spec.ClickHouseKeepers))
 
 	if resp.Diagnostics.HasError() {

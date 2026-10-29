@@ -1,6 +1,7 @@
 package env
 
 import (
+	"math"
 	"testing"
 
 	"github.com/hashicorp/terraform-plugin-framework/attr"
@@ -373,5 +374,23 @@ func TestKeeperToModel(t *testing.T) {
 	}
 	if got := keeperToModel("keeper"); got.ValueString() != "keeper" {
 		t.Errorf("expected keeper, got %v", got)
+	}
+}
+
+func TestValidateClickHouseQuotaLimits(t *testing.T) {
+	fits, overflows := uint64(math.MaxInt64), uint64(math.MaxInt64)+1
+	spec := func(v uint64) []ClickHouseClusterSpec {
+		return []ClickHouseClusterSpec{{
+			Name:   "ch",
+			Quotas: []ClickHouseQuotaSpec{{Name: "q", Intervals: []ClickHouseQuotaIntervalSpec{{DurationSeconds: 3600, ReadRows: &v}}}},
+		}}
+	}
+
+	if diags := ValidateClickHouseQuotaLimits(spec(fits)); diags.HasError() {
+		t.Errorf("MaxInt64 fits in Int64, got %v", diags)
+	}
+	// Set in the console or through the API, a UInt64 above MaxInt64 would read back negative.
+	if diags := ValidateClickHouseQuotaLimits(spec(overflows)); len(diags.Errors()) != 1 {
+		t.Errorf("expected one out-of-range error, got %v", diags)
 	}
 }

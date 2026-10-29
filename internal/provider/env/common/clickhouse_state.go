@@ -1,11 +1,14 @@
 package env
 
 import (
+	"fmt"
+	"math"
 	"slices"
 	"strconv"
 
 	clientsupport "github.com/altinity/terraform-provider-altinitycloud/internal/provider/common"
 	"github.com/hashicorp/terraform-plugin-framework/attr"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
@@ -342,4 +345,38 @@ func allUsersToModel(specs []ClickHouseUserSpec) map[string]ClickHouseUserModel 
 	}
 
 	return models
+}
+
+// The API takes UInt64 quota limits, but Terraform's Int64 tops out at MaxInt64; a larger one would wrap negative.
+func ValidateClickHouseQuotaLimits(specs []ClickHouseClusterSpec) diag.Diagnostics {
+	var diags diag.Diagnostics
+	for _, c := range specs {
+		for _, q := range c.Quotas {
+			for _, i := range q.Intervals {
+				limits := []struct {
+					name  string
+					value *uint64
+				}{
+					{"queries", i.Queries},
+					{"query_selects", i.QuerySelects},
+					{"query_inserts", i.QueryInserts},
+					{"errors", i.Errors},
+					{"result_rows", i.ResultRows},
+					{"result_bytes", i.ResultBytes},
+					{"read_rows", i.ReadRows},
+					{"read_bytes", i.ReadBytes},
+					{"written_bytes", i.WrittenBytes},
+					{"failed_sequential_authentications", i.FailedSequentialAuthentications},
+					{"queries_per_normalized_hash", i.QueriesPerNormalizedHash},
+				}
+				for _, l := range limits {
+					if l.value != nil && *l.value > math.MaxInt64 {
+						diags.AddError("ClickHouse Quota Limit Out of Range",
+							fmt.Sprintf("Quota %q in cluster %q sets %s to %d, above the largest value Terraform can hold (%d). Lower it, or remove it for no limit, outside Terraform.", q.Name, c.Name, l.name, *l.value, int64(math.MaxInt64)))
+					}
+				}
+			}
+		}
+	}
+	return diags
 }

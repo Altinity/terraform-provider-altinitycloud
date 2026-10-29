@@ -373,7 +373,9 @@ func (model *AWSEnvModel) toModel(env sdk.GetAWSEnv_AWSEnv) diag.Diagnostics {
 	model.PeeringConnections = peeringConnections
 	model.SpecRevision = types.Int64Value(env.SpecRevision)
 	model.MFA = types.BoolValue(env.Spec.Mfa)
-	model.ClickHouseClusters = common.ClickHouseClustersToModel(model.ClickHouseClusters, clickHouseClustersToSpec(env.Spec.ClickHouseClusters))
+	clusterSpecs, diags := clickHouseClustersToSpec(env.Spec.ClickHouseClusters)
+	allDiags.Append(diags...)
+	model.ClickHouseClusters = common.ClickHouseClustersToModel(model.ClickHouseClusters, clusterSpecs)
 	model.ClickHouseKeepers = common.ClickHouseKeepersToModel(model.ClickHouseKeepers, clickHouseKeepersToSpec(env.Spec.ClickHouseKeepers))
 	model.CloudConnect = types.BoolValue(env.Spec.CloudConnect)
 	model.EksLogging = types.BoolValue(env.Spec.EksLogging)
