@@ -354,7 +354,7 @@ const CLICKHOUSE_CLUSTER_ZONES_DESCRIPTION = "Zones the cluster is spread across
 const CLICKHOUSE_CLUSTER_SHARDS_DESCRIPTION = "Number of shards."
 const CLICKHOUSE_CLUSTER_REPLICAS_DESCRIPTION = "Number of replicas per shard."
 const CLICKHOUSE_CLUSTER_STOPPED_DESCRIPTION = "Whether the cluster is kept stopped."
-const CLICKHOUSE_CLUSTER_KEEPER_DESCRIPTION = "Name of the Keeper this cluster coordinates through. Must name one of `clickhouse_keepers`."
+const CLICKHOUSE_CLUSTER_KEEPER_DESCRIPTION = "Name of the Keeper this cluster coordinates through. Must name one of `clickhouse_keepers`. Required when `replicas` is greater than 1; omit it for no Keeper, or to detach the current one."
 const CLICKHOUSE_CLUSTER_SERVER_SETTINGS_DESCRIPTION = "Server-level settings applied to every node. See https://clickhouse.com/docs/reference/settings/server-settings/settings."
 
 const CLICKHOUSE_KEEPERS_DESCRIPTION = "ClickHouse Keepers managed by this resource. Keepers created elsewhere are left alone, and declaring a name that already exists is rejected rather than overwritten; `terraform import` adopts every existing cluster and Keeper."

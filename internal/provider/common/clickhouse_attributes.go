@@ -114,7 +114,6 @@ func GetClickHouseClustersAttribute(required, optional, computed bool) rschema.L
 				},
 				"keeper": rschema.StringAttribute{
 					Optional:            true,
-					Computed:            true,
 					MarkdownDescription: CLICKHOUSE_CLUSTER_KEEPER_DESCRIPTION,
 					Validators: []validator.String{
 						stringvalidator.LengthAtLeast(1),
