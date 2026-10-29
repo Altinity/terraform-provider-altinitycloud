@@ -129,49 +129,54 @@ resource "%s" "dummy" {
     },
   ]
 
-  clickhouse_keepers = [{
-    name          = "keeper"
-    instance_type = "t4g.large"
-    zones         = ["us-east-1a", "us-east-1b"]
-    replicas      = 3
-    disk = {
-      size_in_gib = 30
+  clickhouse_keepers = {
+    keeper = {
+      instance_type = "t4g.large"
+      zones         = ["us-east-1a", "us-east-1b"]
+      replicas      = 3
+      disk = {
+        size_in_gib = 30
+      }
     }
-  }]
+  }
 
-  clickhouse_clusters = [{
-    name          = "analytics"
-    instance_type = "m6i.large"
-    zones         = ["us-east-1a", "us-east-1b"]
-    shards        = 1
-    replicas      = 2
-    keeper        = "keeper"
-    disk = {
-      size_in_gib = 100
+  clickhouse_clusters = {
+    analytics = {
+      instance_type = "m6i.large"
+      zones         = ["us-east-1a", "us-east-1b"]
+      shards        = 1
+      replicas      = 2
+      keeper        = "keeper"
+      disk = {
+        size_in_gib = 100
+      }
+      extra_disks = {
+        disk1 = {
+          size_in_gib = 50
+        }
+      }
+      profiles = {
+        analysts = {
+          settings = [{
+            key   = "max_execution_time"
+            value = "30"
+          }]
+        }
+      }
+      quotas = {
+        analysts = {
+          intervals = [{
+            duration = 3600
+            queries  = 1000
+          }]
+        }
+      }
+      server_settings = [{
+        key   = "max_concurrent_queries"
+        value = "200"
+      }]
     }
-    extra_disks = [{
-      name     = "disk1"
-      size_in_gib = 50
-    }]
-    profiles = [{
-      name = "analysts"
-      settings = [{
-        key   = "max_execution_time"
-        value = "30"
-      }]
-    }]
-    quotas = [{
-      name = "analysts"
-      intervals = [{
-        duration = 3600
-        queries          = 1000
-      }]
-    }]
-    server_settings = [{
-      key   = "max_concurrent_queries"
-      value = "200"
-    }]
-  }]
+  }
 
   backups = {
     custom_bucket = {

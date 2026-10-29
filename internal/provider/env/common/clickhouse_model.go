@@ -4,25 +4,24 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
+// Name-keyed maps: Terraform pairs map entries with prior state by key, where list entries pair by index.
 type ClickHouseClusterModel struct {
-	Name           types.String               `tfsdk:"name"`
-	Image          types.String               `tfsdk:"image"`
-	InstanceType   types.String               `tfsdk:"instance_type"`
-	Zones          types.List                 `tfsdk:"zones"`
-	Shards         types.Int64                `tfsdk:"shards"`
-	Replicas       types.Int64                `tfsdk:"replicas"`
-	Stopped        types.Bool                 `tfsdk:"stopped"`
-	Keeper         types.String               `tfsdk:"keeper"`
-	Disk           *ClickHouseDiskModel       `tfsdk:"disk"`
-	ExtraDisks     []ClickHouseNamedDiskModel `tfsdk:"extra_disks"`
-	Users          []ClickHouseUserModel      `tfsdk:"users"`
-	Profiles       []ClickHouseProfileModel   `tfsdk:"profiles"`
-	Quotas         []ClickHouseQuotaModel     `tfsdk:"quotas"`
-	ServerSettings []ClickHouseSettingModel   `tfsdk:"server_settings"`
+	Image          types.String                        `tfsdk:"image"`
+	InstanceType   types.String                        `tfsdk:"instance_type"`
+	Zones          types.List                          `tfsdk:"zones"`
+	Shards         types.Int64                         `tfsdk:"shards"`
+	Replicas       types.Int64                         `tfsdk:"replicas"`
+	Stopped        types.Bool                          `tfsdk:"stopped"`
+	Keeper         types.String                        `tfsdk:"keeper"`
+	Disk           *ClickHouseDiskModel                `tfsdk:"disk"`
+	ExtraDisks     map[string]ClickHouseExtraDiskModel `tfsdk:"extra_disks"`
+	Users          map[string]ClickHouseUserModel      `tfsdk:"users"`
+	Profiles       map[string]ClickHouseProfileModel   `tfsdk:"profiles"`
+	Quotas         map[string]ClickHouseQuotaModel     `tfsdk:"quotas"`
+	ServerSettings []ClickHouseSettingModel            `tfsdk:"server_settings"`
 }
 
 type ClickHouseKeeperModel struct {
-	Name         types.String         `tfsdk:"name"`
 	InstanceType types.String         `tfsdk:"instance_type"`
 	Zones        types.List           `tfsdk:"zones"`
 	Replicas     types.Int64          `tfsdk:"replicas"`
@@ -36,11 +35,10 @@ type ClickHouseDiskModel struct {
 	ThroughputMiBs types.Int64 `tfsdk:"throughput_in_mibps"`
 }
 
-type ClickHouseNamedDiskModel struct {
-	Name           types.String `tfsdk:"name"`
-	SizeGiB        types.Int64  `tfsdk:"size_in_gib"`
-	Iops           types.Int64  `tfsdk:"iops"`
-	ThroughputMiBs types.Int64  `tfsdk:"throughput_in_mibps"`
+type ClickHouseExtraDiskModel struct {
+	SizeGiB        types.Int64 `tfsdk:"size_in_gib"`
+	Iops           types.Int64 `tfsdk:"iops"`
+	ThroughputMiBs types.Int64 `tfsdk:"throughput_in_mibps"`
 }
 
 type ClickHouseSettingModel struct {
@@ -49,12 +47,10 @@ type ClickHouseSettingModel struct {
 }
 
 type ClickHouseProfileModel struct {
-	Name     types.String             `tfsdk:"name"`
 	Settings []ClickHouseSettingModel `tfsdk:"settings"`
 }
 
 type ClickHouseUserModel struct {
-	Name                        types.String                 `tfsdk:"name"`
 	Profile                     types.String                 `tfsdk:"profile"`
 	Quota                       types.String                 `tfsdk:"quota"`
 	Networks                    *ClickHouseUserNetworksModel `tfsdk:"networks"`
@@ -77,7 +73,6 @@ type ClickHouseUserPasswordModel struct {
 }
 
 type ClickHouseQuotaModel struct {
-	Name           types.String                   `tfsdk:"name"`
 	KeyedBy        types.String                   `tfsdk:"keyed_by"`
 	IPv4PrefixBits types.Int64                    `tfsdk:"ipv4_prefix_bits"`
 	IPv6PrefixBits types.Int64                    `tfsdk:"ipv6_prefix_bits"`

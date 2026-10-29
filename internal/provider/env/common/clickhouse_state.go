@@ -10,88 +10,82 @@ import (
 )
 
 // Only entries prior state already managed: adopting a console cluster would propose deleting it.
-func ClickHouseClustersToModel(prior []ClickHouseClusterModel, specs []ClickHouseClusterSpec) []ClickHouseClusterModel {
+func ClickHouseClustersToModel(prior map[string]ClickHouseClusterModel, specs []ClickHouseClusterSpec) map[string]ClickHouseClusterModel {
 	if prior == nil {
 		return nil
 	}
 
-	byName := make(map[string]ClickHouseClusterSpec, len(specs))
+	var models map[string]ClickHouseClusterModel
 	for _, s := range specs {
-		byName[s.Name] = s
-	}
-
-	var models []ClickHouseClusterModel
-	for _, p := range prior {
-		spec, ok := byName[p.Name.ValueString()]
-		if !ok {
-			continue
+		if p, ok := prior[s.Name]; ok {
+			if models == nil {
+				models = make(map[string]ClickHouseClusterModel, len(prior))
+			}
+			models[s.Name] = clickHouseClusterToModel(p, s)
 		}
-		models = append(models, clickHouseClusterToModel(p, spec))
 	}
 
 	return models
 }
 
-func ClickHouseKeepersToModel(prior []ClickHouseKeeperModel, specs []ClickHouseKeeperSpec) []ClickHouseKeeperModel {
+func ClickHouseKeepersToModel(prior map[string]ClickHouseKeeperModel, specs []ClickHouseKeeperSpec) map[string]ClickHouseKeeperModel {
 	if prior == nil {
 		return nil
 	}
 
-	byName := make(map[string]ClickHouseKeeperSpec, len(specs))
+	var models map[string]ClickHouseKeeperModel
 	for _, s := range specs {
-		byName[s.Name] = s
-	}
-
-	var models []ClickHouseKeeperModel
-	for _, p := range prior {
-		spec, ok := byName[p.Name.ValueString()]
-		if !ok {
-			continue
+		if p, ok := prior[s.Name]; ok {
+			if models == nil {
+				models = make(map[string]ClickHouseKeeperModel, len(prior))
+			}
+			models[s.Name] = clickHouseKeeperToModel(p, s)
 		}
-		models = append(models, clickHouseKeeperToModel(p, spec))
 	}
 
 	return models
 }
 
 // Import is the one read that takes ownership of every cluster and Keeper the environment has.
-func AdoptClickHouseClusters(specs []ClickHouseClusterSpec) []ClickHouseClusterModel {
+func AdoptClickHouseClusters(specs []ClickHouseClusterSpec) map[string]ClickHouseClusterModel {
 	if len(specs) == 0 {
 		return nil
 	}
 
-	models := make([]ClickHouseClusterModel, 0, len(specs))
+	models := make(map[string]ClickHouseClusterModel, len(specs))
 	for _, s := range specs {
-		models = append(models, clickHouseClusterToModel(ClickHouseClusterModel{}, s))
+		models[s.Name] = clickHouseClusterToModel(ClickHouseClusterModel{}, s)
 	}
 
 	return models
 }
 
-func AdoptClickHouseKeepers(specs []ClickHouseKeeperSpec) []ClickHouseKeeperModel {
+func AdoptClickHouseKeepers(specs []ClickHouseKeeperSpec) map[string]ClickHouseKeeperModel {
 	if len(specs) == 0 {
 		return nil
 	}
 
-	models := make([]ClickHouseKeeperModel, 0, len(specs))
+	models := make(map[string]ClickHouseKeeperModel, len(specs))
 	for _, s := range specs {
-		models = append(models, clickHouseKeeperToModel(ClickHouseKeeperModel{}, s))
+		models[s.Name] = clickHouseKeeperToModel(ClickHouseKeeperModel{}, s)
 	}
 
 	return models
 }
 
 // A data source reports the environment as it is, reserved users included.
-func ClickHouseClustersToDataSourceModel(specs []ClickHouseClusterSpec) []ClickHouseClusterModel {
+func ClickHouseClustersToDataSourceModel(specs []ClickHouseClusterSpec) map[string]ClickHouseClusterModel {
 	models := AdoptClickHouseClusters(specs)
-	for i, s := range specs {
-		models[i].Users = allUsersToModel(s.Users)
+	for _, s := range specs {
+		m := models[s.Name]
+		m.Users = allUsersToModel(s.Users)
+		models[s.Name] = m
 	}
 
 	return models
 }
 
-func ClickHouseKeepersToDataSourceModel(specs []ClickHouseKeeperSpec) []ClickHouseKeeperModel {
+func ClickHouseKeepersToDataSourceModel(specs []ClickHouseKeeperSpec) map[string]ClickHouseKeeperModel {
 	return AdoptClickHouseKeepers(specs)
 }
 
@@ -105,7 +99,6 @@ func keeperToModel(name string) types.String {
 
 func clickHouseClusterToModel(prior ClickHouseClusterModel, spec ClickHouseClusterSpec) ClickHouseClusterModel {
 	return ClickHouseClusterModel{
-		Name:           types.StringValue(spec.Name),
 		Image:          types.StringValue(spec.Image),
 		InstanceType:   types.StringValue(spec.InstanceType),
 		Zones:          reorderStringList(prior.Zones, spec.Zones),
@@ -124,7 +117,6 @@ func clickHouseClusterToModel(prior ClickHouseClusterModel, spec ClickHouseClust
 
 func clickHouseKeeperToModel(prior ClickHouseKeeperModel, spec ClickHouseKeeperSpec) ClickHouseKeeperModel {
 	return ClickHouseKeeperModel{
-		Name:         types.StringValue(spec.Name),
 		InstanceType: types.StringValue(spec.InstanceType),
 		Zones:        reorderStringList(prior.Zones, spec.Zones),
 		Replicas:     types.Int64Value(spec.Replicas),
@@ -149,24 +141,25 @@ func emptyLike[M any](prior []M) []M {
 	return []M{}
 }
 
-func extraDisksToModel(prior []ClickHouseNamedDiskModel, specs []ClickHouseNamedDiskSpec) []ClickHouseNamedDiskModel {
+func emptyMapLike[M any](prior map[string]M) map[string]M {
+	if prior == nil {
+		return nil
+	}
+	return map[string]M{}
+}
+
+func extraDisksToModel(prior map[string]ClickHouseExtraDiskModel, specs []ClickHouseNamedDiskSpec) map[string]ClickHouseExtraDiskModel {
 	if len(specs) == 0 {
-		return emptyLike(prior)
+		return emptyMapLike(prior)
 	}
 
-	ordered := ReorderByKey(prior, specs,
-		func(m ClickHouseNamedDiskModel) string { return m.Name.ValueString() },
-		func(s ClickHouseNamedDiskSpec) string { return s.Name },
-	)
-
-	models := make([]ClickHouseNamedDiskModel, 0, len(ordered))
-	for _, s := range ordered {
-		models = append(models, ClickHouseNamedDiskModel{
-			Name:           types.StringValue(s.Name),
+	models := make(map[string]ClickHouseExtraDiskModel, len(specs))
+	for _, s := range specs {
+		models[s.Name] = ClickHouseExtraDiskModel{
 			SizeGiB:        types.Int64Value(s.SizeGiB),
 			Iops:           types.Int64Value(s.Iops),
 			ThroughputMiBs: types.Int64Value(s.ThroughputMiBs),
-		})
+		}
 	}
 
 	return models
@@ -193,50 +186,29 @@ func settingsToModel(prior []ClickHouseSettingModel, specs []ClickHouseSettingSp
 	return models
 }
 
-func profilesToModel(prior []ClickHouseProfileModel, specs []ClickHouseProfileSpec) []ClickHouseProfileModel {
+func profilesToModel(prior map[string]ClickHouseProfileModel, specs []ClickHouseProfileSpec) map[string]ClickHouseProfileModel {
 	if len(specs) == 0 {
-		return emptyLike(prior)
+		return emptyMapLike(prior)
 	}
 
-	ordered := ReorderByKey(prior, specs,
-		func(m ClickHouseProfileModel) string { return m.Name.ValueString() },
-		func(s ClickHouseProfileSpec) string { return s.Name },
-	)
-
-	priorByName := make(map[string][]ClickHouseSettingModel, len(prior))
-	for _, p := range prior {
-		priorByName[p.Name.ValueString()] = p.Settings
-	}
-
-	models := make([]ClickHouseProfileModel, 0, len(ordered))
-	for _, s := range ordered {
-		models = append(models, ClickHouseProfileModel{
-			Name:     types.StringValue(s.Name),
-			Settings: settingsToModel(priorByName[s.Name], s.Settings),
-		})
+	models := make(map[string]ClickHouseProfileModel, len(specs))
+	for _, s := range specs {
+		models[s.Name] = ClickHouseProfileModel{
+			Settings: settingsToModel(prior[s.Name].Settings, s.Settings),
+		}
 	}
 
 	return models
 }
 
-func quotasToModel(prior []ClickHouseQuotaModel, specs []ClickHouseQuotaSpec) []ClickHouseQuotaModel {
+func quotasToModel(prior map[string]ClickHouseQuotaModel, specs []ClickHouseQuotaSpec) map[string]ClickHouseQuotaModel {
 	if len(specs) == 0 {
-		return emptyLike(prior)
+		return emptyMapLike(prior)
 	}
 
-	ordered := ReorderByKey(prior, specs,
-		func(m ClickHouseQuotaModel) string { return m.Name.ValueString() },
-		func(s ClickHouseQuotaSpec) string { return s.Name },
-	)
-
-	priorByName := make(map[string][]ClickHouseQuotaIntervalModel, len(prior))
-	for _, p := range prior {
-		priorByName[p.Name.ValueString()] = p.Intervals
-	}
-
-	models := make([]ClickHouseQuotaModel, 0, len(ordered))
-	for _, s := range ordered {
-		orderedIntervals := ReorderByKey(priorByName[s.Name], s.Intervals,
+	models := make(map[string]ClickHouseQuotaModel, len(specs))
+	for _, s := range specs {
+		orderedIntervals := ReorderByKey(prior[s.Name].Intervals, s.Intervals,
 			func(m ClickHouseQuotaIntervalModel) string {
 				return strconv.FormatInt(m.DurationSeconds.ValueInt64(), 10)
 			},
@@ -262,46 +234,33 @@ func quotasToModel(prior []ClickHouseQuotaModel, specs []ClickHouseQuotaSpec) []
 			})
 		}
 
-		models = append(models, ClickHouseQuotaModel{
-			Name:           types.StringValue(s.Name),
+		models[s.Name] = ClickHouseQuotaModel{
 			KeyedBy:        types.StringValue(s.KeyedBy),
 			IPv4PrefixBits: types.Int64PointerValue(s.IPv4PrefixBits),
 			IPv6PrefixBits: types.Int64PointerValue(s.IPv6PrefixBits),
 			Intervals:      intervals,
-		})
+		}
 	}
 
 	return models
 }
 
 // Platform-injected users can never be declared, so keeping them would diverge state from plan.
-func usersToModel(prior []ClickHouseUserModel, specs []ClickHouseUserSpec) []ClickHouseUserModel {
-	kept := make([]ClickHouseUserSpec, 0, len(specs))
+func usersToModel(prior map[string]ClickHouseUserModel, specs []ClickHouseUserSpec) map[string]ClickHouseUserModel {
+	var models map[string]ClickHouseUserModel
 	for _, s := range specs {
-		if !slices.Contains(clientsupport.ReservedClickHouseUsers, s.Name) {
-			kept = append(kept, s)
+		if slices.Contains(clientsupport.ReservedClickHouseUsers, s.Name) {
+			continue
 		}
+		if models == nil {
+			models = make(map[string]ClickHouseUserModel, len(specs))
+		}
+		models[s.Name] = userToModel(prior[s.Name], s)
 	}
 
-	if len(kept) == 0 {
-		return emptyLike(prior)
+	if models == nil {
+		return emptyMapLike(prior)
 	}
-
-	ordered := ReorderByKey(prior, kept,
-		func(m ClickHouseUserModel) string { return m.Name.ValueString() },
-		func(s ClickHouseUserSpec) string { return s.Name },
-	)
-
-	priorByName := make(map[string]ClickHouseUserModel, len(prior))
-	for _, p := range prior {
-		priorByName[p.Name.ValueString()] = p
-	}
-
-	models := make([]ClickHouseUserModel, 0, len(ordered))
-	for _, s := range ordered {
-		models = append(models, userToModel(priorByName[s.Name], s))
-	}
-
 	return models
 }
 
@@ -322,7 +281,6 @@ func userToModel(prior ClickHouseUserModel, spec ClickHouseUserSpec) ClickHouseU
 	}
 
 	return ClickHouseUserModel{
-		Name:                        types.StringValue(spec.Name),
 		Profile:                     types.StringValue(spec.Profile),
 		Quota:                       types.StringValue(spec.Quota),
 		Networks:                    networks,
@@ -373,14 +331,14 @@ func reorderStringList(prior types.List, values []string) types.List {
 	return types.ListValueMust(types.StringType, elements)
 }
 
-func allUsersToModel(specs []ClickHouseUserSpec) []ClickHouseUserModel {
+func allUsersToModel(specs []ClickHouseUserSpec) map[string]ClickHouseUserModel {
 	if len(specs) == 0 {
 		return nil
 	}
 
-	models := make([]ClickHouseUserModel, 0, len(specs))
+	models := make(map[string]ClickHouseUserModel, len(specs))
 	for _, s := range specs {
-		models = append(models, userToModel(ClickHouseUserModel{}, s))
+		models[s.Name] = userToModel(ClickHouseUserModel{}, s)
 	}
 
 	return models

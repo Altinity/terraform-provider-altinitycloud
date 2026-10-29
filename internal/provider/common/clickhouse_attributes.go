@@ -9,10 +9,16 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework-validators/float64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/int64validator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/listvalidator"
+	"github.com/hashicorp/terraform-plugin-framework-validators/mapvalidator"
 	"github.com/hashicorp/terraform-plugin-framework-validators/stringvalidator"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	rschema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/booldefault"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/boolplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/int64planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/listplanmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
@@ -21,6 +27,8 @@ import (
 var ReservedClickHouseUsers = []string{"grafana", "datadog", "default", "clickhouse_operator", "swarm_access"}
 
 var clickHouseNameRegex = regexp.MustCompile("^[a-z0-9][a-z0-9-]{0,13}[a-z0-9]$")
+
+var clickHouseNameValidator = stringvalidator.RegexMatches(clickHouseNameRegex, "must be 2-15 lowercase alphanumerics or hyphens, starting and ending with an alphanumeric")
 
 var clickHouseExtraDiskNameRegex = regexp.MustCompile("^disk")
 
@@ -46,28 +54,22 @@ func uniqueClickHouseNames(attribute, entry string) validator.List {
 		})
 }
 
-func GetClickHouseClustersAttribute(required, optional, computed bool) rschema.ListNestedAttribute {
-	return rschema.ListNestedAttribute{
+func GetClickHouseClustersAttribute(required, optional, computed bool) rschema.MapNestedAttribute {
+	return rschema.MapNestedAttribute{
 		Required:            required,
 		Optional:            optional,
 		Computed:            computed,
 		MarkdownDescription: CLICKHOUSE_CLUSTERS_DESCRIPTION,
-		Validators: []validator.List{
-			listvalidator.SizeAtLeast(1),
-			uniqueClickHouseNames("name", "cluster"),
+		Validators: []validator.Map{
+			mapvalidator.SizeAtLeast(1),
+			mapvalidator.KeysAre(clickHouseNameValidator),
 		},
 		NestedObject: rschema.NestedAttributeObject{
 			Attributes: map[string]rschema.Attribute{
-				"name": rschema.StringAttribute{
-					Required:            true,
-					MarkdownDescription: CLICKHOUSE_CLUSTER_NAME_DESCRIPTION,
-					Validators: []validator.String{
-						stringvalidator.RegexMatches(clickHouseNameRegex, "must be 2-15 lowercase alphanumerics or hyphens, starting and ending with an alphanumeric"),
-					},
-				},
 				"image": rschema.StringAttribute{
 					Optional:            true,
 					Computed:            true,
+					PlanModifiers:       []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
 					MarkdownDescription: CLICKHOUSE_CLUSTER_IMAGE_DESCRIPTION,
 					Validators: []validator.String{
 						stringvalidator.LengthAtLeast(1),
@@ -84,6 +86,7 @@ func GetClickHouseClustersAttribute(required, optional, computed bool) rschema.L
 					ElementType:         types.StringType,
 					Optional:            true,
 					Computed:            true,
+					PlanModifiers:       []planmodifier.List{listplanmodifier.UseStateForUnknown()},
 					MarkdownDescription: CLICKHOUSE_CLUSTER_ZONES_DESCRIPTION,
 					Validators: []validator.List{
 						listvalidator.SizeAtLeast(1),
@@ -93,6 +96,7 @@ func GetClickHouseClustersAttribute(required, optional, computed bool) rschema.L
 				"shards": rschema.Int64Attribute{
 					Optional:            true,
 					Computed:            true,
+					PlanModifiers:       []planmodifier.Int64{int64planmodifier.UseStateForUnknown()},
 					MarkdownDescription: CLICKHOUSE_CLUSTER_SHARDS_DESCRIPTION,
 					Validators: []validator.Int64{
 						int64validator.AtLeast(1),
@@ -101,6 +105,7 @@ func GetClickHouseClustersAttribute(required, optional, computed bool) rschema.L
 				"replicas": rschema.Int64Attribute{
 					Optional:            true,
 					Computed:            true,
+					PlanModifiers:       []planmodifier.Int64{int64planmodifier.UseStateForUnknown()},
 					MarkdownDescription: CLICKHOUSE_CLUSTER_REPLICAS_DESCRIPTION,
 					Validators: []validator.Int64{
 						int64validator.AtLeast(1),
@@ -130,25 +135,18 @@ func GetClickHouseClustersAttribute(required, optional, computed bool) rschema.L
 	}
 }
 
-func GetClickHouseKeepersAttribute(required, optional, computed bool) rschema.ListNestedAttribute {
-	return rschema.ListNestedAttribute{
+func GetClickHouseKeepersAttribute(required, optional, computed bool) rschema.MapNestedAttribute {
+	return rschema.MapNestedAttribute{
 		Required:            required,
 		Optional:            optional,
 		Computed:            computed,
 		MarkdownDescription: CLICKHOUSE_KEEPERS_DESCRIPTION,
-		Validators: []validator.List{
-			listvalidator.SizeAtLeast(1),
-			uniqueClickHouseNames("name", "Keeper"),
+		Validators: []validator.Map{
+			mapvalidator.SizeAtLeast(1),
+			mapvalidator.KeysAre(clickHouseNameValidator),
 		},
 		NestedObject: rschema.NestedAttributeObject{
 			Attributes: map[string]rschema.Attribute{
-				"name": rschema.StringAttribute{
-					Required:            true,
-					MarkdownDescription: CLICKHOUSE_KEEPER_NAME_DESCRIPTION,
-					Validators: []validator.String{
-						stringvalidator.RegexMatches(clickHouseNameRegex, "must be 2-15 lowercase alphanumerics or hyphens, starting and ending with an alphanumeric"),
-					},
-				},
 				"instance_type": rschema.StringAttribute{
 					Required:            true,
 					MarkdownDescription: CLICKHOUSE_KEEPER_INSTANCE_TYPE_DESCRIPTION,
@@ -160,6 +158,7 @@ func GetClickHouseKeepersAttribute(required, optional, computed bool) rschema.Li
 					ElementType:         types.StringType,
 					Optional:            true,
 					Computed:            true,
+					PlanModifiers:       []planmodifier.List{listplanmodifier.UseStateForUnknown()},
 					MarkdownDescription: CLICKHOUSE_KEEPER_ZONES_DESCRIPTION,
 					Validators: []validator.List{
 						listvalidator.SizeAtLeast(1),
@@ -169,6 +168,7 @@ func GetClickHouseKeepersAttribute(required, optional, computed bool) rschema.Li
 				"replicas": rschema.Int64Attribute{
 					Optional:            true,
 					Computed:            true,
+					PlanModifiers:       []planmodifier.Int64{int64planmodifier.UseStateForUnknown()},
 					MarkdownDescription: CLICKHOUSE_KEEPER_REPLICAS_DESCRIPTION,
 					Validators: []validator.Int64{
 						int64validator.OneOf(1, 3),
@@ -198,24 +198,19 @@ func getClickHouseDiskAttribute() rschema.SingleNestedAttribute {
 	}
 }
 
-func getClickHouseExtraDisksAttribute() rschema.ListNestedAttribute {
-	return rschema.ListNestedAttribute{
+func getClickHouseExtraDisksAttribute() rschema.MapNestedAttribute {
+	return rschema.MapNestedAttribute{
 		Optional:            true,
 		MarkdownDescription: CLICKHOUSE_EXTRA_DISKS_DESCRIPTION,
-		Validators: []validator.List{
-			listvalidator.SizeAtMost(8),
-			uniqueClickHouseNames("name", "extra disk"),
+		Validators: []validator.Map{
+			mapvalidator.SizeAtMost(8),
+			mapvalidator.KeysAre(
+				stringvalidator.LengthBetween(1, 16),
+				stringvalidator.RegexMatches(clickHouseExtraDiskNameRegex, "must start with `disk`"),
+			),
 		},
 		NestedObject: rschema.NestedAttributeObject{
 			Attributes: map[string]rschema.Attribute{
-				"name": rschema.StringAttribute{
-					Required:            true,
-					MarkdownDescription: CLICKHOUSE_EXTRA_DISK_NAME_DESCRIPTION,
-					Validators: []validator.String{
-						stringvalidator.LengthBetween(1, 16),
-						stringvalidator.RegexMatches(clickHouseExtraDiskNameRegex, "must start with `disk`"),
-					},
-				},
 				"size_in_gib":         getClickHouseDiskSizeAttribute(),
 				"iops":                getClickHouseDiskIopsAttribute(),
 				"throughput_in_mibps": getClickHouseDiskThroughputAttribute(),
@@ -238,6 +233,7 @@ func getClickHouseDiskIopsAttribute() rschema.Int64Attribute {
 	return rschema.Int64Attribute{
 		Optional:            true,
 		Computed:            true,
+		PlanModifiers:       []planmodifier.Int64{int64planmodifier.UseStateForUnknown()},
 		MarkdownDescription: CLICKHOUSE_DISK_IOPS_DESCRIPTION,
 		Validators: []validator.Int64{
 			int64validator.AtLeast(1),
@@ -249,6 +245,7 @@ func getClickHouseDiskThroughputAttribute() rschema.Int64Attribute {
 	return rschema.Int64Attribute{
 		Optional:            true,
 		Computed:            true,
+		PlanModifiers:       []planmodifier.Int64{int64planmodifier.UseStateForUnknown()},
 		MarkdownDescription: CLICKHOUSE_DISK_THROUGHPUT_DESCRIPTION,
 		Validators: []validator.Int64{
 			int64validator.AtLeast(1),
@@ -281,53 +278,43 @@ func getClickHouseSettingsAttribute(description string) rschema.ListNestedAttrib
 	}
 }
 
-func getClickHouseProfilesAttribute() rschema.ListNestedAttribute {
-	return rschema.ListNestedAttribute{
+func getClickHouseProfilesAttribute() rschema.MapNestedAttribute {
+	return rschema.MapNestedAttribute{
 		Optional:            true,
 		MarkdownDescription: CLICKHOUSE_PROFILES_DESCRIPTION,
-		Validators: []validator.List{
-			uniqueClickHouseNames("name", "profile"),
+		Validators: []validator.Map{
+			mapvalidator.KeysAre(stringvalidator.LengthAtLeast(1)),
 		},
 		NestedObject: rschema.NestedAttributeObject{
 			Attributes: map[string]rschema.Attribute{
-				"name": rschema.StringAttribute{
-					Required:            true,
-					MarkdownDescription: CLICKHOUSE_PROFILE_NAME_DESCRIPTION,
-					Validators: []validator.String{
-						stringvalidator.LengthAtLeast(1),
-					},
-				},
 				"settings": getClickHouseSettingsAttribute(CLICKHOUSE_PROFILE_SETTINGS_DESCRIPTION),
 			},
 		},
 	}
 }
 
-func getClickHouseUsersAttribute() rschema.ListNestedAttribute {
-	return rschema.ListNestedAttribute{
+func getClickHouseUsersAttribute() rschema.MapNestedAttribute {
+	return rschema.MapNestedAttribute{
 		Optional:            true,
 		MarkdownDescription: CLICKHOUSE_USERS_DESCRIPTION,
-		Validators: []validator.List{
-			uniqueClickHouseNames("name", "user"),
+		Validators: []validator.Map{
+			mapvalidator.KeysAre(
+				stringvalidator.LengthAtLeast(1),
+				stringvalidator.NoneOf(ReservedClickHouseUsers...),
+			),
 		},
 		NestedObject: rschema.NestedAttributeObject{
 			Attributes: map[string]rschema.Attribute{
-				"name": rschema.StringAttribute{
-					Required:            true,
-					MarkdownDescription: CLICKHOUSE_USER_NAME_DESCRIPTION,
-					Validators: []validator.String{
-						stringvalidator.LengthAtLeast(1),
-						stringvalidator.NoneOf(ReservedClickHouseUsers...),
-					},
-				},
 				"profile": rschema.StringAttribute{
 					Optional:            true,
 					Computed:            true,
+					PlanModifiers:       []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
 					MarkdownDescription: CLICKHOUSE_USER_PROFILE_DESCRIPTION,
 				},
 				"quota": rschema.StringAttribute{
 					Optional:            true,
 					Computed:            true,
+					PlanModifiers:       []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
 					MarkdownDescription: CLICKHOUSE_USER_QUOTA_DESCRIPTION,
 				},
 				"networks": rschema.SingleNestedAttribute{
@@ -348,16 +335,19 @@ func getClickHouseUsersAttribute() rschema.ListNestedAttribute {
 				"access_management": rschema.BoolAttribute{
 					Optional:            true,
 					Computed:            true,
+					PlanModifiers:       []planmodifier.Bool{boolplanmodifier.UseStateForUnknown()},
 					MarkdownDescription: CLICKHOUSE_USER_ACCESS_MANAGEMENT_DESCRIPTION,
 				},
 				"named_collection_control": rschema.BoolAttribute{
 					Optional:            true,
 					Computed:            true,
+					PlanModifiers:       []planmodifier.Bool{boolplanmodifier.UseStateForUnknown()},
 					MarkdownDescription: CLICKHOUSE_USER_NAMED_COLLECTION_CONTROL_DESCRIPTION,
 				},
 				"show_named_collections_secrets": rschema.BoolAttribute{
 					Optional:            true,
 					Computed:            true,
+					PlanModifiers:       []planmodifier.Bool{boolplanmodifier.UseStateForUnknown()},
 					MarkdownDescription: CLICKHOUSE_USER_SHOW_NAMED_COLLECTIONS_SECRETS_DESCRIPTION,
 				},
 				"databases": rschema.ListAttribute{
@@ -373,6 +363,7 @@ func getClickHouseUsersAttribute() rschema.ListNestedAttribute {
 					ElementType:         types.StringType,
 					Optional:            true,
 					Computed:            true,
+					PlanModifiers:       []planmodifier.List{listplanmodifier.UseStateForUnknown()},
 					MarkdownDescription: CLICKHOUSE_USER_GRANTS_DESCRIPTION,
 					Validators: []validator.List{
 						listvalidator.UniqueValues(),
@@ -410,25 +401,19 @@ func getClickHouseUsersAttribute() rschema.ListNestedAttribute {
 	}
 }
 
-func getClickHouseQuotasAttribute() rschema.ListNestedAttribute {
-	return rschema.ListNestedAttribute{
+func getClickHouseQuotasAttribute() rschema.MapNestedAttribute {
+	return rschema.MapNestedAttribute{
 		Optional:            true,
 		MarkdownDescription: CLICKHOUSE_QUOTAS_DESCRIPTION,
-		Validators: []validator.List{
-			uniqueClickHouseNames("name", "quota"),
+		Validators: []validator.Map{
+			mapvalidator.KeysAre(stringvalidator.LengthAtLeast(1)),
 		},
 		NestedObject: rschema.NestedAttributeObject{
 			Attributes: map[string]rschema.Attribute{
-				"name": rschema.StringAttribute{
-					Required:            true,
-					MarkdownDescription: CLICKHOUSE_QUOTA_NAME_DESCRIPTION,
-					Validators: []validator.String{
-						stringvalidator.LengthAtLeast(1),
-					},
-				},
 				"keyed_by": rschema.StringAttribute{
 					Optional:            true,
 					Computed:            true,
+					PlanModifiers:       []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
 					MarkdownDescription: CLICKHOUSE_QUOTA_KEYED_BY_DESCRIPTION,
 					Validators: []validator.String{
 						stringvalidator.OneOf(clickHouseQuotaKeyedBy...),

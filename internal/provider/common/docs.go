@@ -346,8 +346,7 @@ const HOSTED_NODE_GROUP_ZONE_IDS_DESCRIPTION = "Availability zone ids the node g
 const HOSTED_RESOURCE_PREFIX_DESCRIPTION = "Prefix applied to the names of the cloud resources created for this environment. **[IMMUTABLE]**"
 const HOSTED_EXTERNAL_BUCKET_DESCRIPTION = "List of external S3 buckets to allow access to. The environment IAM roles are granted access to every bucket listed here."
 
-const CLICKHOUSE_CLUSTERS_DESCRIPTION = "ClickHouse clusters managed by this resource. Clusters created elsewhere are left alone, and declaring a name that already exists is rejected rather than overwritten; `terraform import` adopts every existing cluster and Keeper."
-const CLICKHOUSE_CLUSTER_NAME_DESCRIPTION = "Cluster identifier, unique within the environment. 2-15 chars, lowercase alphanumerics and hyphens, must start and end with an alphanumeric. Changing it is not a rename: the old cluster is deleted along with its data and a new, empty one is created."
+const CLICKHOUSE_CLUSTERS_DESCRIPTION = "ClickHouse clusters managed by this resource, keyed by cluster name: 2-15 chars, lowercase alphanumerics and hyphens, starting and ending with an alphanumeric. Changing a key is not a rename: the old cluster is deleted along with its data and a new, empty one is created. Clusters created elsewhere are left alone, and declaring a name that already exists is rejected rather than overwritten; `terraform import` adopts every existing cluster and Keeper."
 const CLICKHOUSE_CLUSTER_IMAGE_DESCRIPTION = "Server image, tag included, e.g. `altinity/clickhouse-server:25.8.16.10002.altinitystable`. The platform picks a current image when omitted."
 const CLICKHOUSE_CLUSTER_INSTANCE_TYPE_DESCRIPTION = "Machine type for the cluster nodes. Must match a node group with a `CLICKHOUSE` reservation."
 const CLICKHOUSE_CLUSTER_ZONES_DESCRIPTION = "Zones the cluster is spread across. All environment zones by default. **[IMMUTABLE]**"
@@ -357,8 +356,7 @@ const CLICKHOUSE_CLUSTER_STOPPED_DESCRIPTION = "Whether the cluster is kept stop
 const CLICKHOUSE_CLUSTER_KEEPER_DESCRIPTION = "Name of the Keeper this cluster coordinates through. Must name one of `clickhouse_keepers`. Required when `replicas` is greater than 1; omit it for no Keeper, or to detach the current one."
 const CLICKHOUSE_CLUSTER_SERVER_SETTINGS_DESCRIPTION = "Server-level settings applied to every node. See https://clickhouse.com/docs/reference/settings/server-settings/settings."
 
-const CLICKHOUSE_KEEPERS_DESCRIPTION = "ClickHouse Keepers managed by this resource. Keepers created elsewhere are left alone, and declaring a name that already exists is rejected rather than overwritten; `terraform import` adopts every existing cluster and Keeper."
-const CLICKHOUSE_KEEPER_NAME_DESCRIPTION = "Keeper identifier, unique within the environment. 2-15 chars, lowercase alphanumerics and hyphens, must start and end with an alphanumeric. Changing it is not a rename: the old Keeper is deleted along with its data and a new, empty one is created."
+const CLICKHOUSE_KEEPERS_DESCRIPTION = "ClickHouse Keepers managed by this resource, keyed by Keeper name: 2-15 chars, lowercase alphanumerics and hyphens, starting and ending with an alphanumeric. Changing a key is not a rename: the old Keeper is deleted along with its data and a new, empty one is created. Keepers created elsewhere are left alone, and declaring a name that already exists is rejected rather than overwritten; `terraform import` adopts every existing cluster and Keeper."
 const CLICKHOUSE_KEEPER_INSTANCE_TYPE_DESCRIPTION = "Machine type for the Keeper nodes. Must match a node group with a `ZOOKEEPER` reservation."
 const CLICKHOUSE_KEEPER_ZONES_DESCRIPTION = "Zones the Keeper is spread across. All environment zones by default. **[IMMUTABLE]**"
 const CLICKHOUSE_KEEPER_REPLICAS_DESCRIPTION = "Number of Keeper nodes. Either 1 (single node) or 3 (highly-available ensemble). An ensemble cannot be shrunk back to a single node."
@@ -368,17 +366,14 @@ const CLICKHOUSE_DISK_DESCRIPTION = "Main data volume."
 const CLICKHOUSE_DISK_SIZE_DESCRIPTION = "Size in GiB. Can only be increased, never decreased."
 const CLICKHOUSE_DISK_IOPS_DESCRIPTION = "Provisioned IOPS. Honored only by storage classes that support it, such as AWS gp3 and io2."
 const CLICKHOUSE_DISK_THROUGHPUT_DESCRIPTION = "Provisioned throughput in MiB/s. Honored only by storage classes that support it, such as AWS gp3."
-const CLICKHOUSE_EXTRA_DISKS_DESCRIPTION = "Extra data volumes added to the default ClickHouse storage policy, each replica receiving one volume per entry. ClickHouse balances new data across the main and extra volumes with the `least_used` strategy. 8 maximum."
-const CLICKHOUSE_EXTRA_DISK_NAME_DESCRIPTION = "Volume identifier, 16 chars max, must start with `disk`. A volume named `diskN`, where `N` is a positive integer, is mounted at `/var/lib/clickhouseN`; any other name is mounted at `/var/lib/clickhouse<name>`. **[IMMUTABLE]**"
+const CLICKHOUSE_EXTRA_DISKS_DESCRIPTION = "Extra data volumes added to the default ClickHouse storage policy, keyed by volume name: 16 chars max, starting with `disk`. A volume named `diskN`, where `N` is a positive integer, is mounted at `/var/lib/clickhouseN`; any other name is mounted at `/var/lib/clickhouse<name>`. Each replica receives one volume per entry, and ClickHouse balances new data across the main and extra volumes with the `least_used` strategy. 8 maximum."
 
 const CLICKHOUSE_SETTING_KEY_DESCRIPTION = "Setting name."
 const CLICKHOUSE_SETTING_VALUE_DESCRIPTION = "Setting value."
-const CLICKHOUSE_PROFILES_DESCRIPTION = "Settings profiles users can be assigned to."
-const CLICKHOUSE_PROFILE_NAME_DESCRIPTION = "Profile name, unique within the cluster. Referenced by a user's `profile`."
+const CLICKHOUSE_PROFILES_DESCRIPTION = "Settings profiles users can be assigned to, keyed by profile name. A user's `profile` references the key."
 const CLICKHOUSE_PROFILE_SETTINGS_DESCRIPTION = "Session-level settings this profile applies. See https://clickhouse.com/docs/reference/settings/session-settings."
 
-const CLICKHOUSE_USERS_DESCRIPTION = "ClickHouse users."
-const CLICKHOUSE_USER_NAME_DESCRIPTION = "User name, unique within the cluster. `grafana`, `datadog`, `default`, `clickhouse_operator` and `swarm_access` are reserved for platform users and are rejected."
+const CLICKHOUSE_USERS_DESCRIPTION = "ClickHouse users, keyed by user name. `grafana`, `datadog`, `default`, `clickhouse_operator` and `swarm_access` are reserved for platform users and are rejected."
 const CLICKHOUSE_USER_PROFILE_DESCRIPTION = "Settings profile assigned to this user. Must be one of the cluster's `profiles` or a profile ClickHouse ships with."
 const CLICKHOUSE_USER_QUOTA_DESCRIPTION = "Quota assigned to this user. Must be one of the cluster's `quotas`."
 const CLICKHOUSE_USER_NETWORKS_DESCRIPTION = "Where the user may connect from."
@@ -397,8 +392,7 @@ const CLICKHOUSE_USER_PASSWORD_TYPE_DESCRIPTION = `Form the password digest is s
 `
 const CLICKHOUSE_USER_PASSWORD_ENC_VALUE_DESCRIPTION = "Encrypted password digest, in the form declared by `type`. Required when the user is created; omit it afterwards to keep the current password. Write-only: the API never returns it, so the value is kept from the configuration and never refreshed."
 
-const CLICKHOUSE_QUOTAS_DESCRIPTION = "Resource quotas users can be assigned to."
-const CLICKHOUSE_QUOTA_NAME_DESCRIPTION = "Quota name, unique within the cluster. Referenced by a user's `quota`."
+const CLICKHOUSE_QUOTAS_DESCRIPTION = "Resource quotas users can be assigned to, keyed by quota name. A user's `quota` references the key."
 const CLICKHOUSE_QUOTA_KEYED_BY_DESCRIPTION = `What the quota is counted per.
 
 		Possible values:

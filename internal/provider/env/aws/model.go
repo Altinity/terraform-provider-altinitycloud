@@ -11,36 +11,36 @@ import (
 )
 
 type AWSEnvModel struct {
-	Id                           types.String                    `tfsdk:"id"`
-	Name                         types.String                    `tfsdk:"name"`
-	CustomDomain                 types.String                    `tfsdk:"custom_domain"`
-	CustomDomains                types.List                      `tfsdk:"custom_domains"`
-	LoadBalancingStrategy        types.String                    `tfsdk:"load_balancing_strategy"`
-	Region                       types.String                    `tfsdk:"region"`
-	PermissionsBoundaryPolicyArn types.String                    `tfsdk:"permissions_boundary_policy_arn"`
-	ResourcePrefix               types.String                    `tfsdk:"resource_prefix"`
-	KmsKeyArn                    types.String                    `tfsdk:"kms_key_arn"`
-	NAT                          types.Bool                      `tfsdk:"nat"`
-	CIDR                         types.String                    `tfsdk:"cidr"`
-	AWSAccountID                 types.String                    `tfsdk:"aws_account_id"`
-	Zones                        types.List                      `tfsdk:"zones"`
-	LoadBalancers                *LoadBalancersModel             `tfsdk:"load_balancers"`
-	NodeGroups                   []common.NodeGroupsModel        `tfsdk:"node_groups"`
-	PeeringConnections           []AWSEnvPeeringConnectionModel  `tfsdk:"peering_connections"`
-	Endpoints                    []AWSEnvEndpointModel           `tfsdk:"endpoints"`
-	Tags                         []common.KeyValueModel          `tfsdk:"tags"`
-	CloudConnect                 types.Bool                      `tfsdk:"cloud_connect"`
-	MaintenanceWindows           []common.MaintenanceWindowModel `tfsdk:"maintenance_windows"`
-	ExternalBuckets              []AWSEnvExternalBucketModel     `tfsdk:"external_buckets"`
-	Backups                      *AWSEnvBackupsModel             `tfsdk:"backups"`
-	Iceberg                      *AWSEnvIcebergModel             `tfsdk:"iceberg"`
-	MetricsEndpoint              *common.MetricsEndpointModel    `tfsdk:"metrics_endpoint"`
-	Datadog                      *common.DatadogModel            `tfsdk:"datadog"`
-	EksLogging                   types.Bool                      `tfsdk:"eks_logging"`
-	MFA                          types.Bool                      `tfsdk:"mfa"`
-	EksAccessEntries             []AWSEnvEKSAccessEntryModel     `tfsdk:"eks_access_entries"`
-	ClickHouseClusters           []common.ClickHouseClusterModel `tfsdk:"clickhouse_clusters"`
-	ClickHouseKeepers            []common.ClickHouseKeeperModel  `tfsdk:"clickhouse_keepers"`
+	Id                           types.String                             `tfsdk:"id"`
+	Name                         types.String                             `tfsdk:"name"`
+	CustomDomain                 types.String                             `tfsdk:"custom_domain"`
+	CustomDomains                types.List                               `tfsdk:"custom_domains"`
+	LoadBalancingStrategy        types.String                             `tfsdk:"load_balancing_strategy"`
+	Region                       types.String                             `tfsdk:"region"`
+	PermissionsBoundaryPolicyArn types.String                             `tfsdk:"permissions_boundary_policy_arn"`
+	ResourcePrefix               types.String                             `tfsdk:"resource_prefix"`
+	KmsKeyArn                    types.String                             `tfsdk:"kms_key_arn"`
+	NAT                          types.Bool                               `tfsdk:"nat"`
+	CIDR                         types.String                             `tfsdk:"cidr"`
+	AWSAccountID                 types.String                             `tfsdk:"aws_account_id"`
+	Zones                        types.List                               `tfsdk:"zones"`
+	LoadBalancers                *LoadBalancersModel                      `tfsdk:"load_balancers"`
+	NodeGroups                   []common.NodeGroupsModel                 `tfsdk:"node_groups"`
+	PeeringConnections           []AWSEnvPeeringConnectionModel           `tfsdk:"peering_connections"`
+	Endpoints                    []AWSEnvEndpointModel                    `tfsdk:"endpoints"`
+	Tags                         []common.KeyValueModel                   `tfsdk:"tags"`
+	CloudConnect                 types.Bool                               `tfsdk:"cloud_connect"`
+	MaintenanceWindows           []common.MaintenanceWindowModel          `tfsdk:"maintenance_windows"`
+	ExternalBuckets              []AWSEnvExternalBucketModel              `tfsdk:"external_buckets"`
+	Backups                      *AWSEnvBackupsModel                      `tfsdk:"backups"`
+	Iceberg                      *AWSEnvIcebergModel                      `tfsdk:"iceberg"`
+	MetricsEndpoint              *common.MetricsEndpointModel             `tfsdk:"metrics_endpoint"`
+	Datadog                      *common.DatadogModel                     `tfsdk:"datadog"`
+	EksLogging                   types.Bool                               `tfsdk:"eks_logging"`
+	MFA                          types.Bool                               `tfsdk:"mfa"`
+	EksAccessEntries             []AWSEnvEKSAccessEntryModel              `tfsdk:"eks_access_entries"`
+	ClickHouseClusters           map[string]common.ClickHouseClusterModel `tfsdk:"clickhouse_clusters"`
+	ClickHouseKeepers            map[string]common.ClickHouseKeeperModel  `tfsdk:"clickhouse_keepers"`
 
 	SpecRevision                 types.Int64 `tfsdk:"spec_revision"`
 	ForceDestroy                 types.Bool  `tfsdk:"force_destroy"`
@@ -144,8 +144,8 @@ func (e AWSEnvModel) toSDK(ctx context.Context, prior *AWSEnvModel) (sdk.CreateA
 	allDiags.Append(diags...)
 	clickHouseKeepers, diags := clickHouseKeepersToSDK(ctx, e.ClickHouseKeepers)
 	allDiags.Append(diags...)
-	var priorClusters []common.ClickHouseClusterModel
-	var priorKeepers []common.ClickHouseKeeperModel
+	var priorClusters map[string]common.ClickHouseClusterModel
+	var priorKeepers map[string]common.ClickHouseKeeperModel
 	if prior != nil {
 		priorClusters, priorKeepers = prior.ClickHouseClusters, prior.ClickHouseKeepers
 	}
@@ -265,8 +265,8 @@ func (e AWSEnvModel) toSDK(ctx context.Context, prior *AWSEnvModel) (sdk.CreateA
 			EksLogging:              e.EksLogging.ValueBoolPointer(),
 			Mfa:                     e.MFA.ValueBoolPointer(),
 			EksAccessEntries:        eksAccessEntries,
-			ClickHouseClustersPatch: clickHouseClustersPatch(clickHouseClusters, common.ClickHouseClusterNamesToDelete(priorClusters, e.ClickHouseClusters)),
-			ClickHouseKeepersPatch:  clickHouseKeepersPatch(clickHouseKeepers, common.ClickHouseKeeperNamesToDelete(priorKeepers, e.ClickHouseKeepers)),
+			ClickHouseClustersPatch: clickHouseClustersPatch(clickHouseClusters, common.ClickHouseNamesToDelete(priorClusters, e.ClickHouseClusters)),
+			ClickHouseKeepersPatch:  clickHouseKeepersPatch(clickHouseKeepers, common.ClickHouseNamesToDelete(priorKeepers, e.ClickHouseKeepers)),
 		},
 	}
 
