@@ -61,6 +61,7 @@ Always run `make fmt` and `make lint` before committing. If you ran `make instal
 - **Model types.** Use `types.String`, `types.Bool`, `types.Int64` (Plugin Framework types), not raw Go primitives in models.
 - **toSDK / toModel.** `toSDK()` converts model → SDK create/update inputs. `toModel()` converts SDK response → model. Keep this split clean.
 - **Reordering functions.** Used to preserve user config ordering in state and avoid spurious plan diffs.
+- **Name-keyed collections are maps.** Entries with their own identity (ClickHouse clusters, Keepers, users, profiles, quotas, extra disks) use `MapNestedAttribute` keyed by name, not lists: Terraform pairs list entries by index, so removing the first one plans as it turning into the next, and computed values pair with the wrong entry. Maps pair by key, so stock `UseStateForUnknown` works and no reordering is needed.
 - **Env-specific vs shared.** Code referencing env-specific GraphQL fragment types (e.g., `AWSEnvSpecFragment_Iceberg`) stays in the per-env package. Code using shared SDK input types is hoisted into `env/common/`.
 
 ## SDK Regeneration
