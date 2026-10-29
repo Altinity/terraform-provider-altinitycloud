@@ -350,6 +350,8 @@ terraform import altinitycloud_env_aws.this "<env-name>"
 
 After the import, make your configuration match what was adopted and run `terraform plan` to review any differences.
 
+Inside a cluster Terraform manages, the configuration is authoritative: users, profiles, quotas and server settings changed elsewhere, for example a user added in the ACM console, show up as drift in the next plan and are reverted on apply. Add them to the configuration to keep them.
+
 ## Advanced configuration
 
 ### Highly available Keeper
