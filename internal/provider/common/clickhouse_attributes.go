@@ -18,7 +18,7 @@ import (
 )
 
 // Platform-injected: the API rejects them on input and can return them in a read.
-var ReservedClickHouseUsers = []string{"grafana", "datadog"}
+var ReservedClickHouseUsers = []string{"grafana", "datadog", "default", "clickhouse_operator", "swarm_access"}
 
 var clickHouseNameRegex = regexp.MustCompile("^[a-z0-9][a-z0-9-]{0,13}[a-z0-9]$")
 
@@ -171,7 +171,7 @@ func GetClickHouseKeepersAttribute(required, optional, computed bool) rschema.Li
 					Computed:            true,
 					MarkdownDescription: CLICKHOUSE_KEEPER_REPLICAS_DESCRIPTION,
 					Validators: []validator.Int64{
-						int64validator.AtLeast(1),
+						int64validator.OneOf(1, 3),
 					},
 				},
 				"stopped": rschema.BoolAttribute{
@@ -273,8 +273,7 @@ func getClickHouseSettingsAttribute(description string) rschema.ListNestedAttrib
 					},
 				},
 				"value": rschema.StringAttribute{
-					Optional:            true,
-					Computed:            true,
+					Required:            true,
 					MarkdownDescription: CLICKHOUSE_SETTING_VALUE_DESCRIPTION,
 				},
 			},
