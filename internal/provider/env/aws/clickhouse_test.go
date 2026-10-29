@@ -2,6 +2,9 @@ package env
 
 import (
 	"context"
+	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	common "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env/common"
@@ -388,5 +391,30 @@ func TestClickHouseCollisionDetection(t *testing.T) {
 	}
 	if got := common.ClickHouseCollisions(nil, []string{"mine"}); got != nil {
 		t.Errorf("expected no collisions with nothing added, got %v", got)
+	}
+}
+
+func TestRejectClickHouseCollisionsAtApply(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprint(w, `{"data":{"awsEnv":{"name":"env","spec":{"clickHouseClusters":[{"name":"mine"},{"name":"prod-ch"}],"clickHouseKeepers":[{"name":"console-keeper"}]}}}}`)
+	}))
+	t.Cleanup(srv.Close)
+	r := newAWSResource(sdk.NewClient(srv.Client(), srv.URL, nil))
+
+	state := []common.ClickHouseClusterModel{minimalClusterModel("mine")}
+
+	// A name that was unknown at plan time resolves to the console cluster's name by apply.
+	diags := r.rejectClickHouseCollisions(context.Background(), "env",
+		state, []common.ClickHouseClusterModel{minimalClusterModel("mine"), minimalClusterModel("prod-ch")},
+		nil, []common.ClickHouseKeeperModel{{Name: types.StringValue("console-keeper")}})
+	if len(diags.Errors()) != 2 {
+		t.Fatalf("expected a cluster and a keeper collision, got %v", diags)
+	}
+
+	if diags := r.rejectClickHouseCollisions(context.Background(), "env",
+		state, []common.ClickHouseClusterModel{minimalClusterModel("mine"), minimalClusterModel("fresh")},
+		nil, nil); diags.HasError() {
+		t.Fatalf("expected no collision for a new name, got %v", diags)
 	}
 }
