@@ -147,7 +147,7 @@ Optional:
 - `shards` (Number) Number of shards.
 - `stopped` (Boolean) Whether the cluster is kept stopped.
 - `users` (Attributes Map) ClickHouse users, keyed by user name. `grafana`, `datadog`, `default`, `clickhouse_operator` and `swarm_access` are reserved for platform users and are rejected. (see [below for nested schema](#nestedatt--clickhouse_clusters--users))
-- `zones` (List of String) Zones the cluster is spread across. All environment zones by default. **[IMMUTABLE]**
+- `zones` (List of String) Zones the cluster is spread across. The first three environment zones by default. **[IMMUTABLE]**
 
 <a id="nestedatt--clickhouse_clusters--disk"></a>
 ### Nested Schema for `clickhouse_clusters.disk`
@@ -301,7 +301,7 @@ Optional:
 
 - `replicas` (Number) Number of Keeper nodes. Either 1 (single node) or 3 (highly-available ensemble). An ensemble cannot be shrunk back to a single node.
 - `stopped` (Boolean) Whether the Keeper is kept stopped.
-- `zones` (List of String) Zones the Keeper is spread across. All environment zones by default. **[IMMUTABLE]**
+- `zones` (List of String) Zones the Keeper is spread across. The first three environment zones by default. **[IMMUTABLE]**
 
 <a id="nestedatt--clickhouse_keepers--disk"></a>
 ### Nested Schema for `clickhouse_keepers.disk`
