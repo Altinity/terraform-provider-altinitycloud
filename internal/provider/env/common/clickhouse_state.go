@@ -347,7 +347,7 @@ func allUsersToModel(specs []ClickHouseUserSpec) map[string]ClickHouseUserModel 
 	return models
 }
 
-// The API takes UInt64 quota limits, but Terraform's Int64 tops out at MaxInt64; a larger one would wrap negative.
+// The API takes UInt64 quota durations and limits, but Terraform's Int64 tops out at MaxInt64; a larger one would wrap negative.
 func ValidateClickHouseQuotaLimits(specs []ClickHouseClusterSpec) diag.Diagnostics {
 	var diags diag.Diagnostics
 	for _, c := range specs {
@@ -357,6 +357,7 @@ func ValidateClickHouseQuotaLimits(specs []ClickHouseClusterSpec) diag.Diagnosti
 					name  string
 					value *uint64
 				}{
+					{"duration", &i.DurationSeconds},
 					{"queries", i.Queries},
 					{"query_selects", i.QuerySelects},
 					{"query_inserts", i.QueryInserts},

@@ -393,4 +393,10 @@ func TestValidateClickHouseQuotaLimits(t *testing.T) {
 	if diags := ValidateClickHouseQuotaLimits(spec(overflows)); len(diags.Errors()) != 1 {
 		t.Errorf("expected one out-of-range error, got %v", diags)
 	}
+
+	duration := spec(fits)
+	duration[0].Quotas[0].Intervals[0].DurationSeconds = overflows
+	if diags := ValidateClickHouseQuotaLimits(duration); len(diags.Errors()) != 1 {
+		t.Errorf("expected the duration to be checked too, got %v", diags)
+	}
 }
