@@ -209,7 +209,7 @@ func TestUseStateForUnknownByKey(t *testing.T) {
 	})
 }
 
-func TestValidateClickHouseNewUserPasswords(t *testing.T) {
+func TestValidateClickHouseUserPasswords(t *testing.T) {
 	user := func(name string, encValue types.String) ClickHouseUserModel {
 		return ClickHouseUserModel{
 			Name:     types.StringValue(name),
@@ -222,7 +222,7 @@ func TestValidateClickHouseNewUserPasswords(t *testing.T) {
 	root := path.Root("clickhouse_clusters")
 
 	t.Run("a new user needs a password", func(t *testing.T) {
-		diags := ValidateClickHouseNewUserPasswords(root, nil, []ClickHouseClusterModel{cluster("ch", user("app", types.StringNull()))})
+		diags := ValidateClickHouseUserPasswords(root, nil, []ClickHouseClusterModel{cluster("ch", user("app", types.StringNull()))})
 		if !diags.HasError() {
 			t.Fatal("expected an error for a new user without enc_value")
 		}
@@ -238,7 +238,7 @@ func TestValidateClickHouseNewUserPasswords(t *testing.T) {
 
 	t.Run("an existing user may omit it", func(t *testing.T) {
 		prior := []ClickHouseClusterModel{cluster("ch", user("app", types.StringValue("kept")))}
-		diags := ValidateClickHouseNewUserPasswords(root, prior, []ClickHouseClusterModel{cluster("ch", user("app", types.StringNull()))})
+		diags := ValidateClickHouseUserPasswords(root, prior, []ClickHouseClusterModel{cluster("ch", user("app", types.StringNull()))})
 		if diags.HasError() {
 			t.Errorf("unexpected diags: %v", diags)
 		}
@@ -246,15 +246,25 @@ func TestValidateClickHouseNewUserPasswords(t *testing.T) {
 
 	t.Run("the same user name in a new cluster is a new user", func(t *testing.T) {
 		prior := []ClickHouseClusterModel{cluster("old", user("app", types.StringValue("kept")))}
-		diags := ValidateClickHouseNewUserPasswords(root, prior, []ClickHouseClusterModel{cluster("new", user("app", types.StringNull()))})
+		diags := ValidateClickHouseUserPasswords(root, prior, []ClickHouseClusterModel{cluster("new", user("app", types.StringNull()))})
 		if !diags.HasError() {
 			t.Error("expected an error: the user does not exist in the new cluster")
 		}
 	})
 
+	t.Run("a password type change needs a new password", func(t *testing.T) {
+		prior := []ClickHouseClusterModel{cluster("ch", user("app", types.StringValue("kept")))}
+		changed := user("app", types.StringNull())
+		changed.Password.Type = types.StringValue("DOUBLE_SHA1_HEX")
+		diags := ValidateClickHouseUserPasswords(root, prior, []ClickHouseClusterModel{cluster("ch", changed)})
+		if !diags.HasError() {
+			t.Error("expected an error: the API ignores a type change without enc_value")
+		}
+	})
+
 	t.Run("a set or unknown enc_value passes", func(t *testing.T) {
 		planned := []ClickHouseClusterModel{cluster("ch", user("app", types.StringValue("x")), user("other", types.StringUnknown()))}
-		if diags := ValidateClickHouseNewUserPasswords(root, nil, planned); diags.HasError() {
+		if diags := ValidateClickHouseUserPasswords(root, nil, planned); diags.HasError() {
 			t.Errorf("unexpected diags: %v", diags)
 		}
 	})

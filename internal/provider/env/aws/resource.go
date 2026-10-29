@@ -59,7 +59,7 @@ func (r *AWSEnvResource) ModifyPlan(ctx context.Context, req resource.ModifyPlan
 		return
 	}
 
-	resp.Diagnostics.Append(common.ValidateClickHouseNewUserPasswords(path.Root("clickhouse_clusters"), priorClusters, plannedClusters)...)
+	resp.Diagnostics.Append(common.ValidateClickHouseUserPasswords(path.Root("clickhouse_clusters"), priorClusters, plannedClusters)...)
 	if req.State.Raw.IsNull() {
 		return
 	}
@@ -125,6 +125,8 @@ func (r *AWSEnvResource) Create(ctx context.Context, req resource.CreateRequest,
 
 	sdkEnv, _, diags := data.toSDK(ctx, nil)
 	resp.Diagnostics.Append(diags...)
+	// User names unknown at plan time skip the ModifyPlan password check.
+	resp.Diagnostics.Append(common.ValidateClickHouseUserPasswords(path.Root("clickhouse_clusters"), nil, data.ClickHouseClusters)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -255,7 +257,8 @@ func (r *AWSEnvResource) Update(ctx context.Context, req resource.UpdateRequest,
 
 	_, sdkEnv, diags := data.toSDK(ctx, &state.AWSEnvModel)
 	resp.Diagnostics.Append(diags...)
-	// Names unknown at plan time slip past the ModifyPlan check, and the env can change between plan and apply.
+	// Names unknown at plan time slip past the ModifyPlan checks, and the env can change between plan and apply.
+	resp.Diagnostics.Append(common.ValidateClickHouseUserPasswords(path.Root("clickhouse_clusters"), state.ClickHouseClusters, data.ClickHouseClusters)...)
 	resp.Diagnostics.Append(r.rejectClickHouseCollisions(ctx, envName, state.ClickHouseClusters, data.ClickHouseClusters, state.ClickHouseKeepers, data.ClickHouseKeepers)...)
 	if resp.Diagnostics.HasError() {
 		return
