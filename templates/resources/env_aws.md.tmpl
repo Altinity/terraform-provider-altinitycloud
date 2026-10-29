@@ -24,7 +24,7 @@ Start here: an environment with a public load balancer and no ClickHouse cluster
 
 ### ClickHouse clusters
 
-Clusters and Keepers are declared inside the environment with `clickhouse_clusters` and `clickhouse_keepers`. A cluster only needs a `name`, an `instance_type` and a disk size; everything else has a default. See the [ClickHouse clusters guide](../guides/clickhouse-clusters) for users, replication, day-2 operations, import and advanced configuration.
+Clusters and Keepers are declared inside the environment with `clickhouse_clusters` and `clickhouse_keepers`, maps keyed by name. A cluster only needs its key, an `instance_type` and a disk size; everything else has a default. See the [ClickHouse clusters guide](../guides/clickhouse-clusters) for users, replication, day-2 operations, import and advanced configuration.
 {{tffile "examples/resources/altinitycloud_env_aws/clickhouse/minimal.tf"}}
 
 ### Networking

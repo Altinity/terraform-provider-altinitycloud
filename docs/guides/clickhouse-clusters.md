@@ -7,7 +7,7 @@ description: |-
 
 # ClickHouse clusters
 
-ClickHouse clusters and Keepers are not standalone resources. They are nested list attributes, `clickhouse_clusters` and `clickhouse_keepers`, on the environment resource. Adding an entry to a list creates it, editing an entry updates it, and removing an entry deletes it.
+ClickHouse clusters and Keepers are not standalone resources. They are nested maps on the environment resource, `clickhouse_clusters` and `clickhouse_keepers`, keyed by name. Adding a key creates the entry, editing it updates the entry, and removing the key deletes it. Users, profiles, quotas and extra disks inside a cluster are keyed by name the same way, so the plan always shows exactly which entry changes.
 
 ~> **Note:** Only `altinitycloud_env_aws` supports `clickhouse_clusters` and `clickhouse_keepers` today. Other environment types will follow.
 
@@ -27,9 +27,9 @@ For the complete attribute reference, see [`clickhouse_clusters`](../resources/e
 
 ## Minimal cluster
 
-A cluster only needs three attributes, the same fields the ACM "Launch a Cluster" dialog asks for:
+A cluster only needs the same three fields the ACM "Launch a Cluster" dialog asks for:
 
-- `name`
+- its name, as the map key
 - `instance_type`
 - `disk.size_in_gib`
 
@@ -81,15 +81,14 @@ resource "altinitycloud_env_aws" "this" {
   ]
 
   // Single shard, single replica, default image. Add users to be able to connect.
-  clickhouse_clusters = [
-    {
-      name          = "hello"
+  clickhouse_clusters = {
+    hello = {
       instance_type = "m6i.large" // must match a node group with the CLICKHOUSE reservation
       disk = {
         size_in_gib = 100
       }
     }
-  ]
+  }
 
   cloud_connect = true
   depends_on = [
@@ -166,16 +165,14 @@ resource "altinitycloud_env_aws" "this" {
     }
   ]
 
-  clickhouse_clusters = [
-    {
-      name          = "hello"
+  clickhouse_clusters = {
+    hello = {
       instance_type = "m6i.large" // must match a node group with the CLICKHOUSE reservation
       disk = {
         size_in_gib = 100
       }
-      users = [
-        {
-          name = "admin"
+      users = {
+        admin = {
           // Without networks.ips the user can only connect from localhost.
           networks = {
             ips = ["0.0.0.0/0"]
@@ -185,9 +182,9 @@ resource "altinitycloud_env_aws" "this" {
             enc_value = altinitycloud_env_secret.admin_password.secret_value
           }
         }
-      ]
+      }
     }
-  ]
+  }
 
   cloud_connect = true
   depends_on = [
@@ -225,14 +222,13 @@ Going above one replica requires a Keeper. See [Highly available Keeper](#highly
 ```terraform
 resource "altinitycloud_env_aws" "this" {
   # ...
-  clickhouse_clusters = [
-    {
-      name     = "hello"
+  clickhouse_clusters = {
+    hello = {
       shards   = 2
       replicas = 3
       # ...
     }
-  ]
+  }
 }
 ```
 
@@ -241,15 +237,14 @@ resource "altinitycloud_env_aws" "this" {
 ```terraform
 resource "altinitycloud_env_aws" "this" {
   # ...
-  clickhouse_clusters = [
-    {
-      name = "hello"
+  clickhouse_clusters = {
+    hello = {
       # ...
       disk = {
         size_in_gib = 100
       }
     }
-  ]
+  }
 }
 ```
 
@@ -262,13 +257,12 @@ Set `stopped = true` to keep a cluster stopped, and set it back to `false` to st
 ```terraform
 resource "altinitycloud_env_aws" "this" {
   # ...
-  clickhouse_clusters = [
-    {
-      name    = "hello"
+  clickhouse_clusters = {
+    hello = {
       stopped = true
       # ...
     }
-  ]
+  }
 }
 ```
 
@@ -281,13 +275,12 @@ Change `image`, tag included. When `image` is omitted, the platform picks a curr
 ```terraform
 resource "altinitycloud_env_aws" "this" {
   # ...
-  clickhouse_clusters = [
-    {
-      name  = "hello"
+  clickhouse_clusters = {
+    hello = {
       image = "altinity/clickhouse-server:25.8.16.10002.altinitystable"
       # ...
     }
-  ]
+  }
 }
 ```
 
@@ -298,25 +291,22 @@ resource "altinitycloud_env_aws" "this" {
 ```terraform
 resource "altinitycloud_env_aws" "this" {
   # ...
-  clickhouse_clusters = [
-    {
-      name = "hello"
+  clickhouse_clusters = {
+    hello = {
       # ...
-      users = [
-        {
-          name = "admin"
+      users = {
+        admin = {
           # ...
-        },
-        {
-          name = "reporting"
+        }
+        reporting = {
           password = {
             type      = "SHA256_HEX"
             enc_value = altinitycloud_env_secret.reporting_password.secret_value
           }
         }
-      ]
+      }
     }
-  ]
+  }
 }
 ```
 
@@ -328,9 +318,9 @@ Create a new `altinitycloud_env_secret` from the new digest and point the user's
 
 ### Remove a cluster
 
-Delete its entry from `clickhouse_clusters`. This deletes the cluster and its data.
+Remove its key from `clickhouse_clusters`. This deletes the cluster and its data.
 
-~> **Warning:** Changing a cluster's or Keeper's `name` is **not** a rename. The old cluster is deleted along with its data and a new, empty one is created.
+~> **Warning:** Changing a cluster's or Keeper's key is **not** a rename. The old cluster is deleted along with its data and a new, empty one is created.
 
 ~> **Warning:** `zones` is immutable on both clusters and Keepers.
 
@@ -361,24 +351,22 @@ A replicated cluster coordinates through a Keeper. The Keeper's `instance_type` 
 ```terraform
 resource "altinitycloud_env_aws" "this" {
   # ...
-  clickhouse_keepers = [
-    {
-      name          = "keeper"
+  clickhouse_keepers = {
+    keeper = {
       instance_type = "t4g.large"
       replicas      = 3
       disk = {
         size_in_gib = 30
       }
     }
-  ]
-  clickhouse_clusters = [
-    {
-      name     = "hello"
+  }
+  clickhouse_clusters = {
+    hello = {
       replicas = 2
       keeper   = "keeper"
       # ...
     }
-  ]
+  }
 }
 ```
 
@@ -389,7 +377,7 @@ To detach a Keeper, remove the `keeper` attribute from the cluster; the cluster 
 `extra_disks` adds data volumes to the default ClickHouse storage policy. Each replica receives one volume per entry, and ClickHouse balances new data across the main and extra volumes with the `least_used` strategy.
 
 - At most 8 extra disks.
-- `name` is at most 16 characters, must start with `disk`, and is immutable.
+- The key is at most 16 characters, must start with `disk`, and cannot be changed in place.
 - A volume named `diskN`, where `N` is a positive integer, is mounted at `/var/lib/clickhouseN`.
 
 `iops` and `throughput_in_mibps` are honored only by storage classes that support them (`iops`: gp3 and io2; `throughput_in_mibps`: gp3).
@@ -397,23 +385,21 @@ To detach a Keeper, remove the `keeper` attribute from the cluster; the cluster 
 ```terraform
 resource "altinitycloud_env_aws" "this" {
   # ...
-  clickhouse_clusters = [
-    {
-      name = "analytics"
+  clickhouse_clusters = {
+    analytics = {
       # ...
       disk = {
         size_in_gib         = 100
         iops                = 6000
         throughput_in_mibps = 250
       }
-      extra_disks = [
-        {
-          name        = "disk1"
+      extra_disks = {
+        disk1 = {
           size_in_gib = 500
         }
-      ]
+      }
     }
-  ]
+  }
 }
 ```
 
@@ -424,9 +410,8 @@ Server-level settings applied to every node. See the [ClickHouse server settings
 ```terraform
 resource "altinitycloud_env_aws" "this" {
   # ...
-  clickhouse_clusters = [
-    {
-      name = "analytics"
+  clickhouse_clusters = {
+    analytics = {
       # ...
       server_settings = [
         {
@@ -435,24 +420,22 @@ resource "altinitycloud_env_aws" "this" {
         }
       ]
     }
-  ]
+  }
 }
 ```
 
 ### Profiles and quotas
 
-Profiles apply session-level settings (see the [session settings reference](https://clickhouse.com/docs/reference/settings/session-settings)). Quotas limit resource usage over an interval; exactly one interval is currently supported. Users reference them by name with `profile` and `quota`.
+Profiles apply session-level settings (see the [session settings reference](https://clickhouse.com/docs/reference/settings/session-settings)). Quotas limit resource usage over an interval; exactly one interval is currently supported. Users reference them by key with `profile` and `quota`.
 
 ```terraform
 resource "altinitycloud_env_aws" "this" {
   # ...
-  clickhouse_clusters = [
-    {
-      name = "analytics"
+  clickhouse_clusters = {
+    analytics = {
       # ...
-      profiles = [
-        {
-          name = "limited"
+      profiles = {
+        limited = {
           settings = [
             {
               key   = "max_execution_time"
@@ -460,10 +443,9 @@ resource "altinitycloud_env_aws" "this" {
             }
           ]
         }
-      ]
-      quotas = [
-        {
-          name = "hourly"
+      }
+      quotas = {
+        hourly = {
           intervals = [
             {
               duration = 3600
@@ -471,17 +453,16 @@ resource "altinitycloud_env_aws" "this" {
             }
           ]
         }
-      ]
-      users = [
-        {
-          name    = "app"
+      }
+      users = {
+        app = {
           profile = "limited"
           quota   = "hourly"
           # ...
         }
-      ]
+      }
     }
-  ]
+  }
 }
 ```
 
@@ -490,18 +471,16 @@ resource "altinitycloud_env_aws" "this" {
 By default a user has access to all databases. Narrow it with `databases`, or use `grants` for fine-grained control:
 
 ```terraform
-users = [
-  {
-    name      = "app"
+users = {
+  app = {
     databases = ["analytics"]
     # ...
-  },
-  {
-    name   = "readonly"
+  }
+  readonly = {
     grants = ["GRANT SELECT ON analytics.*"]
     # ...
   }
-]
+}
 ```
 
 `grants` cannot be combined with `databases`, `access_management`, `named_collection_control` or `show_named_collections_secrets`.
@@ -515,26 +494,23 @@ Several clusters can point at the same Keeper by name:
 ```terraform
 resource "altinitycloud_env_aws" "this" {
   # ...
-  clickhouse_keepers = [
-    {
-      name          = "keeper"
+  clickhouse_keepers = {
+    keeper = {
       instance_type = "t4g.large"
       replicas      = 3
       # ...
     }
-  ]
-  clickhouse_clusters = [
-    {
-      name   = "analytics"
-      keeper = "keeper"
-      # ...
-    },
-    {
-      name   = "events"
+  }
+  clickhouse_clusters = {
+    analytics = {
       keeper = "keeper"
       # ...
     }
-  ]
+    events = {
+      keeper = "keeper"
+      # ...
+    }
+  }
 }
 ```
 
@@ -609,9 +585,9 @@ resource "altinitycloud_env_aws" "this" {
     }
   ]
 
-  clickhouse_keepers = [
-    {
-      name          = "keeper"
+  // Keyed by name: renaming a key deletes that cluster or Keeper and creates a new, empty one.
+  clickhouse_keepers = {
+    keeper = {
       instance_type = "t4g.large"
       zones         = local.zones
       replicas      = 3
@@ -619,11 +595,10 @@ resource "altinitycloud_env_aws" "this" {
         size_in_gib = 30
       }
     }
-  ]
+  }
 
-  clickhouse_clusters = [
-    {
-      name          = "analytics"
+  clickhouse_clusters = {
+    analytics = {
       image         = "altinity/clickhouse-server:24.8.14.10459.altinitystable" // omit to get the platform default
       instance_type = "m6i.large"
       zones         = local.zones
@@ -634,21 +609,19 @@ resource "altinitycloud_env_aws" "this" {
         size_in_gib = 100
       }
       // Extra volumes join the default storage policy; names must start with "disk".
-      extra_disks = [
-        {
-          name        = "diskcold"
+      extra_disks = {
+        diskcold = {
           size_in_gib = 500
         }
-      ]
+      }
       server_settings = [
         {
           key   = "max_concurrent_queries"
           value = "200"
         }
       ]
-      users = [
-        {
-          name    = "app"
+      users = {
+        app = {
           profile = "default"
           quota   = "default"
           networks = {
@@ -659,20 +632,18 @@ resource "altinitycloud_env_aws" "this" {
             type      = "SHA256_HEX"
             enc_value = altinitycloud_env_secret.app_password.secret_value
           }
-        },
-        {
-          // "grants" cannot be combined with "databases" or the access flags.
-          name   = "readonly"
+        }
+        // "grants" cannot be combined with "databases" or the access flags.
+        readonly = {
           grants = ["GRANT SELECT ON analytics.*"]
           password = {
             type      = "SHA256_HEX"
             enc_value = altinitycloud_env_secret.readonly_password.secret_value
           }
         }
-      ]
-      profiles = [
-        {
-          name = "default"
+      }
+      profiles = {
+        default = {
           settings = [
             {
               key   = "max_execution_time"
@@ -680,10 +651,9 @@ resource "altinitycloud_env_aws" "this" {
             }
           ]
         }
-      ]
-      quotas = [
-        {
-          name = "default"
+      }
+      quotas = {
+        default = {
           intervals = [
             {
               duration = 3600
@@ -691,9 +661,9 @@ resource "altinitycloud_env_aws" "this" {
             }
           ]
         }
-      ]
+      }
     }
-  ]
+  }
 
   cloud_connect = true
   depends_on = [

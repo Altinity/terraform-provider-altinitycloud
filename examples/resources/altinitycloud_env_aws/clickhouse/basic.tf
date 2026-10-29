@@ -53,16 +53,14 @@ resource "altinitycloud_env_aws" "this" {
     }
   ]
 
-  clickhouse_clusters = [
-    {
-      name          = "hello"
+  clickhouse_clusters = {
+    hello = {
       instance_type = "m6i.large" // must match a node group with the CLICKHOUSE reservation
       disk = {
         size_in_gib = 100
       }
-      users = [
-        {
-          name = "admin"
+      users = {
+        admin = {
           // Without networks.ips the user can only connect from localhost.
           networks = {
             ips = ["0.0.0.0/0"]
@@ -72,9 +70,9 @@ resource "altinitycloud_env_aws" "this" {
             enc_value = altinitycloud_env_secret.admin_password.secret_value
           }
         }
-      ]
+      }
     }
-  ]
+  }
 
   cloud_connect = true
   depends_on = [

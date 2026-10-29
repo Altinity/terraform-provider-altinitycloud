@@ -43,15 +43,14 @@ resource "altinitycloud_env_aws" "this" {
   ]
 
   // Single shard, single replica, default image. Add users to be able to connect.
-  clickhouse_clusters = [
-    {
-      name          = "hello"
+  clickhouse_clusters = {
+    hello = {
       instance_type = "m6i.large" // must match a node group with the CLICKHOUSE reservation
       disk = {
         size_in_gib = 100
       }
     }
-  ]
+  }
 
   cloud_connect = true
   depends_on = [
