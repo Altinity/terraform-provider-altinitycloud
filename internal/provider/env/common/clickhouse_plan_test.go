@@ -53,7 +53,7 @@ func plannedCluster(name string, image types.String) ClickHouseClusterModel {
 		Shards:       types.Int64Unknown(),
 		Replicas:     types.Int64Unknown(),
 		Stopped:      types.BoolValue(false),
-		Keeper:       types.StringUnknown(),
+		Keeper:       types.StringNull(),
 		Disk:         &ClickHouseDiskModel{SizeGiB: types.Int64Value(100), Iops: types.Int64Unknown(), ThroughputMiBs: types.Int64Unknown()},
 	}
 }
@@ -63,7 +63,6 @@ func configuredCluster(name string, image types.String) ClickHouseClusterModel {
 	c.Zones = types.ListNull(types.StringType)
 	c.Shards = types.Int64Null()
 	c.Replicas = types.Int64Null()
-	c.Keeper = types.StringNull()
 	c.Disk = &ClickHouseDiskModel{SizeGiB: types.Int64Value(100), Iops: types.Int64Null(), ThroughputMiBs: types.Int64Null()}
 	return c
 }
@@ -95,8 +94,12 @@ func TestUseStateForUnknownByKey(t *testing.T) {
 		)
 
 		c := got[0]
-		if c.Image.ValueString() != "image-a" || c.Shards.ValueInt64() != 1 || c.Keeper.ValueString() != "keeper" {
+		if c.Image.ValueString() != "image-a" || c.Shards.ValueInt64() != 1 {
 			t.Errorf("expected state values, got %#v", c)
+		}
+		// keeper is not computed: omitting it detaches the Keeper instead of keeping the state value.
+		if !c.Keeper.IsNull() {
+			t.Errorf("expected keeper to stay null, got %v", c.Keeper)
 		}
 		if c.Disk.Iops.ValueInt64() != 3000 || len(c.Zones.Elements()) != 1 {
 			t.Errorf("nested computed values must come from state too, got %#v", c)

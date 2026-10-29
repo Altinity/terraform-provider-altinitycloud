@@ -140,7 +140,7 @@ Optional:
 
 - `extra_disks` (Attributes List) Extra data volumes added to the default ClickHouse storage policy, each replica receiving one volume per entry. ClickHouse balances new data across the main and extra volumes with the `least_used` strategy. 8 maximum. (see [below for nested schema](#nestedatt--clickhouse_clusters--extra_disks))
 - `image` (String) Server image, tag included, e.g. `altinity/clickhouse-server:25.8.16.10002.altinitystable`. The platform picks a current image when omitted.
-- `keeper` (String) Name of the Keeper this cluster coordinates through. Must name one of `clickhouse_keepers`.
+- `keeper` (String) Name of the Keeper this cluster coordinates through. Must name one of `clickhouse_keepers`. Required when `replicas` is greater than 1; omit it for no Keeper, or to detach the current one.
 - `profiles` (Attributes List) Settings profiles users can be assigned to. (see [below for nested schema](#nestedatt--clickhouse_clusters--profiles))
 - `quotas` (Attributes List) Resource quotas users can be assigned to. (see [below for nested schema](#nestedatt--clickhouse_clusters--quotas))
 - `replicas` (Number) Number of replicas per shard.

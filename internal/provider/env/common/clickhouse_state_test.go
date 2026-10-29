@@ -377,3 +377,12 @@ func TestClickHouseQuotaIntervalsFollowConfigOrder(t *testing.T) {
 		t.Errorf("expected config order [86400 3600], got %#v", intervals)
 	}
 }
+
+func TestKeeperToModel(t *testing.T) {
+	if got := keeperToModel(""); !got.IsNull() {
+		t.Errorf("the API's empty keeper must read back as null, got %v", got)
+	}
+	if got := keeperToModel("keeper"); got.ValueString() != "keeper" {
+		t.Errorf("expected keeper, got %v", got)
+	}
+}

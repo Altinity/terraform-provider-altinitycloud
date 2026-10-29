@@ -95,6 +95,14 @@ func ClickHouseKeepersToDataSourceModel(specs []ClickHouseKeeperSpec) []ClickHou
 	return AdoptClickHouseKeepers(specs)
 }
 
+// The API reports "no Keeper" as "", which the config expresses by omitting the attribute.
+func keeperToModel(name string) types.String {
+	if name == "" {
+		return types.StringNull()
+	}
+	return types.StringValue(name)
+}
+
 func clickHouseClusterToModel(prior ClickHouseClusterModel, spec ClickHouseClusterSpec) ClickHouseClusterModel {
 	return ClickHouseClusterModel{
 		Name:           types.StringValue(spec.Name),
@@ -104,7 +112,7 @@ func clickHouseClusterToModel(prior ClickHouseClusterModel, spec ClickHouseClust
 		Shards:         types.Int64Value(spec.Shards),
 		Replicas:       types.Int64Value(spec.Replicas),
 		Stopped:        types.BoolValue(spec.Stopped),
-		Keeper:         types.StringValue(spec.Keeper),
+		Keeper:         keeperToModel(spec.Keeper),
 		Disk:           diskToModel(spec.Disk),
 		ExtraDisks:     extraDisksToModel(prior.ExtraDisks, spec.ExtraDisks),
 		Users:          usersToModel(prior.Users, spec.Users),
