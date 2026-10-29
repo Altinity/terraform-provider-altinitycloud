@@ -272,6 +272,8 @@ resource "altinitycloud_env_aws" "this" {
 }
 ```
 
+~> **Note:** The API applies Keeper changes before cluster changes, and refuses to stop a Keeper that a running cluster uses. To stop both, stop the cluster in one apply and the Keeper in the next. Starting both in one apply works.
+
 ### Upgrade
 
 Change `image`, tag included. When `image` is omitted, the platform picks a current image.
@@ -352,7 +354,7 @@ After the import, make your configuration match what was adopted and run `terraf
 
 ### Highly available Keeper
 
-A replicated cluster coordinates through a Keeper. The Keeper's `instance_type` must match a node group with the `ZOOKEEPER` reservation. Use three Keeper replicas for a highly available ensemble.
+A replicated cluster coordinates through a Keeper. The Keeper's `instance_type` must match a node group with the `ZOOKEEPER` reservation. A Keeper has either 1 replica or 3 for a highly available ensemble.
 
 ```terraform
 resource "altinitycloud_env_aws" "this" {
@@ -377,6 +379,8 @@ resource "altinitycloud_env_aws" "this" {
   ]
 }
 ```
+
+To detach a Keeper, remove the `keeper` attribute from the cluster; the cluster must be back to 1 replica. A Keeper can only be removed from `clickhouse_keepers` once no cluster references it, which can happen in the same apply.
 
 ### Extra disks and disk performance
 
@@ -500,7 +504,7 @@ users = [
 
 `grants` cannot be combined with `databases`, `access_management`, `named_collection_control` or `show_named_collections_secrets`.
 
-The user names `grafana` and `datadog` are reserved for platform-injected users and are rejected.
+The user names `grafana`, `datadog`, `default`, `clickhouse_operator` and `swarm_access` are reserved for platform users and are rejected.
 
 ### Multiple clusters sharing a Keeper
 
