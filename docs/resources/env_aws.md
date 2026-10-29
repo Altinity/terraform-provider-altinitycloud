@@ -1212,9 +1212,6 @@ Optional:
 Required:
 
 - `key` (String) Setting name.
-
-Optional:
-
 - `value` (String) Setting value.
 
 
@@ -1270,9 +1267,6 @@ Optional:
 Required:
 
 - `key` (String) Setting name.
-
-Optional:
-
 - `value` (String) Setting value.
 
 
@@ -1281,7 +1275,7 @@ Optional:
 
 Required:
 
-- `name` (String) User name, unique within the cluster. `grafana` and `datadog` are reserved for platform-injected users and are rejected.
+- `name` (String) User name, unique within the cluster. `grafana`, `datadog`, `default`, `clickhouse_operator` and `swarm_access` are reserved for platform users and are rejected.
 - `password` (Attributes) Credentials for the user. (see [below for nested schema](#nestedatt--clickhouse_clusters--users--password))
 
 Optional:
@@ -1332,7 +1326,7 @@ Required:
 
 Optional:
 
-- `replicas` (Number) Number of Keeper nodes. Use 3 for a highly-available ensemble, 1 for a single node. An ensemble cannot be shrunk back to a single node.
+- `replicas` (Number) Number of Keeper nodes. Either 1 (single node) or 3 (highly-available ensemble). An ensemble cannot be shrunk back to a single node.
 - `stopped` (Boolean) Whether the Keeper is kept stopped.
 - `zones` (List of String) Zones the Keeper is spread across. All environment zones by default. **[IMMUTABLE]**
 

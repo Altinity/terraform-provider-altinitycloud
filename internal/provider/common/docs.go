@@ -361,7 +361,7 @@ const CLICKHOUSE_KEEPERS_DESCRIPTION = "ClickHouse Keepers managed by this resou
 const CLICKHOUSE_KEEPER_NAME_DESCRIPTION = "Keeper identifier, unique within the environment. 2-15 chars, lowercase alphanumerics and hyphens, must start and end with an alphanumeric. Changing it is not a rename: the old Keeper is deleted along with its data and a new, empty one is created."
 const CLICKHOUSE_KEEPER_INSTANCE_TYPE_DESCRIPTION = "Machine type for the Keeper nodes. Must match a node group with a `ZOOKEEPER` reservation."
 const CLICKHOUSE_KEEPER_ZONES_DESCRIPTION = "Zones the Keeper is spread across. All environment zones by default. **[IMMUTABLE]**"
-const CLICKHOUSE_KEEPER_REPLICAS_DESCRIPTION = "Number of Keeper nodes. Use 3 for a highly-available ensemble, 1 for a single node. An ensemble cannot be shrunk back to a single node."
+const CLICKHOUSE_KEEPER_REPLICAS_DESCRIPTION = "Number of Keeper nodes. Either 1 (single node) or 3 (highly-available ensemble). An ensemble cannot be shrunk back to a single node."
 const CLICKHOUSE_KEEPER_STOPPED_DESCRIPTION = "Whether the Keeper is kept stopped."
 
 const CLICKHOUSE_DISK_DESCRIPTION = "Main data volume."
@@ -378,7 +378,7 @@ const CLICKHOUSE_PROFILE_NAME_DESCRIPTION = "Profile name, unique within the clu
 const CLICKHOUSE_PROFILE_SETTINGS_DESCRIPTION = "Session-level settings this profile applies. See https://clickhouse.com/docs/reference/settings/session-settings."
 
 const CLICKHOUSE_USERS_DESCRIPTION = "ClickHouse users."
-const CLICKHOUSE_USER_NAME_DESCRIPTION = "User name, unique within the cluster. `grafana` and `datadog` are reserved for platform-injected users and are rejected."
+const CLICKHOUSE_USER_NAME_DESCRIPTION = "User name, unique within the cluster. `grafana`, `datadog`, `default`, `clickhouse_operator` and `swarm_access` are reserved for platform users and are rejected."
 const CLICKHOUSE_USER_PROFILE_DESCRIPTION = "Settings profile assigned to this user. Must be one of the cluster's `profiles` or a profile ClickHouse ships with."
 const CLICKHOUSE_USER_QUOTA_DESCRIPTION = "Quota assigned to this user. Must be one of the cluster's `quotas`."
 const CLICKHOUSE_USER_NETWORKS_DESCRIPTION = "Where the user may connect from."
