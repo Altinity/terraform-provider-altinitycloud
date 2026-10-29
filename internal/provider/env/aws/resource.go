@@ -12,7 +12,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
-	rschema "github.com/hashicorp/terraform-plugin-framework/resource/schema"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
 )
 
@@ -51,9 +50,9 @@ func (r *AWSEnvResource) ModifyPlan(ctx context.Context, req resource.ModifyPlan
 		return
 	}
 
-	plannedClusters, priorClusters, diags := planClickHouse[common.ClickHouseClusterModel](ctx, req, resp, "clickhouse_clusters", clientsupport.GetClickHouseClustersAttribute(false, true, false))
+	plannedClusters, priorClusters, diags := readClickHouse[common.ClickHouseClusterModel](ctx, req, "clickhouse_clusters")
 	resp.Diagnostics.Append(diags...)
-	plannedKeepers, priorKeepers, diags := planClickHouse[common.ClickHouseKeeperModel](ctx, req, resp, "clickhouse_keepers", clientsupport.GetClickHouseKeepersAttribute(false, true, false))
+	plannedKeepers, priorKeepers, diags := readClickHouse[common.ClickHouseKeeperModel](ctx, req, "clickhouse_keepers")
 	resp.Diagnostics.Append(diags...)
 	if resp.Diagnostics.HasError() {
 		return
@@ -69,14 +68,11 @@ func (r *AWSEnvResource) ModifyPlan(ctx context.Context, req resource.ModifyPlan
 	resp.Diagnostics.Append(r.rejectClickHouseCollisions(ctx, envName.ValueString(), priorClusters, plannedClusters, priorKeepers, plannedKeepers)...)
 }
 
-// Computed values the config omits keep their state value, paired by name rather than list index.
-// schema is the same constructor schema.go uses, so the computed/default flags match the real schema.
-func planClickHouse[M any](ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse, attribute string, schema rschema.ListNestedAttribute) (planned, prior []M, diags diag.Diagnostics) {
+func readClickHouse[M any](ctx context.Context, req resource.ModifyPlanRequest, attribute string) (planned, prior map[string]M, diags diag.Diagnostics) {
 	p := path.Root(attribute)
 
-	var plan, state, config types.List
+	var plan, state types.Map
 	diags.Append(req.Plan.GetAttribute(ctx, p, &plan)...)
-	diags.Append(req.Config.GetAttribute(ctx, p, &config)...)
 	if !req.State.Raw.IsNull() {
 		diags.Append(req.State.GetAttribute(ctx, p, &state)...)
 	}
@@ -84,13 +80,10 @@ func planClickHouse[M any](ctx context.Context, req resource.ModifyPlanRequest, 
 		return nil, nil, diags
 	}
 
-	filled := common.UseStateForUnknownByKeyList(ctx, attribute, schema, plan, state, config)
-	diags.Append(resp.Plan.SetAttribute(ctx, p, filled)...)
-
 	var d diag.Diagnostics
-	planned, d = common.ObjectsFromList[M](ctx, filled)
+	planned, d = common.ObjectsFromMap[M](ctx, plan)
 	diags.Append(d...)
-	prior, d = common.ObjectsFromList[M](ctx, state)
+	prior, d = common.ObjectsFromMap[M](ctx, state)
 	diags.Append(d...)
 	return planned, prior, diags
 }
@@ -305,10 +298,10 @@ func (r *AWSEnvResource) Update(ctx context.Context, req resource.UpdateRequest,
 }
 
 // Patch Replace upserts by name, so a "pure create" plan can overwrite an unmanaged entry.
-func (r *AWSEnvResource) rejectClickHouseCollisions(ctx context.Context, envName string, priorClusters, plannedClusters []common.ClickHouseClusterModel, priorKeepers, plannedKeepers []common.ClickHouseKeeperModel) diag.Diagnostics {
+func (r *AWSEnvResource) rejectClickHouseCollisions(ctx context.Context, envName string, priorClusters, plannedClusters map[string]common.ClickHouseClusterModel, priorKeepers, plannedKeepers map[string]common.ClickHouseKeeperModel) diag.Diagnostics {
 	var diags diag.Diagnostics
-	addedClusters := common.ClickHouseClusterNamesAdded(priorClusters, plannedClusters)
-	addedKeepers := common.ClickHouseKeeperNamesAdded(priorKeepers, plannedKeepers)
+	addedClusters := common.ClickHouseNamesAdded(priorClusters, plannedClusters)
+	addedKeepers := common.ClickHouseNamesAdded(priorKeepers, plannedKeepers)
 	if len(addedClusters) == 0 && len(addedKeepers) == 0 {
 		return diags
 	}

@@ -35,8 +35,8 @@ Bring Your Own Cloud (BYOC) AWS environment data source.
 		Examples:
 		- "10.136.0.0/21"
 		- "172.20.0.0/21"
-- `clickhouse_clusters` (Attributes List) ClickHouse clusters managed by this resource. Clusters created elsewhere are left alone, and declaring a name that already exists is rejected rather than overwritten; `terraform import` adopts every existing cluster and Keeper. (see [below for nested schema](#nestedatt--clickhouse_clusters))
-- `clickhouse_keepers` (Attributes List) ClickHouse Keepers managed by this resource. Keepers created elsewhere are left alone, and declaring a name that already exists is rejected rather than overwritten; `terraform import` adopts every existing cluster and Keeper. (see [below for nested schema](#nestedatt--clickhouse_keepers))
+- `clickhouse_clusters` (Attributes Map) ClickHouse clusters managed by this resource, keyed by cluster name: 2-15 chars, lowercase alphanumerics and hyphens, starting and ending with an alphanumeric. Changing a key is not a rename: the old cluster is deleted along with its data and a new, empty one is created. Clusters created elsewhere are left alone, and declaring a name that already exists is rejected rather than overwritten; `terraform import` adopts every existing cluster and Keeper. (see [below for nested schema](#nestedatt--clickhouse_clusters))
+- `clickhouse_keepers` (Attributes Map) ClickHouse Keepers managed by this resource, keyed by Keeper name: 2-15 chars, lowercase alphanumerics and hyphens, starting and ending with an alphanumeric. Changing a key is not a rename: the old Keeper is deleted along with its data and a new, empty one is created. Keepers created elsewhere are left alone, and declaring a name that already exists is rejected rather than overwritten; `terraform import` adopts every existing cluster and Keeper. (see [below for nested schema](#nestedatt--clickhouse_keepers))
 - `cloud_connect` (Boolean) `true` indicates that cloud resources are to be managed via altinity/cloud-connect and `false` means direct management (default `true`). **[IMMUTABLE]**
 - `custom_domain` (String, Deprecated) Deprecated. Use `custom_domains` instead.
 - `custom_domains` (List of String) Custom domains.
@@ -134,20 +134,19 @@ Required:
 
 - `disk` (Attributes) Main data volume. (see [below for nested schema](#nestedatt--clickhouse_clusters--disk))
 - `instance_type` (String) Machine type for the cluster nodes. Must match a node group with a `CLICKHOUSE` reservation.
-- `name` (String) Cluster identifier, unique within the environment. 2-15 chars, lowercase alphanumerics and hyphens, must start and end with an alphanumeric. Changing it is not a rename: the old cluster is deleted along with its data and a new, empty one is created.
 
 Optional:
 
-- `extra_disks` (Attributes List) Extra data volumes added to the default ClickHouse storage policy, each replica receiving one volume per entry. ClickHouse balances new data across the main and extra volumes with the `least_used` strategy. 8 maximum. (see [below for nested schema](#nestedatt--clickhouse_clusters--extra_disks))
+- `extra_disks` (Attributes Map) Extra data volumes added to the default ClickHouse storage policy, keyed by volume name: 16 chars max, starting with `disk`. A volume named `diskN`, where `N` is a positive integer, is mounted at `/var/lib/clickhouseN`; any other name is mounted at `/var/lib/clickhouse<name>`. Each replica receives one volume per entry, and ClickHouse balances new data across the main and extra volumes with the `least_used` strategy. 8 maximum. (see [below for nested schema](#nestedatt--clickhouse_clusters--extra_disks))
 - `image` (String) Server image, tag included, e.g. `altinity/clickhouse-server:25.8.16.10002.altinitystable`. The platform picks a current image when omitted.
 - `keeper` (String) Name of the Keeper this cluster coordinates through. Must name one of `clickhouse_keepers`. Required when `replicas` is greater than 1; omit it for no Keeper, or to detach the current one.
-- `profiles` (Attributes List) Settings profiles users can be assigned to. (see [below for nested schema](#nestedatt--clickhouse_clusters--profiles))
-- `quotas` (Attributes List) Resource quotas users can be assigned to. (see [below for nested schema](#nestedatt--clickhouse_clusters--quotas))
+- `profiles` (Attributes Map) Settings profiles users can be assigned to, keyed by profile name. A user's `profile` references the key. (see [below for nested schema](#nestedatt--clickhouse_clusters--profiles))
+- `quotas` (Attributes Map) Resource quotas users can be assigned to, keyed by quota name. A user's `quota` references the key. (see [below for nested schema](#nestedatt--clickhouse_clusters--quotas))
 - `replicas` (Number) Number of replicas per shard.
 - `server_settings` (Attributes List) Server-level settings applied to every node. See https://clickhouse.com/docs/reference/settings/server-settings/settings. (see [below for nested schema](#nestedatt--clickhouse_clusters--server_settings))
 - `shards` (Number) Number of shards.
 - `stopped` (Boolean) Whether the cluster is kept stopped.
-- `users` (Attributes List) ClickHouse users. (see [below for nested schema](#nestedatt--clickhouse_clusters--users))
+- `users` (Attributes Map) ClickHouse users, keyed by user name. `grafana`, `datadog`, `default`, `clickhouse_operator` and `swarm_access` are reserved for platform users and are rejected. (see [below for nested schema](#nestedatt--clickhouse_clusters--users))
 - `zones` (List of String) Zones the cluster is spread across. All environment zones by default. **[IMMUTABLE]**
 
 <a id="nestedatt--clickhouse_clusters--disk"></a>
@@ -168,7 +167,6 @@ Optional:
 
 Required:
 
-- `name` (String) Volume identifier, 16 chars max, must start with `disk`. A volume named `diskN`, where `N` is a positive integer, is mounted at `/var/lib/clickhouseN`; any other name is mounted at `/var/lib/clickhouse<name>`. **[IMMUTABLE]**
 - `size_in_gib` (Number) Size in GiB. Can only be increased, never decreased.
 
 Optional:
@@ -179,10 +177,6 @@ Optional:
 
 <a id="nestedatt--clickhouse_clusters--profiles"></a>
 ### Nested Schema for `clickhouse_clusters.profiles`
-
-Required:
-
-- `name` (String) Profile name, unique within the cluster. Referenced by a user's `profile`.
 
 Optional:
 
@@ -204,7 +198,6 @@ Required:
 Required:
 
 - `intervals` (Attributes List) Intervals the quota limits are measured over. Exactly one is currently supported. (see [below for nested schema](#nestedatt--clickhouse_clusters--quotas--intervals))
-- `name` (String) Quota name, unique within the cluster. Referenced by a user's `quota`.
 
 Optional:
 
@@ -257,7 +250,6 @@ Required:
 
 Required:
 
-- `name` (String) User name, unique within the cluster. `grafana`, `datadog`, `default`, `clickhouse_operator` and `swarm_access` are reserved for platform users and are rejected.
 - `password` (Attributes) Credentials for the user. (see [below for nested schema](#nestedatt--clickhouse_clusters--users--password))
 
 Optional:
@@ -304,7 +296,6 @@ Required:
 
 - `disk` (Attributes) Main data volume. (see [below for nested schema](#nestedatt--clickhouse_keepers--disk))
 - `instance_type` (String) Machine type for the Keeper nodes. Must match a node group with a `ZOOKEEPER` reservation.
-- `name` (String) Keeper identifier, unique within the environment. 2-15 chars, lowercase alphanumerics and hyphens, must start and end with an alphanumeric. Changing it is not a rename: the old Keeper is deleted along with its data and a new, empty one is created.
 
 Optional:
 

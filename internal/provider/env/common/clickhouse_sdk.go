@@ -2,6 +2,8 @@ package env
 
 import (
 	"context"
+	"maps"
+	"slices"
 
 	sdk "github.com/altinity/terraform-provider-altinitycloud/internal/sdk/client"
 	"github.com/hashicorp/terraform-plugin-framework/diag"
@@ -9,10 +11,11 @@ import (
 )
 
 // Quotas are the one ClickHouse input the API does not split per env.
-func ClickHouseQuotasToSDK(quotas []ClickHouseQuotaModel) []*sdk.ClickHouseQuotaSpecInput {
+func ClickHouseQuotasToSDK(quotas map[string]ClickHouseQuotaModel) []*sdk.ClickHouseQuotaSpecInput {
 	var input []*sdk.ClickHouseQuotaSpecInput
 
-	for _, q := range quotas {
+	for _, name := range SortedKeys(quotas) {
+		q := quotas[name]
 		var intervals []*sdk.ClickHouseQuotaIntervalSpecInput
 		for _, i := range q.Intervals {
 			intervals = append(intervals, &sdk.ClickHouseQuotaIntervalSpecInput{
@@ -39,7 +42,7 @@ func ClickHouseQuotasToSDK(quotas []ClickHouseQuotaModel) []*sdk.ClickHouseQuota
 		}
 
 		input = append(input, &sdk.ClickHouseQuotaSpecInput{
-			Name:           q.Name.ValueString(),
+			Name:           name,
 			KeyedBy:        keyedBy,
 			Ipv4PrefixBits: KnownInt64Pointer(q.IPv4PrefixBits),
 			Ipv6PrefixBits: KnownInt64Pointer(q.IPv6PrefixBits),
@@ -105,26 +108,16 @@ func knownString(value types.String) (string, bool) {
 	return value.ValueString(), true
 }
 
+// Map iteration is random; a stable order keeps requests and tests deterministic.
+func SortedKeys[M any](m map[string]M) []string {
+	return slices.Sorted(maps.Keys(m))
+}
+
 // A patch only touches what Terraform owns, so a dropped entry must be named or the API keeps it.
-func ClickHouseClusterNamesToDelete(prior, planned []ClickHouseClusterModel) []string {
-	return namesToDelete(prior, planned,
-		func(m ClickHouseClusterModel) string { return m.Name.ValueString() })
-}
-
-func ClickHouseKeeperNamesToDelete(prior, planned []ClickHouseKeeperModel) []string {
-	return namesToDelete(prior, planned,
-		func(m ClickHouseKeeperModel) string { return m.Name.ValueString() })
-}
-
-func namesToDelete[M any](prior, planned []M, key func(M) string) []string {
-	kept := make(map[string]bool, len(planned))
-	for _, p := range planned {
-		kept[key(p)] = true
-	}
-
+func ClickHouseNamesToDelete[M any](prior, planned map[string]M) []string {
 	var deleted []string
-	for _, p := range prior {
-		if name := key(p); !kept[name] {
+	for _, name := range SortedKeys(prior) {
+		if _, ok := planned[name]; !ok {
 			deleted = append(deleted, name)
 		}
 	}
@@ -133,14 +126,8 @@ func namesToDelete[M any](prior, planned []M, key func(M) string) []string {
 }
 
 // Patch Replace upserts by name, so an added name colliding with an unmanaged entry would overwrite it.
-func ClickHouseClusterNamesAdded(prior, planned []ClickHouseClusterModel) []string {
-	return namesToDelete(planned, prior,
-		func(m ClickHouseClusterModel) string { return m.Name.ValueString() })
-}
-
-func ClickHouseKeeperNamesAdded(prior, planned []ClickHouseKeeperModel) []string {
-	return namesToDelete(planned, prior,
-		func(m ClickHouseKeeperModel) string { return m.Name.ValueString() })
+func ClickHouseNamesAdded[M any](prior, planned map[string]M) []string {
+	return ClickHouseNamesToDelete(planned, prior)
 }
 
 func ClickHouseCollisions(added, existing []string) []string {

@@ -26,9 +26,8 @@ func chList(t *testing.T, values ...string) types.List {
 	return list
 }
 
-func minimalClusterModel(name string) common.ClickHouseClusterModel {
+func minimalClusterModel() common.ClickHouseClusterModel {
 	return common.ClickHouseClusterModel{
-		Name:         types.StringValue(name),
 		Image:        types.StringNull(),
 		InstanceType: types.StringValue("m6i.large"),
 		Zones:        types.ListNull(types.StringType),
@@ -54,7 +53,7 @@ func TestClickHouseClustersToSDK(t *testing.T) {
 	})
 
 	t.Run("omitted optionals stay nil", func(t *testing.T) {
-		got, diags := clickHouseClustersToSDK(ctx, []common.ClickHouseClusterModel{minimalClusterModel("ch")})
+		got, diags := clickHouseClustersToSDK(ctx, map[string]common.ClickHouseClusterModel{"ch": minimalClusterModel()})
 		if diags.HasError() {
 			t.Fatalf("unexpected diags: %v", diags)
 		}
@@ -72,7 +71,7 @@ func TestClickHouseClustersToSDK(t *testing.T) {
 	})
 
 	t.Run("unknown attributes are omitted, never sent as empty values", func(t *testing.T) {
-		model := minimalClusterModel("ch")
+		model := minimalClusterModel()
 		model.Image = types.StringUnknown()
 		model.Keeper = types.StringUnknown()
 		model.Zones = types.ListUnknown(types.StringType)
@@ -82,7 +81,7 @@ func TestClickHouseClustersToSDK(t *testing.T) {
 			ThroughputMiBs: types.Int64Unknown(),
 		}
 
-		got, diags := clickHouseClustersToSDK(ctx, []common.ClickHouseClusterModel{model})
+		got, diags := clickHouseClustersToSDK(ctx, map[string]common.ClickHouseClusterModel{"ch": model})
 		if diags.HasError() {
 			t.Fatalf("unexpected diags: %v", diags)
 		}
@@ -97,7 +96,7 @@ func TestClickHouseClustersToSDK(t *testing.T) {
 	})
 
 	t.Run("every field round trips", func(t *testing.T) {
-		model := minimalClusterModel("ch")
+		model := minimalClusterModel()
 		model.Image = types.StringValue("altinity/clickhouse-server:25.8")
 		model.Zones = chList(t, "us-east-1a", "us-east-1b")
 		model.Shards = types.Int64Value(2)
@@ -107,20 +106,17 @@ func TestClickHouseClustersToSDK(t *testing.T) {
 			Iops:           types.Int64Value(3000),
 			ThroughputMiBs: types.Int64Value(125),
 		}
-		model.ExtraDisks = []common.ClickHouseNamedDiskModel{{
-			Name:    types.StringValue("disk1"),
+		model.ExtraDisks = map[string]common.ClickHouseExtraDiskModel{"disk1": {
 			SizeGiB: types.Int64Value(50),
 		}}
 		model.ServerSettings = []common.ClickHouseSettingModel{{
 			Key:   types.StringValue("max_concurrent_queries"),
 			Value: types.StringValue("200"),
 		}}
-		model.Profiles = []common.ClickHouseProfileModel{{
-			Name:     types.StringValue("readonly"),
+		model.Profiles = map[string]common.ClickHouseProfileModel{"readonly": {
 			Settings: []common.ClickHouseSettingModel{{Key: types.StringValue("readonly"), Value: types.StringValue("1")}},
 		}}
-		model.Quotas = []common.ClickHouseQuotaModel{{
-			Name:    types.StringValue("q"),
+		model.Quotas = map[string]common.ClickHouseQuotaModel{"q": {
 			KeyedBy: types.StringValue("IP_ADDRESS"),
 			Intervals: []common.ClickHouseQuotaIntervalModel{{
 				DurationSeconds: types.Int64Value(3600),
@@ -128,8 +124,7 @@ func TestClickHouseClustersToSDK(t *testing.T) {
 				ReadRows:        types.Int64Null(),
 			}},
 		}}
-		model.Users = []common.ClickHouseUserModel{{
-			Name:      types.StringValue("app"),
+		model.Users = map[string]common.ClickHouseUserModel{"app": {
 			Profile:   types.StringValue("readonly"),
 			Networks:  &common.ClickHouseUserNetworksModel{Ips: chList(t, "10.0.0.0/8")},
 			Databases: chList(t, "analytics"),
@@ -140,7 +135,7 @@ func TestClickHouseClustersToSDK(t *testing.T) {
 			},
 		}}
 
-		got, diags := clickHouseClustersToSDK(ctx, []common.ClickHouseClusterModel{model})
+		got, diags := clickHouseClustersToSDK(ctx, map[string]common.ClickHouseClusterModel{"ch": model})
 		if diags.HasError() {
 			t.Fatalf("unexpected diags: %v", diags)
 		}
@@ -190,8 +185,7 @@ func TestClickHouseKeepersToSDK(t *testing.T) {
 	ctx := context.Background()
 
 	t.Run("omitted optionals stay nil", func(t *testing.T) {
-		got, diags := clickHouseKeepersToSDK(ctx, []common.ClickHouseKeeperModel{{
-			Name:         types.StringValue("keeper"),
+		got, diags := clickHouseKeepersToSDK(ctx, map[string]common.ClickHouseKeeperModel{"keeper": {
 			InstanceType: types.StringValue("t4g.large"),
 			Zones:        types.ListNull(types.StringType),
 			Replicas:     types.Int64Null(),
@@ -212,8 +206,7 @@ func TestClickHouseKeepersToSDK(t *testing.T) {
 	})
 
 	t.Run("every field round trips", func(t *testing.T) {
-		got, diags := clickHouseKeepersToSDK(ctx, []common.ClickHouseKeeperModel{{
-			Name:         types.StringValue("keeper"),
+		got, diags := clickHouseKeepersToSDK(ctx, map[string]common.ClickHouseKeeperModel{"keeper": {
 			InstanceType: types.StringValue("t4g.large"),
 			Zones:        chList(t, "us-east-1a"),
 			Replicas:     types.Int64Value(3),
@@ -283,9 +276,8 @@ func TestUpdateUsesPatchSoConsoleClustersSurvive(t *testing.T) {
 		CIDR:               types.StringValue("10.0.0.0/16"),
 		AWSAccountID:       types.StringValue("111122223333"),
 		Zones:              types.ListNull(types.StringType),
-		ClickHouseClusters: []common.ClickHouseClusterModel{minimalClusterModel("mine")},
-		ClickHouseKeepers: []common.ClickHouseKeeperModel{{
-			Name:         types.StringValue("keeper"),
+		ClickHouseClusters: map[string]common.ClickHouseClusterModel{"mine": minimalClusterModel()},
+		ClickHouseKeepers: map[string]common.ClickHouseKeeperModel{"keeper": {
 			InstanceType: types.StringValue("t4g.large"),
 			Zones:        types.ListNull(types.StringType),
 			Disk:         &common.ClickHouseDiskModel{SizeGiB: types.Int64Value(30)},
@@ -319,10 +311,10 @@ func TestUpdateUsesPatchSoConsoleClustersSurvive(t *testing.T) {
 
 func TestUpdateNamesDroppedClickHouseEntriesForDeletion(t *testing.T) {
 	prior := AWSEnvModel{
-		ClickHouseClusters: []common.ClickHouseClusterModel{minimalClusterModel("keep"), minimalClusterModel("dropped")},
-		ClickHouseKeepers:  []common.ClickHouseKeeperModel{{Name: types.StringValue("old-keeper")}},
+		ClickHouseClusters: map[string]common.ClickHouseClusterModel{"keep": minimalClusterModel(), "dropped": minimalClusterModel()},
+		ClickHouseKeepers:  map[string]common.ClickHouseKeeperModel{"old-keeper": {}},
 	}
-	planned := AWSEnvModel{ClickHouseClusters: []common.ClickHouseClusterModel{minimalClusterModel("keep")}}
+	planned := AWSEnvModel{ClickHouseClusters: map[string]common.ClickHouseClusterModel{"keep": minimalClusterModel()}}
 
 	_, update, diags := planned.toSDK(context.Background(), &prior)
 	if diags.HasError() {
@@ -350,34 +342,34 @@ func TestUpdateWithoutClickHouseSendsNoPatch(t *testing.T) {
 }
 
 func TestClickHouseNamesToDelete(t *testing.T) {
-	prior := []common.ClickHouseClusterModel{minimalClusterModel("keep"), minimalClusterModel("dropped")}
-	planned := []common.ClickHouseClusterModel{minimalClusterModel("keep"), minimalClusterModel("new")}
+	prior := map[string]common.ClickHouseClusterModel{"keep": minimalClusterModel(), "dropped": minimalClusterModel()}
+	planned := map[string]common.ClickHouseClusterModel{"keep": minimalClusterModel(), "new": minimalClusterModel()}
 
-	got := common.ClickHouseClusterNamesToDelete(prior, planned)
+	got := common.ClickHouseNamesToDelete(prior, planned)
 	if len(got) != 1 || got[0] != "dropped" {
 		t.Errorf("expected [dropped], got %v", got)
 	}
 
 	// A console cluster is in neither list, so it is never named for deletion.
-	if got := common.ClickHouseClusterNamesToDelete(nil, planned); got != nil {
+	if got := common.ClickHouseNamesToDelete(nil, planned); got != nil {
 		t.Errorf("expected nil with no prior state, got %v", got)
 	}
-	if got := common.ClickHouseClusterNamesToDelete(prior, prior); got != nil {
+	if got := common.ClickHouseNamesToDelete(prior, prior); got != nil {
 		t.Errorf("expected nil when nothing was dropped, got %v", got)
 	}
 
-	keepersPrior := []common.ClickHouseKeeperModel{{Name: types.StringValue("a")}, {Name: types.StringValue("b")}}
-	keepersPlanned := []common.ClickHouseKeeperModel{{Name: types.StringValue("b")}}
-	if got := common.ClickHouseKeeperNamesToDelete(keepersPrior, keepersPlanned); len(got) != 1 || got[0] != "a" {
-		t.Errorf("expected [a], got %v", got)
+	// Map iteration is random, so deletes come back sorted for a stable request.
+	many := map[string]common.ClickHouseClusterModel{"c": {}, "a": {}, "b": {}}
+	if got := common.ClickHouseNamesToDelete(many, nil); len(got) != 3 || got[0] != "a" || got[2] != "c" {
+		t.Errorf("expected sorted [a b c], got %v", got)
 	}
 }
 
 func TestClickHouseCollisionDetection(t *testing.T) {
-	state := []common.ClickHouseClusterModel{minimalClusterModel("mine")}
-	plan := []common.ClickHouseClusterModel{minimalClusterModel("mine"), minimalClusterModel("prod-ch")}
+	state := map[string]common.ClickHouseClusterModel{"mine": minimalClusterModel()}
+	plan := map[string]common.ClickHouseClusterModel{"mine": minimalClusterModel(), "prod-ch": minimalClusterModel()}
 
-	added := common.ClickHouseClusterNamesAdded(state, plan)
+	added := common.ClickHouseNamesAdded(state, plan)
 	if len(added) != 1 || added[0] != "prod-ch" {
 		t.Fatalf("expected [prod-ch], got %v", added)
 	}
@@ -402,18 +394,18 @@ func TestRejectClickHouseCollisionsAtApply(t *testing.T) {
 	t.Cleanup(srv.Close)
 	r := newAWSResource(sdk.NewClient(srv.Client(), srv.URL, nil))
 
-	state := []common.ClickHouseClusterModel{minimalClusterModel("mine")}
+	state := map[string]common.ClickHouseClusterModel{"mine": minimalClusterModel()}
 
 	// A name that was unknown at plan time resolves to the console cluster's name by apply.
 	diags := r.rejectClickHouseCollisions(context.Background(), "env",
-		state, []common.ClickHouseClusterModel{minimalClusterModel("mine"), minimalClusterModel("prod-ch")},
-		nil, []common.ClickHouseKeeperModel{{Name: types.StringValue("console-keeper")}})
+		state, map[string]common.ClickHouseClusterModel{"mine": minimalClusterModel(), "prod-ch": minimalClusterModel()},
+		nil, map[string]common.ClickHouseKeeperModel{"console-keeper": {}})
 	if len(diags.Errors()) != 2 {
 		t.Fatalf("expected a cluster and a keeper collision, got %v", diags)
 	}
 
 	if diags := r.rejectClickHouseCollisions(context.Background(), "env",
-		state, []common.ClickHouseClusterModel{minimalClusterModel("mine"), minimalClusterModel("fresh")},
+		state, map[string]common.ClickHouseClusterModel{"mine": minimalClusterModel(), "fresh": minimalClusterModel()},
 		nil, nil); diags.HasError() {
 		t.Fatalf("expected no collision for a new name, got %v", diags)
 	}

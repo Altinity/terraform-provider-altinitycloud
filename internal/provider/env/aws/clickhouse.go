@@ -166,11 +166,12 @@ func clickHouseKeepersToSpec(keepers []*sdk.AWSEnvSpecFragment_ClickHouseKeepers
 	return specs
 }
 
-func clickHouseClustersToSDK(ctx context.Context, clusters []common.ClickHouseClusterModel) ([]*sdk.AWSEnvClickHouseClusterSpecInput, diag.Diagnostics) {
+func clickHouseClustersToSDK(ctx context.Context, clusters map[string]common.ClickHouseClusterModel) ([]*sdk.AWSEnvClickHouseClusterSpecInput, diag.Diagnostics) {
 	var allDiags diag.Diagnostics
 	var input []*sdk.AWSEnvClickHouseClusterSpecInput
 
-	for _, c := range clusters {
+	for _, name := range common.SortedKeys(clusters) {
+		c := clusters[name]
 		zones, diags := common.StringListToSDK(ctx, c.Zones)
 		allDiags.Append(diags...)
 
@@ -178,9 +179,10 @@ func clickHouseClustersToSDK(ctx context.Context, clusters []common.ClickHouseCl
 		allDiags.Append(diags...)
 
 		var extraDisks []*sdk.AWSEnvClickHouseNamedDiskSpecInput
-		for _, d := range c.ExtraDisks {
+		for _, diskName := range common.SortedKeys(c.ExtraDisks) {
+			d := c.ExtraDisks[diskName]
 			extraDisks = append(extraDisks, &sdk.AWSEnvClickHouseNamedDiskSpecInput{
-				Name:              d.Name.ValueString(),
+				Name:              diskName,
 				SizeInGiB:         d.SizeGiB.ValueInt64(),
 				Iops:              common.KnownInt64Pointer(d.Iops),
 				ThroughputInMiBps: common.KnownInt64Pointer(d.ThroughputMiBs),
@@ -188,7 +190,8 @@ func clickHouseClustersToSDK(ctx context.Context, clusters []common.ClickHouseCl
 		}
 
 		var profiles []*sdk.AWSEnvClickHouseProfileSpecInput
-		for _, p := range c.Profiles {
+		for _, profileName := range common.SortedKeys(c.Profiles) {
+			p := c.Profiles[profileName]
 			var settings []*sdk.AWSEnvClickHouseProfileSettingSpecInput
 			for _, s := range p.Settings {
 				settings = append(settings, &sdk.AWSEnvClickHouseProfileSettingSpecInput{
@@ -197,7 +200,7 @@ func clickHouseClustersToSDK(ctx context.Context, clusters []common.ClickHouseCl
 				})
 			}
 			profiles = append(profiles, &sdk.AWSEnvClickHouseProfileSpecInput{
-				Name:     p.Name.ValueString(),
+				Name:     profileName,
 				Settings: settings,
 			})
 		}
@@ -211,7 +214,7 @@ func clickHouseClustersToSDK(ctx context.Context, clusters []common.ClickHouseCl
 		}
 
 		input = append(input, &sdk.AWSEnvClickHouseClusterSpecInput{
-			Name:           c.Name.ValueString(),
+			Name:           name,
 			Image:          common.KnownStringPointer(c.Image),
 			InstanceType:   c.InstanceType.ValueString(),
 			Zones:          zones,
@@ -231,11 +234,12 @@ func clickHouseClustersToSDK(ctx context.Context, clusters []common.ClickHouseCl
 	return input, allDiags
 }
 
-func clickHouseKeepersToSDK(ctx context.Context, keepers []common.ClickHouseKeeperModel) ([]*sdk.AWSEnvClickHouseKeeperSpecInput, diag.Diagnostics) {
+func clickHouseKeepersToSDK(ctx context.Context, keepers map[string]common.ClickHouseKeeperModel) ([]*sdk.AWSEnvClickHouseKeeperSpecInput, diag.Diagnostics) {
 	var allDiags diag.Diagnostics
 	var input []*sdk.AWSEnvClickHouseKeeperSpecInput
 
-	for _, k := range keepers {
+	for _, name := range common.SortedKeys(keepers) {
+		k := keepers[name]
 		zones, diags := common.StringListToSDK(ctx, k.Zones)
 		allDiags.Append(diags...)
 
@@ -249,7 +253,7 @@ func clickHouseKeepersToSDK(ctx context.Context, keepers []common.ClickHouseKeep
 		}
 
 		input = append(input, &sdk.AWSEnvClickHouseKeeperSpecInput{
-			Name:         k.Name.ValueString(),
+			Name:         name,
 			InstanceType: k.InstanceType.ValueString(),
 			Zones:        zones,
 			Replicas:     common.KnownInt64Pointer(k.Replicas),
@@ -288,11 +292,12 @@ func clickHouseDiskToSDK(disk *common.ClickHouseDiskModel) *sdk.AWSEnvClickHouse
 	}
 }
 
-func clickHouseUsersToSDK(ctx context.Context, users []common.ClickHouseUserModel) ([]*sdk.AWSEnvClickHouseUserSpecInput, diag.Diagnostics) {
+func clickHouseUsersToSDK(ctx context.Context, users map[string]common.ClickHouseUserModel) ([]*sdk.AWSEnvClickHouseUserSpecInput, diag.Diagnostics) {
 	var allDiags diag.Diagnostics
 	var input []*sdk.AWSEnvClickHouseUserSpecInput
 
-	for _, u := range users {
+	for _, name := range common.SortedKeys(users) {
+		u := users[name]
 		grants, diags := common.StringListToSDK(ctx, u.Grants)
 		allDiags.Append(diags...)
 		databaseNames, diags := common.StringListToSDK(ctx, u.Databases)
@@ -319,7 +324,7 @@ func clickHouseUsersToSDK(ctx context.Context, users []common.ClickHouseUserMode
 		}
 
 		input = append(input, &sdk.AWSEnvClickHouseUserSpecInput{
-			Name:                        u.Name.ValueString(),
+			Name:                        name,
 			Profile:                     common.KnownStringPointer(u.Profile),
 			Quota:                       common.KnownStringPointer(u.Quota),
 			Networks:                    networks,

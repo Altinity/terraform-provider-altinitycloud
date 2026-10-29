@@ -64,9 +64,9 @@ resource "altinitycloud_env_aws" "this" {
     }
   ]
 
-  clickhouse_keepers = [
-    {
-      name          = "keeper"
+  // Keyed by name: renaming a key deletes that cluster or Keeper and creates a new, empty one.
+  clickhouse_keepers = {
+    keeper = {
       instance_type = "t4g.large"
       zones         = local.zones
       replicas      = 3
@@ -74,11 +74,10 @@ resource "altinitycloud_env_aws" "this" {
         size_in_gib = 30
       }
     }
-  ]
+  }
 
-  clickhouse_clusters = [
-    {
-      name          = "analytics"
+  clickhouse_clusters = {
+    analytics = {
       image         = "altinity/clickhouse-server:24.8.14.10459.altinitystable" // omit to get the platform default
       instance_type = "m6i.large"
       zones         = local.zones
@@ -89,21 +88,19 @@ resource "altinitycloud_env_aws" "this" {
         size_in_gib = 100
       }
       // Extra volumes join the default storage policy; names must start with "disk".
-      extra_disks = [
-        {
-          name        = "diskcold"
+      extra_disks = {
+        diskcold = {
           size_in_gib = 500
         }
-      ]
+      }
       server_settings = [
         {
           key   = "max_concurrent_queries"
           value = "200"
         }
       ]
-      users = [
-        {
-          name    = "app"
+      users = {
+        app = {
           profile = "default"
           quota   = "default"
           networks = {
@@ -114,20 +111,18 @@ resource "altinitycloud_env_aws" "this" {
             type      = "SHA256_HEX"
             enc_value = altinitycloud_env_secret.app_password.secret_value
           }
-        },
-        {
-          // "grants" cannot be combined with "databases" or the access flags.
-          name   = "readonly"
+        }
+        // "grants" cannot be combined with "databases" or the access flags.
+        readonly = {
           grants = ["GRANT SELECT ON analytics.*"]
           password = {
             type      = "SHA256_HEX"
             enc_value = altinitycloud_env_secret.readonly_password.secret_value
           }
         }
-      ]
-      profiles = [
-        {
-          name = "default"
+      }
+      profiles = {
+        default = {
           settings = [
             {
               key   = "max_execution_time"
@@ -135,10 +130,9 @@ resource "altinitycloud_env_aws" "this" {
             }
           ]
         }
-      ]
-      quotas = [
-        {
-          name = "default"
+      }
+      quotas = {
+        default = {
           intervals = [
             {
               duration = 3600
@@ -146,9 +140,9 @@ resource "altinitycloud_env_aws" "this" {
             }
           ]
         }
-      ]
+      }
     }
-  ]
+  }
 
   cloud_connect = true
   depends_on = [
