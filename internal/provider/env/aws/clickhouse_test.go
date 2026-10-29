@@ -225,7 +225,7 @@ func TestClickHouseKeepersToSDK(t *testing.T) {
 }
 
 func TestClickHouseClustersToSpec(t *testing.T) {
-	specs := clickHouseClustersToSpec([]*sdk.AWSEnvSpecFragment_ClickHouseClusters{
+	specs, diags := clickHouseClustersToSpec([]*sdk.AWSEnvSpecFragment_ClickHouseClusters{
 		nil,
 		{
 			Name:         "ch",
@@ -249,6 +249,9 @@ func TestClickHouseClustersToSpec(t *testing.T) {
 		},
 	})
 
+	if diags.HasError() {
+		t.Fatalf("unexpected diags: %v", diags)
+	}
 	// A nil fragment entry must not become a spec.
 	if len(specs) != 1 {
 		t.Fatalf("expected 1 spec, got %d", len(specs))

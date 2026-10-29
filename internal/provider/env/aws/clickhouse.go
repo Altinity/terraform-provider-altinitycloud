@@ -10,7 +10,7 @@ import (
 
 // gqlgenc emits one fragment and input family per env; this adapts AWS's to the shared structs.
 
-func clickHouseClustersToSpec(clusters []*sdk.AWSEnvSpecFragment_ClickHouseClusters) []common.ClickHouseClusterSpec {
+func clickHouseClustersToSpec(clusters []*sdk.AWSEnvSpecFragment_ClickHouseClusters) ([]common.ClickHouseClusterSpec, diag.Diagnostics) {
 	var specs []common.ClickHouseClusterSpec
 
 	for _, c := range clusters {
@@ -138,7 +138,7 @@ func clickHouseClustersToSpec(clusters []*sdk.AWSEnvSpecFragment_ClickHouseClust
 		})
 	}
 
-	return specs
+	return specs, common.ValidateClickHouseQuotaLimits(specs)
 }
 
 func clickHouseKeepersToSpec(keepers []*sdk.AWSEnvSpecFragment_ClickHouseKeepers) []common.ClickHouseKeeperSpec {
