@@ -17,37 +17,48 @@ AWS environments require the [terraform-altinitycloud-connect-aws](https://githu
 
 ## Example Usage
 
-### AWS environment with Public Load Balancer:
+### Basic environment
+
+Start here: an environment with a public load balancer and no ClickHouse clusters yet.
 {{tffile "examples/resources/altinitycloud_env_aws/public/main.tf"}}
 
-### AWS environment with Permission Boundaries:
-{{tffile "examples/resources/altinitycloud_env_aws/permission-boundaries/main.tf"}}
+### ClickHouse clusters
 
-### AWS environment with external S3 buckets (with permissions boundary):
-{{tffile "examples/resources/altinitycloud_env_aws/external-buckets/with-permissions-boundary.tf"}}
+Clusters and Keepers are declared inside the environment with `clickhouse_clusters` and `clickhouse_keepers`. A cluster only needs a `name`, an `instance_type` and a disk size; everything else has a default. See the [ClickHouse clusters guide](../guides/clickhouse-clusters) for users, replication, day-2 operations, import and advanced configuration.
+{{tffile "examples/resources/altinitycloud_env_aws/clickhouse/minimal.tf"}}
 
-### AWS environment with external S3 buckets (without permissions boundary):
-{{tffile "examples/resources/altinitycloud_env_aws/external-buckets/without-permissions-boundary.tf"}}
+### Networking
 
-### AWS environment accessible over VPC Endpoint:
+#### VPC Endpoint
 {{tffile "examples/resources/altinitycloud_env_aws/vpce/main.tf"}}
 
-### AWS environment with VPC peering:
+#### VPC peering
 {{tffile "examples/resources/altinitycloud_env_aws/peering/main.tf"}}
 
-### AWS environment with Iceberg catalogs:
-{{tffile "examples/resources/altinitycloud_env_aws/iceberg/main.tf"}}
+### Security and access
 
-### AWS environment with customer-managed KMS keys:
+#### Permission boundaries
+{{tffile "examples/resources/altinitycloud_env_aws/permission-boundaries/main.tf"}}
+
+#### Customer-managed KMS keys
 {{tffile "examples/resources/altinitycloud_env_aws/kms/main.tf"}}
 
-### AWS environment with Datadog monitoring:
-{{tffile "examples/resources/altinitycloud_env_aws/datadog/main.tf"}}
-
-### AWS environment with EKS access entries:
+#### EKS access entries
 {{tffile "examples/resources/altinitycloud_env_aws/eks-access-entries/main.tf"}}
-### AWS environment with ClickHouse clusters and keepers:
-{{tffile "examples/resources/altinitycloud_env_aws/clickhouse/main.tf"}}
+
+### Storage and integrations
+
+#### External S3 buckets (with permissions boundary)
+{{tffile "examples/resources/altinitycloud_env_aws/external-buckets/with-permissions-boundary.tf"}}
+
+#### External S3 buckets (without permissions boundary)
+{{tffile "examples/resources/altinitycloud_env_aws/external-buckets/without-permissions-boundary.tf"}}
+
+#### Iceberg catalogs
+{{tffile "examples/resources/altinitycloud_env_aws/iceberg/main.tf"}}
+
+#### Datadog monitoring
+{{tffile "examples/resources/altinitycloud_env_aws/datadog/main.tf"}}
 
 {{ .SchemaMarkdown | trimspace }}
 

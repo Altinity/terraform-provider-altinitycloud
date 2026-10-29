@@ -1,0 +1,381 @@
+---
+page_title: "ClickHouse clusters"
+subcategory: ""
+description: |-
+  Provision ClickHouse clusters and Keepers inside an Altinity.Cloud environment.
+---
+
+# ClickHouse clusters
+
+ClickHouse clusters and Keepers are not standalone resources. They are nested list attributes, `clickhouse_clusters` and `clickhouse_keepers`, on the environment resource. Adding an entry to a list creates it, editing an entry updates it, and removing an entry deletes it.
+
+~> **Note:** Only `altinitycloud_env_aws` supports `clickhouse_clusters` and `clickhouse_keepers` today. Other environment types will follow.
+
+How the pieces fit together:
+
+- The environment provides **node groups**. Each node group has `reservations` that say what it may run.
+- A Keeper needs a node group with a `ZOOKEEPER` reservation whose `node_type` matches the Keeper's `instance_type`.
+- A cluster needs a node group with a `CLICKHOUSE` reservation whose `node_type` matches the cluster's `instance_type`.
+- A Keeper is only needed for replication: a cluster with `replicas` greater than 1 must set `keeper` to the name of one of the entries in `clickhouse_keepers`.
+
+For the complete attribute reference, see [`clickhouse_clusters`](../resources/env_aws#nestedatt--clickhouse_clusters) and `clickhouse_keepers` in the `altinitycloud_env_aws` docs.
+
+## Prerequisites
+
+- A working AWS environment. See [Basic environment](../resources/env_aws#basic-environment).
+- An `altinitycloud_env_certificate` and an `altinitycloud_env_secret`. User password digests are encrypted with the environment certificate before they are sent.
+
+## Minimal cluster
+
+A cluster only needs three attributes, the same fields the ACM "Launch a Cluster" dialog asks for:
+
+- `name`
+- `instance_type`
+- `disk.size_in_gib`
+
+Everything else has a default: 1 shard, 1 replica, no Keeper, the platform's current ClickHouse image, and the first three environment zones.
+
+{{tffile "examples/resources/altinitycloud_env_aws/clickhouse/minimal.tf"}}
+
+~> **Note:** No ClickHouse users are created by default, so nobody can log in to this cluster yet. Add a user, as shown below, to connect.
+
+## Hello world
+
+The minimal cluster plus a user you can connect with:
+
+{{tffile "examples/resources/altinitycloud_env_aws/clickhouse/basic.tf"}}
+
+Things to note:
+
+- The password is the SHA256 hex digest of the real password (`echo -n 'secret' | sha256sum`), encrypted through `altinitycloud_env_secret`. The plain password never appears in the configuration.
+- When `networks.ips` is omitted or empty, the user can only connect from localhost (`127.0.0.1` and `::1`). List CIDRs to open it up.
+- Provisioning is asynchronous. `altinitycloud_env_aws_status` with `wait_for_applied_spec_revision` waits for the environment to be reconciled and surfaces provisioning errors. Without it, Terraform cannot detect failures.
+- The cluster endpoint, `https://<cluster>.<env>.altinity.cloud:8443`, comes up shortly after the data source returns.
+
+## Day-2 operations
+
+The snippets below show only the relevant fragment of the environment resource.
+
+### Scale replicas and shards
+
+Going above one replica requires a Keeper. See [Highly available Keeper](#highly-available-keeper).
+
+```terraform
+resource "altinitycloud_env_aws" "this" {
+  # ...
+  clickhouse_clusters = [
+    {
+      name     = "hello"
+      shards   = 2
+      replicas = 3
+      # ...
+    }
+  ]
+}
+```
+
+### Grow a disk
+
+```terraform
+resource "altinitycloud_env_aws" "this" {
+  # ...
+  clickhouse_clusters = [
+    {
+      name = "hello"
+      # ...
+      disk = {
+        size_in_gib = 100
+      }
+    }
+  ]
+}
+```
+
+~> **Note:** Disk size can only be increased, never decreased.
+
+### Stop and start
+
+Set `stopped = true` to keep a cluster stopped, and set it back to `false` to start it again. Keepers have the same attribute.
+
+```terraform
+resource "altinitycloud_env_aws" "this" {
+  # ...
+  clickhouse_clusters = [
+    {
+      name    = "hello"
+      stopped = true
+      # ...
+    }
+  ]
+}
+```
+
+### Upgrade
+
+Change `image`, tag included. When `image` is omitted, the platform picks a current image.
+
+```terraform
+resource "altinitycloud_env_aws" "this" {
+  # ...
+  clickhouse_clusters = [
+    {
+      name  = "hello"
+      image = "altinity/clickhouse-server:25.8.16.10002.altinitystable"
+      # ...
+    }
+  ]
+}
+```
+
+### Add a user
+
+`password.enc_value` is required when a user is created. The API never returns it, so Terraform keeps the value from your configuration and never refreshes it.
+
+```terraform
+resource "altinitycloud_env_aws" "this" {
+  # ...
+  clickhouse_clusters = [
+    {
+      name = "hello"
+      # ...
+      users = [
+        {
+          name = "admin"
+          # ...
+        },
+        {
+          name = "reporting"
+          password = {
+            type      = "SHA256_HEX"
+            enc_value = altinitycloud_env_secret.reporting_password.secret_value
+          }
+        }
+      ]
+    }
+  ]
+}
+```
+
+Once the user exists, `password.enc_value` can be omitted to keep the current password.
+
+### Rotate a password
+
+Create a new `altinitycloud_env_secret` from the new digest and point the user's `enc_value` at it.
+
+### Remove a cluster
+
+Delete its entry from `clickhouse_clusters`. This deletes the cluster and its data.
+
+~> **Warning:** Changing a cluster's or Keeper's `name` is **not** a rename. The old cluster is deleted along with its data and a new, empty one is created.
+
+~> **Warning:** `zones` is immutable on both clusters and Keepers.
+
+~> **Warning:** A Keeper ensemble of 3 cannot be shrunk back to a single node.
+
+## Ownership and import
+
+Terraform only manages the clusters and Keepers declared in the configuration:
+
+- Clusters and Keepers created elsewhere, for example in the ACM console, are left alone.
+- Declaring a name that already exists in the environment is rejected rather than overwritten.
+- To bring existing clusters under Terraform, import the environment. This adopts every existing cluster and Keeper into state:
+
+```shell
+terraform import altinitycloud_env_aws.this "<env-name>"
+```
+
+After the import, make your configuration match what was adopted and run `terraform plan` to review any differences.
+
+## Advanced configuration
+
+### Highly available Keeper
+
+A replicated cluster coordinates through a Keeper. The Keeper's `instance_type` must match a node group with the `ZOOKEEPER` reservation. Use three Keeper replicas for a highly available ensemble.
+
+```terraform
+resource "altinitycloud_env_aws" "this" {
+  # ...
+  clickhouse_keepers = [
+    {
+      name          = "keeper"
+      instance_type = "t4g.large"
+      replicas      = 3
+      disk = {
+        size_in_gib = 30
+      }
+    }
+  ]
+  clickhouse_clusters = [
+    {
+      name     = "hello"
+      replicas = 2
+      keeper   = "keeper"
+      # ...
+    }
+  ]
+}
+```
+
+### Extra disks and disk performance
+
+`extra_disks` adds data volumes to the default ClickHouse storage policy. Each replica receives one volume per entry, and ClickHouse balances new data across the main and extra volumes with the `least_used` strategy.
+
+- At most 8 extra disks.
+- `name` is at most 16 characters, must start with `disk`, and is immutable.
+- A volume named `diskN`, where `N` is a positive integer, is mounted at `/var/lib/clickhouseN`.
+
+`iops` and `throughput_in_mibps` are honored only by storage classes that support them (`iops`: gp3 and io2; `throughput_in_mibps`: gp3).
+
+```terraform
+resource "altinitycloud_env_aws" "this" {
+  # ...
+  clickhouse_clusters = [
+    {
+      name = "analytics"
+      # ...
+      disk = {
+        size_in_gib         = 100
+        iops                = 6000
+        throughput_in_mibps = 250
+      }
+      extra_disks = [
+        {
+          name        = "disk1"
+          size_in_gib = 500
+        }
+      ]
+    }
+  ]
+}
+```
+
+### Server settings
+
+Server-level settings applied to every node. See the [ClickHouse server settings reference](https://clickhouse.com/docs/reference/settings/server-settings/settings).
+
+```terraform
+resource "altinitycloud_env_aws" "this" {
+  # ...
+  clickhouse_clusters = [
+    {
+      name = "analytics"
+      # ...
+      server_settings = [
+        {
+          key   = "max_concurrent_queries"
+          value = "200"
+        }
+      ]
+    }
+  ]
+}
+```
+
+### Profiles and quotas
+
+Profiles apply session-level settings (see the [session settings reference](https://clickhouse.com/docs/reference/settings/session-settings)). Quotas limit resource usage over an interval; exactly one interval is currently supported. Users reference them by name with `profile` and `quota`.
+
+```terraform
+resource "altinitycloud_env_aws" "this" {
+  # ...
+  clickhouse_clusters = [
+    {
+      name = "analytics"
+      # ...
+      profiles = [
+        {
+          name = "limited"
+          settings = [
+            {
+              key   = "max_execution_time"
+              value = "30"
+            }
+          ]
+        }
+      ]
+      quotas = [
+        {
+          name = "hourly"
+          intervals = [
+            {
+              duration = 3600
+              queries  = 1000
+            }
+          ]
+        }
+      ]
+      users = [
+        {
+          name    = "app"
+          profile = "limited"
+          quota   = "hourly"
+          # ...
+        }
+      ]
+    }
+  ]
+}
+```
+
+### User permissions
+
+By default a user has access to all databases. Narrow it with `databases`, or use `grants` for fine-grained control:
+
+```terraform
+users = [
+  {
+    name      = "app"
+    databases = ["analytics"]
+    # ...
+  },
+  {
+    name   = "readonly"
+    grants = ["GRANT SELECT ON analytics.*"]
+    # ...
+  }
+]
+```
+
+`grants` cannot be combined with `databases`, `access_management`, `named_collection_control` or `show_named_collections_secrets`.
+
+The user names `grafana` and `datadog` are reserved for platform-injected users and are rejected.
+
+### Multiple clusters sharing a Keeper
+
+Several clusters can point at the same Keeper by name:
+
+```terraform
+resource "altinitycloud_env_aws" "this" {
+  # ...
+  clickhouse_keepers = [
+    {
+      name          = "keeper"
+      instance_type = "t4g.large"
+      replicas      = 3
+      # ...
+    }
+  ]
+  clickhouse_clusters = [
+    {
+      name   = "analytics"
+      keeper = "keeper"
+      # ...
+    },
+    {
+      name   = "events"
+      keeper = "keeper"
+      # ...
+    }
+  ]
+}
+```
+
+## Full example
+
+A highly available Keeper and a replicated cluster with an extra disk, server settings, two users, a profile and a quota:
+
+{{tffile "examples/resources/altinitycloud_env_aws/clickhouse/advanced.tf"}}
+
+## Destroy
+
+Destroying the environment follows the usual flow described in [Deprovision / Destroy](../resources/env_aws#deprovision--destroy). By default `terraform destroy` fails while clusters are still running; set `force_destroy_clusters = true` (together with `force_destroy = true`) and apply before destroying to delete them with the environment.
