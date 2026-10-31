@@ -20,8 +20,7 @@ func AssertModifyPlanSpecRevision(t *testing.T, r SpecRevResource) {
 	AssertModifyPlanSpecRevisionWithAttr(t, r, "custom_domain")
 }
 
-// mutableAttr must be an optional string attribute of r's schema; it is what the
-// two plans differ on, so a resource without "custom_domain" can pick its own.
+// mutableAttr is the optional string attribute the two plans differ on, for resources without "custom_domain".
 func AssertModifyPlanSpecRevisionWithAttr(t *testing.T, r SpecRevResource, mutableAttr string) {
 	t.Helper()
 	ctx := context.Background()
@@ -59,8 +58,9 @@ func AssertModifyPlanSpecRevisionWithAttr(t *testing.T, r SpecRevResource, mutab
 	run := func(state, plan tftypes.Value) types.Int64 {
 		resp := &resource.ModifyPlanResponse{Plan: tfsdk.Plan{Raw: plan, Schema: schema}}
 		r.ModifyPlan(ctx, resource.ModifyPlanRequest{
-			State: tfsdk.State{Raw: state, Schema: schema},
-			Plan:  tfsdk.Plan{Raw: plan, Schema: schema},
+			Config: tfsdk.Config{Raw: plan, Schema: schema},
+			State:  tfsdk.State{Raw: state, Schema: schema},
+			Plan:   tfsdk.Plan{Raw: plan, Schema: schema},
 		}, resp)
 		if resp.Diagnostics.HasError() {
 			t.Fatalf("ModifyPlan errored: %v", resp.Diagnostics.Errors())

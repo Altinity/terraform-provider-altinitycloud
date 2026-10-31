@@ -4,6 +4,9 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/hashicorp/terraform-plugin-framework/attr"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/schema/validator"
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
@@ -15,11 +18,11 @@ type uniqueObjectAttributeValidator struct {
 }
 
 func UniqueObjectAttribute(attribute, summary string, detail func(value string) string) validator.Set {
-	return uniqueObjectAttributeValidator{
-		attribute: attribute,
-		summary:   summary,
-		detail:    detail,
-	}
+	return uniqueObjectAttributeValidator{attribute: attribute, summary: summary, detail: detail}
+}
+
+func UniqueListObjectAttribute(attribute, summary string, detail func(value string) string) validator.List {
+	return uniqueObjectAttributeValidator{attribute: attribute, summary: summary, detail: detail}
 }
 
 func (v uniqueObjectAttributeValidator) Description(_ context.Context) string {
@@ -34,10 +37,20 @@ func (v uniqueObjectAttributeValidator) ValidateSet(_ context.Context, req valid
 	if req.ConfigValue.IsNull() || req.ConfigValue.IsUnknown() {
 		return
 	}
+	v.validate(req.ConfigValue.Elements(), req.Path, &resp.Diagnostics)
+}
 
-	seen := make(map[string]struct{}, len(req.ConfigValue.Elements()))
+func (v uniqueObjectAttributeValidator) ValidateList(_ context.Context, req validator.ListRequest, resp *validator.ListResponse) {
+	if req.ConfigValue.IsNull() || req.ConfigValue.IsUnknown() {
+		return
+	}
+	v.validate(req.ConfigValue.Elements(), req.Path, &resp.Diagnostics)
+}
 
-	for _, elem := range req.ConfigValue.Elements() {
+func (v uniqueObjectAttributeValidator) validate(elements []attr.Value, p path.Path, diags *diag.Diagnostics) {
+	seen := make(map[string]struct{}, len(elements))
+
+	for _, elem := range elements {
 		if elem.IsNull() || elem.IsUnknown() {
 			continue
 		}
@@ -59,7 +72,7 @@ func (v uniqueObjectAttributeValidator) ValidateSet(_ context.Context, req valid
 
 		value := str.ValueString()
 		if _, exists := seen[value]; exists {
-			resp.Diagnostics.AddAttributeError(req.Path, v.summary, v.detail(value))
+			diags.AddAttributeError(p, v.summary, v.detail(value))
 			return
 		}
 

@@ -9,6 +9,7 @@ import (
 	clientsupport "github.com/altinity/terraform-provider-altinitycloud/internal/provider/common"
 	common "github.com/altinity/terraform-provider-altinitycloud/internal/provider/env/common"
 	"github.com/altinity/terraform-provider-altinitycloud/internal/sdk/client"
+	"github.com/hashicorp/terraform-plugin-framework/diag"
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
 	"github.com/hashicorp/terraform-plugin-log/tflog"
@@ -17,7 +18,10 @@ import (
 var _ resource.Resource = &AWSEnvResource{}
 var _ resource.ResourceWithConfigure = &AWSEnvResource{}
 var _ resource.ResourceWithImportState = &AWSEnvResource{}
+var _ resource.ResourceWithModifyPlan = &AWSEnvResource{}
 var _ resource.ResourceWithValidateConfig = &AWSEnvResource{}
+
+const adoptClickHouseKey = "clickhouse_adopt"
 
 func NewAWSEnvResource() resource.Resource {
 	return &AWSEnvResource{}
@@ -29,6 +33,59 @@ type AWSEnvResource struct {
 
 func (r *AWSEnvResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
 	resp.TypeName = req.ProviderTypeName + "_env_aws"
+}
+
+// Import is the one read that adopts clusters and Keepers Terraform did not create.
+func (r *AWSEnvResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
+	r.EnvResourceBase.ImportState(ctx, req, resp)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+	resp.Diagnostics.Append(resp.Private.SetKey(ctx, adoptClickHouseKey, []byte("1"))...)
+}
+
+func (r *AWSEnvResource) ModifyPlan(ctx context.Context, req resource.ModifyPlanRequest, resp *resource.ModifyPlanResponse) {
+	r.EnvResourceBase.ModifyPlan(ctx, req, resp)
+	if req.Plan.Raw.IsNull() || resp.Diagnostics.HasError() {
+		return
+	}
+
+	plannedClusters, priorClusters, diags := readClickHouse[common.ClickHouseClusterModel](ctx, req, "clickhouse_clusters")
+	resp.Diagnostics.Append(diags...)
+	plannedKeepers, priorKeepers, diags := readClickHouse[common.ClickHouseKeeperModel](ctx, req, "clickhouse_keepers")
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
+	resp.Diagnostics.Append(common.ValidateClickHouseUserPasswords(path.Root("clickhouse_clusters"), priorClusters, plannedClusters)...)
+	if req.State.Raw.IsNull() {
+		return
+	}
+
+	var envName types.String
+	resp.Diagnostics.Append(req.Plan.GetAttribute(ctx, path.Root("name"), &envName)...)
+	resp.Diagnostics.Append(r.rejectClickHouseCollisions(ctx, envName.ValueString(), priorClusters, plannedClusters, priorKeepers, plannedKeepers)...)
+}
+
+func readClickHouse[M any](ctx context.Context, req resource.ModifyPlanRequest, attribute string) (planned, prior map[string]M, diags diag.Diagnostics) {
+	p := path.Root(attribute)
+
+	var plan, state types.Map
+	diags.Append(req.Plan.GetAttribute(ctx, p, &plan)...)
+	if !req.State.Raw.IsNull() {
+		diags.Append(req.State.GetAttribute(ctx, p, &state)...)
+	}
+	if diags.HasError() {
+		return nil, nil, diags
+	}
+
+	var d diag.Diagnostics
+	planned, d = common.ObjectsFromMap[M](ctx, plan)
+	diags.Append(d...)
+	prior, d = common.ObjectsFromMap[M](ctx, state)
+	diags.Append(d...)
+	return planned, prior, diags
 }
 
 func (r *AWSEnvResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
@@ -59,8 +116,10 @@ func (r *AWSEnvResource) Create(ctx context.Context, req resource.CreateRequest,
 	envName := data.Name.ValueString()
 	tflog.Trace(ctx, "creating resource", map[string]interface{}{"name": envName})
 
-	sdkEnv, _, diags := data.toSDK(ctx)
+	sdkEnv, _, diags := data.toSDK(ctx, nil)
 	resp.Diagnostics.Append(diags...)
+	// User names unknown at plan time skip the ModifyPlan password check.
+	resp.Diagnostics.Append(common.ValidateClickHouseUserPasswords(path.Root("clickhouse_clusters"), nil, data.ClickHouseClusters)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -94,6 +153,10 @@ func (r *AWSEnvResource) Create(ctx context.Context, req resource.CreateRequest,
 	resp.Diagnostics.Append(diags...)
 	data.SpecRevision = types.Int64Value(apiResp.CreateAWSEnv.SpecRevision)
 	data.ResourcePrefix = types.StringValue(apiResp.CreateAWSEnv.Spec.ResourcePrefix)
+	clusterSpecs, diags := clickHouseClustersToSpec(apiResp.CreateAWSEnv.Spec.ClickHouseClusters)
+	resp.Diagnostics.Append(diags...)
+	data.ClickHouseClusters = common.ClickHouseClustersToModel(data.ClickHouseClusters, clusterSpecs)
+	data.ClickHouseKeepers = common.ClickHouseKeepersToModel(data.ClickHouseKeepers, clickHouseKeepersToSpec(apiResp.CreateAWSEnv.Spec.ClickHouseKeepers))
 
 	if resp.Diagnostics.HasError() {
 		return
@@ -156,6 +219,16 @@ func (r *AWSEnvResource) Read(ctx context.Context, req resource.ReadRequest, res
 	}
 	data.Id = data.Name
 
+	adopt, diags := req.Private.GetKey(ctx, adoptClickHouseKey)
+	resp.Diagnostics.Append(diags...)
+	if len(adopt) > 0 {
+		clusterSpecs, diags := clickHouseClustersToSpec(apiResp.AWSEnv.Spec.ClickHouseClusters)
+		resp.Diagnostics.Append(diags...)
+		data.ClickHouseClusters = common.AdoptClickHouseClusters(clusterSpecs)
+		data.ClickHouseKeepers = common.AdoptClickHouseKeepers(clickHouseKeepersToSpec(apiResp.AWSEnv.Spec.ClickHouseKeepers))
+		resp.Diagnostics.Append(resp.Private.SetKey(ctx, adoptClickHouseKey, nil)...)
+	}
+
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
 }
@@ -169,11 +242,21 @@ func (r *AWSEnvResource) Update(ctx context.Context, req resource.UpdateRequest,
 		return
 	}
 
+	var state *AWSEnvResourceModel
+	diags = req.State.Get(ctx, &state)
+	resp.Diagnostics.Append(diags...)
+	if resp.Diagnostics.HasError() {
+		return
+	}
+
 	envName := data.Name.ValueString()
 	tflog.Trace(ctx, "updating resource", map[string]interface{}{"name": envName})
 
-	_, sdkEnv, diags := data.toSDK(ctx)
+	_, sdkEnv, diags := data.toSDK(ctx, &state.AWSEnvModel)
 	resp.Diagnostics.Append(diags...)
+	// Names unknown at plan time slip past the ModifyPlan checks, and the env can change between plan and apply.
+	resp.Diagnostics.Append(common.ValidateClickHouseUserPasswords(path.Root("clickhouse_clusters"), state.ClickHouseClusters, data.ClickHouseClusters)...)
+	resp.Diagnostics.Append(r.rejectClickHouseCollisions(ctx, envName, state.ClickHouseClusters, data.ClickHouseClusters, state.ClickHouseKeepers, data.ClickHouseKeepers)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
@@ -206,6 +289,10 @@ func (r *AWSEnvResource) Update(ctx context.Context, req resource.UpdateRequest,
 	resp.Diagnostics.Append(diags...)
 	data.SpecRevision = types.Int64Value(apiResp.UpdateAWSEnv.SpecRevision)
 	data.ResourcePrefix = types.StringValue(apiResp.UpdateAWSEnv.Spec.ResourcePrefix)
+	clusterSpecs, diags := clickHouseClustersToSpec(apiResp.UpdateAWSEnv.Spec.ClickHouseClusters)
+	resp.Diagnostics.Append(diags...)
+	data.ClickHouseClusters = common.ClickHouseClustersToModel(data.ClickHouseClusters, clusterSpecs)
+	data.ClickHouseKeepers = common.ClickHouseKeepersToModel(data.ClickHouseKeepers, clickHouseKeepersToSpec(apiResp.UpdateAWSEnv.Spec.ClickHouseKeepers))
 
 	if resp.Diagnostics.HasError() {
 		return
@@ -214,6 +301,48 @@ func (r *AWSEnvResource) Update(ctx context.Context, req resource.UpdateRequest,
 	tflog.Trace(ctx, "updated resource", map[string]interface{}{"name": envName})
 	diags = resp.State.Set(ctx, &data)
 	resp.Diagnostics.Append(diags...)
+}
+
+// Patch Replace upserts by name, so a "pure create" plan can overwrite an unmanaged entry.
+func (r *AWSEnvResource) rejectClickHouseCollisions(ctx context.Context, envName string, priorClusters, plannedClusters map[string]common.ClickHouseClusterModel, priorKeepers, plannedKeepers map[string]common.ClickHouseKeeperModel) diag.Diagnostics {
+	var diags diag.Diagnostics
+	addedClusters := common.ClickHouseNamesAdded(priorClusters, plannedClusters)
+	addedKeepers := common.ClickHouseNamesAdded(priorKeepers, plannedKeepers)
+	if len(addedClusters) == 0 && len(addedKeepers) == 0 {
+		return diags
+	}
+
+	current, err := r.Client.GetAWSEnv(ctx, envName)
+	if err != nil {
+		clientsupport.AddClientError(&diags, fmt.Sprintf("Unable to read env %s before adding ClickHouse entries, got error: %s", envName, client.FormatError(err, envName)))
+		return diags
+	}
+	if current.AWSEnv == nil {
+		return diags
+	}
+
+	var clusterNames, keeperNames []string
+	for _, c := range current.AWSEnv.Spec.ClickHouseClusters {
+		if c != nil {
+			clusterNames = append(clusterNames, c.Name)
+		}
+	}
+	for _, k := range current.AWSEnv.Spec.ClickHouseKeepers {
+		if k != nil {
+			keeperNames = append(keeperNames, k.Name)
+		}
+	}
+
+	for _, name := range common.ClickHouseCollisions(addedClusters, clusterNames) {
+		diags.AddAttributeError(path.Root("clickhouse_clusters"), "ClickHouse Cluster Already Exists",
+			fmt.Sprintf("Cluster %q already exists in env %s but is not in the Terraform state, so applying would overwrite its configuration. Rename the new cluster, remove the unmanaged one first, or adopt every existing cluster and Keeper by re-importing the environment (`terraform state rm`, then `terraform import`).", name, envName))
+	}
+	for _, name := range common.ClickHouseCollisions(addedKeepers, keeperNames) {
+		diags.AddAttributeError(path.Root("clickhouse_keepers"), "ClickHouse Keeper Already Exists",
+			fmt.Sprintf("Keeper %q already exists in env %s but is not in the Terraform state, so applying would overwrite its configuration. Rename the new Keeper, remove the unmanaged one first, or adopt every existing cluster and Keeper by re-importing the environment (`terraform state rm`, then `terraform import`).", name, envName))
+	}
+
+	return diags
 }
 
 func (r *AWSEnvResource) Delete(ctx context.Context, req resource.DeleteRequest, resp *resource.DeleteResponse) {
