@@ -69,7 +69,7 @@ func GetClickHouseClustersAttribute(required, optional, computed bool) rschema.M
 				"image": rschema.StringAttribute{
 					Optional:            true,
 					Computed:            true,
-					PlanModifiers:       []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
+					PlanModifiers:       []planmodifier.String{stringplanmodifier.UseNonNullStateForUnknown()},
 					MarkdownDescription: CLICKHOUSE_CLUSTER_IMAGE_DESCRIPTION,
 					Validators: []validator.String{
 						stringvalidator.LengthAtLeast(1),
@@ -86,7 +86,7 @@ func GetClickHouseClustersAttribute(required, optional, computed bool) rschema.M
 					ElementType:         types.StringType,
 					Optional:            true,
 					Computed:            true,
-					PlanModifiers:       []planmodifier.List{listplanmodifier.UseStateForUnknown()},
+					PlanModifiers:       []planmodifier.List{listplanmodifier.UseNonNullStateForUnknown()},
 					MarkdownDescription: CLICKHOUSE_CLUSTER_ZONES_DESCRIPTION,
 					Validators: []validator.List{
 						listvalidator.SizeAtLeast(1),
@@ -96,7 +96,7 @@ func GetClickHouseClustersAttribute(required, optional, computed bool) rschema.M
 				"shards": rschema.Int64Attribute{
 					Optional:            true,
 					Computed:            true,
-					PlanModifiers:       []planmodifier.Int64{int64planmodifier.UseStateForUnknown()},
+					PlanModifiers:       []planmodifier.Int64{int64planmodifier.UseNonNullStateForUnknown()},
 					MarkdownDescription: CLICKHOUSE_CLUSTER_SHARDS_DESCRIPTION,
 					Validators: []validator.Int64{
 						int64validator.AtLeast(1),
@@ -105,7 +105,7 @@ func GetClickHouseClustersAttribute(required, optional, computed bool) rschema.M
 				"replicas": rschema.Int64Attribute{
 					Optional:            true,
 					Computed:            true,
-					PlanModifiers:       []planmodifier.Int64{int64planmodifier.UseStateForUnknown()},
+					PlanModifiers:       []planmodifier.Int64{int64planmodifier.UseNonNullStateForUnknown()},
 					MarkdownDescription: CLICKHOUSE_CLUSTER_REPLICAS_DESCRIPTION,
 					Validators: []validator.Int64{
 						int64validator.AtLeast(1),
@@ -158,7 +158,7 @@ func GetClickHouseKeepersAttribute(required, optional, computed bool) rschema.Ma
 					ElementType:         types.StringType,
 					Optional:            true,
 					Computed:            true,
-					PlanModifiers:       []planmodifier.List{listplanmodifier.UseStateForUnknown()},
+					PlanModifiers:       []planmodifier.List{listplanmodifier.UseNonNullStateForUnknown()},
 					MarkdownDescription: CLICKHOUSE_KEEPER_ZONES_DESCRIPTION,
 					Validators: []validator.List{
 						listvalidator.SizeAtLeast(1),
@@ -168,7 +168,7 @@ func GetClickHouseKeepersAttribute(required, optional, computed bool) rschema.Ma
 				"replicas": rschema.Int64Attribute{
 					Optional:            true,
 					Computed:            true,
-					PlanModifiers:       []planmodifier.Int64{int64planmodifier.UseStateForUnknown()},
+					PlanModifiers:       []planmodifier.Int64{int64planmodifier.UseNonNullStateForUnknown()},
 					MarkdownDescription: CLICKHOUSE_KEEPER_REPLICAS_DESCRIPTION,
 					Validators: []validator.Int64{
 						int64validator.OneOf(1, 3),
@@ -233,7 +233,7 @@ func getClickHouseDiskIopsAttribute() rschema.Int64Attribute {
 	return rschema.Int64Attribute{
 		Optional:            true,
 		Computed:            true,
-		PlanModifiers:       []planmodifier.Int64{int64planmodifier.UseStateForUnknown()},
+		PlanModifiers:       []planmodifier.Int64{int64planmodifier.UseNonNullStateForUnknown()},
 		MarkdownDescription: CLICKHOUSE_DISK_IOPS_DESCRIPTION,
 		Validators: []validator.Int64{
 			int64validator.AtLeast(1),
@@ -245,7 +245,7 @@ func getClickHouseDiskThroughputAttribute() rschema.Int64Attribute {
 	return rschema.Int64Attribute{
 		Optional:            true,
 		Computed:            true,
-		PlanModifiers:       []planmodifier.Int64{int64planmodifier.UseStateForUnknown()},
+		PlanModifiers:       []planmodifier.Int64{int64planmodifier.UseNonNullStateForUnknown()},
 		MarkdownDescription: CLICKHOUSE_DISK_THROUGHPUT_DESCRIPTION,
 		Validators: []validator.Int64{
 			int64validator.AtLeast(1),
@@ -308,13 +308,13 @@ func getClickHouseUsersAttribute() rschema.MapNestedAttribute {
 				"profile": rschema.StringAttribute{
 					Optional:            true,
 					Computed:            true,
-					PlanModifiers:       []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
+					PlanModifiers:       []planmodifier.String{stringplanmodifier.UseNonNullStateForUnknown()},
 					MarkdownDescription: CLICKHOUSE_USER_PROFILE_DESCRIPTION,
 				},
 				"quota": rschema.StringAttribute{
 					Optional:            true,
 					Computed:            true,
-					PlanModifiers:       []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
+					PlanModifiers:       []planmodifier.String{stringplanmodifier.UseNonNullStateForUnknown()},
 					MarkdownDescription: CLICKHOUSE_USER_QUOTA_DESCRIPTION,
 				},
 				"networks": rschema.SingleNestedAttribute{
@@ -335,19 +335,19 @@ func getClickHouseUsersAttribute() rschema.MapNestedAttribute {
 				"access_management": rschema.BoolAttribute{
 					Optional:            true,
 					Computed:            true,
-					PlanModifiers:       []planmodifier.Bool{boolplanmodifier.UseStateForUnknown()},
+					PlanModifiers:       []planmodifier.Bool{boolplanmodifier.UseNonNullStateForUnknown()},
 					MarkdownDescription: CLICKHOUSE_USER_ACCESS_MANAGEMENT_DESCRIPTION,
 				},
 				"named_collection_control": rschema.BoolAttribute{
 					Optional:            true,
 					Computed:            true,
-					PlanModifiers:       []planmodifier.Bool{boolplanmodifier.UseStateForUnknown()},
+					PlanModifiers:       []planmodifier.Bool{boolplanmodifier.UseNonNullStateForUnknown()},
 					MarkdownDescription: CLICKHOUSE_USER_NAMED_COLLECTION_CONTROL_DESCRIPTION,
 				},
 				"show_named_collections_secrets": rschema.BoolAttribute{
 					Optional:            true,
 					Computed:            true,
-					PlanModifiers:       []planmodifier.Bool{boolplanmodifier.UseStateForUnknown()},
+					PlanModifiers:       []planmodifier.Bool{boolplanmodifier.UseNonNullStateForUnknown()},
 					MarkdownDescription: CLICKHOUSE_USER_SHOW_NAMED_COLLECTIONS_SECRETS_DESCRIPTION,
 				},
 				"databases": rschema.ListAttribute{
@@ -363,7 +363,7 @@ func getClickHouseUsersAttribute() rschema.MapNestedAttribute {
 					ElementType:         types.StringType,
 					Optional:            true,
 					Computed:            true,
-					PlanModifiers:       []planmodifier.List{listplanmodifier.UseStateForUnknown()},
+					PlanModifiers:       []planmodifier.List{listplanmodifier.UseNonNullStateForUnknown()},
 					MarkdownDescription: CLICKHOUSE_USER_GRANTS_DESCRIPTION,
 					Validators: []validator.List{
 						listvalidator.UniqueValues(),
@@ -413,7 +413,7 @@ func getClickHouseQuotasAttribute() rschema.MapNestedAttribute {
 				"keyed_by": rschema.StringAttribute{
 					Optional:            true,
 					Computed:            true,
-					PlanModifiers:       []planmodifier.String{stringplanmodifier.UseStateForUnknown()},
+					PlanModifiers:       []planmodifier.String{stringplanmodifier.UseNonNullStateForUnknown()},
 					MarkdownDescription: CLICKHOUSE_QUOTA_KEYED_BY_DESCRIPTION,
 					Validators: []validator.String{
 						stringvalidator.OneOf(clickHouseQuotaKeyedBy...),
