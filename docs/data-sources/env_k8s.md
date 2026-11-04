@@ -76,6 +76,7 @@ Bring Your Own Kubernetes (BYOK) environment data source.
 - `node_groups` (Attributes List) List of node groups. At least one required. (see [below for nested schema](#nestedatt--node_groups))
 - `skip_deprovision_on_destroy` (Boolean) Set to `true` will delete without waiting for environment deprovisioning. Use this with precaution, it may end up with dangling resources in your cloud provider (default `false`).
 - `spec_revision` (Number) Spec revision
+- `storage_classes` (Attributes List) Kubernetes storage classes available to clusters and keepers. If omitted on create, they are discovered from the Kubernetes cluster (deprecated, provide them explicitly). Removing the attribute keeps the current list. (see [below for nested schema](#nestedatt--storage_classes))
 
 <a id="nestedatt--custom_node_types"></a>
 ### Nested Schema for `custom_node_types`
@@ -255,3 +256,12 @@ Required:
 		- "EQUALS"
 		- "EXISTS"
 - `value` (String) Taint value, e.g. 'clickhouse'
+
+
+
+<a id="nestedatt--storage_classes"></a>
+### Nested Schema for `storage_classes`
+
+Required:
+
+- `name` (String) Storage class name

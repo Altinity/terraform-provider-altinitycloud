@@ -39,6 +39,7 @@ func (r *K8SEnvResource) Schema(ctx context.Context, req resource.SchemaRequest,
 			"distribution":                    getDistributionAttribute(true, false, false),
 			"node_groups":                     getNodeGroupsAttribute(true, false, false),
 			"custom_node_types":               getCustomNodeTypes(false, true, false),
+			"storage_classes":                 getStorageClassesAttribute(false, true, true),
 			"mfa":                             common.GetMFAAttribute(false, true, true),
 			"spec_revision":                   common.SpecRevisionAttribute,
 			"force_destroy":                   common.GetForceDestroyAttribute(false, true, true),
@@ -70,6 +71,7 @@ func (d *K8SEnvDataSource) Schema(ctx context.Context, req datasource.SchemaRequ
 			"distribution":            getDistributionAttribute(false, false, true),
 			"node_groups":             getNodeGroupsAttribute(false, false, true),
 			"custom_node_types":       getCustomNodeTypes(false, false, true),
+			"storage_classes":         getStorageClassesAttribute(false, false, true),
 			"mfa":                     common.GetMFAAttribute(false, false, true),
 			"spec_revision":           common.SpecRevisionAttribute,
 
@@ -140,6 +142,29 @@ func getCustomNodeTypes(required, optional, computed bool) rschema.ListNestedAtt
 		MarkdownDescription: common.CUSTOM_NODE_TYPES_DESCRIPTION,
 		Validators: []validator.List{
 			listvalidator.SizeAtLeast(1),
+		},
+	}
+}
+
+func getStorageClassesAttribute(required, optional, computed bool) rschema.ListNestedAttribute {
+	return rschema.ListNestedAttribute{
+		Required:            required,
+		Optional:            optional,
+		Computed:            computed,
+		MarkdownDescription: common.STORAGE_CLASSES_DESCRIPTION,
+		Validators: []validator.List{
+			listvalidator.SizeAtLeast(1),
+		},
+		PlanModifiers: []planmodifier.List{
+			modifiers.KeepStateList(),
+		},
+		NestedObject: rschema.NestedAttributeObject{
+			Attributes: map[string]rschema.Attribute{
+				"name": rschema.StringAttribute{
+					Required:            true,
+					MarkdownDescription: common.STORAGE_CLASSES_NAME_DESCRIPTION,
+				},
+			},
 		},
 	}
 }

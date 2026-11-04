@@ -20,6 +20,7 @@ type K8SEnvModel struct {
 	Distribution          types.String                    `tfsdk:"distribution"`
 	NodeGroups            []NodeGroupsModel               `tfsdk:"node_groups"`
 	CustomNodeTypes       []NodeTypeModel                 `tfsdk:"custom_node_types"`
+	StorageClasses        []StorageClassModel             `tfsdk:"storage_classes"`
 	Logs                  *LogsModel                      `tfsdk:"logs"`
 	Metrics               *MetricsModel                   `tfsdk:"metrics"`
 	MaintenanceWindows    []common.MaintenanceWindowModel `tfsdk:"maintenance_windows"`
@@ -80,6 +81,10 @@ type NodeTypeModel struct {
 	MEMAllocatableInBytes types.Float64 `tfsdk:"mem_allocatable_in_bytes"`
 }
 
+type StorageClassModel struct {
+	Name types.String `tfsdk:"name"`
+}
+
 type TolerationModel struct {
 	Key      types.String `tfsdk:"key"`
 	Value    types.String `tfsdk:"value"`
@@ -110,6 +115,7 @@ func (e K8SEnvModel) toSDK(ctx context.Context) (client.CreateK8SEnvInput, clien
 	nodeGroups, diags := nodeGroupsToSDK(ctx, e.NodeGroups)
 	allDiags.Append(diags...)
 	customNodeTypes := nodeTypesToSDK(e.CustomNodeTypes)
+	storageClasses := storageClassesToSDK(e.StorageClasses)
 	loadBalancers := loadBalancersToSDK(e.LoadBalancers)
 	logs := logsToSDK(e.Logs)
 	maintenanceWindows := common.MaintenanceWindowsToSDK(e.MaintenanceWindows)
@@ -129,6 +135,7 @@ func (e K8SEnvModel) toSDK(ctx context.Context) (client.CreateK8SEnvInput, clien
 			LoadBalancers:         loadBalancers,
 			NodeGroups:            nodeGroups,
 			CustomNodeTypes:       customNodeTypes,
+			StorageClasses:        storageClasses,
 			Logs:                  logs,
 			Metrics:               metrics,
 			MaintenanceWindows:    maintenanceWindows,
@@ -148,6 +155,7 @@ func (e K8SEnvModel) toSDK(ctx context.Context) (client.CreateK8SEnvInput, clien
 			LoadBalancers:         loadBalancers,
 			NodeGroups:            nodeGroups,
 			CustomNodeTypes:       customNodeTypes,
+			StorageClasses:        storageClasses,
 			Logs:                  logs,
 			Metrics:               metrics,
 			MaintenanceWindows:    maintenanceWindows,
@@ -174,6 +182,11 @@ func (model *K8SEnvModel) toModel(name string, specRevision int64, spec client.K
 		func(s *client.K8SEnvSpecFragment_CustomNodeTypes) string { return s.Name },
 	)
 	model.CustomNodeTypes = nodeTypesToModel(spec.CustomNodeTypes)
+	spec.StorageClasses = common.ReorderByKey(model.StorageClasses, spec.StorageClasses,
+		func(m StorageClassModel) string { return m.Name.ValueString() },
+		func(s *client.K8SEnvSpecFragment_StorageClasses) string { return s.Name },
+	)
+	model.StorageClasses = storageClassesToModel(spec.StorageClasses)
 	nodeGroups, diags := nodeGroupsToModel(spec.NodeGroups)
 	allDiags.Append(diags...)
 	model.NodeGroups = nodeGroups
@@ -392,6 +405,29 @@ func nodeTypesToModel(nodeTypes []*client.K8SEnvSpecFragment_CustomNodeTypes) []
 	}
 
 	return modelNodeTypes
+}
+
+func storageClassesToSDK(storageClasses []StorageClassModel) []*client.K8SEnvStorageClassSpecInput {
+	var sdkStorageClasses []*client.K8SEnvStorageClassSpecInput
+	for _, sc := range storageClasses {
+		sdkStorageClasses = append(sdkStorageClasses, &client.K8SEnvStorageClassSpecInput{
+			Name: sc.Name.ValueString(),
+		})
+	}
+
+	return sdkStorageClasses
+}
+
+// Empty API list (discovered from the cluster) maps to null so an omitted attribute stays consistent.
+func storageClassesToModel(storageClasses []*client.K8SEnvSpecFragment_StorageClasses) []StorageClassModel {
+	var modelStorageClasses []StorageClassModel
+	for _, sc := range storageClasses {
+		modelStorageClasses = append(modelStorageClasses, StorageClassModel{
+			Name: types.StringValue(sc.Name),
+		})
+	}
+
+	return modelStorageClasses
 }
 
 func logsToSDK(logs *LogsModel) *client.K8SEnvLogsSpecInput {

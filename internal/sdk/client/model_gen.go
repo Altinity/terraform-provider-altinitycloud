@@ -3587,6 +3587,11 @@ type CreateK8SEnvSpecInput struct {
 	NodeGroups []*K8SEnvNodeGroupSpecInput `json:"nodeGroups"`
 	// Custom node types.
 	CustomNodeTypes []*K8SEnvCustomNodeTypeSpecInput `json:"customNodeTypes,omitempty"`
+	// Storage classes available to clusters and keepers.
+	// At least one required when provided.
+	//
+	// Omitted: discovered from the Kubernetes cluster. Deprecated, provide them explicitly.
+	StorageClasses []*K8SEnvStorageClassSpecInput `json:"storageClasses,omitempty"`
 	// Metrics configuration.
 	Metrics *K8SEnvMetricsSpecInput `json:"metrics,omitempty"`
 	// Logs configuration.
@@ -6163,6 +6168,9 @@ type K8SEnvSpec struct {
 	NodeGroups []*K8SEnvNodeGroupSpec `json:"nodeGroups"`
 	// Custom node types.
 	CustomNodeTypes []*K8SEnvCustomNodeTypeSpec `json:"customNodeTypes"`
+	// Storage classes available to clusters and keepers.
+	// Empty when they are discovered from the Kubernetes cluster.
+	StorageClasses []*K8SEnvStorageClassSpec `json:"storageClasses"`
 	// Metrics configuration.
 	Metrics *K8SEnvMetricsSpec `json:"metrics"`
 	// Logs configuration.
@@ -6249,6 +6257,18 @@ type K8SEnvStatus struct {
 	PendingDelete bool `json:"pendingDelete"`
 	// Status errors.
 	Errors []*EnvStatusError `json:"errors"`
+}
+
+// Kubernetes storage class available to clusters and keepers.
+type K8SEnvStorageClassSpec struct {
+	// Storage class name.
+	Name string `json:"name"`
+}
+
+// Kubernetes storage class input.
+type K8SEnvStorageClassSpecInput struct {
+	// Storage class name.
+	Name string `json:"name"`
 }
 
 type KeyValue struct {
@@ -6711,6 +6731,11 @@ type UpdateK8SEnvSpecInput struct {
 	NodeGroups []*K8SEnvNodeGroupSpecInput `json:"nodeGroups,omitempty"`
 	// Custom node types.
 	CustomNodeTypes []*K8SEnvCustomNodeTypeSpecInput `json:"customNodeTypes,omitempty"`
+	// Storage classes available to clusters and keepers.
+	// At least one required.
+	//
+	// With REPLACE, omitting the field keeps the current list.
+	StorageClasses []*K8SEnvStorageClassSpecInput `json:"storageClasses,omitempty"`
 	// Metrics configuration.
 	Metrics *K8SEnvMetricsSpecInput `json:"metrics,omitempty"`
 	// Logs configuration.

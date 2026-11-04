@@ -94,6 +94,9 @@ resource "altinitycloud_env_k8s" "this" {
   name         = altinitycloud_env_certificate.this.env_name
   distribution = "EKS"
 
+  // Storage classes available to clusters and keepers.
+  storage_classes = [{ name = "gp3-encrypted" }]
+
   node_groups = [
     {
       name              = local.clickhouse_instance_type,
