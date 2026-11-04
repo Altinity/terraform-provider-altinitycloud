@@ -50,13 +50,17 @@ func (r *AWSEnvResource) ModifyPlan(ctx context.Context, req resource.ModifyPlan
 		return
 	}
 
-	plannedClusters, priorClusters, diags := readClickHouse[common.ClickHouseClusterModel](ctx, req, "clickhouse_clusters")
+	plannedClusters, priorClusters, removedClusters, diags := readClickHouse[common.ClickHouseClusterModel](ctx, req, "clickhouse_clusters")
 	resp.Diagnostics.Append(diags...)
-	plannedKeepers, priorKeepers, diags := readClickHouse[common.ClickHouseKeeperModel](ctx, req, "clickhouse_keepers")
+	plannedKeepers, priorKeepers, removedKeepers, diags := readClickHouse[common.ClickHouseKeeperModel](ctx, req, "clickhouse_keepers")
 	resp.Diagnostics.Append(diags...)
+	var forceDestroyClusters types.Bool
+	resp.Diagnostics.Append(req.Plan.GetAttribute(ctx, path.Root("force_destroy_clusters"), &forceDestroyClusters)...)
 	if resp.Diagnostics.HasError() {
 		return
 	}
+
+	resp.Diagnostics.Append(common.ValidateClickHouseRemovals(forceDestroyClusters, removedClusters, removedKeepers)...)
 
 	resp.Diagnostics.Append(common.ValidateClickHouseUserPasswords(path.Root("clickhouse_clusters"), priorClusters, plannedClusters)...)
 	if req.State.Raw.IsNull() {
@@ -68,7 +72,7 @@ func (r *AWSEnvResource) ModifyPlan(ctx context.Context, req resource.ModifyPlan
 	resp.Diagnostics.Append(r.rejectClickHouseCollisions(ctx, envName.ValueString(), priorClusters, plannedClusters, priorKeepers, plannedKeepers)...)
 }
 
-func readClickHouse[M any](ctx context.Context, req resource.ModifyPlanRequest, attribute string) (planned, prior map[string]M, diags diag.Diagnostics) {
+func readClickHouse[M any](ctx context.Context, req resource.ModifyPlanRequest, attribute string) (planned, prior map[string]M, removed []string, diags diag.Diagnostics) {
 	p := path.Root(attribute)
 
 	var plan, state types.Map
@@ -77,7 +81,7 @@ func readClickHouse[M any](ctx context.Context, req resource.ModifyPlanRequest, 
 		diags.Append(req.State.GetAttribute(ctx, p, &state)...)
 	}
 	if diags.HasError() {
-		return nil, nil, diags
+		return nil, nil, nil, diags
 	}
 
 	var d diag.Diagnostics
@@ -85,7 +89,7 @@ func readClickHouse[M any](ctx context.Context, req resource.ModifyPlanRequest, 
 	diags.Append(d...)
 	prior, d = common.ObjectsFromMap[M](ctx, state)
 	diags.Append(d...)
-	return planned, prior, diags
+	return planned, prior, common.ClickHouseNamesRemoved(prior, plan), diags
 }
 
 func (r *AWSEnvResource) ValidateConfig(ctx context.Context, req resource.ValidateConfigRequest, resp *resource.ValidateConfigResponse) {
@@ -256,6 +260,10 @@ func (r *AWSEnvResource) Update(ctx context.Context, req resource.UpdateRequest,
 	resp.Diagnostics.Append(diags...)
 	// Names unknown at plan time slip past the ModifyPlan checks, and the env can change between plan and apply.
 	resp.Diagnostics.Append(common.ValidateClickHouseUserPasswords(path.Root("clickhouse_clusters"), state.ClickHouseClusters, data.ClickHouseClusters)...)
+	resp.Diagnostics.Append(common.ValidateClickHouseRemovals(data.ForceDestroyClusters,
+		common.ClickHouseNamesToDelete(state.ClickHouseClusters, data.ClickHouseClusters),
+		common.ClickHouseNamesToDelete(state.ClickHouseKeepers, data.ClickHouseKeepers),
+	)...)
 	resp.Diagnostics.Append(r.rejectClickHouseCollisions(ctx, envName, state.ClickHouseClusters, data.ClickHouseClusters, state.ClickHouseKeepers, data.ClickHouseKeepers)...)
 	if resp.Diagnostics.HasError() {
 		return

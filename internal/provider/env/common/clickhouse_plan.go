@@ -56,3 +56,38 @@ func ValidateClickHouseUserPasswords(root path.Path, prior, planned map[string]C
 
 	return diags
 }
+
+// Keys come from the plan map itself, so an entry whose value is still unknown is not taken for a removal.
+func ClickHouseNamesRemoved[M any](prior map[string]M, planned types.Map) []string {
+	if planned.IsUnknown() {
+		return nil
+	}
+
+	var removed []string
+	for _, name := range SortedKeys(prior) {
+		if _, ok := planned.Elements()[name]; !ok {
+			removed = append(removed, name)
+		}
+	}
+
+	return removed
+}
+
+// Dropping an entry deletes the cluster and its data, so it takes the same opt-in as destroying the env with clusters.
+func ValidateClickHouseRemovals(forceDestroyClusters types.Bool, clusters, keepers []string) diag.Diagnostics {
+	var diags diag.Diagnostics
+	if forceDestroyClusters.IsUnknown() || forceDestroyClusters.ValueBool() {
+		return diags
+	}
+
+	for _, name := range clusters {
+		diags.AddAttributeError(path.Root("clickhouse_clusters"), "ClickHouse Cluster Deletion Locked",
+			fmt.Sprintf("Removing cluster %q deletes it and its data. Set force_destroy_clusters = true to allow it.", name))
+	}
+	for _, name := range keepers {
+		diags.AddAttributeError(path.Root("clickhouse_keepers"), "ClickHouse Keeper Deletion Locked",
+			fmt.Sprintf("Removing Keeper %q deletes it and its data. Set force_destroy_clusters = true to allow it.", name))
+	}
+
+	return diags
+}
