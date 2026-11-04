@@ -674,6 +674,7 @@ type K8SEnvSpecFragment struct {
 	CustomDomains         []string                                 "json:\"customDomains\" graphql:\"customDomains\""
 	NodeGroups            []*K8SEnvSpecFragment_NodeGroups         "json:\"nodeGroups\" graphql:\"nodeGroups\""
 	CustomNodeTypes       []*K8SEnvSpecFragment_CustomNodeTypes    "json:\"customNodeTypes\" graphql:\"customNodeTypes\""
+	StorageClasses        []*K8SEnvSpecFragment_StorageClasses     "json:\"storageClasses\" graphql:\"storageClasses\""
 	MaintenanceWindows    []*K8SEnvSpecFragment_MaintenanceWindows "json:\"maintenanceWindows\" graphql:\"maintenanceWindows\""
 	Metrics               K8SEnvSpecFragment_Metrics               "json:\"metrics\" graphql:\"metrics\""
 	Logs                  K8SEnvSpecFragment_Logs                  "json:\"logs\" graphql:\"logs\""
@@ -721,6 +722,12 @@ func (t *K8SEnvSpecFragment) GetCustomNodeTypes() []*K8SEnvSpecFragment_CustomNo
 		t = &K8SEnvSpecFragment{}
 	}
 	return t.CustomNodeTypes
+}
+func (t *K8SEnvSpecFragment) GetStorageClasses() []*K8SEnvSpecFragment_StorageClasses {
+	if t == nil {
+		t = &K8SEnvSpecFragment{}
+	}
+	return t.StorageClasses
 }
 func (t *K8SEnvSpecFragment) GetMaintenanceWindows() []*K8SEnvSpecFragment_MaintenanceWindows {
 	if t == nil {
@@ -2422,6 +2429,17 @@ func (t *K8SEnvSpecFragment_CustomNodeTypes) GetMemAllocatableInBytes() int64 {
 func (t *K8SEnvSpecFragment_CustomNodeTypes) GetName() string {
 	if t == nil {
 		t = &K8SEnvSpecFragment_CustomNodeTypes{}
+	}
+	return t.Name
+}
+
+type K8SEnvSpecFragment_StorageClasses struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *K8SEnvSpecFragment_StorageClasses) GetName() string {
+	if t == nil {
+		t = &K8SEnvSpecFragment_StorageClasses{}
 	}
 	return t.Name
 }
@@ -8056,6 +8074,17 @@ func (t *GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_CustomNodeTypes) GetName() str
 	return t.Name
 }
 
+type GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_StorageClasses struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_StorageClasses) GetName() string {
+	if t == nil {
+		t = &GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_StorageClasses{}
+	}
+	return t.Name
+}
+
 type GetK8SEnv_K8sEnv_Spec_K8SEnvSpecFragment_MaintenanceWindows struct {
 	Days          []Day  "json:\"days\" graphql:\"days\""
 	Enabled       bool   "json:\"enabled\" graphql:\"enabled\""
@@ -8489,6 +8518,17 @@ func (t *CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_CustomNodeTypes) GetN
 	return t.Name
 }
 
+type CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_StorageClasses struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_StorageClasses) GetName() string {
+	if t == nil {
+		t = &CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_StorageClasses{}
+	}
+	return t.Name
+}
+
 type CreateK8SEnv_CreateK8SEnv_Spec_K8SEnvSpecFragment_MaintenanceWindows struct {
 	Days          []Day  "json:\"days\" graphql:\"days\""
 	Enabled       bool   "json:\"enabled\" graphql:\"enabled\""
@@ -8850,6 +8890,17 @@ func (t *UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_CustomNodeTypes) GetM
 func (t *UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_CustomNodeTypes) GetName() string {
 	if t == nil {
 		t = &UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_CustomNodeTypes{}
+	}
+	return t.Name
+}
+
+type UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_StorageClasses struct {
+	Name string "json:\"name\" graphql:\"name\""
+}
+
+func (t *UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_StorageClasses) GetName() string {
+	if t == nil {
+		t = &UpdateK8SEnv_UpdateK8SEnv_Spec_K8SEnvSpecFragment_StorageClasses{}
 	}
 	return t.Name
 }
@@ -11119,6 +11170,9 @@ fragment K8SEnvSpecFragment on K8SEnvSpec {
 		cpuAllocatable
 		memAllocatableInBytes
 	}
+	storageClasses {
+		name
+	}
 	maintenanceWindows {
 		name
 		enabled
@@ -11248,6 +11302,9 @@ fragment K8SEnvSpecFragment on K8SEnvSpec {
 		cpuAllocatable
 		memAllocatableInBytes
 	}
+	storageClasses {
+		name
+	}
 	maintenanceWindows {
 		name
 		enabled
@@ -11343,6 +11400,9 @@ fragment K8SEnvSpecFragment on K8SEnvSpec {
 		name
 		cpuAllocatable
 		memAllocatableInBytes
+	}
+	storageClasses {
+		name
 	}
 	maintenanceWindows {
 		name

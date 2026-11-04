@@ -43,6 +43,8 @@ resource "%s" "dummy" {
     }
   }
 
+  storage_classes = [{ name = "standard" }, { name = "fast" }]
+
   custom_node_types = [
     {
       name                     = "small"

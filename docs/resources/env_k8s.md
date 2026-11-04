@@ -40,6 +40,10 @@ locals {
 resource "altinitycloud_env_k8s" "this" {
   name         = altinitycloud_env_certificate.this.env_name
   distribution = "EKS"
+
+  // Storage classes available to clusters and keepers.
+  storage_classes = [{ name = "gp2" }]
+
   // "node_groups" should match existing node groups/auto-scaling groups configuration.
   node_groups = [
     {
@@ -101,6 +105,10 @@ locals {
 resource "altinitycloud_env_k8s" "this" {
   name         = altinitycloud_env_certificate.this.env_name
   distribution = "GKE"
+
+  // Storage classes available to clusters and keepers.
+  storage_classes = [{ name = "standard-rwo" }]
+
   // node_groups should match existing node pools configuration.
   node_groups = [
     {
@@ -162,6 +170,10 @@ locals {
 resource "altinitycloud_env_k8s" "this" {
   name         = altinitycloud_env_certificate.this.env_name
   distribution = "AKS"
+
+  // Storage classes available to clusters and keepers.
+  storage_classes = [{ name = "managed-csi" }]
+
   // node_groups should match existing node pools configuration.
   node_groups = [
     {
@@ -303,6 +315,9 @@ resource "altinitycloud_env_k8s" "this" {
   name         = altinitycloud_env_certificate.this.env_name
   distribution = "EKS"
 
+  // Storage classes available to clusters and keepers.
+  storage_classes = [{ name = "gp3-encrypted" }]
+
   node_groups = [
     {
       name              = local.clickhouse_instance_type,
@@ -401,6 +416,7 @@ resource "altinitycloud_env_k8s" "this" {
 - `metrics` (Attributes) Metrics configuration (see [below for nested schema](#nestedatt--metrics))
 - `mfa` (Boolean) `true` requires MFA confirmation for destructive operations on the environment (default `true`). Can be enabled on an existing environment, but cannot be disabled once enabled.
 - `skip_deprovision_on_destroy` (Boolean) Set to `true` will delete without waiting for environment deprovisioning. Use this with precaution, it may end up with dangling resources in your cloud provider (default `false`).
+- `storage_classes` (Attributes List) Kubernetes storage classes available to clusters and keepers. If omitted on create, they are discovered from the Kubernetes cluster (deprecated, provide them explicitly). Removing the attribute keeps the current list. (see [below for nested schema](#nestedatt--storage_classes))
 - `timeouts` (Block, Optional) (see [below for nested schema](#nestedblock--timeouts))
 
 ### Read-Only
@@ -587,6 +603,14 @@ Optional:
 Optional:
 
 - `retention_period_in_days` (Number) Metrics retention period in days (default `30`).
+
+
+<a id="nestedatt--storage_classes"></a>
+### Nested Schema for `storage_classes`
+
+Required:
+
+- `name` (String) Storage class name
 
 
 <a id="nestedblock--timeouts"></a>

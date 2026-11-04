@@ -2194,3 +2194,60 @@ func TestLoadBalancersToModelReordersAnnotations(t *testing.T) {
 		t.Errorf("internal annotation order = [%s %s], want [y x]", got[0].Key.ValueString(), got[1].Key.ValueString())
 	}
 }
+
+func TestStorageClassesToSDK(t *testing.T) {
+	if got := storageClassesToSDK(nil); got != nil {
+		t.Errorf("nil model: expected nil input, got %v", got)
+	}
+
+	got := storageClassesToSDK([]StorageClassModel{{Name: types.StringValue("gp3")}, {Name: types.StringValue("standard")}})
+	if len(got) != 2 || got[0].Name != "gp3" || got[1].Name != "standard" {
+		t.Errorf("unexpected input: %+v", got)
+	}
+}
+
+func TestToModelStorageClasses(t *testing.T) {
+	tests := map[string]struct {
+		config   []StorageClassModel
+		api      []*client.K8SEnvSpecFragment_StorageClasses
+		expected []string
+	}{
+		"discovered (empty) stays null": {
+			config:   nil,
+			api:      []*client.K8SEnvSpecFragment_StorageClasses{},
+			expected: nil,
+		},
+		"kept by API after removal from config": {
+			config:   nil,
+			api:      []*client.K8SEnvSpecFragment_StorageClasses{{Name: "gp3"}},
+			expected: []string{"gp3"},
+		},
+		"API order follows config": {
+			config:   []StorageClassModel{{Name: types.StringValue("standard")}, {Name: types.StringValue("gp3")}},
+			api:      []*client.K8SEnvSpecFragment_StorageClasses{{Name: "gp3"}, {Name: "standard"}},
+			expected: []string{"standard", "gp3"},
+		},
+	}
+
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			model := K8SEnvModel{StorageClasses: tc.config}
+			model.toModel("env", 1, client.K8SEnvSpecFragment{StorageClasses: tc.api})
+
+			if tc.expected == nil {
+				if model.StorageClasses != nil {
+					t.Fatalf("expected nil, got %+v", model.StorageClasses)
+				}
+				return
+			}
+			if len(model.StorageClasses) != len(tc.expected) {
+				t.Fatalf("expected %v, got %+v", tc.expected, model.StorageClasses)
+			}
+			for i, name := range tc.expected {
+				if got := model.StorageClasses[i].Name.ValueString(); got != name {
+					t.Errorf("index %d: expected %s, got %s", i, name, got)
+				}
+			}
+		})
+	}
+}

@@ -19,6 +19,10 @@ locals {
 resource "altinitycloud_env_k8s" "this" {
   name         = altinitycloud_env_certificate.this.env_name
   distribution = "AKS"
+
+  // Storage classes available to clusters and keepers.
+  storage_classes = [{ name = "managed-csi" }]
+
   // node_groups should match existing node pools configuration.
   node_groups = [
     {
