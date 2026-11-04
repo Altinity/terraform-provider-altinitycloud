@@ -120,3 +120,46 @@ func TestValidateClickHouseUserPasswords(t *testing.T) {
 		}
 	})
 }
+
+func TestClickHouseNamesRemoved(t *testing.T) {
+	prior := map[string]ClickHouseKeeperModel{"a": {}, "b": {}}
+	elemType := clientsupport.GetClickHouseKeepersAttribute(false, true, false).NestedObject.Type()
+
+	t.Run("an unknown entry is kept", func(t *testing.T) {
+		objType, ok := elemType.(types.ObjectType)
+		if !ok {
+			t.Fatalf("expected an object type, got %T", elemType)
+		}
+		planned := types.MapValueMust(elemType, map[string]attr.Value{"a": types.ObjectUnknown(objType.AttrTypes)})
+		if got := ClickHouseNamesRemoved(prior, planned); len(got) != 1 || got[0] != "b" {
+			t.Fatalf("expected [b], got %v", got)
+		}
+	})
+
+	t.Run("an unknown map removes nothing", func(t *testing.T) {
+		if got := ClickHouseNamesRemoved(prior, types.MapUnknown(elemType)); got != nil {
+			t.Fatalf("expected nil, got %v", got)
+		}
+	})
+
+	t.Run("a null map removes everything", func(t *testing.T) {
+		if got := ClickHouseNamesRemoved(prior, types.MapNull(elemType)); len(got) != 2 {
+			t.Fatalf("expected [a b], got %v", got)
+		}
+	})
+}
+
+func TestValidateClickHouseRemovals(t *testing.T) {
+	if diags := ValidateClickHouseRemovals(types.BoolValue(false), []string{"ch"}, []string{"keeper"}); len(diags.Errors()) != 2 {
+		t.Fatalf("expected one error per removed entry, got %v", diags)
+	}
+	if diags := ValidateClickHouseRemovals(types.BoolValue(true), []string{"ch"}, nil); diags.HasError() {
+		t.Fatalf("force_destroy_clusters should allow removal, got %v", diags)
+	}
+	if diags := ValidateClickHouseRemovals(types.BoolUnknown(), []string{"ch"}, nil); diags.HasError() {
+		t.Fatalf("an unknown flag is left to the apply-time check, got %v", diags)
+	}
+	if diags := ValidateClickHouseRemovals(types.BoolValue(false), nil, nil); diags.HasError() {
+		t.Fatalf("nothing removed should pass, got %v", diags)
+	}
+}

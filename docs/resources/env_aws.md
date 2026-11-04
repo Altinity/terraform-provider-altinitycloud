@@ -1068,7 +1068,7 @@ data "altinitycloud_env_aws_status" "this" {
 
 		See the "AWS environment with external S3 buckets" example. (see [below for nested schema](#nestedatt--external_buckets))
 - `force_destroy` (Boolean) Locks the environment for accidental deletion when running `terraform destroy` command. Your environment will be deleted, only when setting this parameter to `true`. Once this parameter is set to `true`, there must be a successful `terraform apply` run (before running the `terraform destroy`) to update this value in the state. Without a successful `terraform apply` after this parameter is set, this flag will have no effect. (default `false`)
-- `force_destroy_clusters` (Boolean) By default, the destroy operation will not delete any provisioned clusters and the deletion will fail until the clusters get removed. Set to `true` to remove all provisioned clusters as part of the environment deletion process.
+- `force_destroy_clusters` (Boolean) By default, the destroy operation will not delete any provisioned clusters and the deletion will fail until the clusters get removed. Set to `true` to remove all provisioned clusters as part of the environment deletion process. It is also required to remove an entry from `clickhouse_clusters` or `clickhouse_keepers`, which deletes that cluster and its data.
 - `iceberg` (Attributes) Iceberg configuration for Apache Iceberg table format support. (see [below for nested schema](#nestedatt--iceberg))
 - `kms_key_arn` (String) ARN of the customer's KMS key for encrypting Altinity-provisioned data buckets and EBS volumes. **[IMMUTABLE]**
 - `load_balancers` (Attributes) Load balancers configuration. (see [below for nested schema](#nestedatt--load_balancers))

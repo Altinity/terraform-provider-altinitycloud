@@ -62,7 +62,7 @@ func (r *AWSEnvResource) Schema(ctx context.Context, req resource.SchemaRequest,
 
 			"spec_revision":                   common.SpecRevisionAttribute,
 			"force_destroy":                   common.GetForceDestroyAttribute(false, true, true),
-			"force_destroy_clusters":          common.GetForceDestroyClustersAttribute(false, true, true),
+			"force_destroy_clusters":          common.GetForceDestroyClickHouseClustersAttribute(),
 			"skip_deprovision_on_destroy":     common.GetSkipProvisioningOnDestroyAttribute(false, true, true),
 			"allow_delete_while_disconnected": common.GetAllowDeleteWhileDisconnectedAttribute(false, true, true),
 		},
