@@ -57,6 +57,7 @@ func (d *K8SEnvDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	}
 	data.CustomDomain, data.CustomDomains, diags = common.DataSourceCustomDomainsToModel(apiResp.K8sEnv.Spec.CustomDomain, apiResp.K8sEnv.Spec.CustomDomains)
 	resp.Diagnostics.Append(diags...)
+	data.StorageClasses = dataSourceStorageClassesToModel(apiResp.K8sEnv.Spec.StorageClasses)
 	data.Id = data.Name
 
 	diags = resp.State.Set(ctx, &data)
