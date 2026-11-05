@@ -348,7 +348,7 @@ const HOSTED_RESOURCE_PREFIX_DESCRIPTION = "Prefix applied to the names of the c
 const HOSTED_EXTERNAL_BUCKET_DESCRIPTION = "List of external S3 buckets to allow access to. The environment IAM roles are granted access to every bucket listed here."
 
 const CLICKHOUSE_CLUSTERS_DESCRIPTION = "ClickHouse clusters managed by this resource, keyed by cluster name: 2-15 chars, lowercase alphanumerics and hyphens, starting and ending with an alphanumeric. Changing a key is not a rename: the old cluster is deleted along with its data and a new, empty one is created. Clusters created elsewhere are left alone, and declaring a name that already exists is rejected rather than overwritten; `terraform import` adopts every existing cluster and Keeper."
-const CLICKHOUSE_CLUSTER_IMAGE_DESCRIPTION = "Server image, tag included, e.g. `altinity/clickhouse-server:25.8.16.10002.altinitystable`. The platform picks a current image when omitted."
+const CLICKHOUSE_CLUSTER_IMAGE_DESCRIPTION = "Server image, tag included, e.g. `altinity/clickhouse-server:25.8.16.10002.altinitystable`. The platform picks a current image when omitted; removing it later keeps the image the cluster runs."
 const CLICKHOUSE_CLUSTER_INSTANCE_TYPE_DESCRIPTION = "Machine type for the cluster nodes. Must match a node group with a `CLICKHOUSE` reservation."
 const CLICKHOUSE_CLUSTER_ZONES_DESCRIPTION = "Zones the cluster is spread across. All environment zones by default. **[IMMUTABLE]**"
 const CLICKHOUSE_CLUSTER_SHARDS_DESCRIPTION = "Number of shards."
@@ -365,8 +365,8 @@ const CLICKHOUSE_KEEPER_STOPPED_DESCRIPTION = "Whether the Keeper is kept stoppe
 
 const CLICKHOUSE_DISK_DESCRIPTION = "Main data volume."
 const CLICKHOUSE_DISK_SIZE_DESCRIPTION = "Size in GiB. Can only be increased, never decreased."
-const CLICKHOUSE_DISK_IOPS_DESCRIPTION = "Provisioned IOPS. Honored only by storage classes that support it, such as AWS gp3 and io2."
-const CLICKHOUSE_DISK_THROUGHPUT_DESCRIPTION = "Provisioned throughput in MiB/s. Honored only by storage classes that support it, such as AWS gp3."
+const CLICKHOUSE_DISK_IOPS_DESCRIPTION = "Provisioned IOPS. Honored only by storage classes that support it, such as AWS gp3 and io2. When omitted, the storage class default applies."
+const CLICKHOUSE_DISK_THROUGHPUT_DESCRIPTION = "Provisioned throughput in MiB/s. Honored only by storage classes that support it, such as AWS gp3. When omitted, the storage class default applies."
 const CLICKHOUSE_EXTRA_DISKS_DESCRIPTION = "Extra data volumes added to the default ClickHouse storage policy, keyed by volume name: 16 chars max, starting with `disk`. A volume named `diskN`, where `N` is a positive integer, is mounted at `/var/lib/clickhouseN`; any other name is mounted at `/var/lib/clickhouse<name>`. Each replica receives one volume per entry, and ClickHouse balances new data across the main and extra volumes with the `least_used` strategy. 8 maximum."
 
 const CLICKHOUSE_SETTING_KEY_DESCRIPTION = "Setting name."

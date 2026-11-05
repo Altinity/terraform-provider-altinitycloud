@@ -368,12 +368,24 @@ func TestClickHouseQuotaIntervalsFollowConfigOrder(t *testing.T) {
 	}
 }
 
-func TestKeeperToModel(t *testing.T) {
-	if got := keeperToModel(""); !got.IsNull() {
-		t.Errorf("the API's empty keeper must read back as null, got %v", got)
+// Unset values come back as zero values; they must read as null so removing them from config plans a reset.
+func TestClickHouseUnsetValuesReadAsNull(t *testing.T) {
+	cluster := clickHouseClusterToModel(ClickHouseClusterModel{}, ClickHouseClusterSpec{})
+	if !cluster.Keeper.IsNull() || !cluster.Disk.Iops.IsNull() || !cluster.Disk.ThroughputMiBs.IsNull() {
+		t.Errorf("expected null keeper/iops/throughput, got %v %v %v", cluster.Keeper, cluster.Disk.Iops, cluster.Disk.ThroughputMiBs)
 	}
-	if got := keeperToModel("keeper"); got.ValueString() != "keeper" {
-		t.Errorf("expected keeper, got %v", got)
+	user := userToModel(ClickHouseUserModel{}, ClickHouseUserSpec{})
+	if !user.Profile.IsNull() || !user.Quota.IsNull() || !user.Grants.IsNull() {
+		t.Errorf("expected null profile/quota/grants, got %v %v %v", user.Profile, user.Quota, user.Grants)
+	}
+
+	cluster = clickHouseClusterToModel(ClickHouseClusterModel{}, ClickHouseClusterSpec{Keeper: "k", Disk: ClickHouseDiskSpec{Iops: 3000, ThroughputMiBs: 125}})
+	if cluster.Keeper.ValueString() != "k" || cluster.Disk.Iops.ValueInt64() != 3000 || cluster.Disk.ThroughputMiBs.ValueInt64() != 125 {
+		t.Errorf("set values must round-trip, got %v %v %v", cluster.Keeper, cluster.Disk.Iops, cluster.Disk.ThroughputMiBs)
+	}
+	user = userToModel(ClickHouseUserModel{}, ClickHouseUserSpec{Profile: "p", Quota: "q"})
+	if user.Profile.ValueString() != "p" || user.Quota.ValueString() != "q" {
+		t.Errorf("set values must round-trip, got %v %v", user.Profile, user.Quota)
 	}
 }
 
