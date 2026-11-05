@@ -58,6 +58,10 @@ See
 - [`altinitycloud_env_aws_hosted` resource examples](resources/env_aws_hosted#example-usage)
   on how to create an Altinity-hosted AWS environment.
 
+### ClickHouse Clusters
+
+ClickHouse clusters and Keepers are declared inside the environment resource. See the [ClickHouse clusters guide](guides/clickhouse-clusters) for a minimal setup, day-2 operations and advanced configuration. Currently supported on `altinitycloud_env_aws` only.
+
 ### Asynchronous Provisioning
 
 Environment provisioning is **asynchronous**. When Terraform creates an environment resource, the API accepts the specification and returns immediately — the actual cloud infrastructure is provisioned in the background. This means `terraform apply` may succeed while the environment is still being set up.
