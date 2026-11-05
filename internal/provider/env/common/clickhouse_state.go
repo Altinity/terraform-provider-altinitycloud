@@ -93,11 +93,19 @@ func ClickHouseKeepersToDataSourceModel(specs []ClickHouseKeeperSpec) map[string
 }
 
 // The API reports "no Keeper" as "", which the config expresses by omitting the attribute.
-func keeperToModel(name string) types.String {
-	if name == "" {
+// The API echoes an unset value as its zero value.
+func stringOrNull(value string) types.String {
+	if value == "" {
 		return types.StringNull()
 	}
-	return types.StringValue(name)
+	return types.StringValue(value)
+}
+
+func int64OrNull(value int64) types.Int64 {
+	if value == 0 {
+		return types.Int64Null()
+	}
+	return types.Int64Value(value)
 }
 
 func clickHouseClusterToModel(prior ClickHouseClusterModel, spec ClickHouseClusterSpec) ClickHouseClusterModel {
@@ -108,7 +116,7 @@ func clickHouseClusterToModel(prior ClickHouseClusterModel, spec ClickHouseClust
 		Shards:         types.Int64Value(spec.Shards),
 		Replicas:       types.Int64Value(spec.Replicas),
 		Stopped:        types.BoolValue(spec.Stopped),
-		Keeper:         keeperToModel(spec.Keeper),
+		Keeper:         stringOrNull(spec.Keeper),
 		Disk:           diskToModel(spec.Disk),
 		ExtraDisks:     extraDisksToModel(prior.ExtraDisks, spec.ExtraDisks),
 		Users:          usersToModel(prior.Users, spec.Users),
@@ -131,8 +139,8 @@ func clickHouseKeeperToModel(prior ClickHouseKeeperModel, spec ClickHouseKeeperS
 func diskToModel(spec ClickHouseDiskSpec) *ClickHouseDiskModel {
 	return &ClickHouseDiskModel{
 		SizeGiB:        types.Int64Value(spec.SizeGiB),
-		Iops:           types.Int64Value(spec.Iops),
-		ThroughputMiBs: types.Int64Value(spec.ThroughputMiBs),
+		Iops:           int64OrNull(spec.Iops),
+		ThroughputMiBs: int64OrNull(spec.ThroughputMiBs),
 	}
 }
 
@@ -160,8 +168,8 @@ func extraDisksToModel(prior map[string]ClickHouseExtraDiskModel, specs []ClickH
 	for _, s := range specs {
 		models[s.Name] = ClickHouseExtraDiskModel{
 			SizeGiB:        types.Int64Value(s.SizeGiB),
-			Iops:           types.Int64Value(s.Iops),
-			ThroughputMiBs: types.Int64Value(s.ThroughputMiBs),
+			Iops:           int64OrNull(s.Iops),
+			ThroughputMiBs: int64OrNull(s.ThroughputMiBs),
 		}
 	}
 
@@ -284,8 +292,8 @@ func userToModel(prior ClickHouseUserModel, spec ClickHouseUserSpec) ClickHouseU
 	}
 
 	return ClickHouseUserModel{
-		Profile:                     types.StringValue(spec.Profile),
-		Quota:                       types.StringValue(spec.Quota),
+		Profile:                     stringOrNull(spec.Profile),
+		Quota:                       stringOrNull(spec.Quota),
 		Networks:                    networks,
 		AccessManagement:            types.BoolValue(spec.AccessManagement),
 		NamedCollectionControl:      types.BoolValue(spec.NamedCollectionControl),

@@ -1150,7 +1150,7 @@ Required:
 Optional:
 
 - `extra_disks` (Attributes Map) Extra data volumes added to the default ClickHouse storage policy, keyed by volume name: 16 chars max, starting with `disk`. A volume named `diskN`, where `N` is a positive integer, is mounted at `/var/lib/clickhouseN`; any other name is mounted at `/var/lib/clickhouse<name>`. Each replica receives one volume per entry, and ClickHouse balances new data across the main and extra volumes with the `least_used` strategy. 8 maximum. (see [below for nested schema](#nestedatt--clickhouse_clusters--extra_disks))
-- `image` (String) Server image, tag included, e.g. `altinity/clickhouse-server:25.8.16.10002.altinitystable`. The platform picks a current image when omitted.
+- `image` (String) Server image, tag included, e.g. `altinity/clickhouse-server:25.8.16.10002.altinitystable`. The platform picks a current image when omitted; removing it later keeps the image the cluster runs.
 - `keeper` (String) Name of the Keeper this cluster coordinates through. Must name one of `clickhouse_keepers`. Required when `replicas` is greater than 1; omit it for no Keeper, or to detach the current one.
 - `profiles` (Attributes Map) Settings profiles users can be assigned to, keyed by profile name. A user's `profile` references the key. (see [below for nested schema](#nestedatt--clickhouse_clusters--profiles))
 - `quotas` (Attributes Map) Resource quotas users can be assigned to, keyed by quota name. A user's `quota` references the key. (see [below for nested schema](#nestedatt--clickhouse_clusters--quotas))
@@ -1170,8 +1170,8 @@ Required:
 
 Optional:
 
-- `iops` (Number) Provisioned IOPS. Honored only by storage classes that support it, such as AWS gp3 and io2.
-- `throughput_in_mibps` (Number) Provisioned throughput in MiB/s. Honored only by storage classes that support it, such as AWS gp3.
+- `iops` (Number) Provisioned IOPS. Honored only by storage classes that support it, such as AWS gp3 and io2. When omitted, the storage class default applies.
+- `throughput_in_mibps` (Number) Provisioned throughput in MiB/s. Honored only by storage classes that support it, such as AWS gp3. When omitted, the storage class default applies.
 
 
 <a id="nestedatt--clickhouse_clusters--extra_disks"></a>
@@ -1183,8 +1183,8 @@ Required:
 
 Optional:
 
-- `iops` (Number) Provisioned IOPS. Honored only by storage classes that support it, such as AWS gp3 and io2.
-- `throughput_in_mibps` (Number) Provisioned throughput in MiB/s. Honored only by storage classes that support it, such as AWS gp3.
+- `iops` (Number) Provisioned IOPS. Honored only by storage classes that support it, such as AWS gp3 and io2. When omitted, the storage class default applies.
+- `throughput_in_mibps` (Number) Provisioned throughput in MiB/s. Honored only by storage classes that support it, such as AWS gp3. When omitted, the storage class default applies.
 
 
 <a id="nestedatt--clickhouse_clusters--profiles"></a>
@@ -1324,8 +1324,8 @@ Required:
 
 Optional:
 
-- `iops` (Number) Provisioned IOPS. Honored only by storage classes that support it, such as AWS gp3 and io2.
-- `throughput_in_mibps` (Number) Provisioned throughput in MiB/s. Honored only by storage classes that support it, such as AWS gp3.
+- `iops` (Number) Provisioned IOPS. Honored only by storage classes that support it, such as AWS gp3 and io2. When omitted, the storage class default applies.
+- `throughput_in_mibps` (Number) Provisioned throughput in MiB/s. Honored only by storage classes that support it, such as AWS gp3. When omitted, the storage class default applies.
 
 
 
