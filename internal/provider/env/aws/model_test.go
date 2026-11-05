@@ -1170,7 +1170,7 @@ func TestAWSEnvModel_toSDK(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			create, update, diags := tt.model.toSDK(context.Background())
+			create, update, diags := tt.model.toSDK(context.Background(), nil)
 			if diags.HasError() {
 				t.Fatalf("unexpected diagnostics: %v", diags)
 			}
@@ -2355,7 +2355,7 @@ func TestEksAccessEntriesToSDK(t *testing.T) {
 				EksAccessEntries: tt.entries,
 			}
 
-			create, update, diags := model.toSDK(context.Background())
+			create, update, diags := model.toSDK(context.Background(), nil)
 			if diags.HasError() {
 				t.Fatalf("unexpected diagnostics: %v", diags)
 			}

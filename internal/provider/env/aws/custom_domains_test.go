@@ -17,9 +17,7 @@ func customDomainList(vals ...string) types.List {
 	return types.ListValueMust(types.StringType, elems)
 }
 
-// toModel is state-aware: the field the user manages (per prior state) is refreshed
-// from the API, the other stays null. This prevents the API customDomains[0] echo
-// from flipping a list-managed env into a permanent diff on the deprecated scalar.
+// Only the field prior state manages is refreshed, so the customDomains[0] echo never flips a list-managed env into a permanent diff.
 func TestAWSEnvModel_toModel_CustomDomains(t *testing.T) {
 	apiSpec := func() *sdk.AWSEnvSpecFragment {
 		return &sdk.AWSEnvSpecFragment{
@@ -76,7 +74,7 @@ func TestAWSEnvModel_toSDK_CustomDomains(t *testing.T) {
 		m.CustomDomain = types.StringNull()
 		m.CustomDomains = customDomainList("a.com", "b.com")
 
-		create, update, diags := m.toSDK(context.Background())
+		create, update, diags := m.toSDK(context.Background(), nil)
 		if diags.HasError() {
 			t.Fatalf("toSDK: %v", diags)
 		}
@@ -99,7 +97,7 @@ func TestAWSEnvModel_toSDK_CustomDomains(t *testing.T) {
 		m.CustomDomain = types.StringValue("a.com")
 		m.CustomDomains = types.ListNull(types.StringType)
 
-		create, update, diags := m.toSDK(context.Background())
+		create, update, diags := m.toSDK(context.Background(), nil)
 		if diags.HasError() {
 			t.Fatalf("toSDK: %v", diags)
 		}

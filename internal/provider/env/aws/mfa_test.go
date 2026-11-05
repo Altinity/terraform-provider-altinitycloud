@@ -21,7 +21,7 @@ func TestAWSEnvModel_toSDK_MFA(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			create, update, diags := AWSEnvModel{MFA: tt.mfa}.toSDK(context.Background())
+			create, update, diags := AWSEnvModel{MFA: tt.mfa}.toSDK(context.Background(), nil)
 			if diags.HasError() {
 				t.Fatalf("unexpected diagnostics: %v", diags)
 			}

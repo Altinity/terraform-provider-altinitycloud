@@ -11,34 +11,36 @@ import (
 )
 
 type AWSEnvModel struct {
-	Id                           types.String                    `tfsdk:"id"`
-	Name                         types.String                    `tfsdk:"name"`
-	CustomDomain                 types.String                    `tfsdk:"custom_domain"`
-	CustomDomains                types.List                      `tfsdk:"custom_domains"`
-	LoadBalancingStrategy        types.String                    `tfsdk:"load_balancing_strategy"`
-	Region                       types.String                    `tfsdk:"region"`
-	PermissionsBoundaryPolicyArn types.String                    `tfsdk:"permissions_boundary_policy_arn"`
-	ResourcePrefix               types.String                    `tfsdk:"resource_prefix"`
-	KmsKeyArn                    types.String                    `tfsdk:"kms_key_arn"`
-	NAT                          types.Bool                      `tfsdk:"nat"`
-	CIDR                         types.String                    `tfsdk:"cidr"`
-	AWSAccountID                 types.String                    `tfsdk:"aws_account_id"`
-	Zones                        types.List                      `tfsdk:"zones"`
-	LoadBalancers                *LoadBalancersModel             `tfsdk:"load_balancers"`
-	NodeGroups                   []common.NodeGroupsModel        `tfsdk:"node_groups"`
-	PeeringConnections           []AWSEnvPeeringConnectionModel  `tfsdk:"peering_connections"`
-	Endpoints                    []AWSEnvEndpointModel           `tfsdk:"endpoints"`
-	Tags                         []common.KeyValueModel          `tfsdk:"tags"`
-	CloudConnect                 types.Bool                      `tfsdk:"cloud_connect"`
-	MaintenanceWindows           []common.MaintenanceWindowModel `tfsdk:"maintenance_windows"`
-	ExternalBuckets              []AWSEnvExternalBucketModel     `tfsdk:"external_buckets"`
-	Backups                      *AWSEnvBackupsModel             `tfsdk:"backups"`
-	Iceberg                      *AWSEnvIcebergModel             `tfsdk:"iceberg"`
-	MetricsEndpoint              *common.MetricsEndpointModel    `tfsdk:"metrics_endpoint"`
-	Datadog                      *common.DatadogModel            `tfsdk:"datadog"`
-	EksLogging                   types.Bool                      `tfsdk:"eks_logging"`
-	MFA                          types.Bool                      `tfsdk:"mfa"`
-	EksAccessEntries             []AWSEnvEKSAccessEntryModel     `tfsdk:"eks_access_entries"`
+	Id                           types.String                             `tfsdk:"id"`
+	Name                         types.String                             `tfsdk:"name"`
+	CustomDomain                 types.String                             `tfsdk:"custom_domain"`
+	CustomDomains                types.List                               `tfsdk:"custom_domains"`
+	LoadBalancingStrategy        types.String                             `tfsdk:"load_balancing_strategy"`
+	Region                       types.String                             `tfsdk:"region"`
+	PermissionsBoundaryPolicyArn types.String                             `tfsdk:"permissions_boundary_policy_arn"`
+	ResourcePrefix               types.String                             `tfsdk:"resource_prefix"`
+	KmsKeyArn                    types.String                             `tfsdk:"kms_key_arn"`
+	NAT                          types.Bool                               `tfsdk:"nat"`
+	CIDR                         types.String                             `tfsdk:"cidr"`
+	AWSAccountID                 types.String                             `tfsdk:"aws_account_id"`
+	Zones                        types.List                               `tfsdk:"zones"`
+	LoadBalancers                *LoadBalancersModel                      `tfsdk:"load_balancers"`
+	NodeGroups                   []common.NodeGroupsModel                 `tfsdk:"node_groups"`
+	PeeringConnections           []AWSEnvPeeringConnectionModel           `tfsdk:"peering_connections"`
+	Endpoints                    []AWSEnvEndpointModel                    `tfsdk:"endpoints"`
+	Tags                         []common.KeyValueModel                   `tfsdk:"tags"`
+	CloudConnect                 types.Bool                               `tfsdk:"cloud_connect"`
+	MaintenanceWindows           []common.MaintenanceWindowModel          `tfsdk:"maintenance_windows"`
+	ExternalBuckets              []AWSEnvExternalBucketModel              `tfsdk:"external_buckets"`
+	Backups                      *AWSEnvBackupsModel                      `tfsdk:"backups"`
+	Iceberg                      *AWSEnvIcebergModel                      `tfsdk:"iceberg"`
+	MetricsEndpoint              *common.MetricsEndpointModel             `tfsdk:"metrics_endpoint"`
+	Datadog                      *common.DatadogModel                     `tfsdk:"datadog"`
+	EksLogging                   types.Bool                               `tfsdk:"eks_logging"`
+	MFA                          types.Bool                               `tfsdk:"mfa"`
+	EksAccessEntries             []AWSEnvEKSAccessEntryModel              `tfsdk:"eks_access_entries"`
+	ClickHouseClusters           map[string]common.ClickHouseClusterModel `tfsdk:"clickhouse_clusters"`
+	ClickHouseKeepers            map[string]common.ClickHouseKeeperModel  `tfsdk:"clickhouse_keepers"`
 
 	SpecRevision                 types.Int64 `tfsdk:"spec_revision"`
 	ForceDestroy                 types.Bool  `tfsdk:"force_destroy"`
@@ -129,12 +131,23 @@ type AWSEnvIcebergCatalogWatchModel struct {
 	PathsRelativeToTableLocation []types.String `tfsdk:"paths_relative_to_table_location"`
 }
 
-func (e AWSEnvModel) toSDK(ctx context.Context) (sdk.CreateAWSEnvInput, sdk.UpdateAWSEnvInput, diag.Diagnostics) {
+// prior is the state an update starts from: ClickHouse entries it had and the plan dropped are named for deletion.
+func (e AWSEnvModel) toSDK(ctx context.Context, prior *AWSEnvModel) (sdk.CreateAWSEnvInput, sdk.UpdateAWSEnvInput, diag.Diagnostics) {
 	var zones []string
 	var allDiags diag.Diagnostics
 	if !e.Zones.IsUnknown() && !e.Zones.IsNull() {
 		diags := e.Zones.ElementsAs(ctx, &zones, false)
 		allDiags.Append(diags...)
+	}
+
+	clickHouseClusters, diags := clickHouseClustersToSDK(ctx, e.ClickHouseClusters)
+	allDiags.Append(diags...)
+	clickHouseKeepers, diags := clickHouseKeepersToSDK(ctx, e.ClickHouseKeepers)
+	allDiags.Append(diags...)
+	var priorClusters map[string]common.ClickHouseClusterModel
+	var priorKeepers map[string]common.ClickHouseKeeperModel
+	if prior != nil {
+		priorClusters, priorKeepers = prior.ClickHouseClusters, prior.ClickHouseKeepers
 	}
 
 	var peeringConnections []*sdk.AWSEnvPeeringConnectionSpecInput
@@ -222,6 +235,8 @@ func (e AWSEnvModel) toSDK(ctx context.Context) (sdk.CreateAWSEnvInput, sdk.Upda
 			EksLogging:                   e.EksLogging.ValueBoolPointer(),
 			Mfa:                          e.MFA.ValueBoolPointer(),
 			EksAccessEntries:             eksAccessEntries,
+			ClickHouseClusters:           clickHouseClusters,
+			ClickHouseKeepers:            clickHouseKeepers,
 		},
 	}
 
@@ -232,24 +247,26 @@ func (e AWSEnvModel) toSDK(ctx context.Context) (sdk.CreateAWSEnvInput, sdk.Upda
 		Name:           e.Name.ValueString(),
 		UpdateStrategy: &strategy,
 		Spec: &sdk.AWSEnvUpdateSpecInput{
-			CustomDomain:          customDomain,
-			CustomDomains:         customDomains,
-			LoadBalancingStrategy: loadBalancingStrategy,
-			LoadBalancers:         LoadBalancers,
-			NodeGroups:            nodeGroups,
-			Zones:                 zones,
-			PeeringConnections:    peeringConnections,
-			Endpoints:             endpoints,
-			Tags:                  tags,
-			MaintenanceWindows:    maintenanceWindows,
-			ExternalBuckets:       externalBuckets,
-			Backups:               backups,
-			Iceberg:               icebergUpdate,
-			MetricsEndpoint:       metricsEndpoint,
-			Datadog:               datadog,
-			EksLogging:            e.EksLogging.ValueBoolPointer(),
-			Mfa:                   e.MFA.ValueBoolPointer(),
-			EksAccessEntries:      eksAccessEntries,
+			CustomDomain:            customDomain,
+			CustomDomains:           customDomains,
+			LoadBalancingStrategy:   loadBalancingStrategy,
+			LoadBalancers:           LoadBalancers,
+			NodeGroups:              nodeGroups,
+			Zones:                   zones,
+			PeeringConnections:      peeringConnections,
+			Endpoints:               endpoints,
+			Tags:                    tags,
+			MaintenanceWindows:      maintenanceWindows,
+			ExternalBuckets:         externalBuckets,
+			Backups:                 backups,
+			Iceberg:                 icebergUpdate,
+			MetricsEndpoint:         metricsEndpoint,
+			Datadog:                 datadog,
+			EksLogging:              e.EksLogging.ValueBoolPointer(),
+			Mfa:                     e.MFA.ValueBoolPointer(),
+			EksAccessEntries:        eksAccessEntries,
+			ClickHouseClustersPatch: clickHouseClustersPatch(clickHouseClusters, common.ClickHouseNamesToDelete(priorClusters, e.ClickHouseClusters)),
+			ClickHouseKeepersPatch:  clickHouseKeepersPatch(clickHouseKeepers, common.ClickHouseNamesToDelete(priorKeepers, e.ClickHouseKeepers)),
 		},
 	}
 
@@ -356,6 +373,10 @@ func (model *AWSEnvModel) toModel(env sdk.GetAWSEnv_AWSEnv) diag.Diagnostics {
 	model.PeeringConnections = peeringConnections
 	model.SpecRevision = types.Int64Value(env.SpecRevision)
 	model.MFA = types.BoolValue(env.Spec.Mfa)
+	clusterSpecs, diags := clickHouseClustersToSpec(env.Spec.ClickHouseClusters)
+	allDiags.Append(diags...)
+	model.ClickHouseClusters = common.ClickHouseClustersToModel(model.ClickHouseClusters, clusterSpecs)
+	model.ClickHouseKeepers = common.ClickHouseKeepersToModel(model.ClickHouseKeepers, clickHouseKeepersToSpec(env.Spec.ClickHouseKeepers))
 	model.CloudConnect = types.BoolValue(env.Spec.CloudConnect)
 	model.EksLogging = types.BoolValue(env.Spec.EksLogging)
 	model.EksAccessEntries = eksAccessEntries
@@ -620,15 +641,12 @@ func ptrString(s *string) string {
 	return ""
 }
 
-// icebergCatalogKey builds a composite identity (name + type). name is optional,
-// so two unnamed catalogs would collide on name alone; including type reduces
-// that, and positional matching in ReorderByKey keeps it loss-safe regardless.
+// name is optional, so unnamed catalogs would collide on it alone; type disambiguates, positional pairing covers the rest.
 func icebergCatalogKey(name, catalogType string) string {
 	return name + "\x1f" + catalogType
 }
 
-// reorderIceberg reorders the API iceberg catalogs (and each catalog's watches)
-// into the user's configured order to avoid drift. Mutates spec in place.
+// Config order for catalogs and their watches, or the API echo drifts; mutates spec in place.
 func reorderIceberg(model *AWSEnvIcebergModel, spec *sdk.AWSEnvSpecFragment_Iceberg) {
 	if model == nil || spec == nil {
 		return

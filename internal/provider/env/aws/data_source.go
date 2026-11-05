@@ -57,6 +57,11 @@ func (d *AWSEnvDataSource) Read(ctx context.Context, req datasource.ReadRequest,
 	}
 	data.CustomDomain, data.CustomDomains, diags = common.DataSourceCustomDomainsToModel(apiResp.AWSEnv.Spec.CustomDomain, apiResp.AWSEnv.Spec.CustomDomains)
 	resp.Diagnostics.Append(diags...)
+	// A data source reports the environment as it is, ownership filter skipped.
+	clusterSpecs, diags := clickHouseClustersToSpec(apiResp.AWSEnv.Spec.ClickHouseClusters)
+	resp.Diagnostics.Append(diags...)
+	data.ClickHouseClusters = common.ClickHouseClustersToDataSourceModel(clusterSpecs)
+	data.ClickHouseKeepers = common.ClickHouseKeepersToDataSourceModel(clickHouseKeepersToSpec(apiResp.AWSEnv.Spec.ClickHouseKeepers))
 	data.Id = data.Name
 
 	diags = resp.State.Set(ctx, &data)

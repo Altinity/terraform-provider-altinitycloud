@@ -161,4 +161,87 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
     metricsEnabled
   }
   mfa
+  clickHouseClusters {
+    name
+    image
+    instanceType
+    zones
+    shards
+    replicas
+    stopped
+    keeper
+    disk {
+      sizeInGiB
+      iops
+      throughputInMiBps
+    }
+    extraDisks {
+      name
+      sizeInGiB
+      iops
+      throughputInMiBps
+    }
+    users {
+      name
+      profile
+      quota
+      networks {
+        ips
+      }
+      accessManagement
+      namedCollectionControl
+      showNamedCollectionsSecrets
+      databases {
+        name
+      }
+      grants
+      password {
+        type
+      }
+    }
+    profiles {
+      name
+      settings {
+        key
+        value
+      }
+    }
+    quotas {
+      name
+      keyedBy
+      ipv4PrefixBits
+      ipv6PrefixBits
+      intervals {
+        duration
+        queries
+        querySelects
+        queryInserts
+        errors
+        resultRows
+        resultBytes
+        readRows
+        readBytes
+        writtenBytes
+        executionTime
+        failedSequentialAuthentications
+        queriesPerNormalizedHash
+      }
+    }
+    serverSettings {
+      key
+      value
+    }
+  }
+  clickHouseKeepers {
+    name
+    instanceType
+    zones
+    replicas
+    stopped
+    disk {
+      sizeInGiB
+      iops
+      throughputInMiBps
+    }
+  }
 }
