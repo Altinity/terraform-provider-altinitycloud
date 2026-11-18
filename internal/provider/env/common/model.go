@@ -41,8 +41,7 @@ type MaintenanceWindowModel struct {
 	Days          []types.String `tfsdk:"days"`
 }
 
-// ReorderByKey returns items in model (config) order, pairing by key; unmatched
-// items go last, duplicate keys pair positionally, nil stays nil (null in state).
+// Config order, paired by key; unmatched items last, duplicate keys pair positionally, nil stays nil.
 func ReorderByKey[M any, S any](model []M, items []S, getModelKey func(M) string, getItemKey func(S) string) []S {
 	if len(items) == 0 {
 		return items
@@ -108,32 +107,35 @@ func ReorderList(ctx context.Context, model types.List, input []string) ([]strin
 		return input, nil
 	}
 
-	orderedZones := make([]string, 0, len(input))
-	usedZones := make(map[string]bool)
-
-	var modelZones []string
-	diags := model.ElementsAs(ctx, &modelZones, false)
+	var modelValues []string
+	diags := model.ElementsAs(ctx, &modelValues, false)
 	if diags.HasError() {
 		return nil, diags
 	}
 
-	// First, add zones that exist in the model in the correct order
-	for _, zone := range modelZones {
-		for _, apiZone := range input {
-			if zone == apiZone {
-				orderedZones = append(orderedZones, apiZone)
-				usedZones[apiZone] = true
+	return reorderStrings(modelValues, input), diags
+}
+
+// Model order first, then unmatched input in API order; set-keyed, so a repeated input value is kept once.
+func reorderStrings(model, input []string) []string {
+	ordered := make([]string, 0, len(input))
+	used := make(map[string]bool, len(input))
+
+	for _, m := range model {
+		for _, v := range input {
+			if m == v {
+				ordered = append(ordered, v)
+				used[v] = true
 				break
 			}
 		}
 	}
 
-	// Then, add any remaining zones from the API that weren't in the model
-	for _, apiZone := range input {
-		if !usedZones[apiZone] {
-			orderedZones = append(orderedZones, apiZone)
+	for _, v := range input {
+		if !used[v] {
+			ordered = append(ordered, v)
 		}
 	}
 
-	return orderedZones, diags
+	return ordered
 }

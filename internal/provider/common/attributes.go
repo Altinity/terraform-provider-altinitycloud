@@ -221,6 +221,12 @@ func GetForceDestroyAttribute(required, optional, computed bool) rschema.BoolAtt
 	}
 }
 
+func GetForceDestroyClickHouseClustersAttribute() rschema.BoolAttribute {
+	attribute := GetForceDestroyClustersAttribute(false, true, true)
+	attribute.MarkdownDescription = FORCE_DESTROY_CLICKHOUSE_CLUSTERS_DESCRIPTION
+	return attribute
+}
+
 func GetForceDestroyClustersAttribute(required, optional, computed bool) rschema.BoolAttribute {
 	return rschema.BoolAttribute{
 		Required:            required,

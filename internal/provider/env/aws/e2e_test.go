@@ -27,6 +27,7 @@ func TestE2EAltinityCloudEnvAWS(t *testing.T) {
 //   - permissions_boundary_policy_arn: requires resource_prefix + a real policy.
 //   - datadog: enabling it requires an encrypted API key (enc_api_key).
 //   - custom_domain: superseded here by custom_domains.
+//   - clickhouse users: creating one needs an enc_value encrypted with the env certificate.
 func awsE2EConfig(envName string, capacity int) string {
 	return fmt.Sprintf(`
 resource "%s" "dummy" {
@@ -127,6 +128,55 @@ resource "%s" "dummy" {
       access_level  = "READ_ONLY"
     },
   ]
+
+  clickhouse_keepers = {
+    keeper = {
+      instance_type = "t4g.large"
+      zones         = ["us-east-1a", "us-east-1b"]
+      replicas      = 3
+      disk = {
+        size_in_gib = 30
+      }
+    }
+  }
+
+  clickhouse_clusters = {
+    analytics = {
+      instance_type = "m6i.large"
+      zones         = ["us-east-1a", "us-east-1b"]
+      shards        = 1
+      replicas      = 2
+      keeper        = "keeper"
+      disk = {
+        size_in_gib = 100
+      }
+      extra_disks = {
+        disk1 = {
+          size_in_gib = 50
+        }
+      }
+      profiles = {
+        analysts = {
+          settings = [{
+            key   = "max_execution_time"
+            value = "30"
+          }]
+        }
+      }
+      quotas = {
+        analysts = {
+          intervals = [{
+            duration = 3600
+            queries  = 1000
+          }]
+        }
+      }
+      server_settings = [{
+        key   = "max_concurrent_queries"
+        value = "200"
+      }]
+    }
+  }
 
   backups = {
     custom_bucket = {
