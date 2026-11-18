@@ -78,7 +78,7 @@ const NODE_GROUP_RESERVATIONS_DESCRIPTION = `Types of workload that are allowed 
 		Possible values:
 		- "SYSTEM" (at least one node group must include a SYSTEM reservation)
 		- "CLICKHOUSE"
-		- "ZOOKEEPER"
+		- "ZOOKEEPER" (hosts the environment coordination service, which can be either ZooKeeper or ClickHouse Keeper; the engine is chosen by Altinity.Cloud, not by this value)
 `
 const NODE_GROUP_SELECTOR_DESCRIPTION = "`nodeSelector` to apply to the pods targeting this group"
 const NODE_GROUP_NAME_DESCRIPTION = "Unique (among environment node groups) node group identifier."

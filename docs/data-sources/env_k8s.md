@@ -224,7 +224,7 @@ Optional:
 		Possible values:
 		- "SYSTEM" (at least one node group must include a SYSTEM reservation)
 		- "CLICKHOUSE"
-		- "ZOOKEEPER"
+		- "ZOOKEEPER" (hosts the environment coordination service, which can be either ZooKeeper or ClickHouse Keeper; the engine is chosen by Altinity.Cloud, not by this value)
 - `selector` (Attributes List) `nodeSelector` to apply to the pods targeting this group (see [below for nested schema](#nestedatt--node_groups--selector))
 - `tolerations` (Attributes List) List of tolerations to apply to the pods targeting this group (see [below for nested schema](#nestedatt--node_groups--tolerations))
 
