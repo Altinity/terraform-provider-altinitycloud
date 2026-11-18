@@ -8796,6 +8796,11 @@ type K8SEnvSpec {
   """
   customNodeTypes: [K8SEnvCustomNodeTypeSpec!]!
   """
+  Storage classes available to clusters and keepers.
+  Empty when they are discovered from the Kubernetes cluster.
+  """
+  storageClasses: [K8SEnvStorageClassSpec!]!
+  """
   Metrics configuration.
   """
   metrics: K8SEnvMetricsSpec!
@@ -9002,6 +9007,16 @@ type K8SEnvCustomNodeTypeSpec {
 }
 
 """
+Kubernetes storage class available to clusters and keepers.
+"""
+type K8SEnvStorageClassSpec {
+  """
+  Storage class name.
+  """
+  name: String!
+}
+
+"""
 Kubernetes environment metrics configuration.
 """
 type K8SEnvMetricsSpec {
@@ -9172,6 +9187,13 @@ input CreateK8SEnvSpecInput {
   Custom node types.
   """
   customNodeTypes: [K8SEnvCustomNodeTypeSpecInput!]
+  """
+  Storage classes available to clusters and keepers.
+  At least one required when provided.
+
+  Omitted: discovered from the Kubernetes cluster. Deprecated, provide them explicitly.
+  """
+  storageClasses: [K8SEnvStorageClassSpecInput!]
   """
   Metrics configuration.
   """
@@ -9365,6 +9387,16 @@ input K8SEnvCustomNodeTypeSpecInput {
 }
 
 """
+Kubernetes storage class input.
+"""
+input K8SEnvStorageClassSpecInput {
+  """
+  Storage class name.
+  """
+  name: String!
+}
+
+"""
 Kubernetes environment metrics configuration input.
 """
 input K8SEnvMetricsSpecInput {
@@ -9531,6 +9563,13 @@ input UpdateK8SEnvSpecInput {
   Custom node types.
   """
   customNodeTypes: [K8SEnvCustomNodeTypeSpecInput!]
+  """
+  Storage classes available to clusters and keepers.
+  At least one required.
+
+  With REPLACE, omitting the field keeps the current list.
+  """
+  storageClasses: [K8SEnvStorageClassSpecInput!]
   """
   Metrics configuration.
   """
