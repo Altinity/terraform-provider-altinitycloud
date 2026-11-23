@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.4](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.8.3...v0.8.4)
+### Added
+- New `storage_classes` attribute on the `altinitycloud_env_k8s` resource and data source: the Kubernetes storage classes available to clusters and keepers. Setting them explicitly is recommended over relying on discovery from the Kubernetes cluster. Removing the attribute keeps the current list [#300](https://github.com/Altinity/terraform-provider-altinitycloud/pull/300).
+- New `eks_access_entries` attribute on the `altinitycloud_env_aws` resource and data source: IAM principals (`principal_arn`) granted `ADMIN`, `READ_WRITE` or `READ_ONLY` access to the environment's EKS API. The list is authoritative [#291](https://github.com/Altinity/terraform-provider-altinitycloud/pull/291).
+
+### Fixed
+- Fix a provider crash when the API returns no environment for an existing resource (`altinitycloud_env_aws`, `_gcp`, `_azure`, `_k8s`, `_hcloud`): `Read` now removes the resource from state and `Delete` treats it as already deleted [#268](https://github.com/Altinity/terraform-provider-altinitycloud/pull/268).
+- Bump google.golang.org/grpc to `1.83.2` to address an HTTP/2 DATA frame fragmentation OOM, an xDS server crash and an xDS RBAC header matching bypass [#297](https://github.com/Altinity/terraform-provider-altinitycloud/pull/297).
+
+### Changed
+- The `ZOOKEEPER` node group reservation is now documented as also covering ClickHouse Keeper [a2276ed](https://github.com/Altinity/terraform-provider-altinitycloud/commit/a2276ed).
+- Bump github.com/hashicorp/terraform-exec to `0.26.0` [#299](https://github.com/Altinity/terraform-provider-altinitycloud/pull/299).
+- Bump github.com/vektah/gqlparser/v2 to `2.5.64` [#298](https://github.com/Altinity/terraform-provider-altinitycloud/pull/298).
+- Sync GraphQL SDK [cec2d08](https://github.com/Altinity/terraform-provider-altinitycloud/commit/cec2d08).
+
 ## [0.8.3](https://github.com/Altinity/terraform-provider-altinitycloud/compare/v0.8.2...v0.8.3)
 ### Added
 - New `mfa` attribute on every environment resource (`altinitycloud_env_aws`, `_gcp`, `_azure`, `_k8s`, `_hcloud`, `_aws_hosted`) and their data sources: `true` requires MFA confirmation for destructive operations on the environment (default `true`). It can be enabled on an existing environment, but cannot be disabled once enabled [#290](https://github.com/Altinity/terraform-provider-altinitycloud/pull/290).
