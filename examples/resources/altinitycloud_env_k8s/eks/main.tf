@@ -19,6 +19,10 @@ locals {
 resource "altinitycloud_env_k8s" "this" {
   name         = altinitycloud_env_certificate.this.env_name
   distribution = "EKS"
+
+  // storage_classes should match existing storage classes in the cluster.
+  storage_classes = [{ name = "gp2" }]
+
   // "node_groups" should match existing node groups/auto-scaling groups configuration.
   node_groups = [
     {

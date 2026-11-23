@@ -2194,3 +2194,107 @@ func TestLoadBalancersToModelReordersAnnotations(t *testing.T) {
 		t.Errorf("internal annotation order = [%s %s], want [y x]", got[0].Key.ValueString(), got[1].Key.ValueString())
 	}
 }
+
+func TestToSDKStorageClasses(t *testing.T) {
+	tests := map[string]struct {
+		model    []StorageClassModel
+		expected []string
+	}{
+		"omitted is not sent": {},
+		"set is sent on create and update": {
+			model:    []StorageClassModel{{Name: types.StringValue("gp3")}, {Name: types.StringValue("standard")}},
+			expected: []string{"gp3", "standard"},
+		},
+	}
+
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			model := K8SEnvModel{
+				Name:           types.StringValue("env"),
+				Distribution:   types.StringValue("EKS"),
+				StorageClasses: tc.model,
+			}
+			create, update, diags := model.toSDK(context.Background())
+			if diags.HasError() {
+				t.Fatalf("unexpected diagnostics: %v", diags)
+			}
+
+			for op, got := range map[string][]*client.K8SEnvStorageClassSpecInput{
+				"create": create.Spec.StorageClasses,
+				"update": update.Spec.StorageClasses,
+			} {
+				if tc.expected == nil {
+					if got != nil {
+						t.Errorf("%s: expected nil, got %+v", op, got)
+					}
+					continue
+				}
+				if len(got) != len(tc.expected) {
+					t.Fatalf("%s: expected %v, got %+v", op, tc.expected, got)
+				}
+				for i, name := range tc.expected {
+					if got[i].Name != name {
+						t.Errorf("%s index %d: expected %s, got %s", op, i, name, got[i].Name)
+					}
+				}
+			}
+		})
+	}
+}
+
+func TestDataSourceStorageClassesToModel(t *testing.T) {
+	if got := dataSourceStorageClassesToModel(nil); got == nil || len(got) != 0 {
+		t.Errorf("discovered: expected empty non-nil list, got %#v", got)
+	}
+
+	got := dataSourceStorageClassesToModel([]*client.K8SEnvSpecFragment_StorageClasses{{Name: "gp3"}})
+	if len(got) != 1 || got[0].Name.ValueString() != "gp3" {
+		t.Errorf("unexpected model: %+v", got)
+	}
+}
+
+func TestToModelStorageClasses(t *testing.T) {
+	tests := map[string]struct {
+		config   []StorageClassModel
+		api      []*client.K8SEnvSpecFragment_StorageClasses
+		expected []string
+	}{
+		"discovered (empty) stays null": {
+			config:   nil,
+			api:      []*client.K8SEnvSpecFragment_StorageClasses{},
+			expected: nil,
+		},
+		"kept by API after removal from config": {
+			config:   nil,
+			api:      []*client.K8SEnvSpecFragment_StorageClasses{{Name: "gp3"}},
+			expected: []string{"gp3"},
+		},
+		"API order follows config": {
+			config:   []StorageClassModel{{Name: types.StringValue("standard")}, {Name: types.StringValue("gp3")}},
+			api:      []*client.K8SEnvSpecFragment_StorageClasses{{Name: "gp3"}, {Name: "standard"}},
+			expected: []string{"standard", "gp3"},
+		},
+	}
+
+	for name, tc := range tests {
+		t.Run(name, func(t *testing.T) {
+			model := K8SEnvModel{StorageClasses: tc.config}
+			model.toModel("env", 1, client.K8SEnvSpecFragment{StorageClasses: tc.api})
+
+			if tc.expected == nil {
+				if model.StorageClasses != nil {
+					t.Fatalf("expected nil, got %+v", model.StorageClasses)
+				}
+				return
+			}
+			if len(model.StorageClasses) != len(tc.expected) {
+				t.Fatalf("expected %v, got %+v", tc.expected, model.StorageClasses)
+			}
+			for i, name := range tc.expected {
+				if got := model.StorageClasses[i].Name.ValueString(); got != name {
+					t.Errorf("index %d: expected %s, got %s", i, name, got)
+				}
+			}
+		})
+	}
+}
