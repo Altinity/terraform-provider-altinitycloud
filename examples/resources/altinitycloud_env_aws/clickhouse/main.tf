@@ -101,11 +101,8 @@ resource "altinitycloud_env_aws" "this" {
       ]
       users = {
         app = {
-          profile = "default"
-          quota   = "default"
-          networks = {
-            ips = ["10.0.0.0/8"]
-          }
+          profile   = "default"
+          quota     = "default"
           databases = ["analytics"]
           password = {
             type      = "SHA256_HEX"

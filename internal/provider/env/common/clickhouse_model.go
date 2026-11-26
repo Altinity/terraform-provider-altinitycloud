@@ -53,17 +53,12 @@ type ClickHouseProfileModel struct {
 type ClickHouseUserModel struct {
 	Profile                     types.String                 `tfsdk:"profile"`
 	Quota                       types.String                 `tfsdk:"quota"`
-	Networks                    *ClickHouseUserNetworksModel `tfsdk:"networks"`
 	AccessManagement            types.Bool                   `tfsdk:"access_management"`
 	NamedCollectionControl      types.Bool                   `tfsdk:"named_collection_control"`
 	ShowNamedCollectionsSecrets types.Bool                   `tfsdk:"show_named_collections_secrets"`
 	Databases                   types.List                   `tfsdk:"databases"`
 	Grants                      types.List                   `tfsdk:"grants"`
 	Password                    *ClickHouseUserPasswordModel `tfsdk:"password"`
-}
-
-type ClickHouseUserNetworksModel struct {
-	Ips types.List `tfsdk:"ips"`
 }
 
 // `enc_value` is write-only, like datadog's enc_api_key: the API never returns it.
@@ -149,7 +144,6 @@ type ClickHouseUserSpec struct {
 	Name                        string
 	Profile                     string
 	Quota                       string
-	Ips                         []string
 	AccessManagement            bool
 	NamedCollectionControl      bool
 	ShowNamedCollectionsSecrets bool

@@ -1261,17 +1261,6 @@ func (t *AWSEnvSpecFragment_ClickHouseClusters_ExtraDisks) GetThroughputInMiBps(
 	return t.ThroughputInMiBps
 }
 
-type AWSEnvSpecFragment_ClickHouseClusters_Users_Networks struct {
-	Ips []string "json:\"ips\" graphql:\"ips\""
-}
-
-func (t *AWSEnvSpecFragment_ClickHouseClusters_Users_Networks) GetIps() []string {
-	if t == nil {
-		t = &AWSEnvSpecFragment_ClickHouseClusters_Users_Networks{}
-	}
-	return t.Ips
-}
-
 type AWSEnvSpecFragment_ClickHouseClusters_Users_Databases struct {
 	Name string "json:\"name\" graphql:\"name\""
 }
@@ -1300,7 +1289,6 @@ type AWSEnvSpecFragment_ClickHouseClusters_Users struct {
 	Grants                      []string                                                 "json:\"grants\" graphql:\"grants\""
 	Name                        string                                                   "json:\"name\" graphql:\"name\""
 	NamedCollectionControl      bool                                                     "json:\"namedCollectionControl\" graphql:\"namedCollectionControl\""
-	Networks                    AWSEnvSpecFragment_ClickHouseClusters_Users_Networks     "json:\"networks\" graphql:\"networks\""
 	Password                    AWSEnvSpecFragment_ClickHouseClusters_Users_Password     "json:\"password\" graphql:\"password\""
 	Profile                     string                                                   "json:\"profile\" graphql:\"profile\""
 	Quota                       string                                                   "json:\"quota\" graphql:\"quota\""
@@ -1336,12 +1324,6 @@ func (t *AWSEnvSpecFragment_ClickHouseClusters_Users) GetNamedCollectionControl(
 		t = &AWSEnvSpecFragment_ClickHouseClusters_Users{}
 	}
 	return t.NamedCollectionControl
-}
-func (t *AWSEnvSpecFragment_ClickHouseClusters_Users) GetNetworks() *AWSEnvSpecFragment_ClickHouseClusters_Users_Networks {
-	if t == nil {
-		t = &AWSEnvSpecFragment_ClickHouseClusters_Users{}
-	}
-	return &t.Networks
 }
 func (t *AWSEnvSpecFragment_ClickHouseClusters_Users) GetPassword() *AWSEnvSpecFragment_ClickHouseClusters_Users_Password {
 	if t == nil {
@@ -3584,17 +3566,6 @@ func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_ExtraDisks)
 	return t.ThroughputInMiBps
 }
 
-type GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Networks struct {
-	Ips []string "json:\"ips\" graphql:\"ips\""
-}
-
-func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Networks) GetIps() []string {
-	if t == nil {
-		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Networks{}
-	}
-	return t.Ips
-}
-
 type GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Databases struct {
 	Name string "json:\"name\" graphql:\"name\""
 }
@@ -3623,7 +3594,6 @@ type GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users struct {
 	Grants                      []string                                                                       "json:\"grants\" graphql:\"grants\""
 	Name                        string                                                                         "json:\"name\" graphql:\"name\""
 	NamedCollectionControl      bool                                                                           "json:\"namedCollectionControl\" graphql:\"namedCollectionControl\""
-	Networks                    GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Networks     "json:\"networks\" graphql:\"networks\""
 	Password                    GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Password     "json:\"password\" graphql:\"password\""
 	Profile                     string                                                                         "json:\"profile\" graphql:\"profile\""
 	Quota                       string                                                                         "json:\"quota\" graphql:\"quota\""
@@ -3659,12 +3629,6 @@ func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users) GetN
 		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users{}
 	}
 	return t.NamedCollectionControl
-}
-func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users) GetNetworks() *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Networks {
-	if t == nil {
-		t = &GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users{}
-	}
-	return &t.Networks
 }
 func (t *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users) GetPassword() *GetAWSEnv_AWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Password {
 	if t == nil {
@@ -4724,17 +4688,6 @@ func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Ex
 	return t.ThroughputInMiBps
 }
 
-type CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Networks struct {
-	Ips []string "json:\"ips\" graphql:\"ips\""
-}
-
-func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Networks) GetIps() []string {
-	if t == nil {
-		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Networks{}
-	}
-	return t.Ips
-}
-
 type CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Databases struct {
 	Name string "json:\"name\" graphql:\"name\""
 }
@@ -4763,7 +4716,6 @@ type CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users 
 	Grants                      []string                                                                                "json:\"grants\" graphql:\"grants\""
 	Name                        string                                                                                  "json:\"name\" graphql:\"name\""
 	NamedCollectionControl      bool                                                                                    "json:\"namedCollectionControl\" graphql:\"namedCollectionControl\""
-	Networks                    CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Networks     "json:\"networks\" graphql:\"networks\""
 	Password                    CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Password     "json:\"password\" graphql:\"password\""
 	Profile                     string                                                                                  "json:\"profile\" graphql:\"profile\""
 	Quota                       string                                                                                  "json:\"quota\" graphql:\"quota\""
@@ -4799,12 +4751,6 @@ func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Us
 		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users{}
 	}
 	return t.NamedCollectionControl
-}
-func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users) GetNetworks() *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Networks {
-	if t == nil {
-		t = &CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users{}
-	}
-	return &t.Networks
 }
 func (t *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users) GetPassword() *CreateAWSEnv_CreateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Password {
 	if t == nil {
@@ -5710,17 +5656,6 @@ func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Ex
 	return t.ThroughputInMiBps
 }
 
-type UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Networks struct {
-	Ips []string "json:\"ips\" graphql:\"ips\""
-}
-
-func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Networks) GetIps() []string {
-	if t == nil {
-		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Networks{}
-	}
-	return t.Ips
-}
-
 type UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Databases struct {
 	Name string "json:\"name\" graphql:\"name\""
 }
@@ -5749,7 +5684,6 @@ type UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users 
 	Grants                      []string                                                                                "json:\"grants\" graphql:\"grants\""
 	Name                        string                                                                                  "json:\"name\" graphql:\"name\""
 	NamedCollectionControl      bool                                                                                    "json:\"namedCollectionControl\" graphql:\"namedCollectionControl\""
-	Networks                    UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Networks     "json:\"networks\" graphql:\"networks\""
 	Password                    UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Password     "json:\"password\" graphql:\"password\""
 	Profile                     string                                                                                  "json:\"profile\" graphql:\"profile\""
 	Quota                       string                                                                                  "json:\"quota\" graphql:\"quota\""
@@ -5785,12 +5719,6 @@ func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Us
 		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users{}
 	}
 	return t.NamedCollectionControl
-}
-func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users) GetNetworks() *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Networks {
-	if t == nil {
-		t = &UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users{}
-	}
-	return &t.Networks
 }
 func (t *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users) GetPassword() *UpdateAWSEnv_UpdateAWSEnv_Spec_AWSEnvSpecFragment_ClickHouseClusters_Users_Password {
 	if t == nil {
@@ -11630,9 +11558,6 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 			name
 			profile
 			quota
-			networks {
-				ips
-			}
 			accessManagement
 			namedCollectionControl
 			showNamedCollectionsSecrets
@@ -11886,9 +11811,6 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 			name
 			profile
 			quota
-			networks {
-				ips
-			}
 			accessManagement
 			namedCollectionControl
 			showNamedCollectionsSecrets
@@ -12095,9 +12017,6 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
 			name
 			profile
 			quota
-			networks {
-				ips
-			}
 			accessManagement
 			namedCollectionControl
 			showNamedCollectionsSecrets

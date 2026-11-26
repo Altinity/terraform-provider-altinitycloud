@@ -315,21 +315,6 @@ func getClickHouseUsersAttribute() rschema.MapNestedAttribute {
 						stringvalidator.LengthAtLeast(1),
 					},
 				},
-				"networks": rschema.SingleNestedAttribute{
-					Optional:            true,
-					MarkdownDescription: CLICKHOUSE_USER_NETWORKS_DESCRIPTION,
-					Attributes: map[string]rschema.Attribute{
-						"ips": rschema.ListAttribute{
-							ElementType:         types.StringType,
-							Optional:            true,
-							MarkdownDescription: CLICKHOUSE_USER_NETWORKS_IPS_DESCRIPTION,
-							Validators: []validator.List{
-								listvalidator.SizeAtLeast(1),
-								listvalidator.UniqueValues(),
-							},
-						},
-					},
-				},
 				"access_management": rschema.BoolAttribute{
 					Optional:            true,
 					Computed:            true,

@@ -185,9 +185,6 @@ fragment AWSEnvSpecFragment on AWSEnvSpec {
       name
       profile
       quota
-      networks {
-        ips
-      }
       accessManagement
       namedCollectionControl
       showNamedCollectionsSecrets

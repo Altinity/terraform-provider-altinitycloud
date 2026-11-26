@@ -282,19 +282,9 @@ func userToModel(prior ClickHouseUserModel, spec ClickHouseUserSpec) ClickHouseU
 		encValue = prior.Password.EncValue
 	}
 
-	var networks *ClickHouseUserNetworksModel
-	if prior.Networks != nil || len(spec.Ips) > 0 {
-		priorIps := types.ListNull(types.StringType)
-		if prior.Networks != nil {
-			priorIps = prior.Networks.Ips
-		}
-		networks = &ClickHouseUserNetworksModel{Ips: reorderStringList(priorIps, spec.Ips)}
-	}
-
 	return ClickHouseUserModel{
 		Profile:                     stringOrNull(spec.Profile),
 		Quota:                       stringOrNull(spec.Quota),
-		Networks:                    networks,
 		AccessManagement:            types.BoolValue(spec.AccessManagement),
 		NamedCollectionControl:      types.BoolValue(spec.NamedCollectionControl),
 		ShowNamedCollectionsSecrets: types.BoolValue(spec.ShowNamedCollectionsSecrets),

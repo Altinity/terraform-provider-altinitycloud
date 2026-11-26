@@ -47,7 +47,6 @@ func clickHouseClustersToSpec(clusters []*sdk.AWSEnvSpecFragment_ClickHouseClust
 				Name:                        u.Name,
 				Profile:                     u.Profile,
 				Quota:                       u.Quota,
-				Ips:                         u.Networks.Ips,
 				AccessManagement:            u.AccessManagement,
 				NamedCollectionControl:      u.NamedCollectionControl,
 				ShowNamedCollectionsSecrets: u.ShowNamedCollectionsSecrets,
@@ -303,13 +302,6 @@ func clickHouseUsersToSDK(ctx context.Context, users map[string]common.ClickHous
 		databaseNames, diags := common.StringListToSDK(ctx, u.Databases)
 		allDiags.Append(diags...)
 
-		var networks *sdk.AWSEnvClickHouseUserNetworksSpecInput
-		if u.Networks != nil {
-			ips, diags := common.StringListToSDK(ctx, u.Networks.Ips)
-			allDiags.Append(diags...)
-			networks = &sdk.AWSEnvClickHouseUserNetworksSpecInput{Ips: ips}
-		}
-
 		var databases []*sdk.AWSEnvClickHouseUserDatabaseSpecInput
 		for _, name := range databaseNames {
 			databases = append(databases, &sdk.AWSEnvClickHouseUserDatabaseSpecInput{Name: name})
@@ -327,7 +319,6 @@ func clickHouseUsersToSDK(ctx context.Context, users map[string]common.ClickHous
 			Name:                        name,
 			Profile:                     common.KnownStringPointer(u.Profile),
 			Quota:                       common.KnownStringPointer(u.Quota),
-			Networks:                    networks,
 			AccessManagement:            common.KnownBoolPointer(u.AccessManagement),
 			NamedCollectionControl:      common.KnownBoolPointer(u.NamedCollectionControl),
 			ShowNamedCollectionsSecrets: common.KnownBoolPointer(u.ShowNamedCollectionsSecrets),

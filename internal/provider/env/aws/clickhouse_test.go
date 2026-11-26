@@ -126,7 +126,6 @@ func TestClickHouseClustersToSDK(t *testing.T) {
 		}}
 		model.Users = map[string]common.ClickHouseUserModel{"app": {
 			Profile:   types.StringValue("readonly"),
-			Networks:  &common.ClickHouseUserNetworksModel{Ips: chList(t, "10.0.0.0/8")},
 			Databases: chList(t, "analytics"),
 			Grants:    chList(t, "SELECT ON analytics.*"),
 			Password: &common.ClickHouseUserPasswordModel{
@@ -172,7 +171,7 @@ func TestClickHouseClustersToSDK(t *testing.T) {
 		if u.Password.Type != sdk.AWSEnvClickHouseUserPasswordTypeSha256Hex || *u.Password.EncValue != "deadbeef" {
 			t.Errorf("unexpected password: %#v", u.Password)
 		}
-		if len(u.Networks.Ips) != 1 || len(u.Databases) != 1 || u.Databases[0].Name != "analytics" {
+		if len(u.Databases) != 1 || u.Databases[0].Name != "analytics" {
 			t.Errorf("unexpected user scoping: %#v", u)
 		}
 		if len(u.Grants) != 1 {
@@ -239,8 +238,7 @@ func TestClickHouseClustersToSpec(t *testing.T) {
 				SizeInGiB: 100, Iops: 3000, ThroughputInMiBps: 125,
 			},
 			Users: []*sdk.AWSEnvSpecFragment_ClickHouseClusters_Users{{
-				Name:     "app",
-				Networks: sdk.AWSEnvSpecFragment_ClickHouseClusters_Users_Networks{Ips: []string{"10.0.0.0/8"}},
+				Name: "app",
 				Password: sdk.AWSEnvSpecFragment_ClickHouseClusters_Users_Password{
 					Type: sdk.AWSEnvClickHouseUserPasswordTypeSha256Hex,
 				},
@@ -266,9 +264,6 @@ func TestClickHouseClustersToSpec(t *testing.T) {
 	}
 	if len(s.Users[0].Databases) != 1 || s.Users[0].Databases[0] != "analytics" {
 		t.Errorf("unexpected databases: %v", s.Users[0].Databases)
-	}
-	if len(s.Users[0].Ips) != 1 {
-		t.Errorf("unexpected ips: %v", s.Users[0].Ips)
 	}
 }
 

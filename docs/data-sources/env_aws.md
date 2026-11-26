@@ -258,7 +258,6 @@ Optional:
 - `databases` (List of String) Databases the user is granted access to. All databases when omitted.
 - `grants` (List of String) Grants applied to the user. Cannot be combined with `databases`, `access_management`, `named_collection_control` or `show_named_collections_secrets`.
 - `named_collection_control` (Boolean) Whether the user can create and drop named collections.
-- `networks` (Attributes) Where the user may connect from. (see [below for nested schema](#nestedatt--clickhouse_clusters--users--networks))
 - `profile` (String) Settings profile assigned to this user. Must be one of the cluster's `profiles` or a profile ClickHouse ships with.
 - `quota` (String) Quota assigned to this user. Must be one of the cluster's `quotas`.
 - `show_named_collections_secrets` (Boolean) Whether the user can read secrets stored in named collections.
@@ -277,14 +276,6 @@ Required:
 Optional:
 
 - `enc_value` (String, Sensitive) Encrypted password digest, in the form declared by `type`. Required when the user is created; omit it afterwards to keep the current password. Write-only: the API never returns it, so the value is kept from the configuration and never refreshed.
-
-
-<a id="nestedatt--clickhouse_clusters--users--networks"></a>
-### Nested Schema for `clickhouse_clusters.users.networks`
-
-Optional:
-
-- `ips` (List of String) IP addresses or CIDRs the user may connect from. When omitted or empty, only `127.0.0.1` and `::1` are allowed.
 
 
 

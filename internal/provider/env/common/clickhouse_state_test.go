@@ -123,31 +123,26 @@ func TestClickHouseUsersToModel(t *testing.T) {
 		}
 	})
 
-	t.Run("an omitted networks block stays nil", func(t *testing.T) {
+	t.Run("omitted lists stay null", func(t *testing.T) {
 		prior := map[string]ClickHouseUserModel{"app": {}}
 		got := usersToModel(prior, []ClickHouseUserSpec{{Name: "app", PasswordType: "SHA256_HEX"}})["app"]
 
-		if got.Networks != nil {
-			t.Errorf("networks = %#v, want nil", got.Networks)
-		}
 		if !got.Databases.IsNull() || !got.Grants.IsNull() {
 			t.Errorf("omitted lists must stay null, got %#v / %#v", got.Databases, got.Grants)
 		}
 	})
 
-	t.Run("ips follow config order", func(t *testing.T) {
-		prior := map[string]ClickHouseUserModel{"app": {
-			Networks: &ClickHouseUserNetworksModel{Ips: testList(t, "10.0.0.0/8", "192.168.0.0/16")},
-		}}
+	t.Run("databases follow config order", func(t *testing.T) {
+		prior := map[string]ClickHouseUserModel{"app": {Databases: testList(t, "a", "b")}}
 		got := usersToModel(prior, []ClickHouseUserSpec{{
 			Name:         "app",
-			Ips:          []string{"192.168.0.0/16", "10.0.0.0/8"},
+			Databases:    []string{"b", "a"},
 			PasswordType: "SHA256_HEX",
 		}})
 
-		ips := listStrings(t, got["app"].Networks.Ips)
-		if len(ips) != 2 || ips[0] != "10.0.0.0/8" {
-			t.Errorf("expected config order, got %v", ips)
+		dbs := listStrings(t, got["app"].Databases)
+		if len(dbs) != 2 || dbs[0] != "a" {
+			t.Errorf("expected config order, got %v", dbs)
 		}
 	})
 }
@@ -296,22 +291,13 @@ func TestClickHouseEmptyAPIEchoesMirrorThePlan(t *testing.T) {
 	}
 
 	priorUser := map[string]ClickHouseUserModel{"app": {}}
-	u := usersToModel(priorUser, []ClickHouseUserSpec{{Name: "app", Ips: []string{}, PasswordType: "SHA256_HEX"}})["app"]
-	if u.Networks != nil {
-		t.Errorf("an empty ips echo must not invent a networks block, got %#v", u.Networks)
-	}
+	u := usersToModel(priorUser, []ClickHouseUserSpec{{Name: "app", Grants: []string{}, PasswordType: "SHA256_HEX"}})["app"]
 	if !u.Grants.IsNull() {
 		t.Errorf("grants was null in the plan, so [] must come back null, got %#v", u.Grants)
 	}
 
-	withEmpty := map[string]ClickHouseUserModel{"app": {
-		Networks: &ClickHouseUserNetworksModel{Ips: types.ListNull(types.StringType)},
-		Grants:   testList(t),
-	}}
-	u = usersToModel(withEmpty, []ClickHouseUserSpec{{Name: "app", Ips: []string{}, PasswordType: "SHA256_HEX"}})["app"]
-	if u.Networks == nil || !u.Networks.Ips.IsNull() {
-		t.Errorf("ips was null in the plan, so [] must come back null, got %#v", u.Networks)
-	}
+	withEmpty := map[string]ClickHouseUserModel{"app": {Grants: testList(t)}}
+	u = usersToModel(withEmpty, []ClickHouseUserSpec{{Name: "app", Grants: []string{}, PasswordType: "SHA256_HEX"}})["app"]
 	if u.Grants.IsNull() || len(u.Grants.Elements()) != 0 {
 		t.Errorf("grants was [] in the plan, so [] must come back empty, got %#v", u.Grants)
 	}
